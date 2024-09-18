@@ -1,0 +1,90 @@
+/* General body styling */
+.new-item-body {
+    background-color: #7a47bd; /* Background color for the entire form */
+    font-family: Arial, sans-serif;
+    color: white;
+}
+
+/* Heading */
+.new-item-header {
+    text-align: center;
+    color: yellow; /* Title color */
+}
+
+/* Form styling */
+.new-item-form {
+    display: grid;
+    grid-template-columns: 1fr; /* Single column for the entire form */
+    grid-gap: 10px;
+    padding: 20px;
+    background-color: #550000; /* Dark red form background */
+    border: 2px solid yellow;
+    border-radius: 8px;
+    max-width: 800px;
+    margin: auto;
+}
+
+/* Flexbox for each row containing fields */
+.row {
+    display: flex;
+
+    justify-content: space-between; /* Ensure space between fields */
+    gap: 10px; /* Add space between inputs */
+}
+
+.row .field {
+    flex: 1; /* Each field takes equal space */
+}
+
+/* Styling for form fields and labels */
+.new-item-form div {
+    background-color: black;
+    padding: 6px;
+    border-radius: 4px;
+    color: yellow;
+}
+
+.new-item-form label {
+    margin-bottom: 5px;
+    font-weight: bold;
+    color: lightgray;
+}
+
+/* Input styles */
+.new-item-form input[type="text"],
+.new-item-form input[type="number"],
+.new-item-form input[type="date"] ,select {
+    padding: 5px;
+    border: 2px solid yellow;
+    background-color: #333;
+    color: white;
+    display: block;
+}
+
+/* Submit and Add Row button styles */
+.new-item-form button[type="submit"],
+.add-row {
+    grid-column: span 1; /* Make buttons take one full row */
+    padding: 10px;
+    border: none;
+    font-weight: bold;
+    cursor: pointer;
+    margin-top: 20px;
+}
+
+.add-row {
+    background-color: rgb(43, 255, 0);
+    color: black;
+}
+
+.new-item-form button[type="submit"] {
+    background-color: yellow;
+    color: black;
+}
+
+.new-item-form button[type="submit"]:hover,
+.add-row:hover {
+    background-color: white;
+}
+
+
