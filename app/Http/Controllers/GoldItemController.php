@@ -52,29 +52,29 @@ class GoldItemController extends Controller
         'net_weight' => 'numeric',
     ]);
 
-    // // Create a new GoldItem record
-    // GoldItem::create([
-    //     'link' => $validated['link'],
-    //     'serial_number' => $validated['serial_number'],
-    //     'shop_name' => $validated['shop_name'],
-    //     'shop_id' => $validated['shop_id'],
-    //     'kind' => $validated['kind'],
-    //     'model' => $validated['model'],
-    //     'talab' => $validated['talab'],
-    //     'gold_color' => $validated['gold_color'],
-    //     'stones' => $validated['stones'] ?? null,
-    //     'metal_type' => $validated['metal_type'],
-    //     'metal_purity' => $validated['metal_purity'],
-    //     'quantity' => $validated['quantity'],
-    //     'weight' => $validated['weight'],
-    //     'rest_since' => $validated['rest_since'],
-    //     'source' => $validated['source'],
-    //     'to_print' => $validated['to_print'] ?? false,  // Checkbox defaults to false if not selected
-    //     'price' => $validated['price'],
-    //     'semi_or_no' => $validated['semi_or_no'],
-    //     'average_of_stones' => $validated['average_of_stones'] ?? 0,
-    //     'net_weight' => $validated['net_weight'],
-    // ]);
+    // Create a new GoldItem record
+    GoldItem::create([
+        'link' => $validated['link'],
+        'serial_number' => $validated['serial_number'],
+        'shop_name' => $validated['shop_name'],
+        'shop_id' => $validated['shop_id'],
+        'kind' => $validated['kind'],
+        'model' => $validated['model'],
+        'talab' => $validated['talab'],
+        'gold_color' => $validated['gold_color'],
+        'stones' => $validated['stones'] ?? null,
+        'metal_type' => $validated['metal_type'],
+        'metal_purity' => $validated['metal_purity'],
+        'quantity' => $validated['quantity'],
+        'weight' => $validated['weight'],
+        'rest_since' => $validated['rest_since'],
+        'source' => $validated['source'],
+        'to_print' => $validated['to_print'] ?? false,  // Checkbox defaults to false if not selected
+        'price' => $validated['price'],
+        'semi_or_no' => $validated['semi_or_no'],
+        'average_of_stones' => $validated['average_of_stones'] ?? 0,
+        'net_weight' => $validated['net_weight'],
+    ]);
 
     return redirect()->route('gold-items.create')->with('success', 'Gold item added successfully.');
 }
