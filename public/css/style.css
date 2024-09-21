@@ -145,7 +145,7 @@ td {
     display: none;
 }
 
-form {
+.custom-form {
     display: block;
     margin: 20px auto;
     padding: 20px;
@@ -155,17 +155,17 @@ form {
     box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
 }
 
-form label {
+.custom-form label {
     display: block;
     margin-bottom: 5px;
     font-weight: bold;
     color: #333;
 }
 
-form input[type="text"],
-form input[type="number"],
-form input[type="date"],
-form input[type="checkbox"] {
+.custom-form input[type="text"],
+.custom-form input[type="number"],
+.custom-form input[type="date"],
+.custom-form input[type="checkbox"] {
     width: 100%;
     padding: 8px;
     margin-bottom: 10px;
@@ -174,7 +174,7 @@ form input[type="checkbox"] {
     box-sizing: border-box;
 }
 
-form button[type="submit"] {
+.custom-form button[type="submit"] {
     background-color: #4CAF50;
     color: white;
     padding: 10px 20px;
@@ -184,6 +184,6 @@ form button[type="submit"] {
     font-size: 16px;
 }
 
-form button[type="submit"]:hover {
+.custom-form button[type="submit"]:hover {
     background-color: #45a049;
 }

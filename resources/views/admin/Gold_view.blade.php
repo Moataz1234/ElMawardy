@@ -1,4 +1,4 @@
-<form action="{{ route('gold-items.store') }}" method="POST">
+<form class="custom-form" action="{{ route('gold-items.store') }}" method="POST">
     @csrf
 
     <label for="link">Link:</label>
