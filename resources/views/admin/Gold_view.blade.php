@@ -1,4 +1,8 @@
-<form class="custom-form" action="{{ route('gold-items.store') }}" method="POST">
+<head>
+    <link href="{{ url('css/style.css') }}" rel="stylesheet">
+
+</head>
+<form class="custom-form" action="{{ route('gold-items.create') }}" method="POST">
     @csrf
 
     <label for="link">Link:</label>
