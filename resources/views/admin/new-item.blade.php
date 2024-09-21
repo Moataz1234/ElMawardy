@@ -75,68 +75,10 @@
         </div>
 
         <!-- Repeat for all other fields -->
-        <!-- CALICO[2], NUMBER[2], WEIGHT[2] -->
-        <div class="row" data-index="2">
-
-        <div>
-            <label for="calico2">Calico [2]:</label>
-            <input type="text" name="calico2" id="calico2" value="{{ old('calico2') }}">
-            @error('calico2') <span>{{ $message }}</span> @enderror
-        </div>
-
-        <div>
-            <label for="number2">Number [2]:</label>
-            <input type="number" name="number2" id="number2" value="{{ old('number2') }}">
-            @error('number2') <span>{{ $message }}</span> @enderror
-        </div>
-
-        <div>
-            <label for="weight2">Weight [2]:</label>
-            <input type="number" step="0.01" name="weight2" id="weight2" value="{{ old('weight2') }}">
-            @error('weight2') <span>{{ $message }}</span> @enderror
-        </div>
-        </div>
-
-        <div class="row" data-index="3">
-        <div>
-            <label for="calico3">Calico [3]:</label>
-            <input type="text" name="calico3" id="calico3" value="{{ old('calico3') }}">
-            @error('calico3') <span>{{ $message }}</span> @enderror
-        </div>
-
-        <div>
-            <label for="number3">Number [3]:</label>
-            <input type="number" name="number3" id="number3" value="{{ old('number3') }}">
-            @error('number3') <span>{{ $message }}</span> @enderror
-        </div>
-
-        <div>
-            <label for="weight3">Weight [3]:</label>
-            <input type="number" step="0.01" name="weight3" id="weight3" value="{{ old('weight3') }}">
-            @error('weight3') <span>{{ $message }}</span> @enderror
-        </div>
-        </div>
-        <div id="form-rows">
-            <div class="row" data-index="4">
-        <div class="field">
-            <label for="calico4">Calico [4]:</label>
-            <input type="text" name="calico4" id="calico4" value="{{ old('calico4') }}">
-            @error('calico4') <span>{{ $message }}</span> @enderror
-        </div>
-
-        <div class="field">
-            <label for="number4">Number [4]:</label>
-            <input type="number" name="number4" id="number4" value="{{ old('number4') }}">
-            @error('number4') <span>{{ $message }}</span> @enderror
-        </div>
-
-        <div class="field">
-            <label for="weight4">Weight [4]:</label>
-            <input type="number" step="0.01" name="weight4" id="weight4" value="{{ old('weight4') }}">
-            @error('weight4') <span>{{ $message }}</span> @enderror
-        </div>
-            </div>
-        </div>
+        @for ($i = 2; $i <= 4; $i++)
+            <x-form-row :index="$i" />
+        @endfor
+        <div id="form-rows"></div>
         <button type="button" class="add-row">+ Add Row</button>
 
         <!-- STA, MODEL, WORKSHOP, TARKEEB -->
@@ -191,24 +133,10 @@
             // Calculate the new row index, starting from 4
             const newIndex = rowCount + 4;
 
-            // Create the new row HTML
+            // Create the new row using the Blade component
             const newRow = `
-            <div class="row" data-index="${newIndex}">
-                <div>
-                    <label for="calico${newIndex}">Calico [${newIndex}]:</label>
-                    <input type="text" name="calico${newIndex}" id="calico${newIndex}">
-                </div>
-
-                <div>
-                    <label for="number${newIndex}">Number [${newIndex}]:</label>
-                    <input type="number" name="number${newIndex}" id="number${newIndex}">
-                </div>
-
-                <div>
-                    <label for="weight${newIndex}">Weight [${newIndex}]:</label>
-                    <input type="number" step="0.01" name="weight${newIndex}" id="weight${newIndex}">
-                </div>
-            </div>`;
+                <x-form-row :index="${newIndex}" />
+            `;
 
             // Append the new row to the rows container
             rowsContainer.insertAdjacentHTML('beforeend', newRow);
