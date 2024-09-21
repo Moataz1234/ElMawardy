@@ -12,7 +12,8 @@ class GoldItemController extends Controller
      */
     public function index()
     {
-        
+        $goldItems = GoldItem::all();
+        return view('admin.Gold_list', compact('goldItems'));
     }
 
     /**
@@ -75,7 +76,7 @@ class GoldItemController extends Controller
         'net_weight' => $validated['net_weight'],
     ]);
 
-    return redirect()->route('gold-items.index')->with('success', 'Gold item added successfully.');
+    return redirect()->route('gold-items.store')->with('success', 'Gold item added successfully.');
 }
 
     /**
