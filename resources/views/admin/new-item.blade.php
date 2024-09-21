@@ -135,7 +135,22 @@
 
             // Create the new row using the Blade component
             const newRow = `
-                <x-form-row :index="${newIndex}" />
+                <div class="row" data-index="${newIndex}">
+                    <div>
+                        <label for="calico${newIndex}">Calico [${newIndex}]:</label>
+                        <input type="text" name="calico${newIndex}" id="calico${newIndex}">
+                    </div>
+
+                    <div>
+                        <label for="number${newIndex}">Number [${newIndex}]:</label>
+                        <input type="number" name="number${newIndex}" id="number${newIndex}">
+                    </div>
+
+                    <div>
+                        <label for="weight${newIndex}">Weight [${newIndex}]:</label>
+                        <input type="number" step="0.01" name="weight${newIndex}" id="weight${newIndex}">
+                    </div>
+                </div>
             `;
 
             // Append the new row to the rows container
