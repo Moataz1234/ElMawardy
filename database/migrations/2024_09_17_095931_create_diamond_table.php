@@ -11,6 +11,7 @@ return new class extends Migration
      */
     public function up(): void
     {
+        
         Schema::create('diamond', function (Blueprint $table) {
             $table->id();
             $table->string('code')->nullable();  // ID CODE

@@ -131,7 +131,7 @@
             // Get the current number of rows
             const rowCount = rowsContainer.children.length;
             // Calculate the new row index, starting from 4
-            const newIndex = rowCount + 4;
+            const newIndex = rowCount + 5;
 
             // Create the new row using the Blade component
             const newRow = `

@@ -4,6 +4,8 @@ use App\Http\Controllers\HomeController;
 use App\Http\Controllers\ProfileController;
 use Illuminate\Support\Facades\Route;
 use App\Http\Controllers\NewItemController;
+use App\Http\Controllers\GoldItemController;
+
 
 Route::get('/', function () {
     return view('auth.login');
@@ -28,6 +30,8 @@ Route::middleware('admin')->group(function (){
 Route::get('/new-item', [NewItemController::class, 'create'])->name('new-item.create');
 Route::post('/new-item', [NewItemController::class, 'store'])->name('new-item.store');
 Route::get('/search-model', [HomeController::class, 'searchModel'])->name('search.model');
+
+Route::resource('gold-items', GoldItemController::class);
 
 });
 
