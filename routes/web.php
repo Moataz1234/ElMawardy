@@ -34,6 +34,7 @@ Route::get('/search-model', [HomeController::class, 'searchModel'])->name('searc
 // Route::resource('/gold-items', GoldItemController::class);
 });
 Route::get('/gold-items/create', [GoldItemController::class, 'create'])->name('gold-items.create');
+Route::post('/gold-items', [GoldItemController::class, 'store'])->name('gold-items.store');
 
 Route::get('/gold_items', [GoldItemController::class, 'index'])->name('gold-items.index');
 
