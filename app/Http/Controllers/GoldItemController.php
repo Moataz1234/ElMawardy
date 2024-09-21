@@ -21,7 +21,7 @@ class GoldItemController extends Controller
      */
     public function create()
     {
-        //
+        return view('admin.Gold_view');
     }
 
     /**
