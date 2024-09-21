@@ -7,7 +7,7 @@ use Illuminate\Support\Facades\Schema;
 return new class extends Migration
 {
     /**
-     * Run the migrations.
+     * Run the migrations.  
      */
     public function up(): void
     {
@@ -33,24 +33,6 @@ return new class extends Migration
             $table->string('calico6')->nullable();  // CALICO[6]
             $table->integer('number6')->nullable();  // NUMBER[6]
             $table->decimal('weight6', 10, 2)->nullable();  // WEIGHT[6]
-            $table->string('calico7')->nullable();  // CALICO[7]
-            $table->integer('number7')->nullable();  // NUMBER[7]
-            $table->decimal('weight7', 10, 2)->nullable();  // WEIGHT[7]
-            $table->string('calico8')->nullable();  // CALICO[8]
-            $table->integer('number8')->nullable();  // NUMBER[8]
-            $table->decimal('weight8', 10, 2)->nullable();  // WEIGHT[8]
-            $table->string('calico9')->nullable();  // CALICO[9]
-            $table->integer('number9')->nullable();  // NUMBER[9]
-            $table->decimal('weight9', 10, 2)->nullable();  // WEIGHT[9]
-            $table->string('calico10')->nullable();  // CALICO[10]
-            $table->integer('number10')->nullable();  // NUMBER[10]
-            $table->decimal('weight10', 10, 2)->nullable();  // WEIGHT[10]
-            $table->string('calico11')->nullable();  // CALICO[11]
-            $table->integer('number11')->nullable();  // NUMBER[11]
-            $table->decimal('weight11', 10, 2)->nullable();  // WEIGHT[11]
-            $table->string('calico12')->nullable();  // CALICO[12]
-            $table->integer('number12')->nullable();  // NUMBER[12]
-            $table->decimal('weight12', 10, 2)->nullable();  // WEIGHT[12]
             $table->string('sta')->nullable();  // STA
             $table->string('model')->nullable();  // MODEL
             $table->string('workshop')->nullable();  // WORKSHOP
@@ -72,15 +54,6 @@ return new class extends Migration
             $table->decimal('cost4', 10, 2)->nullable();  // COST4
             $table->decimal('cost5', 10, 2)->nullable();  // COST5
             $table->decimal('cost6', 10, 2)->nullable();  // COST6
-            $table->decimal('cost7', 10, 2)->nullable();  // COST1
-            $table->decimal('cost8', 10, 2)->nullable();  // COST2
-            $table->decimal('cost9', 10, 2)->nullable();  // COST3
-            $table->decimal('cost10', 10, 2)->nullable();  // COST4
-            $table->decimal('cost11', 10, 2)->nullable();  // COST5
-            $table->decimal('cost12', 10, 2)->nullable();  // COST6
-            $table->string('image_path')->nullable();  // IMAGE PATH
-            $table->string('certificate_code')->nullable();  // CERTIFICATE CODE
-            $table->string('daftar_number')->nullable();  // DAFTAR NUMBER
             $table->timestamps();  // created_at and updated_at
         });
     }

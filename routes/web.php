@@ -6,7 +6,7 @@ use Illuminate\Support\Facades\Route;
 use App\Http\Controllers\NewItemController;
 
 Route::get('/', function () {
-    return view('welcome');
+    return view('auth.login');
 });
 
 Route::get('/dashboard', function () {
@@ -22,12 +22,15 @@ Route::middleware('auth')->group(function () {
 require __DIR__.'/auth.php';
 
 
-route::get('/admin/dashboard',[HomeController::class,'index'])->middleware(['auth','admin']);
+route::get('/admin/dashboard',[HomeController::class,'index'])->middleware(['auth','admin'])->name('admin-dashboard');
 //   for new item form
 Route::middleware('admin')->group(function (){
 Route::get('/new-item', [NewItemController::class, 'create'])->name('new-item.create');
 Route::post('/new-item', [NewItemController::class, 'store'])->name('new-item.store');
+Route::get('/search-model', [HomeController::class, 'searchModel'])->name('search.model');
+
 });
+
 
 
 // when user logged out

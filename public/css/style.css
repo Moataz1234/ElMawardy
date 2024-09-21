@@ -1,6 +1,10 @@
 /* General body styling */
+body{
+    background-color: #a38080; 
+    
+}
 .new-item-body {
-    background-color: #7a47bd; /* Background color for the entire form */
+    background-color: #a38080; /* Background color for the entire form */
     font-family: Arial, sans-serif;
     color: white;
 }
@@ -9,6 +13,7 @@
 .new-item-header {
     text-align: center;
     color: yellow; /* Title color */
+    font-size: 40px;
 }
 
 /* Form styling */
@@ -86,5 +91,56 @@
 .add-row:hover {
     background-color: white;
 }
+a.diamond-list{
+    font-size: 30px;
+    color: red;
+    margin-left: 100px ;
 
+}
+div.diamond-list{
+    background-color: black;
+   border-radius: 10px;
+   max-width: 400px;
+   margin: 50px 500px;
+}
+.diamond-list:hover{
+    color: rgb(51, 20, 223);
+}
+table {
+    width: 100%;
+    border-collapse: collapse;
+    margin: 20px 0;
+    font-size: 14px;
+    text-align: left;
+}
 
+th, td {
+    /* padding: 12px 15px; */
+    border: 2px solid #ddd;
+}
+
+th {
+    background-color: #f4f4f4;
+    color: #333;
+    text-transform: uppercase;
+}
+
+/* tbody tr:nth-child(even) {
+    background-color: #f9f9f9;
+} */
+
+tbody tr {
+    background-color: #fff;
+}
+/* 
+tbody tr:hover {
+    background-color: #f1f1f1;
+} */
+
+td {
+    color: #555;
+}
+
+.hidden-column {
+    display: none;
+}

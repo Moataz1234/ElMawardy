@@ -95,6 +95,7 @@ class NewItemController extends Controller
 
         // Add the generated code to the validated data
         $validatedData['code'] = $newCode;
+        $validatedData['condition'] = 'Rest';  // Set the condition to 'Rest'
 
         // Save data to database
         diamond::create($validatedData);

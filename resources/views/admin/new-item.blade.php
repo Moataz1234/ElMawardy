@@ -4,12 +4,17 @@
         <meta charset="UTF-8">
         <meta name="viewport" content="width=device-width, initial-scale=1.0">
         <title>Data Entry Form</title>
-        <link href="{{ url('css/style.css') }}" rel="stylesheet">
+        @vite(['resources/css/app.css', 'resources/js/app.js'])
+        @include('layouts.navigation')
 
+        <link href="{{ url('css/style.css') }}" rel="stylesheet">
+     
     </head>
 <body class="new-item-body">
-    <h1 class="new-item-header">Data Entry Form</h1>
-
+    <p class="new-item-header">Data Entry Form</p>
+   
+  
+</div>
     <!-- Display success message -->
     @if(session('success'))
         <div>{{ session('success') }}</div>

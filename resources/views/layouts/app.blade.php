@@ -13,10 +13,11 @@
 
         <!-- Scripts -->
         @vite(['resources/css/app.css', 'resources/js/app.js'])
+        @include('layouts.navigation')
+
     </head>
-    <body class="font-sans antialiased">
+    {{-- <body class="font-sans antialiased">
         <div class="min-h-screen bg-gray-100">
-            @include('layouts.navigation')
 
             <!-- Page Heading -->
             @isset($header)
@@ -32,5 +33,5 @@
                 {{ $slot }}
             </main>
         </div>
-    </body>
+    </body> --}}
 </html>
