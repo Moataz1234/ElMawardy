@@ -30,7 +30,32 @@ class GoldItemController extends Controller
         ->orderBy($sort, $direction)
         ->paginate(36);
         return view('admin.Gold.Gold_list', compact('goldItems'));
-    }   
+    }
+
+    /**
+     * Display a listing of the sold items.
+     */
+    public function sold(Request $request)
+    {
+        $search = $request->input('search');
+        $sort = $request->input('sort', 'serial_number');
+        $direction = $request->input('direction', 'asc');
+
+        $goldItems = GoldItemSold::when($search, function ($query, $search) {
+            return $query->where('serial_number', 'like', "%{$search}%")
+                         ->orWhere('shop_name', 'like', "%{$search}%")
+                         ->orWhere('kind', 'like', "%{$search}%")
+                         ->orWhere('model', 'like', "%{$search}%")
+                         ->orWhere('gold_color', 'like', "%{$search}%")
+                         ->orWhere('stones', 'like', "%{$search}%")
+                         ->orWhere('metal_type', 'like', "%{$search}%")
+                         ->orWhere('metal_purity', 'like', "%{$search}%")
+                         ->orWhere('source', 'like', "%{$search}%");
+        })
+        ->orderBy($sort, $direction)
+        ->paginate(36);
+        return view('admin.Gold.Gold_list_sold', compact('goldItems'));
+    }
 
     /**
      * Show the form for creating a new resource.

@@ -42,6 +42,7 @@ Route::put('/gold-items/{id}', [GoldItemController::class, 'update'])->name('gol
 });
 // Route::get('/gold-catalog', [GoldItemController::class,'ThreeView'])->name('gold_catalog.3');
 Route::get('/gold_items', [GoldItemController::class, 'index'])->name('gold-items.index');
+Route::get('/gold-items-sold', [GoldItemController::class, 'sold'])->name('gold-items.sold');
 
 
 
