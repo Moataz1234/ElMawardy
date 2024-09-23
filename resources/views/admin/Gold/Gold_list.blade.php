@@ -11,19 +11,48 @@
             <link href="{{ asset('css/Gold/three_view.css') }}" rel="stylesheet">
             </head>
             <body>
-                <div class="row"> 
-                    @foreach ($goldItems as $item)
-                        <div class="item" data-item-id="{{ $item->id }}">
-                            <img src="{{ asset($item->link) }}" alt="Image">
-                            <button class="show-details" data-image="{{ asset($item->link) }}"
-                                data-title="{{ $item->model }}" 
-                                data-average-weight="{{$item->average_of_stones}}"
-                                data-source="{{$item->source}}"
-                                data-metal-purity="{{$item->metal_purity}}"
-                                data-kind="{{$item->kind}}">Details</button>
-                        </div>
-                    @endforeach
-                </div> 
+                <table>
+                    <thead>
+                        <tr>
+                            <th>Image</th>
+                            <th>Serial Number</th>
+                            <th>Shop Name</th>
+                            <th>Kind</th>
+                            <th>Model</th>
+                            <th>Gold Color</th>
+                            <th>Stones</th>
+                            <th>Metal Type</th>
+                            <th>Metal Purity</th>
+                            <th>Quantity</th>
+                            <th>Weight</th>
+                            <th>Source</th>
+                            <th>Price</th>
+                            <th>Average of Stones</th>
+                            <th>Net Weight</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        @foreach ($goldItems as $item)
+                            <tr>
+                                <td><img src="{{ asset($item->link) }}" alt="Image" width="50"></td>
+                                <td>{{ $item->serial_number }}</td>
+                                <td>{{ $item->shop_name }}</td>
+                                <td>{{ $item->kind }}</td>
+                                <td>{{ $item->model }}</td>
+                                <td>{{ $item->gold_color }}</td>
+                                <td>{{ $item->stones }}</td>
+                                <td>{{ $item->metal_type }}</td>
+                                <td>{{ $item->metal_purity }}</td>
+                                <td>{{ $item->quantity }}</td>
+                                <td>{{ $item->weight }}</td>
+                                <td>{{ $item->source }}</td>
+                                <td>{{ $item->price }}</td>
+                                <td>{{ $item->average_of_stones }}</td>
+                                <td>{{ $item->net_weight }}</td>
+                            </tr>
+                        @endforeach
+                    </tbody>
+                </table>
                 
                 @php
                 $paginationLinks =  $catalogItems->links('pagination::bootstrap-4');
