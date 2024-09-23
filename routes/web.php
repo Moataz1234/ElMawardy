@@ -5,6 +5,7 @@ use App\Http\Controllers\ProfileController;
 use Illuminate\Support\Facades\Route;
 use App\Http\Controllers\NewItemController;
 use App\Http\Controllers\GoldItemController;
+use App\Http\Controllers\GoldItemThreeViewController;
 
 
 Route::get('/', function () {
@@ -36,7 +37,7 @@ Route::get('/gold-items', [GoldItemController::class, 'create'])->name('gold-ite
 Route::post('/gold-items', [GoldItemController::class, 'store'])->name('gold-items.store');
 
 });
-Route::get('/gold-catalog', [GoldItemController::class,'ThreeView'])->name('gold_catalog.3');
+Route::get('/gold-catalog', [GoldItemThreeViewController::class,'ThreeView'])->name('gold_catalog.3');
 Route::get('/gold_items', [GoldItemController::class, 'index'])->name('gold-items.index');
 
 
