@@ -7,13 +7,6 @@ use App\Models\GoldItem;
 
 class GoldItemController extends Controller
 {
-    public function ThreeView()
-    {
-    $catalogItems = GoldItem::paginate(36);
-    return view('GoldCatalog.AdminView.ThreeInRow', compact('catalogItems'));
-    }  
-
-   
     /**
      * Display a listing of the resource.
      */
