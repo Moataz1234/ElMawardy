@@ -10,7 +10,7 @@ class GoldItemController extends Controller
     /**
      * Display a listing of the resource.
      */
-    public function index()
+    public function index(Request $request)
     {
         $search = $request->input('search');
         $goldItems = GoldItem::when($search, function ($query, $search) {
