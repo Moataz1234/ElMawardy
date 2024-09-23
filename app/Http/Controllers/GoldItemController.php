@@ -34,6 +34,57 @@ class GoldItemController extends Controller
     }
 
     /**
+     * Show the form for editing the specified sold item.
+     */
+    public function editSold(string $id)
+    {
+        $goldItemSold = GoldItemSold::findOrFail($id);
+        return view('admin.Gold.Gold_edit_sold', compact('goldItemSold'));
+    }
+
+    /**
+     * Update the specified sold item in storage.
+     */
+    public function updateSold(Request $request, string $id)
+    {
+        $goldItemSold = GoldItemSold::findOrFail($id);
+
+        $validated = $request->validate([
+            'link' => 'nullable|string',
+            'serial_number' => 'nullable|string',
+            'shop_name' => 'nullable|string',
+            'shop_id' => 'nullable|integer',
+            'kind' => 'nullable|string',
+            'model' => 'nullable|string',
+            'talab' => 'nullable|string',
+            'gold_color' => 'nullable|string',
+            'stones' => 'nullable|string',
+            'metal_type' => 'nullable|string',
+            'metal_purity' => 'nullable|string',
+            'quantity' => 'nullable|integer',
+            'weight' => 'nullable|numeric',
+            'add_date' => 'nullable|date',
+            'source' => 'nullable|string',
+            'to_print' => 'nullable|boolean',
+            'price' => 'nullable|numeric',
+            'semi_or_no' => 'nullable|string',
+            'average_of_stones' => 'nullable|numeric',
+            'net_weight' => 'nullable|numeric',
+            'sold_date' => 'nullable|date',
+        ]);
+
+        if ($request->hasFile('link')) {
+            $image = $request->file('link');
+            $imagePath = $image->store('uploads/gold_items_sold', 'public');
+            $validated['link'] = $imagePath;
+        }
+
+        $goldItemSold->update($validated);
+
+        return redirect()->route('gold-items.sold')->with('success', 'Sold gold item updated successfully.');
+    }
+
+    /**
      * Display a listing of the sold items.
      */
     public function sold(Request $request)
