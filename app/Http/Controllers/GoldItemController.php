@@ -34,6 +34,22 @@ class GoldItemController extends Controller
     }
 
     /**
+     * Mark the specified item as sold and transfer to the sold table.
+     */
+    public function markAsSold(Request $request, string $id)
+    {
+        $goldItem = GoldItem::findOrFail($id);
+
+        // Transfer data to GoldItemSold
+        GoldItemSold::create($goldItem->toArray());
+
+        // Delete the item from GoldItem
+        $goldItem->delete();
+
+        return redirect()->route('gold-items.index')->with('success', 'Gold item marked as sold successfully.');
+    }
+
+    /**
      * Show the form for editing the specified sold item.
      */
     public function editSold(string $id)

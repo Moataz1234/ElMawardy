@@ -74,6 +74,7 @@
         <input type="number" name="net_weight" step="0.01" id="net_weight" value="{{ $goldItem->net_weight }}"><br>
 
         <button type="submit">Update</button>
+        <button type="submit" formaction="{{ route('gold-items.sold', $goldItem->id) }}" formmethod="POST">Sold</button>
     </form>
 </body>
 </html>
