@@ -5,14 +5,16 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Edit Gold Item</title>
     <link href="{{ asset('css/app.css') }}" rel="stylesheet">
+    <link href="{{ url('css/style.css') }}" rel="stylesheet">
+
 </head>
 <body>
-    <form action="{{ route('gold-items.update', $goldItem->id) }}" method="POST" enctype="multipart/form-data">
+    <form class="custom-form" action="{{ route('gold-items.update', $goldItem->id) }}" method="POST" enctype="multipart/form-data">
         @csrf
         @method('PUT')
 
-        <label for="link">Upload Image:</label>
-        <input type="file" name="link" id="link" accept="image/*"><br>
+        {{-- <label for="link">Upload Image:</label>
+        <input type="file" name="link" id="link" accept="image/*"><br> --}}
 
         <label for="serial_number">Serial Number:</label>
         <input type="text" name="serial_number" id="serial_number" value="{{ $goldItem->serial_number }}"><br>

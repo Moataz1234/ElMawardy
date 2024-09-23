@@ -19,7 +19,7 @@ class UpdateImagePaths extends Command
     public function handle()
     {
         // Update image paths using raw SQL query
-        DB::statement("UPDATE gold_catalog SET Path = CONCAT('storage/goldCatalog/', FileName )");
+        DB::statement("UPDATE gold_items SET link = CONCAT('storage/Gold_catalog/', model, '.jpg' )");
 
         $this->info('Image paths updated successfully.');
     }
