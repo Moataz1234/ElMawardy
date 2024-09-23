@@ -101,8 +101,6 @@ class GoldItemController extends Controller
      */
     public function show(string $id)
     {
-        $goldItem = GoldItem::findOrFail($id);
-        return view('admin.Gold.Gold_edit', compact('goldItem'));
     }
 
     /**
@@ -110,7 +108,9 @@ class GoldItemController extends Controller
      */
     public function edit(string $id)
     {
-        //
+        
+        $goldItem = GoldItem::findOrFail($id);
+        return view('admin.Gold.Gold_edit', compact('goldItem'));
     }
 
     /**

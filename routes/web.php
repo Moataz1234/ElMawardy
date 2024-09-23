@@ -35,7 +35,8 @@ Route::get('/search-model', [HomeController::class, 'searchModel'])->name('searc
 // Route::resource('/gold-items', GoldItemController::class);
 Route::get('/gold-items', [GoldItemController::class, 'create'])->name('gold-items.create');
 Route::post('/gold-items', [GoldItemController::class, 'store'])->name('gold-items.store');
-Route::get('/gold-items/{id}/edit', [GoldItemController::class, 'edit'])->name('gold-items.edit');
+Route::get('/gold-items/{id}/edit', [GoldItemController::class, 'edit'])->name('gold-items.update');
+
 
 });
 // Route::get('/gold-catalog', [GoldItemController::class,'ThreeView'])->name('gold_catalog.3');
