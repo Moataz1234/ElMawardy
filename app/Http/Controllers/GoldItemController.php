@@ -7,6 +7,13 @@ use App\Models\GoldItem;
 
 class GoldItemController extends Controller
 {
+    public function ThreeView()
+    {
+    $catalogItems = GoldItem::paginate(36);
+    return view('GoldCatalog.AdminView.ThreeInRow', compact('catalogItems'));
+    }  
+
+   
     /**
      * Display a listing of the resource.
      */
@@ -21,7 +28,7 @@ class GoldItemController extends Controller
      */
     public function create()
     {
-        return view('admin.Gold_view');
+        return view('admin.Gold.Gold_view');
     }
 
     /**
@@ -75,6 +82,12 @@ class GoldItemController extends Controller
         'average_of_stones' => $validated['average_of_stones'] ?? 0,
         'net_weight' => $validated['net_weight'],
     ]);
+    if ($request->hasFile('link')) {
+        // Handle file upload and store the file
+        $image = $request->file('link');
+        $imagePath = $image->store('uploads/gold_items', 'public');
+        $validatedData['link'] = $imagePath;
+    }
 
     return redirect()->route('gold-items.create')->with('success', 'Gold item added successfully.');
 }
