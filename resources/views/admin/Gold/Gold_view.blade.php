@@ -5,8 +5,8 @@
 <form class="custom-form" action="{{ route('gold-items.store') }}" method="POST">
     @csrf
 
-    <label for="link">Link:</label>
-    <input type="text" name="link" id="link"><br>
+    <label for="link">Upload Image:</label>
+    <input type="file" name="link" id="link" accept="image/*"><br>
 
     <label for="serial_number">Serial Number:</label>
     <input type="text" name="serial_number" id="serial_number"><br>

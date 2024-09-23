@@ -32,10 +32,11 @@ Route::post('/new-item', [NewItemController::class, 'store'])->name('new-item.st
 Route::get('/search-model', [HomeController::class, 'searchModel'])->name('search.model');
 
 // Route::resource('/gold-items', GoldItemController::class);
-});
 Route::get('/gold-items', [GoldItemController::class, 'create'])->name('gold-items.create');
 Route::post('/gold-items', [GoldItemController::class, 'store'])->name('gold-items.store');
 
+});
+Route::get('/gold-catalog', [GoldItemController::class,'ThreeView'])->name('gold_catalog.3');
 Route::get('/gold_items', [GoldItemController::class, 'index'])->name('gold-items.index');
 
 
