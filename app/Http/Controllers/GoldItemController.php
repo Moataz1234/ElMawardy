@@ -118,7 +118,40 @@ class GoldItemController extends Controller
      */
     public function update(Request $request, string $id)
     {
-        //
+        $goldItem = GoldItem::findOrFail($id);
+
+        $validated = $request->validate([
+            'link' => 'nullable|string',
+            'serial_number' => 'nullable|string',
+            'shop_name' => 'nullable|string',
+            'shop_id' => 'nullable|integer',
+            'kind' => 'nullable|string',
+            'model' => 'nullable|string',
+            'talab' => 'nullable|string',
+            'gold_color' => 'nullable|string',
+            'stones' => 'nullable|string',
+            'metal_type' => 'nullable|string',
+            'metal_purity' => 'nullable|string',
+            'quantity' => 'nullable|integer',
+            'weight' => 'nullable|numeric',
+            'rest_since' => 'nullable|date',
+            'source' => 'nullable|string',
+            'to_print' => 'nullable|boolean',
+            'price' => 'nullable|numeric',
+            'semi_or_no' => 'nullable|string',
+            'average_of_stones' => 'nullable|numeric',
+            'net_weight' => 'nullable|numeric',
+        ]);
+
+        if ($request->hasFile('link')) {
+            $image = $request->file('link');
+            $imagePath = $image->store('uploads/gold_items', 'public');
+            $validated['link'] = $imagePath;
+        }
+
+        $goldItem->update($validated);
+
+        return redirect()->route('gold-items.index')->with('success', 'Gold item updated successfully.');
     }
 
     /**
