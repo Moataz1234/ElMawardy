@@ -35,6 +35,7 @@
                             <th>Price</th>
                             <th>Average of Stones</th>
                             <th>Net Weight</th>
+                            <th>Actions</th>
                         </tr>
                     </thead>
                     <tbody>
@@ -55,6 +56,9 @@
                                 <td>{{ $item->price }}</td>
                                 <td>{{ $item->average_of_stones }}</td>
                                 <td>{{ $item->net_weight }}</td>
+                                <td>
+                                    <a href="{{ route('gold-items.edit', $item->id) }}" class="btn btn-primary">Edit</a>
+                                </td>
                             </tr>
                         @endforeach
                     </tbody>
