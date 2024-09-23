@@ -32,7 +32,6 @@
                             <th>Quantity</th>
                             <th>Weight</th>
                             <th>Source</th>
-                            <th>Price</th>
                             <th>Average of Stones</th>
                             <th>Net Weight</th>
                             <th>Actions</th>
@@ -53,7 +52,6 @@
                                 <td>{{ $item->quantity }}</td>
                                 <td>{{ $item->weight }}</td>
                                 <td>{{ $item->source }}</td>
-                                <td>{{ $item->price }}</td>
                                 <td>{{ $item->average_of_stones }}</td>
                                 <td>{{ $item->net_weight }}</td>
                                 <td>
