@@ -12,9 +12,9 @@ class GoldItemController extends Controller
      */
     public function index()
     {
-        $goldItems = GoldItem::all();
-        return view('admin.Gold_list', compact('goldItems'));
-    }
+        $goldItems = GoldItem::paginate(36);
+        return view('admin.Gold.Gold_list', compact('goldItems'));
+    }   
 
     /**
      * Show the form for creating a new resource.
