@@ -5,6 +5,7 @@ namespace App\Console\Commands;
 use Illuminate\Console\Command;
 use Illuminate\Support\Facades\File;
 use App\Models\Gold_Catalog;
+use App\Models\GoldItem;
 
 class ImportImages extends Command
 {
@@ -25,7 +26,7 @@ class ImportImages extends Command
             $storedPath = str_replace(public_path('storage/goldCatalog').'/', '', $path);
             
             // Check if the image with the same filename already exists
-            $image = Gold_Catalog::firstOrNew(['FileName' => $filename]);
+            $image = GoldItem::firstOrNew(['FileName' => $filename]);
             if (!$image->exists) {
                 // Save image details to the database
                 $image->Path = 'storage/goldCatalog/' . $storedPath;
