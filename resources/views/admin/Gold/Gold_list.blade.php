@@ -12,15 +12,15 @@
             </head>
             <body>
                 <div class="row"> 
-                    @foreach ($catalogItems as $item)
+                    @foreach ($goldItems as $item)
                         <div class="item" data-item-id="{{ $item->id }}">
-                            <img src="{{ asset($item->Path) }}" alt="Image">
-                            <button class="show-details" data-image="{{ asset($item->Path) }}"
-                                data-title="{{ $item->FileName }}" 
-                                data-average-weight="{{$item->Average_weight}}"
-                                data-source="{{$item->Source}}"
-                                data-metal-purity="{{$item->Metal_purity}}"
-                                data-kind="{{$item->Kind}}">Details</button>
+                            <img src="{{ asset($item->link) }}" alt="Image">
+                            <button class="show-details" data-image="{{ asset($item->link) }}"
+                                data-title="{{ $item->model }}" 
+                                data-average-weight="{{$item->average_of_stones}}"
+                                data-source="{{$item->source}}"
+                                data-metal-purity="{{$item->metal_purity}}"
+                                data-kind="{{$item->kind}}">Details</button>
                         </div>
                     @endforeach
                 </div> 
