@@ -26,7 +26,7 @@
                                 <form method="GET" action="{{ route('gold-items.index') }}" style="display:inline;">
                                     <input type="hidden" name="sort" value="serial_number">
                                     <input type="hidden" name="direction" value="{{ request('direction') === 'asc' ? 'desc' : 'asc' }}">
-                                    <button type="submit">Sort</button>
+                                    <button type="submit">&#8597;</button>
                                 </form>
                             </th>
                             <th>
