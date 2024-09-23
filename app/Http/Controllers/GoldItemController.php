@@ -13,6 +13,9 @@ class GoldItemController extends Controller
     public function index(Request $request)
     {
         $search = $request->input('search');
+        $sort = $request->input('sort', 'serial_number');
+        $direction = $request->input('direction', 'asc');
+
         $goldItems = GoldItem::when($search, function ($query, $search) {
             return $query->where('serial_number', 'like', "%{$search}%")
                          ->orWhere('shop_name', 'like', "%{$search}%")
@@ -23,7 +26,9 @@ class GoldItemController extends Controller
                          ->orWhere('metal_type', 'like', "%{$search}%")
                          ->orWhere('metal_purity', 'like', "%{$search}%")
                          ->orWhere('source', 'like', "%{$search}%");
-        })->paginate(36);
+        })
+        ->orderBy($sort, $direction)
+        ->paginate(36);
         return view('admin.Gold.Gold_list', compact('goldItems'));
     }   
 

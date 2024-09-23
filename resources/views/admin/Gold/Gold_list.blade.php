@@ -21,19 +21,19 @@
                     <thead>
                         <tr>
                             <th>Image</th>
-                            <th>Serial Number</th>
-                            <th>Shop Name</th>
-                            <th>Kind</th>
-                            <th>Model</th>
-                            <th>Gold Color</th>
-                            <th>Stones</th>
-                            <th>Metal Type</th>
-                            <th>Metal Purity</th>
-                            <th>Quantity</th>
-                            <th>Weight</th>
-                            <th>Source</th>
-                            <th>Average of Stones</th>
-                            <th>Net Weight</th>
+                            <th><a href="{{ route('gold-items.index', ['sort' => 'serial_number', 'direction' => request('direction') === 'asc' ? 'desc' : 'asc']) }}">Serial Number</a></th>
+                            <th><a href="{{ route('gold-items.index', ['sort' => 'shop_name', 'direction' => request('direction') === 'asc' ? 'desc' : 'asc']) }}">Shop Name</a></th>
+                            <th><a href="{{ route('gold-items.index', ['sort' => 'kind', 'direction' => request('direction') === 'asc' ? 'desc' : 'asc']) }}">Kind</a></th>
+                            <th><a href="{{ route('gold-items.index', ['sort' => 'model', 'direction' => request('direction') === 'asc' ? 'desc' : 'asc']) }}">Model</a></th>
+                            <th><a href="{{ route('gold-items.index', ['sort' => 'gold_color', 'direction' => request('direction') === 'asc' ? 'desc' : 'asc']) }}">Gold Color</a></th>
+                            <th><a href="{{ route('gold-items.index', ['sort' => 'stones', 'direction' => request('direction') === 'asc' ? 'desc' : 'asc']) }}">Stones</a></th>
+                            <th><a href="{{ route('gold-items.index', ['sort' => 'metal_type', 'direction' => request('direction') === 'asc' ? 'desc' : 'asc']) }}">Metal Type</a></th>
+                            <th><a href="{{ route('gold-items.index', ['sort' => 'metal_purity', 'direction' => request('direction') === 'asc' ? 'desc' : 'asc']) }}">Metal Purity</a></th>
+                            <th><a href="{{ route('gold-items.index', ['sort' => 'quantity', 'direction' => request('direction') === 'asc' ? 'desc' : 'asc']) }}">Quantity</a></th>
+                            <th><a href="{{ route('gold-items.index', ['sort' => 'weight', 'direction' => request('direction') === 'asc' ? 'desc' : 'asc']) }}">Weight</a></th>
+                            <th><a href="{{ route('gold-items.index', ['sort' => 'source', 'direction' => request('direction') === 'asc' ? 'desc' : 'asc']) }}">Source</a></th>
+                            <th><a href="{{ route('gold-items.index', ['sort' => 'average_of_stones', 'direction' => request('direction') === 'asc' ? 'desc' : 'asc']) }}">Average of Stones</a></th>
+                            <th><a href="{{ route('gold-items.index', ['sort' => 'net_weight', 'direction' => request('direction') === 'asc' ? 'desc' : 'asc']) }}">Net Weight</a></th>
                             <th>Actions</th>
                         </tr>
                     </thead>
