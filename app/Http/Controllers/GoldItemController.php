@@ -191,9 +191,16 @@ class GoldItemController extends Controller
         'net_weight' => 'nullable|numeric',
     ]);
 
+    if ($request->hasFile('link')) {
+        // Handle file upload and store the file
+        $image = $request->file('link');
+        $imagePath = $image->store('uploads/gold_items', 'public');
+        $validated['link'] = $imagePath;
+    }
+
     // Create a new GoldItem record
     GoldItem::create([
-        'link' => $validated['link'],
+        'link' => $validated['link'] ?? null,
         'serial_number' => $validated['serial_number'],
         'shop_name' => $validated['shop_name'],
         'shop_id' => $validated['shop_id'],
@@ -214,12 +221,6 @@ class GoldItemController extends Controller
         'average_of_stones' => $validated['average_of_stones'] ?? 0,
         'net_weight' => $validated['net_weight'],
     ]);
-    if ($request->hasFile('link')) {
-        // Handle file upload and store the file
-        $image = $request->file('link');
-        $imagePath = $image->store('uploads/gold_items', 'public');
-        $validatedData['link'] = $imagePath;
-    }
 
     return redirect()->route('gold-items.create')->with('success', 'Gold item added successfully.');
 }
