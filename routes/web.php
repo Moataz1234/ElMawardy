@@ -47,8 +47,6 @@ Route::post('/gold-items', [GoldItemController::class, 'markAsSold'])->name('gol
 Route::post('/gold-items-sold/{id}/mark-as-rest', [GoldItemController::class, 'markAsRest'])->name('gold-items-sold.markAsRest');
 Route::get('/gold-items-sold', [GoldItemController::class, 'sold'])->name('gold-items.sold');
 
-// Route::get('/gold-items/{id}/customer/create', [GoldItemController::class, 'createCustomer'])->name('buyers.create'); // Form to enter customer details
-// Route::post('/gold-items/{id}', [GoldItemController::class, 'storeCustomer'])->name('customers.store'); // Save customer details
    
 });
 // Route::get('/gold-catalog', [GoldItemController::class,'ThreeView'])->name('gold_catalog.3');
