@@ -3,6 +3,9 @@
 namespace App\Http\Controllers;
 
 use Illuminate\Http\Request;
+use App\Models\GoldItemSold;
+use App\Models\Customer;
+use App\Models\GoldItem;
 
 class GoldItemSoldController extends Controller
 {
@@ -90,6 +93,7 @@ class GoldItemSoldController extends Controller
         $validated = $request->validate([
             'first_name' => 'required|string|max:255',
             'last_name' => 'required|string|max:255',
+            'phone_number' => 'nullable|integer',
             'address' => 'required|string|max:255',
             'email' => 'required|email|max:255',
             'payment_method' => 'required|string|max:255',
