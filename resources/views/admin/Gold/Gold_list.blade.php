@@ -13,6 +13,7 @@
     <link href="{{ asset('css/style.css') }}" rel="stylesheet">
     </head>
 <body>
+    <a href="{{ route('gold-items.sold.index') }}" class="btn btn-secondary">View Sold Items</a>
     <form method="GET" action="{{ route('gold-items.index') }}">
         <input type="text" name="search" placeholder="Search..." value="{{ request('search') }}">
         <button type="submit">Search</button>
