@@ -42,13 +42,14 @@ Route::put('/gold-items/{id}', [GoldItemController::class, 'update'])->name('gol
 //                  Sold
 Route::get('/gold-items-sold/{id}/edit', [GoldItemController::class, 'editSold'])->name('gold-items-sold.edit');
 Route::put('/gold-items-sold/{id}', [GoldItemController::class, 'updateSold'])->name('gold-items-sold.update');
-Route::post('/gold-items/{id}/mark-as-sold', [GoldItemController::class, 'markAsSold'])->name('gold-items.markAsSold');
-Route::get('/buyers/{id}/create', [GoldItemController::class, 'createBuyer'])->name('buyers.create');
-Route::post('/buyers/{id}', [GoldItemController::class, 'storeBuyer'])->name('buyers.store');
+Route::post('/gold-items', [GoldItemController::class, 'markAsSold'])->name('gold-items.markAsSold');
+
 Route::post('/gold-items-sold/{id}/mark-as-rest', [GoldItemController::class, 'markAsRest'])->name('gold-items-sold.markAsRest');
 Route::get('/gold-items-sold', [GoldItemController::class, 'sold'])->name('gold-items.sold');
 
-
+// Route::get('/gold-items/{id}/customer/create', [GoldItemController::class, 'createCustomer'])->name('buyers.create'); // Form to enter customer details
+// Route::post('/gold-items/{id}', [GoldItemController::class, 'storeCustomer'])->name('customers.store'); // Save customer details
+   
 });
 // Route::get('/gold-catalog', [GoldItemController::class,'ThreeView'])->name('gold_catalog.3');
 

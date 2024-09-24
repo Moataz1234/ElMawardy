@@ -5,35 +5,77 @@ namespace App\Http\Controllers;
 use Illuminate\Http\Request;
 use App\Models\GoldItem;
 use App\Models\GoldItemSold;
-use App\Models\Buyer;
+use App\Models\Customer;
 
 class GoldItemController extends Controller
 {
     /**
      * Show the form for entering buyer details.
      */
-    public function createBuyer(string $id)
+    public function createCustomer(string $id)
     {
+        // Fetch the gold item sold using the provided ID
         $goldItemSold = GoldItemSold::findOrFail($id);
-        return view('admin.Gold.Buyer_form', compact('goldItemSold'));
+        
+        // Pass the gold item sold to the view for displaying in the form
+        return view('admin.Gold.Gold_edit', compact('goldItemSold'));
     }
-
+    
     /**
      * Store buyer details.
      */
-    public function storeBuyer(Request $request, string $id)
-    {
-        $validated = $request->validate([
-            'name' => 'required|string',
-            'email' => 'required|email',
-            'payment_method' => 'required|string',
-        ]);
+    public function storeCustomer(Request $request, string $id)
+{
+    // Validate the incoming request data
+    $validated = $request->validate([
+        'first_name' => 'required|string|max:255',
+        'last_name' => 'required|string|max:255',
+        'phone_number' => 'nullable|integer',
+        'address' => 'required|string|max:255',
+        'email' => 'required|email|max:255',
+        'payment_method' => 'required|string|max:255',
+    ]);
 
-        $goldItemSold = GoldItemSold::findOrFail($id);
-        $goldItemSold->buyer()->create($validated);
+    // Create a new customer entry
+    $customer = Customer::create($validated);
 
-        return redirect()->route('gold-items.index')->with('success', 'Buyer details saved successfully.');
-    }
+    // Fetch the gold item sold using the provided ID
+    $goldItemSold = GoldItemSold::findOrFail($id);
+    
+    // Optionally, link the customer to the gold item sold
+    $goldItemSold->customer()->associate($customer);
+    $goldItemSold->save();
+
+    // Transfer data from gold_items to gold_items_sold
+    $goldItem = GoldItem::findOrFail($goldItemSold->gold_item_id); // Adjust as per your relationship
+    $goldItemSoldEntry = new GoldItemSold([
+        'link' => $goldItem->link,
+        'serial_number' => $goldItem->serial_number,
+        'shop_name' => $goldItem->shop_name,
+        'shop_id' => $goldItem->shop_id,
+        'kind' => $goldItem->kind,
+        'model' => $goldItem->model,
+        'talab' => $goldItem->talab,
+        'gold_color' => $goldItem->gold_color,
+        'stones' => $goldItem->stones,
+        'metal_type' => $goldItem->metal_type,
+        'metal_purity' => $goldItem->metal_purity,
+        'quantity' => $goldItem->quantity,
+        'weight' => $goldItem->weight,
+        'rest_since' => $goldItem->rest_since,
+        'source' => $goldItem->source,
+        'to_print' => $goldItem->to_print,
+        'price' => $goldItem->price,
+        'semi_or_no' => $goldItem->semi_or_no,
+        'average_of_stones' => $goldItem->average_of_stones,
+        'net_weight' => $goldItem->net_weight,
+    ]);
+    
+    $goldItemSoldEntry->save(); // Save the new gold item sold record
+
+    // Redirect to the gold list view with a success message
+    return redirect()->route('gold-items.index')->with('success', 'Buyer details saved and item sold successfully.');
+}
 
     /**
      * Display a listing of the resource.
@@ -65,6 +107,22 @@ class GoldItemController extends Controller
      */
     public function markAsSold(Request $request, string $id)
     {
+        $validated = $request->validate([
+            'first_name' => 'required|string|max:255',
+            'last_name' => 'required|string|max:255',
+            'address' => 'required|string|max:255',
+            'email' => 'required|email|max:255',
+            'payment_method' => 'required|string|max:255',
+        ]);
+    
+        // Create a new customer entry
+        $customer = Customer::create($validated);
+    
+        // Optionally, you can link this customer to the gold item sold
+        $goldItemSold = GoldItemSold::findOrFail($id);
+        $goldItemSold->customer()->associate($customer); // Assuming a relationship exists
+        $goldItemSold->save();
+    
         $goldItem = GoldItem::findOrFail($id);
 
         // Transfer data to GoldItemSold
@@ -73,7 +131,7 @@ class GoldItemController extends Controller
         // Delete the item from GoldItem
         $goldItem->delete();
 
-        return redirect()->route('buyers.create', $goldItem->id);
+        return redirect()->route('gold-items')->with('success', 'Gold item marked as rest successfully.');
     }
     public function markAsRest(Request $request, string $id)
     {
@@ -143,6 +201,7 @@ class GoldItemController extends Controller
      */
     public function sold(Request $request)
     {
+        
         $search = $request->input('search');
         $sort = $request->input('sort', 'serial_number');
         $direction = $request->input('direction', 'asc');

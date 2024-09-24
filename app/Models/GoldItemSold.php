@@ -37,8 +37,8 @@ class GoldItemSold extends Model
         'sold_date',
     ];
 
-    public function buyer()
+    public function customer()
     {
-        return $this->hasOne(Buyer::class);
+        return $this->hasOne(Customer::class);
     }
 }

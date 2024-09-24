@@ -5,15 +5,17 @@ namespace App\Models;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 
-class Buyer extends Model
+class Customer extends Model
 {
     use HasFactory;
 
     protected $fillable = [
-        'name',
+        'first_name',
+        'last_name',
+        'address',
+        'phone_number',
         'email',
         'payment_method',
-        'gold_item_sold_id',
     ];
 
     public function goldItemSold()

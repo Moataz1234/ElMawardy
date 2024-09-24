@@ -30,7 +30,6 @@
                             <input type="hidden" name="sort" value="serial_number">
                             <input type="hidden" name="direction" value="{{ request('direction') === 'asc' ? 'desc' : 'asc' }}">
                             <input type="hidden" name="search" value="{{ request('search') }}">
-                            <input type="hidden" name="search" value="{{ request('search') }}">
                             <button type="submit">&#8597;</button>
                         </form>
                     </div>
@@ -41,6 +40,7 @@
                         <form method="GET" action="{{ route('gold-items.index') }}" style="display:inline;">
                             <input type="hidden" name="sort" value="shop_name">
                             <input type="hidden" name="direction" value="{{ request('direction') === 'asc' ? 'desc' : 'asc' }}">
+                            <input type="hidden" name="search" value="{{ request('search') }}">
                             <button type="submit">&#8597;</button>
                         </form>
                     </div>
@@ -51,6 +51,7 @@
                         <form method="GET" action="{{ route('gold-items.index') }}" style="display:inline;">
                             <input type="hidden" name="sort" value="kind">
                             <input type="hidden" name="direction" value="{{ request('direction') === 'asc' ? 'desc' : 'asc' }}">
+                            <input type="hidden" name="search" value="{{ request('search') }}">
                             <button type="submit">&#8597;</button>
                         </form>
                     </div>
@@ -61,6 +62,7 @@
                         <form method="GET" action="{{ route('gold-items.index') }}" style="display:inline;">
                             <input type="hidden" name="sort" value="model">
                             <input type="hidden" name="direction" value="{{ request('direction') === 'asc' ? 'desc' : 'asc' }}">
+                            <input type="hidden" name="search" value="{{ request('search') }}">
                             <button type="submit">&#8597;</button>
                         </form>
                     </div>
@@ -71,6 +73,7 @@
                         <form method="GET" action="{{ route('gold-items.index') }}" style="display:inline;">
                             <input type="hidden" name="sort" value="gold_color">
                             <input type="hidden" name="direction" value="{{ request('direction') === 'asc' ? 'desc' : 'asc' }}">
+                            <input type="hidden" name="search" value="{{ request('search') }}">
                             <button type="submit">&#8597;</button>
                         </form>
                     </div>
@@ -81,6 +84,7 @@
                         <form method="GET" action="{{ route('gold-items.index') }}" style="display:inline;">
                             <input type="hidden" name="sort" value="stones">
                             <input type="hidden" name="direction" value="{{ request('direction') === 'asc' ? 'desc' : 'asc' }}">
+                            <input type="hidden" name="search" value="{{ request('search') }}">
                             <button type="submit">&#8597;</button>
                         </form>
                     </div>
@@ -91,6 +95,7 @@
                         <form method="GET" action="{{ route('gold-items.index') }}" style="display:inline;">
                             <input type="hidden" name="sort" value="metal_type">
                             <input type="hidden" name="direction" value="{{ request('direction') === 'asc' ? 'desc' : 'asc' }}">
+                            <input type="hidden" name="search" value="{{ request('search') }}">
                             <button type="submit">&#8597;</button>
                         </form>
                     </div>
@@ -101,6 +106,7 @@
                         <form method="GET" action="{{ route('gold-items.index') }}" style="display:inline;">
                             <input type="hidden" name="sort" value="metal_purity">
                             <input type="hidden" name="direction" value="{{ request('direction') === 'asc' ? 'desc' : 'asc' }}">
+                            <input type="hidden" name="search" value="{{ request('search') }}">
                             <button type="submit">&#8597;</button>
                         </form>
                     </div>
@@ -111,6 +117,7 @@
                         <form method="GET" action="{{ route('gold-items.index') }}" style="display:inline;">
                             <input type="hidden" name="sort" value="quantity">
                             <input type="hidden" name="direction" value="{{ request('direction') === 'asc' ? 'desc' : 'asc' }}">
+                            <input type="hidden" name="search" value="{{ request('search') }}">
                             <button type="submit">&#8597;</button>
                         </form>
                     </div>
@@ -121,6 +128,7 @@
                         <form method="GET" action="{{ route('gold-items.index') }}" style="display:inline;">
                             <input type="hidden" name="sort" value="weight">
                             <input type="hidden" name="direction" value="{{ request('direction') === 'asc' ? 'desc' : 'asc' }}">
+                            <input type="hidden" name="search" value="{{ request('search') }}">
                             <button type="submit">&#8597;</button>
                         </form>
                     </div>
@@ -131,6 +139,7 @@
                         <form method="GET" action="{{ route('gold-items.index') }}" style="display:inline;">
                             <input type="hidden" name="sort" value="source">
                             <input type="hidden" name="direction" value="{{ request('direction') === 'asc' ? 'desc' : 'asc' }}">
+                            <input type="hidden" name="search" value="{{ request('search') }}">
                             <button type="submit">&#8597;</button>
                         </form>
                     </div>
@@ -141,6 +150,7 @@
                         <form method="GET" action="{{ route('gold-items.index') }}" style="display:inline;">
                             <input type="hidden" name="sort" value="average_of_stones">
                             <input type="hidden" name="direction" value="{{ request('direction') === 'asc' ? 'desc' : 'asc' }}">
+                            <input type="hidden" name="search" value="{{ request('search') }}">
                             <button type="submit">&#8597;</button>
                         </form>
                     </div>
@@ -151,6 +161,7 @@
                         <form method="GET" action="{{ route('gold-items.index') }}" style="display:inline;">
                             <input type="hidden" name="sort" value="net_weight">
                             <input type="hidden" name="direction" value="{{ request('direction') === 'asc' ? 'desc' : 'asc' }}">
+                            <input type="hidden" name="search" value="{{ request('search') }}">
                             <button type="submit">&#8597;</button>
                         </form>
                     </div>
@@ -176,7 +187,7 @@
                     <td>{{ $item->average_of_stones }}</td>
                     <td>{{ $item->net_weight }}</td>
                     <td>
-                        <a href="{{ route('gold-items.edit', $item->id) }}" class="btn btn-primary">Edit</a>
+                        <a class="edit_button" href="{{ route('gold-items.edit', $item->id) }}" >Edit</a>
                     </td>
                 </tr>
             @endforeach

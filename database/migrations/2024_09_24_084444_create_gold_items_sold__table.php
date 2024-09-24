@@ -34,6 +34,8 @@ return new class extends Migration
             $table->float('average_of_stones')->nullable();
             $table->float('net_weight')->nullable();
             $table->date('sold_date')->nullable();
+            $table->unsignedBigInteger('customer_id')->nullable(); // Add customer_id column
+            $table->foreign('customer_id')->references('id')->on('customers')->onDelete('cascade'); // Define foreign key relationship  
             $table->timestamps();
         });
     }
@@ -43,6 +45,9 @@ return new class extends Migration
      */
     public function down(): void
     {
+         Schema::table('gold_items_sold', function (Blueprint $table) {
+            $table->dropForeign(['customer_id']); // Drop foreign key constraint
+        });
         Schema::dropIfExists('gold_items_sold');
     }
 };
