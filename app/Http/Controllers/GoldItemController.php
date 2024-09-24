@@ -5,7 +5,7 @@ namespace App\Http\Controllers;
 use Illuminate\Http\Request;
 use App\Models\GoldItem;
 use App\Models\GoldItemSold;
-use App\Models\Branch;
+use App\Models\Shop;
 use App\Models\Customer;
 
 class GoldItemController extends Controller
@@ -53,14 +53,8 @@ class GoldItemController extends Controller
             'semi_or_no' => 'required|string',
             'average_of_stones' => 'nullable|numeric',
             'net_weight' => 'required|numeric',
-            'branch_id' => 'required|exists:branches,id',
         ]);
 
-        if ($request->hasFile('link')) {
-            $image = $request->file('link');
-            $imagePath = $image->store('uploads/gold_items', 'public');
-            $validated['link'] = $imagePath;
-        }
 
         GoldItem::create($validated);
 
