@@ -5,7 +5,7 @@ use App\Http\Controllers\ProfileController;
 use Illuminate\Support\Facades\Route;
 use App\Http\Controllers\NewItemController;
 use App\Http\Controllers\GoldItemController;
-use App\Http\Controllers\GoldItemThreeViewController;
+use App\Http\Controllers\GoldItemSoldController;
 
 
 Route::get('/', function () {
@@ -40,14 +40,14 @@ Route::get('/gold-items/{id}/edit', [GoldItemController::class, 'edit'])->name('
 Route::put('/gold-items/{id}', [GoldItemController::class, 'update'])->name('gold-items.update');
 
 //                  Sold
-Route::get('/gold-items-sold/{id}/edit', [GoldItemController::class, 'editSold'])->name('gold-items-sold.edit');
-Route::put('/gold-items-sold/{id}', [GoldItemController::class, 'updateSold'])->name('gold-items-sold.update');
-Route::post('/gold-items/{id}/mark-as-sold', [GoldItemController::class, 'markAsSold'])->name('gold-items.markAsSold');
+Route::get('/gold-items-sold/{id}/edit', [GoldItemSoldController::class, 'edit'])->name('gold-items-sold.edit');
+Route::put('/gold-items-sold/{id}', [GoldItemSoldController::class, 'update'])->name('gold-items-sold.update');
+Route::post('/gold-items/{id}/mark-as-sold', [GoldItemSoldController::class, 'markAsSold'])->name('gold-items.markAsSold');
 Route::post('/gold-items/{id}/transfer', [GoldItemController::class, 'transferToBranch'])->name('gold-items.transfer');
 Route::post('/gold-items/add-from-factory', [GoldItemController::class, 'addFromFactory'])->name('gold-items.addFromFactory');
 
-Route::post('/gold-items-sold/{id}/mark-as-rest', [GoldItemController::class, 'markAsRest'])->name('gold-items-sold.markAsRest');
-Route::get('/gold-items-sold', [GoldItemController::class, 'sold'])->name('gold-items.sold');
+Route::post('/gold-items-sold/{id}/mark-as-rest', [GoldItemSoldController::class, 'markAsRest'])->name('gold-items-sold.markAsRest');
+Route::get('/gold-items-sold', [GoldItemSoldController::class, 'index'])->name('gold-items.sold');
 
    
 });
