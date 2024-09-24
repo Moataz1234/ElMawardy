@@ -5,10 +5,67 @@ namespace App\Http\Controllers;
 use Illuminate\Http\Request;
 use App\Models\GoldItem;
 use App\Models\GoldItemSold;
+use App\Models\Branch;
 use App\Models\Customer;
 
 class GoldItemController extends Controller
 {
+
+    /**
+     * Transfer a gold item to another branch.
+     */
+    public function transferToBranch(Request $request, string $id)
+    {
+        $validated = $request->validate([
+            'branch_id' => 'required|exists:branches,id',
+        ]);
+
+        $goldItem = GoldItem::findOrFail($id);
+        $goldItem->branch_id = $validated['branch_id'];
+        $goldItem->save();
+
+        return redirect()->route('gold-items.index')->with('success', 'Gold item transferred successfully.');
+    }
+
+    /**
+     * Add new products from the factory to a branch.
+     */
+    public function addFromFactory(Request $request)
+    {
+        $validated = $request->validate([
+            'link' => 'nullable|string',
+            'serial_number' => 'required|string',
+            'shop_name' => 'required|string',
+            'shop_id' => 'required|integer',
+            'kind' => 'required|string',
+            'model' => 'required|string',
+            'talab' => 'required|string',
+            'gold_color' => 'required|string',
+            'stones' => 'nullable|string',
+            'metal_type' => 'required|string',
+            'metal_purity' => 'required|string',
+            'quantity' => 'required|integer',
+            'weight' => 'required|numeric',
+            'rest_since' => 'required|date',
+            'source' => 'required|string',
+            'to_print' => 'nullable|boolean',
+            'price' => 'required|numeric',
+            'semi_or_no' => 'required|string',
+            'average_of_stones' => 'nullable|numeric',
+            'net_weight' => 'required|numeric',
+            'branch_id' => 'required|exists:branches,id',
+        ]);
+
+        if ($request->hasFile('link')) {
+            $image = $request->file('link');
+            $imagePath = $image->store('uploads/gold_items', 'public');
+            $validated['link'] = $imagePath;
+        }
+
+        GoldItem::create($validated);
+
+        return redirect()->route('gold-items.index')->with('success', 'New product added from factory successfully.');
+    }
 
     /**
      * Display a listing of the resource.

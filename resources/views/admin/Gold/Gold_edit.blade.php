@@ -71,6 +71,18 @@
             <input type="number" name="net_weight" step="0.01" id="net_weight" value="{{ $goldItem->net_weight }}" readonly><br>
 
         </form>
+
+        <h2>Transfer to Another Branch</h2>
+        <form action="{{ route('gold-items.transfer', $goldItem->id) }}" method="POST">
+            @csrf
+            <label for="branch_id">Branch:</label>
+            <select name="branch_id" id="branch_id" required>
+                @foreach($branches as $branch)
+                    <option value="{{ $branch->id }}">{{ $branch->name }}</option>
+                @endforeach
+            </select><br>
+            <button type="submit">Transfer</button>
+        </form>
     </div>
 
     <div class="customer-details">

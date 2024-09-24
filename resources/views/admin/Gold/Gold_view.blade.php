@@ -2,7 +2,7 @@
     <link href="{{ url('css/style.css') }}" rel="stylesheet">
 
 </head>
-<form class="custom-form" action="{{ route('gold-items.store') }}" method="POST" enctype="multipart/form-data">
+<form class="custom-form" action="{{ route('gold-items.addFromFactory') }}" method="POST" enctype="multipart/form-data">
     @csrf
 
     <label for="link">Upload Image:</label>
