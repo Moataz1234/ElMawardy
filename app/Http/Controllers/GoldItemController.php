@@ -107,15 +107,13 @@ class GoldItemController extends Controller
         // Create a new customer entry
         $customer = Customer::create($validated);
     
-        // Optionally, you can link this customer to the gold item sold
         $goldItem = GoldItem::findOrFail($id);
 
-        // Transfer data to GoldItemSold
-        $goldItemSold = GoldItemSold::create($goldItem->toArray());
-
-        // Set the customer_id on the sold item
-        $goldItemSold->customer_id = $customer->id;
-        $goldItemSold->save();
+        // Transfer data to GoldItemSold and set customer_id
+        $goldItemSold = GoldItemSold::create(array_merge(
+            $goldItem->toArray(),
+            ['customer_id' => $customer->id]
+        ));
 
         // Delete the item from GoldItem
         $goldItem->delete();
