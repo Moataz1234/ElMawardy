@@ -217,7 +217,8 @@ class GoldItemController extends Controller
      */
     public function create()
     {
-        return view('admin.Gold.Gold_view');
+        $shops = Shop::all(); // Assuming you have a Shop model
+        return view('admin.Gold.Gold_view', compact('shops'));
     }
 
     /**
@@ -294,9 +295,9 @@ class GoldItemController extends Controller
      */
     public function edit(string $id)
     {
-        
         $goldItem = GoldItem::findOrFail($id);
-        return view('admin.Gold.Gold_edit', compact('goldItem'));
+        $shops = Shop::all(); // Assuming you have a Shop model
+        return view('admin.Gold.Gold_edit', compact('goldItem', 'shops'));
     }
 
     /**
