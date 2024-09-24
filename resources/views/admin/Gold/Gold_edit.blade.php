@@ -87,7 +87,7 @@
 
     <div class="customer-details">
         <h2>Enter Customer Details</h2>
-        <form action="{{ route('gold-items.markAsSold', $goldItem->id) }}" method="POST" style="display:inline;">
+        <form action="{{ route('gold-items.markAsSold', $goldItem->id) }}" method="POST">
             @csrf
 
             <label for="first_name">First Name:</label>

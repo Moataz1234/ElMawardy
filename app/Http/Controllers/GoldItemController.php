@@ -108,19 +108,19 @@ class GoldItemController extends Controller
         $customer = Customer::create($validated);
     
         // Optionally, you can link this customer to the gold item sold
-        $goldItemSold = GoldItemSold::findOrFail($id);
-        $goldItemSold->customer()->associate($customer); // Assuming a relationship exists
-        $goldItemSold->save();
-    
         $goldItem = GoldItem::findOrFail($id);
 
         // Transfer data to GoldItemSold
-        GoldItemSold::create($goldItem->toArray());
+        $goldItemSold = GoldItemSold::create($goldItem->toArray());
+
+        // Associate the customer with the sold item
+        $goldItemSold->customer()->associate($customer);
+        $goldItemSold->save();
 
         // Delete the item from GoldItem
         $goldItem->delete();
 
-        return redirect()->route('gold-items')->with('success', 'Gold item marked as rest successfully.');
+        return redirect()->route('gold-items.index')->with('success', 'Gold item marked as sold successfully.');
     }
     public function markAsRest(Request $request, string $id)
     {
