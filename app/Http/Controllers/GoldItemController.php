@@ -22,6 +22,8 @@ class GoldItemController extends Controller
 
         $goldItem = GoldItem::findOrFail($id);
         $goldItem->shop_id = $validated['shop_id'];
+        $shop = Shop::findOrFail($validated['shop_id']);
+        $goldItem->shop_name = $shop->name;
         $goldItem->save();
 
         return redirect()->route('gold-items.index')->with('success', 'Gold item transferred successfully.');
