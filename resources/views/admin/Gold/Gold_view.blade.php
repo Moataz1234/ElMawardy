@@ -11,11 +11,12 @@
     <label for="serial_number">Serial Number:</label>
     <input type="text" name="serial_number" id="serial_number"><br>
 
-    <label for="shop_name">Shop Name:</label>
-    <input type="text" name="shop_name" id="shop_name"><br>
-
-    <label for="shop_id">Shop ID:</label>
-    <input type="number" name="shop_id" id="shop_id"><br>
+    <label for="shop_id">Shop:</label>
+    <select name="shop_id" id="shop_id" required>
+        @foreach($shops as $shop)
+            <option value="{{ $shop->id }}">{{ $shop->name }}</option>
+        @endforeach
+    </select><br>
 
     <label for="kind">Kind:</label>
     <input type="text" name="kind" id="kind"><br>
