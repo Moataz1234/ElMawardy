@@ -74,7 +74,10 @@
         <input type="number" name="net_weight" step="0.01" id="net_weight" value="{{ $goldItem->net_weight }}"><br>
 
         <button type="submit">Update</button>
-        <button type="submit" formaction="{{ route('gold-items.sold', $goldItem->id) }}" formmethod="POST">Sold</button>
-    </form>
+           </form>
+           <form action="{{ route('gold-items.markAsSold', $goldItem->id) }}" method="POST" style="display:inline;">
+            @csrf
+            <button class="sold_button" type="submit">Sold</button>
+        </form> 
 </body>
 </html>

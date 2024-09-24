@@ -73,6 +73,12 @@
         <input type="date" name="sold_date" id="sold_date" value="{{ $goldItemSold->sold_date }}"><br>
 
         <button type="submit">Update</button>
+        
+    
     </form>
+    <form action="{{ route('gold-items-sold.markAsRest', $goldItemSold->id) }}" method="POST" style="display:inline;">
+        @csrf
+        <button class="rest_button" type="submit">Rest</button>
+    </form> 
 </body>
 </html>

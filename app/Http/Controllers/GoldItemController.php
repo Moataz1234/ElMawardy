@@ -29,7 +29,7 @@ class GoldItemController extends Controller
                          ->orWhere('source', 'like', "%{$search}%");
         })
         ->orderBy($sort, $direction)
-        ->paginate(36);
+        ->paginate(20);
         return view('admin.Gold.Gold_list', compact('goldItems'));
     }
 
@@ -48,7 +48,18 @@ class GoldItemController extends Controller
 
         return redirect()->route('gold-items.index')->with('success', 'Gold item marked as sold successfully.');
     }
+    public function markAsRest(Request $request, string $id)
+    {
+        $goldItem = GoldItemSold::findOrFail($id);
 
+        // Transfer data to GoldItemSold
+        GoldItem::create($goldItem->toArray());
+
+        // Delete the item from GoldItem
+        $goldItem->delete();
+
+        return redirect()->route('gold-items.sold')->with('success', 'Gold item marked as rest successfully.');
+    }
     /**
      * Show the form for editing the specified sold item.
      */
@@ -121,7 +132,7 @@ class GoldItemController extends Controller
                          ->orWhere('source', 'like', "%{$search}%");
         })
         ->orderBy($sort, $direction)
-        ->paginate(36);
+        ->paginate(20);
         return view('admin.Gold.Gold_list_sold', compact('goldItems'));
     }
 

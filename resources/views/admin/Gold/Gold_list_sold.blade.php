@@ -12,10 +12,12 @@
     <link href="{{ asset('css/style.css') }}" rel="stylesheet">
     </head>
 <body>
-    <a href="{{ route('gold-items.index') }}" class="btn btn-secondary">View Available Items</a>
     <form method="GET" action="{{ route('gold-items.sold') }}">
         <input type="text" name="search" placeholder="Search..." value="{{ request('search') }}">
+       
         <button type="submit">Search</button>
+        <a class="link_pages" href="{{ route('gold-items.index') }}" >View Available Items</a>
+
     </form>
     <table>
         <thead>
