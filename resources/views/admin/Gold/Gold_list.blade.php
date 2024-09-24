@@ -30,6 +30,7 @@
                             <input type="hidden" name="sort" value="serial_number">
                             <input type="hidden" name="direction" value="{{ request('direction') === 'asc' ? 'desc' : 'asc' }}">
                             <input type="hidden" name="search" value="{{ request('search') }}">
+                            <input type="hidden" name="search" value="{{ request('search') }}">
                             <button type="submit">&#8597;</button>
                         </form>
                     </div>
