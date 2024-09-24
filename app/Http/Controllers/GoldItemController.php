@@ -17,11 +17,11 @@ class GoldItemController extends Controller
     public function transferToBranch(Request $request, string $id)
     {
         $validated = $request->validate([
-            'branch_id' => 'required|exists:branches,id',
+            'shop_id' => 'required|exists:shops,id',
         ]);
 
         $goldItem = GoldItem::findOrFail($id);
-        $goldItem->branch_id = $validated['branch_id'];
+        $goldItem->shop_id = $validated['shop_id'];
         $goldItem->save();
 
         return redirect()->route('gold-items.index')->with('success', 'Gold item transferred successfully.');

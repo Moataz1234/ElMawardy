@@ -75,10 +75,10 @@
         <h2>Transfer to Another Branch</h2>
         <form action="{{ route('gold-items.transfer', $goldItem->id) }}" method="POST">
             @csrf
-            <label for="branch_id">Branch:</label>
-            <select name="branch_id" id="branch_id" required>
-                @foreach($branches as $branch)
-                    <option value="{{ $branch->id }}">{{ $branch->name }}</option>
+            <label for="shop_id">Shop:</label>
+            <select name="shop_id" id="shop_id" required>
+                @foreach($shops as $shop)
+                    <option value="{{ $shop->id }}">{{ $shop->name }}</option>
                 @endforeach
             </select><br>
             <button type="submit">Transfer</button>
