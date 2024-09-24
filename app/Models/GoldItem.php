@@ -14,4 +14,8 @@ class GoldItem extends Model
         'weight', 'rest_since', 'source', 'to_print', 'price', 'semi_or_no', 
         'average_of_stones', 'net_weight'
     ];
+    public function shop()
+    {
+        return $this->belongsTo(Shop::class);
+    }
 }

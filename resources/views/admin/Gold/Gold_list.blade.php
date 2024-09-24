@@ -174,7 +174,7 @@
                 <tr>
                     <td><img src="{{ asset($item->link) }}" alt="Image" width="50"></td>
                     <td>{{ $item->serial_number }}</td>
-                    <td>{{ $item->shop_name }}</td>
+                    <td>{{ $item->shop->name }}</td>
                     <td>{{ $item->kind }}</td>
                     <td>{{ $item->model }}</td>
                     <td>{{ $item->gold_color }}</td>

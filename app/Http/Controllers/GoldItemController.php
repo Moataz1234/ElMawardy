@@ -72,19 +72,22 @@ class GoldItemController extends Controller
         $sort = $request->input('sort', 'serial_number');
         $direction = $request->input('direction', 'asc');
 
-        $goldItems = GoldItem::when($search, function ($query, $search) {
-            return $query->where('serial_number', 'like', "%{$search}%")
-                         ->orWhere('shop_name', 'like', "%{$search}%")
-                         ->orWhere('kind', 'like', "%{$search}%")
-                         ->orWhere('model', 'like', "%{$search}%")
-                         ->orWhere('gold_color', 'like', "%{$search}%")
-                         ->orWhere('stones', 'like', "%{$search}%")
-                         ->orWhere('metal_type', 'like', "%{$search}%")
-                         ->orWhere('metal_purity', 'like', "%{$search}%")
-                         ->orWhere('source', 'like', "%{$search}%");
-        })
-        ->orderBy($sort, $direction)
-        ->paginate(20);
+        $goldItems = GoldItem::with('shop')
+            ->when($search, function ($query, $search) {
+                return $query->where('serial_number', 'like', "%{$search}%")
+                             ->orWhereHas('shop', function ($query) use ($search) {
+                                 $query->where('name', 'like', "%{$search}%");
+                             })
+                             ->orWhere('kind', 'like', "%{$search}%")
+                             ->orWhere('model', 'like', "%{$search}%")
+                             ->orWhere('gold_color', 'like', "%{$search}%")
+                             ->orWhere('stones', 'like', "%{$search}%")
+                             ->orWhere('metal_type', 'like', "%{$search}%")
+                             ->orWhere('metal_purity', 'like', "%{$search}%")
+                             ->orWhere('source', 'like', "%{$search}%");
+            })
+            ->orderBy($sort, $direction)
+            ->paginate(20);
         return view('admin.Gold.Gold_list', compact('goldItems'));
     }
 
