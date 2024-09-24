@@ -5,9 +5,36 @@ namespace App\Http\Controllers;
 use Illuminate\Http\Request;
 use App\Models\GoldItem;
 use App\Models\GoldItemSold;
+use App\Models\Buyer;
 
 class GoldItemController extends Controller
 {
+    /**
+     * Show the form for entering buyer details.
+     */
+    public function createBuyer(string $id)
+    {
+        $goldItemSold = GoldItemSold::findOrFail($id);
+        return view('admin.Gold.Buyer_form', compact('goldItemSold'));
+    }
+
+    /**
+     * Store buyer details.
+     */
+    public function storeBuyer(Request $request, string $id)
+    {
+        $validated = $request->validate([
+            'name' => 'required|string',
+            'email' => 'required|email',
+            'payment_method' => 'required|string',
+        ]);
+
+        $goldItemSold = GoldItemSold::findOrFail($id);
+        $goldItemSold->buyer()->create($validated);
+
+        return redirect()->route('gold-items.index')->with('success', 'Buyer details saved successfully.');
+    }
+
     /**
      * Display a listing of the resource.
      */
@@ -46,7 +73,7 @@ class GoldItemController extends Controller
         // Delete the item from GoldItem
         $goldItem->delete();
 
-        return redirect()->route('gold-items.index')->with('success', 'Gold item marked as sold successfully.');
+        return redirect()->route('buyers.create', $goldItem->id);
     }
     public function markAsRest(Request $request, string $id)
     {

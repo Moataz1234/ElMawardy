@@ -37,5 +37,8 @@ class GoldItemSold extends Model
         'sold_date',
     ];
 
-    // If you have any relationships, you can define them here
+    public function buyer()
+    {
+        return $this->hasOne(Buyer::class);
+    }
 }
