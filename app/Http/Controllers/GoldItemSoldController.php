@@ -104,11 +104,12 @@ class GoldItemSoldController extends Controller
     
         $goldItem = GoldItem::findOrFail($id);
 
-        // Transfer data to GoldItemSold and set customer_id
-        $goldItemSold = GoldItemSold::create(array_merge(
-            $goldItem->toArray(),
-            ['customer_id' => $customer->id]
-        ));
+        // Set customer_id in GoldItem
+        $goldItem->customer_id = $customer->id;
+        $goldItem->save();
+
+        // Transfer data to GoldItemSold
+        $goldItemSold = GoldItemSold::create($goldItem->toArray());
 
         // Delete the item from GoldItem
         $goldItem->delete();
