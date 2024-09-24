@@ -113,8 +113,8 @@ class GoldItemController extends Controller
         // Transfer data to GoldItemSold
         $goldItemSold = GoldItemSold::create($goldItem->toArray());
 
-        // Associate the customer with the sold item
-        $goldItemSold->customer()->associate($customer);
+        // Set the customer_id on the sold item
+        $goldItemSold->customer_id = $customer->id;
         $goldItemSold->save();
 
         // Delete the item from GoldItem
