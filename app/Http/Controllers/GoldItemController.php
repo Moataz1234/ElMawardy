@@ -28,6 +28,16 @@ class GoldItemController extends Controller
     }
 
     /**
+     * Show the form for transferring a gold item to another branch.
+     */
+    public function showTransferForm(string $id)
+    {
+        $goldItem = GoldItem::findOrFail($id);
+        $shops = Shop::all(); // Assuming you have a Shop model
+        return view('admin.Gold.Gold_transfer', compact('goldItem', 'shops'));
+    }
+
+    /**
      * Add new products from the factory to a branch.
      */
     public function addFromFactory(Request $request)

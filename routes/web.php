@@ -39,6 +39,7 @@ Route::post('/gold-items', [GoldItemController::class, 'store'])->name('gold-ite
 Route::get('/gold-items', [GoldItemController::class, 'index'])->name('gold-items.index');
 Route::get('/gold-items/{id}/edit', [GoldItemController::class, 'edit'])->name('gold-items.edit');
 Route::put('/gold-items/{id}', [GoldItemController::class, 'update'])->name('gold-items.update');
+Route::get('/gold-items/{id}/transfer', [GoldItemController::class, 'showTransferForm'])->name('gold-items.transferForm');
 
 //                  Sold
 Route::get('/gold-items-sold/{id}/edit', [GoldItemSoldController::class, 'edit'])->name('gold-items-sold.edit');

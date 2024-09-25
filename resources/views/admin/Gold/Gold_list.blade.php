@@ -189,6 +189,8 @@
                     <td>{{ $item->net_weight }}</td>
                     <td>
                         <a class="edit_button" href="{{ route('gold-items.edit', $item->id) }}" >Edit</a>
+                        <a class="edit_button" href="{{ route('gold-items.edit', $item->id) }}" >Edit</a>
+                        <a class="transfer_button" href="{{ route('gold-items.transferForm', $item->id) }}" >Transfer</a>
                     </td>
                 </tr>
             @endforeach
