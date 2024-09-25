@@ -71,11 +71,9 @@ class GoldItemController extends Controller
         $direction = $request->input('direction', 'asc');
 
         $goldItems = GoldItem::with('shop')
+            ->where('shop_name', auth()->user()->name)
             ->when($search, function ($query, $search) {
                 return $query->where('serial_number', 'like', "%{$search}%")
-                             ->orWhereHas('shop', function ($query) use ($search) {
-                                 $query->where('name', 'like', "%{$search}%");
-                             })
                              ->orWhere('kind', 'like', "%{$search}%")
                              ->orWhere('model', 'like', "%{$search}%")
                              ->orWhere('gold_color', 'like', "%{$search}%")
