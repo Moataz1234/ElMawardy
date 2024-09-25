@@ -32,7 +32,7 @@ class AuthenticatedSessionController extends Controller
             return redirect('dashboard');
         }
 
-        return redirect()->intended(route('dashboard'));
+        return redirect()->intended(route('shop.dashboard', ['shop' => $request->user()->name]));
     }
 
     /**
