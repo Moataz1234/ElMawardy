@@ -6,6 +6,7 @@ use Illuminate\Support\Facades\Route;
 use App\Http\Controllers\NewItemController;
 use App\Http\Controllers\GoldItemController;
 use App\Http\Controllers\GoldItemSoldController;
+use App\Http\Controllers\GoldPoundController;
 
 
 Route::get('/', function () {
@@ -48,6 +49,7 @@ Route::post('/gold-items/add-from-factory', [GoldItemController::class, 'addFrom
 
 Route::post('/gold-items-sold/{id}/mark-as-rest', [GoldItemSoldController::class, 'markAsRest'])->name('gold-items-sold.markAsRest');
 Route::get('/gold-items-sold', [GoldItemSoldController::class, 'index'])->name('gold-items.sold');
+Route::get('/gold-pounds', [GoldPoundController::class, 'index'])->name('gold-pounds.index');
 
    
 });
