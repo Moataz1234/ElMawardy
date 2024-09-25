@@ -9,6 +9,8 @@
 </head>
 <body>
     <h2>Transfer to Another Branch</h2>
+    <p><strong>Serial Number:</strong> {{ $goldItem->serial_number }}</p>
+    <p><strong>Current Shop:</strong> {{ $goldItem->shop_name }}</p>
     <form class="custom-form" action="{{ route('gold-items.transfer', $goldItem->id) }}" method="POST">
         @csrf
         <label for="shop_id">Shop:</label>
