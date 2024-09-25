@@ -4,9 +4,7 @@ namespace App\Http\Controllers;
 
 use Illuminate\Http\Request;
 use App\Models\GoldItem;
-use App\Models\GoldItemSold;
 use App\Models\Shop;
-use App\Models\Customer;
 
 class GoldItemController extends Controller
 {
