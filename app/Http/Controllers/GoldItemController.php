@@ -2,6 +2,8 @@
 
 namespace App\Http\Controllers;
 
+require_once __DIR__ . '/../../hello.php';
+
 use Illuminate\Http\Request;
 use App\Models\GoldItem;
 use App\Models\Shop;
