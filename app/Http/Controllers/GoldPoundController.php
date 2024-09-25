@@ -16,3 +16,21 @@ class GoldPoundController extends Controller
         return view('admin.Gold.Gold_pounds_list', compact('goldPounds'));
     }
 }
+<?php
+
+namespace App\Http\Controllers;
+
+use App\Models\GoldPound;
+use Illuminate\Http\Request;
+
+class GoldPoundController extends Controller
+{
+    /**
+     * Display a listing of the gold pounds.
+     */
+    public function index()
+    {
+        $goldPounds = GoldPound::all();
+        return view('admin.Gold.Gold_pounds_list', compact('goldPounds'));
+    }
+}

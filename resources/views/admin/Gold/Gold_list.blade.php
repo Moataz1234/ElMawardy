@@ -17,8 +17,7 @@
         <input type="text" name="search" placeholder="Search..." value="{{ request('search') }}">
         <button type="submit">Search</button>
         <a class="link_pages" href="{{ route('gold-items.sold') }}" >View Sold Items</a>
-        <a class="link_pages" href="{{ route('gold-pounds.index') }}" >View Coins</a>
-        <a class="link_pages" href="{{ route('gold-items.transfer') }}" >View Coins</a>
+        <a class="link_pages" href="{{ route('gold-pounds.index') }}" >View Gold Pounds</a>
         
     </form>
     <table>
