@@ -72,17 +72,6 @@
 
         </form>
 
-        <h2>Transfer to Another Branch</h2>
-        <form action="{{ route('gold-items.transfer', $goldItem->id) }}" method="POST">
-            @csrf
-            <label for="shop_id">Shop:</label>
-            <select name="shop_id" id="shop_id" required>
-                @foreach($shops as $shop)
-                    <option value="{{ $shop->id }}">{{ $shop->name }}</option>
-                @endforeach
-            </select><br>
-            <button type="submit">Transfer</button>
-        </form>
     </div>
 
     <div class="customer-details">
@@ -95,6 +84,9 @@
 
             <label for="last_name">Last Name:</label>
             <input type="text" name="last_name" id="last_name" required><br>
+            
+            <label for="phone_number">Phone Number:</label>
+            <input type="number" name="phone_number" id="phone_number" required><br>
 
             <label for="address">Address:</label>
             <input type="text" name="address" id="address" required><br>
@@ -109,6 +101,17 @@
             
         </form>
        
+<h2>Transfer to Another Branch</h2>
+<form class="custom-form" action="{{ route('gold-items.transfer', $goldItem->id) }}" method="POST">
+    @csrf
+    <label for="shop_id">Shop:</label>
+    <select name="shop_id" id="shop_id" required>
+        @foreach($shops as $shop)
+            <option value="{{ $shop->id }}">{{ $shop->name }}</option>
+        @endforeach
+    </select><br>
+    <button type="submit">Transfer</button>
+</form>
     </div>
 </body>
 </html>

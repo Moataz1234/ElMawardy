@@ -18,7 +18,7 @@
         <button type="submit">Search</button>
         <a class="link_pages" href="{{ route('gold-items.sold') }}" >View Sold Items</a>
         <a class="link_pages" href="{{ route('gold-pounds.index') }}" >View Gold Pounds</a>
-        
+
     </form>
     <table>
         <thead>
@@ -188,9 +188,9 @@
                     <td>{{ $item->average_of_stones }}</td>
                     <td>{{ $item->net_weight }}</td>
                     <td>
-                        <a class="edit_button" href="{{ route('gold-items.edit', $item->id) }}" >Edit</a>
-                        <a class="edit_button" href="{{ route('gold-items.edit', $item->id) }}" >Edit</a>
-                        <a class="transfer_button" href="{{ route('gold-items.transferForm', $item->id) }}" >Transfer</a>
+                        <a class="action_button" href="{{ route('gold-items.edit', $item->id) }}" >Edit</a>
+                        <a class="action_button" href="{{ route('gold-items.transferForm', $item->id) }}" >Transfer</a>
+
                     </td>
                 </tr>
             @endforeach

@@ -8,11 +8,12 @@
     <link href="{{ url('css/style.css') }}" rel="stylesheet">
 </head>
 <body>
-    <h2>Transfer to Another Branch</h2>
-    <p><strong>Serial Number:</strong> {{ $goldItem->serial_number }}</p>
-    <p><strong>Current Shop:</strong> {{ $goldItem->shop_name }}</p>
+    <h2 style="text-align: center">Transfer to Another Branch</h2>
     <form class="custom-form" action="{{ route('gold-items.transfer', $goldItem->id) }}" method="POST">
         @csrf
+        <p><strong>Serial Number:</strong> {{ $goldItem->serial_number }}</p>
+        <p><strong>Current Shop:</strong> {{ $goldItem->shop_name }}</p>
+       
         <label for="shop_id">Shop:</label>
         <select name="shop_id" id="shop_id" required>
             @foreach($shops as $shop)

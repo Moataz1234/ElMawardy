@@ -93,7 +93,7 @@ class GoldItemSoldController extends Controller
         $validated = $request->validate([
             'first_name' => 'required|string|max:255',
             'last_name' => 'required|string|max:255',
-            'phone_number' => 'nullable|integer',
+            'phone_number' => 'nullable|string|max:255',
             'address' => 'required|string|max:255',
             'email' => 'required|email|max:255',
             'payment_method' => 'required|string|max:255',
@@ -105,11 +105,12 @@ class GoldItemSoldController extends Controller
         $goldItem = GoldItem::findOrFail($id);
 
         // Set customer_id in GoldItem
-        $goldItem->customer_id = $customer->id;
-        $goldItem->save();
 
         // Transfer data to GoldItemSold
         $goldItemSold = GoldItemSold::create($goldItem->toArray());
+        $goldItemSold->customer_id = $customer->id;
+        $goldItemSold->sold_date = now();
+        $goldItemSold->save();
 
         // Delete the item from GoldItem
         $goldItem->delete();
