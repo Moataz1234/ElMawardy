@@ -28,16 +28,6 @@ class GoldItemController extends Controller
     }
 
     /**
-     * Show the form for transferring a gold item to another branch.
-     */
-    public function showTransferForm(string $id)
-    {
-        $goldItem = GoldItem::findOrFail($id);
-        $shops = Shop::all(); // Assuming you have a Shop model
-        return view('admin.Gold.Gold_transfer', compact('goldItem', 'shops'));
-    }
-
-    /**
      * Add new products from the factory to a branch.
      */
     public function addFromFactory(Request $request)
@@ -81,9 +71,11 @@ class GoldItemController extends Controller
         $direction = $request->input('direction', 'asc');
 
         $goldItems = GoldItem::with('shop')
-            ->where('shop_name', auth()->user()->name)
             ->when($search, function ($query, $search) {
                 return $query->where('serial_number', 'like', "%{$search}%")
+                             ->orWhereHas('shop', function ($query) use ($search) {
+                                 $query->where('name', 'like', "%{$search}%");
+                             })
                              ->orWhere('kind', 'like', "%{$search}%")
                              ->orWhere('model', 'like', "%{$search}%")
                              ->orWhere('gold_color', 'like', "%{$search}%")
