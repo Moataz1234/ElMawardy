@@ -21,5 +21,10 @@ class GoldItem extends Model
     public function user()
 {
     return $this->belongsTo(User::class, 'shop_name', 'name');
-}
+    }
+
+    public function transferRequests()
+    {
+        return $this->hasMany(TransferRequest::class);
+    }
 }
