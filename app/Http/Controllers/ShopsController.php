@@ -16,10 +16,13 @@ class ShopsController extends Controller
     {
     $goldItem = GoldItem::findOrFail($id);
 
+    $fromShop = Shop::findOrFail($goldItem->shop_id);
+    $toShop = Shop::where('name', $request->input('shop_name'))->firstOrFail();
+
     TransferRequest::create([
         'gold_item_id' => $goldItem->id,
-        'from_shop_id' => $goldItem->shop_id,
-        'to_shop_id' => $request->input('shop_id'),
+        'from_shop_name' => $fromShop->name,
+        'to_shop_name' => $toShop->name,
         'status' => 'pending'
     ]);
 

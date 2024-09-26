@@ -12,8 +12,8 @@ class TransferRequest extends Model
     // Define the fillable fields
     protected $fillable = [
         'gold_item_id',
-        'from_shop_id',
-        'to_shop_id',
+        'from_shop_name',
+        'to_shop_name',
         'status',
     ];
 

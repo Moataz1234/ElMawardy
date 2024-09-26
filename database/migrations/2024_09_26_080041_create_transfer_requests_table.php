@@ -16,8 +16,8 @@ class CreateTransferRequestsTable extends Migration
         Schema::create('transfer_requests', function (Blueprint $table) {
             $table->id();
             $table->unsignedBigInteger('gold_item_id');
-            $table->unsignedBigInteger('from_shop_id');
-            $table->unsignedBigInteger('to_shop_id');
+            $table->string('from_shop_name');
+            $table->string('to_shop_name');
             $table->enum('status', ['pending', 'accepted', 'rejected'])->default('pending');
             $table->timestamps();
 
