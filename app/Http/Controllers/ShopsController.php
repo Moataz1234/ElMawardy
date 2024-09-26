@@ -102,23 +102,25 @@ public function showTransferForm(string $id)
         $direction = $request->input('direction', 'asc');
 
     
-        // Fetch the items associated with the logged-in user's shop_name
-        $goldItems = GoldItem::where('shop_name', $user->name)    
-        ->when($search, function ($query, $search) {    
+        // Fetch only the items requested by the logged-in user
+        $goldItems = GoldItem::whereHas('transferRequests', function ($query) use ($user) {
+            $query->where('to_shop_id', $user->shop_id);
+        })
+        ->when($search, function ($query, $search) {
             return $query->where('serial_number', 'like', "%{$search}%")
                 ->orWhereHas('shop', function ($query) use ($search) {
                     $query->where('name', 'like', "%{$search}%");
-                                })
-                             ->orWhere('kind', 'like', "%{$search}%")
-                             ->orWhere('model', 'like', "%{$search}%")
-                             ->orWhere('gold_color', 'like', "%{$search}%")
-                             ->orWhere('stones', 'like', "%{$search}%")
-                             ->orWhere('metal_type', 'like', "%{$search}%")
-                             ->orWhere('metal_purity', 'like', "%{$search}%")
-                             ->orWhere('source', 'like', "%{$search}%");
-            })
-            ->orderBy($sort, $direction)
-            ->paginate(20);
+                })
+                ->orWhere('kind', 'like', "%{$search}%")
+                ->orWhere('model', 'like', "%{$search}%")
+                ->orWhere('gold_color', 'like', "%{$search}%")
+                ->orWhere('stones', 'like', "%{$search}%")
+                ->orWhere('metal_type', 'like', "%{$search}%")
+                ->orWhere('metal_purity', 'like', "%{$search}%")
+                ->orWhere('source', 'like', "%{$search}%");
+        })
+        ->orderBy($sort, $direction)
+        ->paginate(20);
 
         return view('shops.index', compact('goldItems'));
     }
