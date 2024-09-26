@@ -21,13 +21,14 @@
     <link href="{{ asset('css/navbar.css') }}" rel="stylesheet">
 </head>
 <body>
-    <x-navbar />
-        <input type="text" name="search" placeholder="Search..." value="{{ request('search') }}">
-        <button type="submit">Search</button>
-        <a class="link_pages" href="{{ route('gold-items.sold') }}" >View Sold Items</a>
-        <a class="link_pages" href="{{ route('gold-pounds.index') }}" >View Gold Pounds</a>
-
-    </form>
+    <input type="text" name="search" placeholder="Search..." value="{{ request('search') }}">
+    <button type="submit">Search</button>
+    <nav>
+        <ul>
+            <li><a href="{{ route('gold-items.sold') }}">View Sold Items</a></li>
+            <li><a href="{{ route('gold-pounds.index') }}">View Gold Pounds</a></li>
+        </ul>
+    </nav>
     <table>
         <thead>
             <tr>

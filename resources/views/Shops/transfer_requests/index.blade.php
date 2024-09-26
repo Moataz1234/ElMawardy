@@ -18,7 +18,15 @@
    <link href="{{ asset('css/pagination.css') }}" rel="stylesheet">
 </head>
 <body>
-    <x-navbar />
+    <nav>
+        <ul>
+            <li><a href="{{ route('gold-items.shop', ['shop' => Auth::user()->name]) }}">Shop Items</a></li>
+            <li><a href="{{ route('transfer.requests') }}">Transfer Requests</a></li>
+            <li><a href="{{ route('transfer.requests.history') }}">Transfer Request History</a></li>
+            <li><a href="{{ route('gold-items.index') }}">Available Items</a></li>
+            <li><a href="{{ route('gold-pounds.index') }}">Gold Pounds</a></li>
+        </ul>
+    </nav>
 
     @foreach($transferRequests as $request)
         <p><strong>Gold Item:</strong> {{ $request->goldItem->serial_number }}</p>

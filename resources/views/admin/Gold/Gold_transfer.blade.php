@@ -9,8 +9,16 @@
     <link href="{{ asset('css/navbar.css') }}" rel="stylesheet">
 </head>
 <body>
-    <x-navbar />
     <form class="custom-form" action="{{ route('gold-items.transfer', $goldItem->id) }}" method="POST">
+        <nav>
+            <ul>
+                <li><a href="{{ route('gold-items.shop', ['shop' => Auth::user()->name]) }}">Shop Items</a></li>
+                <li><a href="{{ route('transfer.requests') }}">Transfer Requests</a></li>
+                <li><a href="{{ route('transfer.requests.history') }}">Transfer Request History</a></li>
+                <li><a href="{{ route('gold-items.index') }}">Available Items</a></li>
+                <li><a href="{{ route('gold-pounds.index') }}">Gold Pounds</a></li>
+            </ul>
+        </nav>
         @csrf
         <p><strong>Serial Number:</strong> {{ $goldItem->serial_number }}</p>
         <p><strong>Current Shop:</strong> {{ $goldItem->shop_name }}</p>
