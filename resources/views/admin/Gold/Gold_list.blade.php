@@ -18,7 +18,8 @@
     <link href="{{ asset('css/pagination.css') }}" rel="stylesheet">
 
     <link href="{{ asset('css/style.css') }}" rel="stylesheet">
-    </head>
+    <link href="{{ asset('css/navbar.css') }}" rel="stylesheet">
+</head>
 <body>
     <x-navbar />
         <input type="text" name="search" placeholder="Search..." value="{{ request('search') }}">
