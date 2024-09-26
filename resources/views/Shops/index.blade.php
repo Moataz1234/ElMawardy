@@ -18,6 +18,12 @@
 
 </head>
 <body>
+   <nav>
+       <ul>
+           <li><a href="{{ route('gold-items.shop', ['shop' => Auth::user()->name]) }}">Shop Items</a></li>
+           <li><a href="{{ route('transfer.requests') }}">Transfer Requests</a></li>
+       </ul>
+   </nav>
    <h1>Items for {{ Auth::user()->name }}</h1>
    <form method="GET" action="{{ route('gold-items.index') }}">
        <input type="text" name="search" placeholder="Search..." value="{{ request('search') }}">
