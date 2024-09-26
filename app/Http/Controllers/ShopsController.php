@@ -47,8 +47,7 @@ public function handleTransferRequest($id, $status)
 public function viewTransferRequests()
 {
     $user = Auth::user();
-    $shopId = $user->shop_id;
-
+    $shopId = $user->id;
     $transferRequests = TransferRequest::with(['goldItem', 'fromShop', 'toShop'])
                             ->where('to_shop_id', $shopId)
                             ->where('status', 'pending')

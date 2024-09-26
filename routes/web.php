@@ -80,4 +80,3 @@ Route::get('/transfer-request/{id}/{status}', [ShopsController::class, 'handleTr
 Route::get('/transfer-requests', [ShopsController::class, 'viewTransferRequests'])->name('transfer.requests');
 
 // Route to handle accepting/rejecting the transfer request
-Route::get('/transfer-requests', [ShopsController::class, 'handleTransferRequest'])->name('transfer.handle');
