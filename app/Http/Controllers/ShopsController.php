@@ -68,9 +68,7 @@ public function showShopItems(Request $request)
     $sort = $request->input('sort', 'serial_number');
     $direction = $request->input('direction', 'asc');
 
-    $goldItems = GoldItem::whereHas('transferRequests', function ($query) use ($user) {
-        $query->where('to_shop_id', $user->shop_id);
-    })
+    $goldItems = GoldItem::where('shop_id', $user->shop_id)
     ->when($search, function ($query, $search) {
         return $query->where('serial_number', 'like', "%{$search}%")
             ->orWhereHas('shop', function ($query) use ($search) {
