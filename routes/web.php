@@ -77,7 +77,7 @@ Route::get('/gold-pounds', [GoldPoundController::class, 'index'])->name('gold-po
 Route::post('/gold-items/transfer/{id}', [ShopsController::class, 'transferRequest'])->name('gold-items.transfer');
 Route::get('/transfer-request/{id}/{status}', [ShopsController::class, 'handleTransferRequest'])->name('transfer.handle');
 // Route to view pending transfer requests
-Route::get('/transfer-requests/{id}', [ShopsController::class, 'viewTransferRequests'])->name('transfer.requests');
+Route::get('/transfer-requests', [ShopsController::class, 'viewTransferRequests'])->name('transfer.requests');
 
 // Route to handle accepting/rejecting the transfer request
 Route::get('/transfer-requests', [ShopsController::class, 'handleTransferRequest'])->name('transfer.handle');
