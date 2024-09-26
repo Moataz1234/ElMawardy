@@ -24,11 +24,14 @@
     <input type="text" name="search" placeholder="Search..." value="{{ request('search') }}">
     <button type="submit">Search</button>
     <nav>
-        <ul>
-            <li><a href="{{ route('gold-items.sold') }}">View Sold Items</a></li>
-            <li><a href="{{ route('gold-pounds.index') }}">View Gold Pounds</a></li>
-        </ul>
-    </nav>
+            <ul>
+                <li><a href="{{ route('gold-items.shop', ['shop' => Auth::user()->name]) }}">Shop Items</a></li>
+                <li><a href="{{ route('transfer.requests') }}">Transfer Requests</a></li>
+                <li><a href="{{ route('transfer.requests.history') }}">Transfer Request History</a></li>
+                <li><a href="{{ route('gold-items.index') }}">Available Items</a></li>
+                <li><a href="{{ route('gold-pounds.index') }}">Gold Pounds</a></li>
+            </ul>
+        </nav>
     <table>
         <thead>
             <tr>
