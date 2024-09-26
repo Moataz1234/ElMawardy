@@ -16,13 +16,12 @@ class ShopsController extends Controller
     {
     $goldItem = GoldItem::findOrFail($id);
 
-    $fromShop = Shop::findOrFail($goldItem->shop_id);
-    $toShop = Shop::where('name', $request->input('shop_name'))->firstOrFail();
+    $toShop = Shop::findOrFail($request->input('shop_id'));
 
     TransferRequest::create([
         'gold_item_id' => $goldItem->id,
-        'from_shop_name' => $fromShop->name,
-        'to_shop_name' => $toShop->name,
+        'from_shop_id' => $goldItem->shop_id,
+        'to_shop_id' => $toShop->id,
         'status' => 'pending'
     ]);
 
@@ -48,10 +47,10 @@ public function handleTransferRequest($id, $status)
 public function viewTransferRequests()
 {
     $user = Auth::user();
-    $shopName = $user->name;
+    $shopId = $user->shop_id;
 
     $transferRequests = TransferRequest::with(['goldItem', 'fromShop', 'toShop'])
-                            ->where('to_shop_name', $shopName)
+                            ->where('to_shop_id', $shopId)
                             ->where('status', 'pending')
                             ->get();
 
