@@ -8,7 +8,6 @@ use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\View\View;
-use App\Http\Controllers\HomeController;
 class AuthenticatedSessionController extends Controller
 {
     /**
@@ -32,7 +31,7 @@ class AuthenticatedSessionController extends Controller
             return redirect('dashboard');
         }
 
-        return redirect()->intended(route('shop.dashboard', ['shop' => $request->user()->name]));
+        return redirect()->intended(route('gold-items.shop', ['shop' => $request->user()->name]));
     }
 
     /**

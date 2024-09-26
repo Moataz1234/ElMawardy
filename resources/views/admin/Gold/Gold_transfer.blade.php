@@ -20,7 +20,7 @@
                 <option value="{{ $shop->id }}">{{ $shop->name }}</option>
             @endforeach
         </select><br>
-        <button type="submit">Transfer</button>
+        <button type="submit">Send Transfer Request</button>
     </form>
 </body>
 </html>

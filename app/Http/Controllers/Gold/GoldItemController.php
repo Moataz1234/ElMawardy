@@ -1,14 +1,53 @@
 <?php
 
-namespace App\Http\Controllers;
+namespace App\Http\Controllers\Gold;
 
+use App\Http\Controllers\Controller;
+use Illuminate\Support\Facades\Auth;
 use Illuminate\Http\Request;
 use App\Models\GoldItem;
 use App\Models\Shop;
 
 class GoldItemController extends Controller
 {
-
+    public function shopView(Request $request, $shopId)
+    {
+        // Ensure the logged-in user is from the correct shop
+        if (Auth::user()->shop_id != $shopId) {
+            abort(403, 'Unauthorized access.');
+        }
+    
+        // Fetch only the gold items related to the shop by shop_id
+        $goldItems = GoldItem::where('shop_id', $shopId);
+    
+        // Apply sorting if requested
+        if ($request->has('sort') && $request->has('direction')) {
+            $goldItems->orderBy($request->sort, $request->direction);
+        }
+    
+        // Apply search functionality if needed
+        if ($request->has('search')) {
+            $goldItems->where(function ($q) use ($request) {
+                $q->where('serial_number', 'LIKE', "%{$request->search}%")
+                  ->orWhere('kind', 'LIKE', "%{$request->search}%")
+                  ->orWhere('model', 'LIKE', "%{$request->search}%");
+            });
+        }
+    
+        // Paginate the results
+        $goldItems = $goldItems->paginate(10);
+    
+        return view('shops.index', compact('goldItems', 'shopId'));
+    }
+    public function showShopItems()
+    {
+        $user = Auth::user(); // Get the authenticated user
+    
+        // Fetch the items associated with the logged-in user's shop_name
+        $goldItems = GoldItem::where('shop_name', $user->name)->paginate(20);
+    
+        return view('shops.index', compact('goldItems'));
+    }
     /**
      * Transfer a gold item to another branch.
      */

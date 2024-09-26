@@ -1,7 +1,8 @@
 <?php
 
-namespace App\Http\Controllers;
+namespace App\Http\Controllers\Gold;
 
+use App\Http\Controllers\Controller;
 use App\Models\GoldPound;
 use Illuminate\Http\Request;
 

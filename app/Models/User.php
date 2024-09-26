@@ -44,4 +44,8 @@ class User extends Authenticatable
             'password' => 'hashed',
         ];
     }
+    public function goldItems()
+{
+    return $this->hasMany(GoldItem::class, 'shop_name', 'name');
+}
 }

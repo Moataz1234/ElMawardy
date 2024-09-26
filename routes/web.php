@@ -4,22 +4,24 @@ use App\Http\Controllers\HomeController;
 use App\Http\Controllers\ProfileController;
 use Illuminate\Support\Facades\Route;
 use App\Http\Controllers\NewItemController;
-use App\Http\Controllers\GoldItemController;
-use App\Http\Controllers\GoldItemSoldController;
-use App\Http\Controllers\GoldPoundController;
+use App\Http\Controllers\Gold\GoldItemController;
+use App\Http\Controllers\Gold\GoldItemSoldController;
+use App\Http\Controllers\Gold\GoldPoundController;
 
 
 Route::get('/', function () {
     return view('auth.login');
 });
 
-Route::get('/dashboard', function () {
-    return view('dashboard');
-})->middleware(['auth', 'verified'])->name('dashboard');
-
-Route::get('/shop/{shop}/dashboard', function ($shop) {
-    return view('shops.' . $shop . '.dashboard');
-})->middleware(['auth', 'verified'])->name('shop.dashboard');
+// Route::get('/dashboard', function () {
+//     return view('dashboard');
+// })->middleware(['auth', 'verified'])->name('dashboard');
+Route::get('/dashboard', [GoldItemController::class, 'showShopItems'])
+    ->middleware('auth')  // Ensure only authenticated users can access
+    ->name('dashboard');
+Route::get('/gold-items/shop/{shop}', [GoldItemController::class, 'shopView'])
+    ->middleware(['auth', 'check.shop']) // Apply the middleware
+    ->name('gold-items.shop');
 
 Route::middleware('auth')->group(function () {
     Route::get('/profile', [ProfileController::class, 'edit'])->name('profile.edit');
@@ -55,13 +57,15 @@ Route::post('/gold-items/add-from-factory', [GoldItemController::class, 'addFrom
 
 Route::post('/gold-items-sold/{id}/mark-as-rest', [GoldItemSoldController::class, 'markAsRest'])->name('gold-items-sold.markAsRest');
 Route::get('/gold-items-sold', [GoldItemSoldController::class, 'index'])->name('gold-items.sold');
-Route::get('/gold-pounds', [GoldPoundController::class, 'index'])->name('gold-pounds.index');
 
    
 });
 // Route::get('/gold-catalog', [GoldItemController::class,'ThreeView'])->name('gold_catalog.3');
 
+Route::post('/gold-items', [GoldItemController::class, 'store'])->name('gold-items.store');
+Route::get('/gold-items', [GoldItemController::class, 'index'])->name('gold-items.index');
 
+Route::get('/gold-pounds', [GoldPoundController::class, 'index'])->name('gold-pounds.index');
 
 // when user logged out
 // Route::middleware(['auth'])->group(function () {
