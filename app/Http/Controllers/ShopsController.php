@@ -43,6 +43,7 @@ class ShopsController extends Controller
         if ($status === 'accepted') {
             $goldItem = $transferRequest->goldItem;
             $goldItem->shop_id = $transferRequest->to_shop_id;
+            $goldItem->shop_name = $transferRequest->toShop->name;
             $goldItem->save();
         }
 
