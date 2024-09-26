@@ -45,17 +45,17 @@ public function handleTransferRequest($id, $status)
 }
 public function viewTransferRequests()
 {
-    $shop = Auth::user()->shop; // Ensure the user has a relation to a shop
+    $user = Auth::user();
+    $shop = $user->shop; // Ensure the user has a relation to a shop
 
-    // Fetch all pending transfer requests
+    // Fetch all pending transfer requests directed to the user's shop
     $transferRequests = TransferRequest::with(['goldItem', 'fromShop', 'toShop'])
                             ->where('to_shop_id', $shop->id)
                             ->where('status', 'pending')
                             ->get();
 
     // Pass the data to the view
-    $items = GoldItem::where('shop_id', $shop->id)->get(); // Adjust based on your items logic
-    return view('shops.transfer_requests.index', compact('items','transferRequests'));
+    return view('shops.transfer_requests.index', compact('transferRequests'));
 }
 public function showTransferForm(string $id)
 {
