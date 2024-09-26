@@ -235,16 +235,20 @@ color: #ddd;
 .action_button:hover{
     color: #13e90b;
 }
-.link_pages {
-    display: inline-block; /* Make it behave like a button */
-    padding: 10px 20px; /* Add some padding */
-    background-color: #007bff; /* Button background color */
-    color: white; /* Text color */
-    text-decoration: none; /* Remove underline */
-    border-radius: 5px; /* Rounded corners */
+nav ul li a {
+    display: block;
+    padding: 10px 20px;
+    text-decoration: none;
+    color: #333;
+    font-weight: bold;
 }
 
-.link_pages:hover {
-    background-color: #033e7c; 
+nav ul li a:hover {
+    background-color: #e7e7e7;
+    color: #000;
+}
 
+nav ul li a.active {
+    background-color: #007bff;
+    color: white;
 }
