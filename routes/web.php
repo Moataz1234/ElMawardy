@@ -79,4 +79,4 @@ Route::get('/transfer-request/{id}/{status}', [ShopsController::class, 'handleTr
 // Route to view pending transfer requests
 Route::get('/transfer-requests', [ShopsController::class, 'viewTransferRequests'])->name('transfer.requests');
 
-// Route to handle accepting/rejecting the transfer request
+Route::get('/transfer-requests/history', [ShopsController::class, 'viewTransferRequestHistory'])->name('transfer.requests.history');

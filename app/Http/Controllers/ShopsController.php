@@ -26,6 +26,12 @@ class ShopsController extends Controller
     ]);
 
     return redirect()->back()->with('message', 'Transfer request sent to the shop.');
+public function viewTransferRequestHistory()
+{
+    $transferRequests = TransferRequest::with(['goldItem', 'fromShop', 'toShop'])->get();
+
+    return view('shops.transfer_requests.history', compact('transferRequests'));
+}
 }
 
 public function handleTransferRequest($id, $status)
