@@ -5,6 +5,7 @@ namespace Database\Seeders;
 use Illuminate\Database\Seeder;
 use App\Models\User;
 use Illuminate\Support\Facades\Hash;
+use App\Models\Shop;
 
 class ShopUsersSeeder extends Seeder
 {
@@ -31,7 +32,10 @@ class ShopUsersSeeder extends Seeder
         ];
 
         foreach ($shops as $shop) {
+            $shopModel = Shop::where('name', $shop)->first();
+
             User::create([
+                'shop_id' => $shopModel->id,
                 'name' => $shop,
                 'email' => strtolower(str_replace(' ', '_', $shop)) . '@example.com',
                 'password' => Hash::make('12345678'),

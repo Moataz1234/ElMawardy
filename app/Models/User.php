@@ -44,6 +44,11 @@ class User extends Authenticatable
             'password' => 'hashed',
         ];
     }
+    public function shop()
+    {
+        return $this->belongsTo(Shop::class);
+    }
+
     public function goldItems()
 {
     return $this->hasMany(GoldItem::class, 'shop_name', 'name');
