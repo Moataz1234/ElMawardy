@@ -84,70 +84,47 @@ class GoldItemController extends Controller
     public function create()
     {
         $shops = Shop::all(); // Assuming you have a Shop model
-        return view('admin.Gold.Gold_view', compact('shops'));
+        return view('admin.Gold.Gold_create', compact('shops'));
     }
 
     /**
      * Store a newly created resource in storage.
      */
     public function store(Request $request)
-{
-    $validated = $request->validate([
-        'link' => 'nullable|string',
-        'serial_number' => 'nullable|string',
-        'shop_name' => 'nullable|string',
-        'shop_id' => 'nullable|integer',
-        'kind' => 'nullable|string',
-        'model' => 'nullable|string',
-        'talab' => 'nullable|string',
-        'gold_color' => 'nullable|string',
-        'stones' => 'nullable|string',
-        'metal_type' => 'nullable|string',
-        'metal_purity' => 'nullable|string',
-        'quantity' => 'nullable|integer',
-        'weight' => 'nullable|numeric',
-        'rest_since' => 'nullable|date',
-        'source' => 'nullable|string',
-        'to_print' => 'nullable|boolean',
-        'price' => 'nullable|numeric',
-        'semi_or_no' => 'nullable|string',
-        'average_of_stones' => 'nullable|numeric',
-        'net_weight' => 'nullable|numeric',
-    ]);
+    {
+        $validated = $request->validate([
+            'shop_id' => 'required|integer',
+            'kind' => 'required|string',
+            'model' => 'required|string',
+            'gold_color' => 'required|string',
+            'metal_type' => 'required|string',
+            'metal_purity' => 'required|string',
+            'quantity' => 'required|integer',
+            'weight' => 'required|numeric',
+            'source' => 'required|string',
+        ]);
 
-    if ($request->hasFile('link')) {
-        // Handle file upload and store the file
-        $image = $request->file('link');
-        $imagePath = $image->store('uploads/gold_items', 'public');
-        $validated['link'] = $imagePath;
+        // Automatically generate the next serial number
+        $lastItem = GoldItem::orderBy('id', 'desc')->first();
+        $nextSerialNumber = $lastItem ? $lastItem->serial_number + 1 : 1;
+
+        // Create a new GoldItem record
+        GoldItem::create([
+            'serial_number' => $nextSerialNumber,
+            'shop_id' => $validated['shop_id'],
+            'shop_name' => Shop::find($validated['shop_id'])->name,
+            'kind' => $validated['kind'],
+            'model' => $validated['model'],
+            'gold_color' => $validated['gold_color'],
+            'metal_type' => $validated['metal_type'],
+            'metal_purity' => $validated['metal_purity'],
+            'quantity' => $validated['quantity'],
+            'weight' => $validated['weight'],
+            'source' => $validated['source'],
+        ]);
+
+        return redirect()->route('gold-items.create')->with('success', 'Gold item added successfully.');
     }
-
-    // Create a new GoldItem record
-    GoldItem::create([
-        'link' => $validated['link'] ?? null,
-        'serial_number' => $validated['serial_number'],
-        'shop_name' => $validated['shop_name'],
-        'shop_id' => $validated['shop_id'],
-        'kind' => $validated['kind'],
-        'model' => $validated['model'],
-        'talab' => $validated['talab'],
-        'gold_color' => $validated['gold_color'],
-        'stones' => $validated['stones'] ?? null,
-        'metal_type' => $validated['metal_type'],
-        'metal_purity' => $validated['metal_purity'],
-        'quantity' => $validated['quantity'],
-        'weight' => $validated['weight'],
-        'rest_since' => $validated['rest_since'],
-        'source' => $validated['source'],
-        'to_print' => $validated['to_print'] ?? false,  // Checkbox defaults to false if not selected
-        'price' => $validated['price'],
-        'semi_or_no' => $validated['semi_or_no'],
-        'average_of_stones' => $validated['average_of_stones'] ?? 0,
-        'net_weight' => $validated['net_weight'],
-    ]);
-
-    return redirect()->route('gold-items.create')->with('success', 'Gold item added successfully.');
-}
 
     /**
      * Display the specified resource.
