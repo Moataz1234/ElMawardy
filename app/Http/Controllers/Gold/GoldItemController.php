@@ -21,7 +21,6 @@ class GoldItemController extends Controller
     {
         $validated = $request->validate([
             'link' => 'nullable|string',
-            'serial_number' => 'required|string',
             'shop_name' => 'required|string',
             'shop_id' => 'required|integer',
             'kind' => 'required|string',
@@ -42,6 +41,11 @@ class GoldItemController extends Controller
             'net_weight' => 'required|numeric',
         ]);
 
+        // Automatically generate the next serial number
+        $lastItem = GoldItem::orderBy('id', 'desc')->first();
+        $nextSerialNumber = $lastItem ? $lastItem->serial_number + 1 : 1;
+
+        $validated['serial_number'] = $nextSerialNumber;
 
         GoldItem::create($validated);
 
