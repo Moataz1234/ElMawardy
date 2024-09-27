@@ -43,7 +43,14 @@ class GoldItemController extends Controller
 
         // Automatically generate the next serial number
         $lastItem = GoldItem::orderBy('id', 'desc')->first();
-        $nextSerialNumber = $lastItem ? (int)$lastItem->serial_number + 1 : 1;
+        if ($lastItem) {
+            // Extract the numeric part from the serial number
+            preg_match('/(\d+)$/', $lastItem->serial_number, $matches);
+            $lastNumber = $matches ? (int)$matches[0] : 0;
+            $nextSerialNumber = 'G-' . str_pad($lastNumber + 1, 6, '0', STR_PAD_LEFT);
+        } else {
+            $nextSerialNumber = 'G-000001';
+        }
 
         $validated['serial_number'] = $nextSerialNumber;
 
