@@ -78,7 +78,7 @@ class GoldItemController extends Controller
             })
             ->orderBy($sort, $direction)
             ->paginate(20);
-        return view('admin.Gold.Gold_list', compact('goldItems'));
+        return view('admin.Gold.Inventory_list', compact('goldItems'));
     }
 
 
@@ -88,7 +88,7 @@ class GoldItemController extends Controller
     public function create()
     {
         $shops = Shop::all(); // Assuming you have a Shop model
-        return view('admin.Gold.Gold_create', compact('shops'));
+        return view('admin.Gold.Create_form', compact('shops'));
     }
 
     /**
@@ -144,7 +144,7 @@ class GoldItemController extends Controller
     {
         $goldItem = GoldItem::findOrFail($id);
         $shops = Shop::all(); // Assuming you have a Shop model
-        return view('admin.Gold.Gold_edit', compact('goldItem', 'shops'));
+        return view('admin.Gold.Edit_form', compact('goldItem', 'shops'));
     }
 
     /**
