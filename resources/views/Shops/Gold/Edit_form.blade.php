@@ -98,20 +98,7 @@
             <input type="text" name="payment_method" id="payment_method" required><br>
 
             <button type="submit">Save Customer</button>
-            
-        </form>
-       
-<h2>Transfer to Another Branch</h2>
-<form class="custom-form" action="{{ route('gold-items.transfer', $goldItem->id) }}" method="POST">
-    @csrf
-    <label for="shop_id">Shop:</label>
-    <select name="shop_id" id="shop_id" required>
-        @foreach($shops as $shop)
-            <option value="{{ $shop->id }}">{{ $shop->name }}</option>
-        @endforeach
-    </select><br>
-    <button type="submit">Transfer</button>
-</form>
+        </form> 
     </div>
 </body>
 </html>

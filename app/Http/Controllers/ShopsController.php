@@ -69,7 +69,7 @@ class ShopsController extends Controller
     {
         $goldItem = GoldItem::findOrFail($id);
         $shops = Shop::all();
-        return view('admin.Gold.Gold_transfer', compact('goldItem', 'shops'));
+        return view('admin.Gold.transfer_form', compact('goldItem', 'shops'));
     }
 
     public function showShopItems(Request $request)
@@ -96,7 +96,7 @@ class ShopsController extends Controller
         ->orderBy($sort, $direction)
         ->paginate(20);
 
-        return view('shops.index', compact('goldItems'));
+        return view('shops.Gold.index', compact('goldItems'));
     }
 
     public function transferToBranch(Request $request, string $id)

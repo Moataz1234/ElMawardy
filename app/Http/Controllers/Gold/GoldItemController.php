@@ -96,7 +96,7 @@ class GoldItemController extends Controller
             'quantity' => $validated['quantity'],
             'weight' => $validated['weight'],
             'source' => $validated['source'],
-            'link' => $validated['link'] ?? null, // Ensure link is included
+            'link' => $validated['link'] , // Ensure link is included
         ]);
 
        

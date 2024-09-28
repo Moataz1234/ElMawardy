@@ -39,13 +39,13 @@ require __DIR__.'/auth.php';
 route::get('/admin/dashboard',[HomeController::class,'index'])->middleware(['auth','admin'])->name('admin-dashboard');
 //   for new item form
 Route::middleware('admin')->group(function (){
-Route::get('/new-item', [NewItemController::class, 'create'])->name('new-item.create');
-Route::post('/new-item', [NewItemController::class, 'store'])->name('new-item.store');
+Route::get('/new-item/create', [NewItemController::class, 'create'])->name('new-item.create');
+Route::post('/new-item/store', [NewItemController::class, 'store'])->name('new-item.store');
 Route::get('/search-model', [HomeController::class, 'searchModel'])->name('search.model');
 
 // Route::resource('/gold-items', GoldItemController::class);
-Route::get('/gold-items/create', [GoldItemController::class, 'create'])->name('gold-items.create');
-Route::post('/gold-items', [GoldItemController::class, 'store'])->name('gold-items.store');
+Route::get('/gold-items/create', [GoldItemController::class, 'Create'])->name('gold-items.create');
+Route::post('/gold-items/store', [GoldItemController::class, 'store'])->name('gold-items.store');
 Route::get('/gold-items', [GoldItemController::class, 'index'])->name('gold-items.index');
 Route::get('/gold-items/{id}/edit', [GoldItemController::class, 'edit'])->name('gold-items.edit');
 Route::put('/gold-items/{id}', [GoldItemController::class, 'update'])->name('gold-items.update');

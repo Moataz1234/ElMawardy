@@ -32,7 +32,7 @@ class GoldItemSoldController extends Controller
         })
         ->orderBy($sort, $direction)
         ->paginate(20);
-        return view('admin.Gold.Gold_list_sold', compact('goldItems'));
+        return view('admin.Gold.sold_list', compact('goldItems'));
     }
 
     /**
@@ -41,7 +41,7 @@ class GoldItemSoldController extends Controller
     public function edit(string $id)
     {
         $goldItemSold = GoldItemSold::findOrFail($id);
-        return view('admin.Gold.Gold_edit_sold', compact('goldItemSold'));
+        return view('admin.Gold.Edit_sold_form', compact('goldItemSold'));
     }
 
     /**

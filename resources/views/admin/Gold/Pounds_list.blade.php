@@ -1,3 +1,11 @@
+<x-app-layout>
+    @if(session('error'))
+   <div class="alert alert-danger">
+       {{ session('error') }}
+   </div>
+@endif
+</x-app-layout>
+
 <!DOCTYPE html>
 <html lang="en">
 <head>
@@ -6,8 +14,12 @@
     <title>Gold Pounds List</title>
     <link href="{{ asset('css/app.css') }}" rel="stylesheet">
     <link href="{{ asset('css/style.css') }}" rel="stylesheet">
+    <link href="{{ asset('css/navbar.css') }}" rel="stylesheet">
+
 </head>
 <body>
+    <x-navbar />
+
     <h1>Gold Pounds List</h1>
     <table>
         <thead>
