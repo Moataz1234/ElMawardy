@@ -7,6 +7,8 @@ use Illuminate\Support\Facades\Auth;
 use App\Models\GoldItem;
 use App\Models\Shop;
 use App\Models\TransferRequest;
+use App\Models\GoldItemSold;
+use App\Models\Customer;
 use App\Notifications\TransferRequestNotification;
 use Illuminate\Support\Facades\Notification;
 
@@ -112,5 +114,40 @@ class ShopsController extends Controller
         $goldItem->save();
 
         return redirect()->route('gold-items.index')->with('success', 'Gold item transferred successfully.');
+    }
+    public function edit(string $id)
+    {
+        $goldItem = GoldItem::findOrFail($id);
+        $shops = Shop::all(); // Assuming you have a Shop model
+        return view('Shops.Gold.Edit_form', compact('goldItem', 'shops'));
+    }
+    public function markAsSold(Request $request, string $id)
+    {
+        $validated = $request->validate([
+            'first_name' => 'required|string|max:255',
+            'last_name' => 'required|string|max:255',
+            'phone_number' => 'nullable|string|max:255',
+            'address' => 'required|string|max:255',
+            'email' => 'required|email|max:255',
+            'payment_method' => 'required|string|max:255',
+        ]);
+    
+        // Create a new customer entry
+        $customer = Customer::create($validated);
+    
+        $goldItem = GoldItem::findOrFail($id);
+
+        // Set customer_id in GoldItem
+
+        // Transfer data to GoldItemSold
+        $goldItemSold = GoldItemSold::create($goldItem->toArray());
+        $goldItemSold->customer_id = $customer->id;
+        $goldItemSold->sold_date = now();
+        $goldItemSold->save();
+
+        // Delete the item from GoldItem
+        $goldItem->delete();
+
+        return redirect()->route('gold-items.index')->with('success', 'Gold item marked as sold successfully.');
     }
 }

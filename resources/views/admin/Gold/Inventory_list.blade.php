@@ -22,20 +22,30 @@
     <link href="{{ asset('css/style.css') }}" rel="stylesheet">
 </head>
 <body>
-    <input type="text" name="search" placeholder="Search..." value="{{ request('search') }}">
-    <button type="submit">Search</button>
-    <nav>
-            <ul>
-                <li><a href="{{ route('gold-items.shop', ['shop' => Auth::user()->name]) }}">Shop Items</a></li>
-                <li><a href="{{ route('transfer.requests') }}">Transfer Requests</a></li>
-                <li><a href="{{ route('transfer.requests.history') }}">Transfer Request History</a></li>
-                <li><a href="{{ route('gold-items.index') }}">Available Items</a></li>
-                <li><a href="{{ route('gold-pounds.index') }}">Gold Pounds</a></li>
-                <li><a href="{{ route('gold-items.sold') }}">Sold Items</a></li>
-                <li><a href="{{ route('gold-items.create') }}">Add Gold Item</a></li>
+    <form method="GET" action="{{ route('gold-items.index') }}">
+        <input type="text" name="search" placeholder="Search..." value="{{ request('search') }}">
+        <button type="submit">Search</button>
 
-            </ul>
-        </nav>
+    </form>
+    <nav>
+        <ul>
+         <li class="dropdown">
+             <a href="#" class="dropbtn">Invetory</a>
+             <div class="dropdown-content">
+                 <a href="{{ route('gold-items.create') }}">Gold Inventory</a>
+                 <a href="{{ route('gold-items.create') }}">Diamond Inventory</a>
+                 <a href="{{ route('gold-pounds.index') }}">Coins</a>
+                 <a href="{{ route('gold-items.create') }}">Bars</a>
+                 <a href="{{ route('gold-items.create') }}">Chains</a>
+                 <a href="{{ route('gold-items.index') }}">All Items</a>
+             </div>
+         </li>
+            <li><a href="{{ route('gold-items.shop', ['shop' => Auth::user()->name]) }}">Shop Items</a></li>
+            <li><a href="{{ route('transfer.requests.history') }}">Transfer History</a></li>
+            <li><a href="{{ route('gold-items.sold') }}">Sold Items</a></li>
+ 
+         </ul>
+    </nav>
     <table>
         <thead>
             <tr>
@@ -205,7 +215,6 @@
                     <td>{{ $item->net_weight }}</td>
                     <td>
                         <a class="action_button" href="{{ route('gold-items.edit', $item->id) }}" >Edit</a>
-                        <a class="action_button" href="{{ route('gold-items.transferForm', $item->id) }}" >Transfer</a>
 
                     </td>
                 </tr>
@@ -213,9 +222,7 @@
         </tbody>
     </table>
     
-    @php
-        $paginationLinks =  $goldItems->links('pagination::bootstrap-4');
-    @endphp
-    {{$paginationLinks}}
+    {{ $goldItems->links('pagination::bootstrap-4') }}
+
 </body>
 </html>

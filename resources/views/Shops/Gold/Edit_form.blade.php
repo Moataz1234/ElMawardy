@@ -9,7 +9,7 @@
 </head>
 <body>
     <div class="item-details">
-        <form class="custom-form" action="{{ route('gold-items.update', $goldItem->id) }}" method="POST" enctype="multipart/form-data">
+        <form class="custom-form" action="{{ route('shop-items.edit', $goldItem->id) }}" method="POST" enctype="multipart/form-data">
             @csrf
             @method('PUT')
 
@@ -69,16 +69,13 @@
 
             <label for="net_weight">Net Weight:</label>
             <input type="number" name="net_weight" step="0.01" id="net_weight" value="{{ $goldItem->net_weight }}" readonly><br>
-
-            <label for="link">Upload Image:</label>
-            <input type="file" name="link" id="link" accept="image/*"><br>
         </form>
 
     </div>
 
     <div class="customer-details">
         <h2>Enter Customer Details</h2>
-        <form action="{{ route('gold-items.markAsSold', $goldItem->id) }}" method="POST" enctype="multipart/form-data">
+        <form class="custom-form" action="{{ route('gold-items.markAsSold', $goldItem->id) }}" method="POST" enctype="multipart/form-data">
             @csrf
 
             <label for="first_name">First Name:</label>

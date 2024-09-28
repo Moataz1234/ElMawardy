@@ -12,7 +12,7 @@ class CreateCustomersTable extends Migration
             $table->id();
             $table->string('first_name')->nullable();
             $table->string('last_name')->nullable();
-            $table->integer('phone_number')->nullable();
+            $table->string('phone_number', 11)->nullable();
             $table->string('address')->nullable();
             $table->string('email')->nullable();
             $table->string('payment_method')->nullable();

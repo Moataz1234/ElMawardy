@@ -43,27 +43,27 @@ class GoldItemController extends Controller
     /**
      * Save customer details when marking a gold item as sold.
      */
-    public function markAsSold(Request $request, string $id)
-    {
-        $goldItem = GoldItem::findOrFail($id);
+    // public function markAsSold(Request $request, string $id)
+    // {
+    //     $goldItem = GoldItem::findOrFail($id);
 
-        $validated = $request->validate([
-            'first_name' => 'required|string',
-            'last_name' => 'required|string',
-            'phone_number' => 'required|string',
-            'address' => 'required|string',
-            'email' => 'required|email',
-            'payment_method' => 'required|string',
-        ]);
+    //     $validated = $request->validate([
+    //         'first_name' => 'required|string',
+    //         'last_name' => 'required|string',
+    //         'phone_number' => 'required|string',
+    //         'address' => 'required|string',
+    //         'email' => 'required|email',
+    //         'payment_method' => 'required|string',
+    //     ]);
 
-        // Create a new Customer record
-        $customer = Customer::create($validated);
+    //     // Create a new Customer record
+    //     $customer = Customer::create($validated);
 
-        // Update the gold item to mark it as sold
-        $goldItem->update(['status' => 'sold', 'customer_id' => $customer->id]);
+    //     // Update the gold item to mark it as sold
+    //     $goldItem->update(['status' => 'sold', 'customer_id' => $customer->id]);
 
-        return redirect()->route('gold-items.index')->with('success', 'Gold item marked as sold and customer details saved.');
-    }
+    //     return redirect()->route('gold-items.index')->with('success', 'Gold item marked as sold and customer details saved.');
+    // }
 
 
     /**

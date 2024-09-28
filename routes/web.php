@@ -20,13 +20,20 @@ Route::get('/dashboard', [ShopsController::class, 'showShopItems'])
     ->middleware('auth')  // Ensure only authenticated users can access
     ->name('dashboard');
 Route::middleware('auth','check.shop')->group(function () {
-Route::get('/gold-items/shop/{shop}', [ShopsController::class, 'showShopItems'])
+Route::get('/dashboard/{id}/edit', [ShopsController::class, 'edit'])->name('shop-items.edit');
+
+Route::get('/gold-items/shop', [ShopsController::class, 'showShopItems'])
     ->name('gold-items.shop');
 Route::post('/gold-items/{id}/transfer', [ShopsController::class, 'transferToBranch'])
     ->name('gold-items.transfer');
 Route::get('/gold-items/{id}/transfer', [ShopsController::class, 'showTransferForm'])
 ->name('gold-items.transferForm');
+
+Route::post('/gold-items/{id}/mark-as-sold', [ShopsController::class, 'markAsSold'])->name('gold-items.markAsSold');
+Route::post('/gold-items-sold/{id}/mark-as-rest', [GoldItemSoldController::class, 'markAsRest'])->name('gold-items-sold.markAsRest');
+
 });
+
 Route::middleware('auth')->group(function () {
     Route::get('/profile', [ProfileController::class, 'edit'])->name('profile.edit');
     Route::patch('/profile', [ProfileController::class, 'update'])->name('profile.update');
@@ -35,10 +42,11 @@ Route::middleware('auth')->group(function () {
 
 require __DIR__.'/auth.php';
 
-
 route::get('/admin/dashboard',[HomeController::class,'index'])->middleware(['auth','admin'])->name('admin-dashboard');
-//   for new item form
+    
+//////////////////////////////        for Admin 
 Route::middleware('admin')->group(function (){
+
 Route::get('/new-item/create', [NewItemController::class, 'create'])->name('new-item.create');
 Route::post('/new-item/store', [NewItemController::class, 'store'])->name('new-item.store');
 Route::get('/search-model', [HomeController::class, 'searchModel'])->name('search.model');
@@ -53,13 +61,9 @@ Route::put('/gold-items/{id}', [GoldItemController::class, 'update'])->name('gol
 //                  Sold
 Route::get('/gold-items-sold/{id}/edit', [GoldItemSoldController::class, 'edit'])->name('gold-items-sold.edit');
 Route::put('/gold-items-sold/{id}', [GoldItemSoldController::class, 'update'])->name('gold-items-sold.update');
-Route::post('/gold-items/{id}/mark-as-sold', [GoldItemController::class, 'markAsSold'])->name('gold-items.markAsSold');
 
-Route::post('/gold-items/add-from-factory', [GoldItemController::class, 'addFromFactory'])->name('gold-items.addFromFactory');
+Route::get('/transfer-requests/history', [ShopsController::class, 'viewTransferRequestHistory'])->name('transfer.requests.history');
 
-Route::post('/gold-items-sold/{id}/mark-as-rest', [GoldItemSoldController::class, 'markAsRest'])->name('gold-items-sold.markAsRest');
-
-   
 });
 // Route::get('/gold-catalog', [GoldItemController::class,'ThreeView'])->name('gold_catalog.3');
 Route::get('/gold-items-sold', [GoldItemSoldController::class, 'index'])->name('gold-items.sold');
@@ -69,14 +73,14 @@ Route::get('/gold-items', [GoldItemController::class, 'index'])->name('gold-item
 
 Route::get('/gold-pounds', [GoldPoundController::class, 'index'])->name('gold-pounds.index');
 
-// when user logged out
-// Route::middleware(['auth'])->group(function () {
-//     Route::get('/dashboard', [HomeController::class, 'checked']);
-//     // Other protected routes
-// });
 Route::post('/gold-items/transfer/{id}', [ShopsController::class, 'transferRequest'])->name('gold-items.transfer');
 Route::get('/transfer-request/{id}/{status}', [ShopsController::class, 'handleTransferRequest'])->name('transfer.handle');
 // Route to view pending transfer requests
 Route::get('/transfer-requests', [ShopsController::class, 'viewTransferRequests'])->name('transfer.requests');
 
-Route::get('/transfer-requests/history', [ShopsController::class, 'viewTransferRequestHistory'])->name('transfer.requests.history');
+
+// when user logged out
+// Route::middleware(['auth'])->group(function () {
+//     Route::get('/dashboard', [HomeController::class, 'checked']);
+//     // Other protected routes
+// });

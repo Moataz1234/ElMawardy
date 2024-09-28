@@ -3,6 +3,9 @@ body{
     background-color: #a38080; 
     
 }
+h2{
+    margin-left: 500px;
+}
 .new-item-body {
     background-color: #a38080; /* Background color for the entire form */
     font-family: Arial, sans-serif;

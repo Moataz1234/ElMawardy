@@ -14,11 +14,28 @@
 <body>
     <form method="GET" action="{{ route('gold-items.sold') }}">
         <input type="text" name="search" placeholder="Search..." value="{{ request('search') }}">
-       
         <button type="submit">Search</button>
-        <a class="link_pages" href="{{ route('gold-items.index') }}" >View Available Items</a>
 
     </form>
+    <nav>
+        <ul>
+         <li class="dropdown">
+             <a href="#" class="dropbtn">Invetory</a>
+             <div class="dropdown-content">
+                 <a href="{{ route('gold-items.create') }}">Gold Inventory</a>
+                 <a href="{{ route('gold-items.create') }}">Diamond Inventory</a>
+                 <a href="{{ route('gold-pounds.index') }}">Coins</a>
+                 <a href="{{ route('gold-items.create') }}">Bars</a>
+                 <a href="{{ route('gold-items.create') }}">Chains</a>
+                 <a href="{{ route('gold-items.index') }}">All Items</a>
+             </div>
+         </li>
+            <li><a href="{{ route('gold-items.shop', ['shop' => Auth::user()->name]) }}">Shop Items</a></li>
+            <li><a href="{{ route('transfer.requests') }}">Transfer Requests</a></li>
+            <li><a href="{{ route('gold-items.sold') }}">Sold Items</a></li>
+ 
+         </ul>
+    </nav>
     <table>
         <thead>
             <tr>
