@@ -20,6 +20,6 @@ class Customer extends Model
 
     public function goldItemSold()
     {
-        return $this->belongsTo(GoldItemSold::class);
+        return $this->hasOne(GoldItemSold::class);
     }
 }

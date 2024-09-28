@@ -70,6 +70,8 @@
             <label for="net_weight">Net Weight:</label>
             <input type="number" name="net_weight" step="0.01" id="net_weight" value="{{ $goldItem->net_weight }}" readonly><br>
 
+            <label for="link">Upload Image:</label>
+            <input type="file" name="link" id="link" accept="image/*"><br>
         </form>
 
     </div>
