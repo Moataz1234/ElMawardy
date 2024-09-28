@@ -53,7 +53,7 @@ Route::put('/gold-items/{id}', [GoldItemController::class, 'update'])->name('gol
 //                  Sold
 Route::get('/gold-items-sold/{id}/edit', [GoldItemSoldController::class, 'edit'])->name('gold-items-sold.edit');
 Route::put('/gold-items-sold/{id}', [GoldItemSoldController::class, 'update'])->name('gold-items-sold.update');
-Route::post('/gold-items/{id}/mark-as-sold', [GoldItemSoldController::class, 'markAsSold'])->name('gold-items.markAsSold');
+Route::post('/gold-items/{id}/mark-as-sold', [GoldItemController::class, 'markAsSold'])->name('gold-items.markAsSold');
 
 Route::post('/gold-items/add-from-factory', [GoldItemController::class, 'addFromFactory'])->name('gold-items.addFromFactory');
 

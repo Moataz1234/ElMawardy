@@ -7,6 +7,7 @@ use Illuminate\Support\Facades\Auth;
 use Illuminate\Http\Request;
 use App\Models\GoldItem;
 use App\Models\Shop;
+use App\Models\Customer;
 
 class GoldItemController extends Controller
 {
@@ -37,6 +38,31 @@ class GoldItemController extends Controller
             ->orderBy($sort, $direction)
             ->paginate(20);
         return view('admin.Gold.Inventory_list', compact('goldItems'));
+    }
+
+    /**
+     * Save customer details when marking a gold item as sold.
+     */
+    public function markAsSold(Request $request, string $id)
+    {
+        $goldItem = GoldItem::findOrFail($id);
+
+        $validated = $request->validate([
+            'first_name' => 'required|string',
+            'last_name' => 'required|string',
+            'phone_number' => 'required|string',
+            'address' => 'required|string',
+            'email' => 'required|email',
+            'payment_method' => 'required|string',
+        ]);
+
+        // Create a new Customer record
+        $customer = Customer::create($validated);
+
+        // Update the gold item to mark it as sold
+        $goldItem->update(['status' => 'sold', 'customer_id' => $customer->id]);
+
+        return redirect()->route('gold-items.index')->with('success', 'Gold item marked as sold and customer details saved.');
     }
 
 

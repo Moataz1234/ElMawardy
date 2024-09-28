@@ -78,7 +78,7 @@
 
     <div class="customer-details">
         <h2>Enter Customer Details</h2>
-        <form action="{{ route('gold-items.markAsSold', $goldItem->id) }}" method="POST">
+        <form action="{{ route('gold-items.markAsSold', $goldItem->id) }}" method="POST" enctype="multipart/form-data">
             @csrf
 
             <label for="first_name">First Name:</label>
