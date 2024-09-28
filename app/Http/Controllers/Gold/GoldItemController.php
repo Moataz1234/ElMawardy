@@ -11,55 +11,6 @@ use App\Models\Shop;
 class GoldItemController extends Controller
 {
     /**
-     * Transfer a gold item to another branch.
-     */
-
-    /**
-     * Add new products from the factory to a branch.
-     */
-    public function addFromFactory(Request $request)
-    {
-        $validated = $request->validate([
-            'link' => 'nullable|string',
-            'shop_name' => 'required|string',
-            'shop_id' => 'required|integer',
-            'kind' => 'required|string',
-            'model' => 'required|string',
-            'talab' => 'required|string',
-            'gold_color' => 'required|string',
-            'stones' => 'nullable|string',
-            'metal_type' => 'required|string',
-            'metal_purity' => 'required|string',
-            'quantity' => 'required|integer',
-            'weight' => 'required|numeric',
-            'rest_since' => 'required|date',
-            'source' => 'required|string',
-            'to_print' => 'nullable|boolean',
-            'price' => 'required|numeric',
-            'semi_or_no' => 'required|string',
-            'average_of_stones' => 'nullable|numeric',
-            'net_weight' => 'required|numeric',
-        ]);
-
-        // Automatically generate the next serial number
-        $lastItem = GoldItem::orderBy('id', 'desc')->first();
-        if ($lastItem) {
-            // Extract the numeric part from the serial number
-            preg_match('/(\d+)$/', $lastItem->serial_number, $matches);
-            $lastNumber = $matches ? (int)$matches[0] : 0;
-            $nextSerialNumber = 'G-' . str_pad($lastNumber + 1, 6, '0', STR_PAD_LEFT);
-        } else {
-            $nextSerialNumber = 'G-000001';
-        }
-
-        $validated['serial_number'] = $nextSerialNumber;
-
-        GoldItem::create($validated);
-
-        return redirect()->route('gold-items.index')->with('success', 'New product added from factory successfully.');
-    }
-
-    /**
      * Display a listing of the resource.
      */
     public function index(Request $request)
@@ -116,9 +67,15 @@ class GoldItemController extends Controller
         ]);
 
         // Automatically generate the next serial number
-        $lastItem = GoldItem::orderBy('id', 'desc')->first();
-        $nextSerialNumber = $lastItem ? $lastItem->serial_number + 1 : 1;
-
+        $lastItem = GoldItem::orderByRaw('CAST(SUBSTRING(serial_number, 3) AS UNSIGNED) DESC')->first();
+        if ($lastItem) {
+            // Extract the numeric part from the serial number
+            preg_match('/(\d+)$/', $lastItem->serial_number, $matches);
+            $lastNumber = $matches ? (int)$matches[0] : 0;
+            $nextSerialNumber = 'G-' . str_pad($lastNumber + 1, 6, '0', STR_PAD_LEFT);
+        } else {
+            $nextSerialNumber = 'G-000001';
+        }
         // Create a new GoldItem record
         GoldItem::create([
             'serial_number' => $nextSerialNumber,
@@ -133,7 +90,13 @@ class GoldItemController extends Controller
             'weight' => $validated['weight'],
             'source' => $validated['source'],
         ]);
+        if ($request->hasFile('link')) {
+            $image = $request->file('link');
+            $imagePath = $image->store('uploads/gold_items', 'public');
+            $validated['link'] = $imagePath;
+        }
 
+       
         return redirect()->route('gold-items.create')->with('success', 'Gold item added successfully.');
     }
 
