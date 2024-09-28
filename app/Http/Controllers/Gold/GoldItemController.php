@@ -96,12 +96,8 @@ class GoldItemController extends Controller
             'quantity' => $validated['quantity'],
             'weight' => $validated['weight'],
             'source' => $validated['source'],
+            'link' => $validated['link'] ?? null, // Ensure link is included
         ]);
-        if ($request->hasFile('link')) {
-            $image = $request->file('link');
-            $imagePath = $image->store('uploads/gold_items', 'public');
-            $validated['link'] = $imagePath;
-        }
 
        
         return redirect()->route('gold-items.create')->with('success', 'Gold item added successfully.');
