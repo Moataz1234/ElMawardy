@@ -66,6 +66,13 @@ class GoldItemController extends Controller
             'source' => 'required|string',
         ]);
 
+        // Handle the image upload
+        if ($request->hasFile('link')) {
+            $image = $request->file('link');
+            $imagePath = $image->store('uploads/gold_items', 'public');
+            $validated['link'] = $imagePath;
+        }
+
         // Automatically generate the next serial number
         $lastItem = GoldItem::orderByRaw('CAST(SUBSTRING(serial_number, 3) AS UNSIGNED) DESC')->first();
         if ($lastItem) {
