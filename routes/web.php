@@ -79,7 +79,8 @@ Route::get('/transfer-request/{id}/{status}', [ShopsController::class, 'handleTr
 Route::get('/transfer-requests', [ShopsController::class, 'viewTransferRequests'])->name('transfer.requests');
 
 
-// when user logged out
+Route::get('/update-prices', [GoldItemController::class, 'showUpdateForm'])->name('prices.update.form');
+Route::post('/update-prices', [GoldItemController::class, 'updatePrices'])->name('prices.update');
 // Route::middleware(['auth'])->group(function () {
 //     Route::get('/dashboard', [HomeController::class, 'checked']);
 //     // Other protected routes

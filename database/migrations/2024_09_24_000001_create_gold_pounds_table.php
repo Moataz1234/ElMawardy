@@ -21,7 +21,7 @@ class CreateGoldPoundsTable extends Migration
             $table->decimal('weight', 8, 2);
             $table->integer('purity');
             $table->integer('quantity')->default(1);
-            $table->decimal('total_weight', 8, 2)->virtualAs('weight * quantity');
+            $table->decimal('total_weight', 8, 2)->storedAs('weight * quantity')->nullable();
             $table->text('description')->nullable();
             $table->timestamps();
         });

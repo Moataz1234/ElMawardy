@@ -4,10 +4,11 @@ namespace App\Http\Controllers\Gold;
 
 use App\Http\Controllers\Controller;
 use Illuminate\Support\Facades\Auth;
+use Illuminate\Support\Facades\Log;
 use Illuminate\Http\Request;
 use App\Models\GoldItem;
 use App\Models\Shop;
-use App\Models\Customer;
+use App\Models\GoldPrice;
 
 class GoldItemController extends Controller
 {
@@ -41,32 +42,6 @@ class GoldItemController extends Controller
     }
 
     /**
-     * Save customer details when marking a gold item as sold.
-     */
-    // public function markAsSold(Request $request, string $id)
-    // {
-    //     $goldItem = GoldItem::findOrFail($id);
-
-    //     $validated = $request->validate([
-    //         'first_name' => 'required|string',
-    //         'last_name' => 'required|string',
-    //         'phone_number' => 'required|string',
-    //         'address' => 'required|string',
-    //         'email' => 'required|email',
-    //         'payment_method' => 'required|string',
-    //     ]);
-
-    //     // Create a new Customer record
-    //     $customer = Customer::create($validated);
-
-    //     // Update the gold item to mark it as sold
-    //     $goldItem->update(['status' => 'sold', 'customer_id' => $customer->id]);
-
-    //     return redirect()->route('gold-items.index')->with('success', 'Gold item marked as sold and customer details saved.');
-    // }
-
-
-    /**
      * Show the form for creating a new resource.
      */
     public function create()
@@ -74,7 +49,6 @@ class GoldItemController extends Controller
         $shops = Shop::all(); // Assuming you have a Shop model
         return view('admin.Gold.Create_form', compact('shops'));
     }
-
     /**
      * Store a newly created resource in storage.
      */
@@ -146,9 +120,6 @@ class GoldItemController extends Controller
         return view('admin.Gold.Edit_form', compact('goldItem', 'shops'));
     }
 
-    /**
-     * Update the specified resource in storage.
-     */
     public function update(Request $request, string $id)
     {
         $goldItem = GoldItem::findOrFail($id);
@@ -187,6 +158,42 @@ class GoldItemController extends Controller
         return redirect()->route('gold-items.index')->with('success', 'Gold item updated successfully.');
     }
 
+    public function updatePrices(Request $request)
+    {
+        // Validate the incoming request
+        $validatedData = $request->validate([
+            'gold_buy' => 'required|numeric',
+            'gold_sell' => 'required|numeric',
+            'percent' => 'required|numeric',
+            'dollar_price' => 'required|numeric',
+            'gold_with_work' => 'required|numeric',
+            'gold_in_diamond' => 'required|numeric',
+            'shoghl_agnaby' => 'required|numeric',
+        ]);
+    
+        // Create a new record in the database
+        $goldPrice = GoldPrice::create([
+            'gold_buy' => $validatedData['gold_buy'],
+            'gold_sell' => $validatedData['gold_sell'],
+            'percent' => $validatedData['percent'],
+            'dollar_price' => $validatedData['dollar_price'],
+            'gold_with_work' => $validatedData['gold_with_work'],
+            'gold_in_diamond' => $validatedData['gold_in_diamond'],
+            'shoghl_agnaby' => $validatedData['shoghl_agnaby'],
+        ]);
+    
+        // Optionally, update all GoldItems with the latest GoldPrice 'gold_with_work' value
+        GoldItem::query()->update([
+            'price' => $goldPrice->gold_with_work,
+        ]);
+    
+        return redirect()->route('prices.update.form')->with('success', 'Prices added successfully!');
+    }
+    
+public function showUpdateForm()
+{
+    return view('webhook.update-all-prices');
+}
     /**
      * Remove the specified resource from storage.
      */

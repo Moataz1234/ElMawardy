@@ -24,6 +24,40 @@
        <input type="text" name="search" placeholder="Search..." value="{{ request('search') }}">
        <button type="submit">Search</button>
    </form>
+      <!-- Button to toggle the price table -->
+      <button id="togglePriceTable" style="margin-bottom: 10px;">Show Prices</button>
+
+      <!-- Hidden price table section -->
+      <div id="priceTable" style="display: none;">
+          <h2>Latest Prices</h2>
+          <table>
+              {{-- <thead>
+                  <tr>
+                      <th>Gold Buy</th>
+                      <th>Gold Sell</th>
+                      <th>Percent</th>
+                      <th>Dollar Price</th>
+                      <th>Gold with Work</th>
+                      <th>Gold in Diamond</th>
+                      <th>Shoghl Ajnaby</th>
+                      <th>Updated At</th>
+                  </tr>
+              </thead> --}}
+              <tbody>
+                  @foreach ($latestPrices as $price)
+                      <tr>
+                          <td>{{ $price->gold_buy }}/{{ $price->gold_sell }}</td>
+                          <td>{{ $price->gold_with_work }}</td>
+                          <td>{{ $price->dollar_price }}</td>
+                          <td>{{ $price->percent }}</td>
+                          <td>{{ $price->gold_in_diamond }}</td>
+                          <td>{{ $price->shoghl_agnaby }}</td>
+                      </tr>
+                  @endforeach
+              </tbody>
+          </table>
+      </div>
+  
    <nav>
        <ul>
         <li class="dropdown">
@@ -229,5 +263,18 @@
 
    {{ $goldItems->links('pagination::bootstrap-4') }}
 
+   <script>
+    // JavaScript to toggle the visibility of the price table
+    document.getElementById('togglePriceTable').addEventListener('click', function() {
+        const priceTable = document.getElementById('priceTable');
+        if (priceTable.style.display === 'none') {
+            priceTable.style.display = 'block';
+            this.innerText = 'Hide Prices';
+        } else {
+            priceTable.style.display = 'none';
+            this.innerText = 'Show Prices';
+        }
+    });
+</script>
 </body>
 </html>

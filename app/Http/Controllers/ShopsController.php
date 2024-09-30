@@ -8,6 +8,7 @@ use App\Models\GoldItem;
 use App\Models\Shop;
 use App\Models\TransferRequest;
 use App\Models\GoldItemSold;
+use App\Models\GoldPrice;
 use App\Models\Customer;
 use App\Notifications\TransferRequestNotification;
 use Illuminate\Support\Facades\Notification;
@@ -81,6 +82,7 @@ class ShopsController extends Controller
         $sort = $request->input('sort', 'serial_number');
         $direction = $request->input('direction', 'asc');
 
+        $latestPrices = GoldPrice::latest()->take(1)->get();  
         $goldItems = GoldItem::where('shop_name', $user->name)
         ->when($search, function ($query, $search) {
             return $query->where('serial_number', 'like', "%{$search}%")
@@ -98,7 +100,7 @@ class ShopsController extends Controller
         ->orderBy($sort, $direction)
         ->paginate(20);
 
-        return view('shops.Gold.index', compact('goldItems'));
+        return view('shops.Gold.index', compact('goldItems','latestPrices'));
     }
 
     public function transferToBranch(Request $request, string $id)

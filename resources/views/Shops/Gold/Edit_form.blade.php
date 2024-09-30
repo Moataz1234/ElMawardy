@@ -60,7 +60,9 @@
 
             <label for="price">Price:</label>
             <input type="number" name="price" step="0.01" id="price" value="{{ $goldItem->price }}" readonly><br>
-
+            
+            <label for="total_price">Total Price:</label>
+            <input type="number" name="total_price" step="0.01" id="total_price" value="{{ $goldItem->weight * $goldItem->price }}" readonly><br>
             <label for="semi_or_no">Semi or no:</label>
             <input type="text" name="semi_or_no" id="semi_or_no" value="{{ $goldItem->semi_or_no }}" readonly><br>
 
@@ -100,4 +102,12 @@
         </form> 
     </div>
 </body>
+<script>
+    document.getElementById('price').addEventListener('input', function() {
+        var weight = parseFloat(document.getElementById('weight').value);
+        var price = parseFloat(this.value);
+        var totalPrice = weight * price;
+        document.getElementById('total_price').value = totalPrice.toFixed(2);
+    });
+</script>
 </html>
