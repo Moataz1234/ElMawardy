@@ -1,0 +1,70 @@
+/* Flex container to hold image and details side by side */
+.order-container {
+    display: flex;
+    gap: 20px; /* Space between image and details */
+}
+
+/* Image styling */
+.order-image img {
+    max-width: 300px;
+    height: auto;
+    border-radius: 8px;
+}
+
+/* Styling for the order details */
+.order-details {
+    flex: 1; /* Take remaining space */
+    font-size: 20px;
+}
+
+/* Style the container */
+.container {
+    margin-top: 20px;
+}
+
+/* Style the order header */
+h2 {
+    color: #333;
+    font-weight: bold;
+}
+
+/* Style the card */
+.card {
+    background-color: #f9f9f9;
+    border-radius: 8px;
+    box-shadow: 0px 4px 8px rgba(0, 0, 0, 0.1);
+    padding: 20px;
+    margin-top: 20px;
+}
+
+/* Style card header */
+.card-header {
+    font-size: 24px;
+    font-weight: bold;
+    background-color: #045bb9;
+    color: white;
+    padding: 10px;
+    border-radius: 8px 8px 0 0;
+}
+
+/* Style card body */
+.card-body p {
+    margin-bottom: 10px;
+    font-size: 20px;
+}
+
+/* Style card footer */
+.card-footer {
+    text-align: center;
+}
+
+/* Style the buttons */
+.btn {
+    padding: 10px 20px;
+    font-size: 26px;
+    background-color: rgb(2, 39, 245);
+    color: rgb(5, 178, 5);
+}
+.btn:hover {
+    background-color: rgb(1, 26, 81);
+}

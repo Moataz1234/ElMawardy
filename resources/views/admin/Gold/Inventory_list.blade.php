@@ -1,16 +1,9 @@
-<x-app-layout>
-    @if(session('error'))
-   <div class="alert alert-danger">
-       {{ session('error') }}
-   </div>
-@endif
-</x-app-layout>
-
 <!DOCTYPE html>
 <html lang="en">
 <head>
     {{-- @include("GoldCatalog.Shared.adminNavBar")
     @include("GoldCatalog.Shared.sideBar") --}}
+    @include('dashboard')
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Catalog Items</title>
@@ -19,33 +12,9 @@
 
     <link href="{{ asset('css/style.css') }}" rel="stylesheet">
     <link href="{{ asset('css/navbar.css') }}" rel="stylesheet">
-    <link href="{{ asset('css/style.css') }}" rel="stylesheet">
 </head>
 <body>
-    <form method="GET" action="{{ route('gold-items.index') }}">
-        <input type="text" name="search" placeholder="Search..." value="{{ request('search') }}">
-        <button type="submit">Search</button>
-
-    </form>
-    <nav>
-        <ul>
-         <li class="dropdown">
-             <a href="#" class="dropbtn">Invetory</a>
-             <div class="dropdown-content">
-                 <a href="{{ route('gold-items.create') }}">Gold Inventory</a>
-                 <a href="{{ route('gold-items.create') }}">Diamond Inventory</a>
-                 <a href="{{ route('gold-pounds.index') }}">Coins</a>
-                 <a href="{{ route('gold-items.create') }}">Bars</a>
-                 <a href="{{ route('gold-items.create') }}">Chains</a>
-                 <a href="{{ route('gold-items.index') }}">All Items</a>
-             </div>
-         </li>
-            <li><a href="{{ route('gold-items.shop', ['shop' => Auth::user()->name]) }}">Shop Items</a></li>
-            <li><a href="{{ route('transfer.requests.history') }}">Transfer History</a></li>
-            <li><a href="{{ route('gold-items.sold') }}">Sold Items</a></li>
- 
-         </ul>
-    </nav>
+    
     <table>
         <thead>
             <tr>

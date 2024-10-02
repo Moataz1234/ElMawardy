@@ -1,14 +1,9 @@
-<x-app-layout>
-    @if(session('error'))
-   <div class="alert alert-danger">
-       {{ session('error') }}
-   </div>
-@endif
-</x-app-layout>
 
 <!DOCTYPE html>
 <html lang="en">
 <head>
+    @include('dashboard')
+
    <meta charset="UTF-8">
    <meta name="viewport" content="width=device-width, initial-scale=1.0">
    <title>Your Shop's Items</title>
@@ -19,30 +14,12 @@
 
 </head>
 <body>
-   <h1>Items for {{ Auth::user()->name }}</h1>
-   <form method="GET" action="{{ route('gold-items.shop') }}">
-       <input type="text" name="search" placeholder="Search..." value="{{ request('search') }}">
-       <button type="submit">Search</button>
-   </form>
       <!-- Button to toggle the price table -->
-      <button id="togglePriceTable" style="margin-bottom: 10px;">Show Prices</button>
+      <button id="togglePriceTable" class="prices" >Show Updates</button>
 
       <!-- Hidden price table section -->
       <div id="priceTable" style="display: none;">
-          <h2>Latest Prices</h2>
           <table>
-              {{-- <thead>
-                  <tr>
-                      <th>Gold Buy</th>
-                      <th>Gold Sell</th>
-                      <th>Percent</th>
-                      <th>Dollar Price</th>
-                      <th>Gold with Work</th>
-                      <th>Gold in Diamond</th>
-                      <th>Shoghl Ajnaby</th>
-                      <th>Updated At</th>
-                  </tr>
-              </thead> --}}
               <tbody>
                   @foreach ($latestPrices as $price)
                       <tr>
@@ -58,25 +35,6 @@
           </table>
       </div>
   
-   <nav>
-       <ul>
-        <li class="dropdown">
-            <a href="#" class="dropbtn">Invetory</a>
-            <div class="dropdown-content">
-                <a href="{{ route('gold-items.create') }}">Gold Inventory</a>
-                <a href="{{ route('gold-items.create') }}">Diamond Inventory</a>
-                <a href="{{ route('gold-pounds.index') }}">Coins</a>
-                <a href="{{ route('gold-items.create') }}">Bars</a>
-                <a href="{{ route('gold-items.create') }}">Chains</a>
-                <a href="{{ route('gold-items.index') }}">All Items</a>
-            </div>
-        </li>
-           <li><a href="{{ route('gold-items.shop', ['shop' => Auth::user()->name]) }}">Shop Items</a></li>
-           <li><a href="{{ route('transfer.requests') }}">Transfer Requests</a></li>
-           <li><a href="{{ route('gold-items.sold') }}">Sold Items</a></li>
-
-        </ul>
-   </nav>
        <table>
            <thead>
                <tr>

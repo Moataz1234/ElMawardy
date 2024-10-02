@@ -1,6 +1,7 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
+    @include('dashboard')
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Transfer Request History</title>
@@ -11,15 +12,7 @@
     <link href="{{ asset('css/style.css') }}" rel="stylesheet">
 </head>
 <body>
-    <nav>
-        <ul>
-            <li><a href="{{ route('gold-items.shop', ['shop' => Auth::user()->name]) }}">Shop Items</a></li>
-            <li><a href="{{ route('transfer.requests') }}">Transfer Requests</a></li>
-            <li><a href="{{ route('transfer.requests.history') }}">Transfer Request History</a></li>
-            <li><a href="{{ route('gold-items.index') }}">Available Items</a></li>
-            <li><a href="{{ route('gold-pounds.index') }}">Gold Pounds</a></li>
-        </ul>
-    </nav>
+
 
     @foreach($transferRequests as $request)
         <p><strong>Gold Item:</strong> {{ $request->goldItem->serial_number }}</p>

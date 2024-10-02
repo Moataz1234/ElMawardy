@@ -8,6 +8,7 @@ use App\Http\Controllers\Gold\GoldItemController;
 use App\Http\Controllers\Gold\GoldItemSoldController;
 use App\Http\Controllers\Gold\GoldPoundController;
 use App\Http\Controllers\ShopsController;
+use App\Http\Controllers\OrderController;
 
 Route::get('/', function () {
     return view('auth.login');
@@ -54,7 +55,6 @@ Route::get('/search-model', [HomeController::class, 'searchModel'])->name('searc
 // Route::resource('/gold-items', GoldItemController::class);
 Route::get('/gold-items/create', [GoldItemController::class, 'Create'])->name('gold-items.create');
 Route::post('/gold-items/store', [GoldItemController::class, 'store'])->name('gold-items.store');
-Route::get('/gold-items', [GoldItemController::class, 'index'])->name('gold-items.index');
 Route::get('/gold-items/{id}/edit', [GoldItemController::class, 'edit'])->name('gold-items.edit');
 Route::put('/gold-items/{id}', [GoldItemController::class, 'update'])->name('gold-items.update');
 
@@ -81,6 +81,14 @@ Route::get('/transfer-requests', [ShopsController::class, 'viewTransferRequests'
 
 Route::get('/update-prices', [GoldItemController::class, 'showUpdateForm'])->name('prices.update.form');
 Route::post('/update-prices', [GoldItemController::class, 'updatePrices'])->name('prices.update');
+
+
+Route::get('/orders/create', [OrderController::class, 'create'])->name('orders.create');
+Route::post('/orders/store', [OrderController::class, 'store'])->name('orders.store');
+
+Route::get('/orders/rabea', [OrderController::class, 'indexForRabea'])->name('orders.rabea.index');
+Route::get('/orders/rabea/{id}', [OrderController::class, 'show'])->name('orders.show');
+
 // Route::middleware(['auth'])->group(function () {
 //     Route::get('/dashboard', [HomeController::class, 'checked']);
 //     // Other protected routes

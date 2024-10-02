@@ -15,4 +15,8 @@ class Shop extends Model
         'address',
         // Add other fields as necessary
     ];
+    public function orders()
+    {
+        return $this->hasMany(Order::class);
+    }
 }

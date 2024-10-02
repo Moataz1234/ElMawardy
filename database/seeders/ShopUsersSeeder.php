@@ -29,6 +29,7 @@ class ShopUsersSeeder extends Seeder
             'Downtown2',
             'District 5',
             'U Venues',
+            'rabea'
         ];
 
         foreach ($shops as $shop) {

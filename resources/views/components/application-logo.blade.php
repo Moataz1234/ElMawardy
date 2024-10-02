@@ -1,4 +1,6 @@
-
+<!DOCTYPE html>
+<html>
+<head>
 <svg  width="80px" version="1.1" id="Capa_1" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink" 
 	 viewBox="0 0 259.559 259.559" xml:space="preserve">
 <g>
@@ -12,3 +14,40 @@
 	<polygon style="fill:#19c5fa;" points="38.331,43.507 55.373,94.614 0,94.614 	"/>
 </g>
 </svg>
+
+</head>
+{{-- <body>
+	<button id="togglePriceTable" class="prices" >Show Updates</button>
+
+	<!-- Hidden price table section -->
+	<div id="priceTable" style="display: none;">
+		<table>
+			<tbody>
+				@foreach ($latestPrices as $price)
+					<tr>
+						<td>{{ $price->gold_buy }}/{{ $price->gold_sell }}</td>
+						<td>{{ $price->gold_with_work }}</td>
+						<td>{{ $price->dollar_price }}</td>
+						<td>{{ $price->percent }}</td>
+						<td>{{ $price->gold_in_diamond }}</td>
+						<td>{{ $price->shoghl_agnaby }}</td>
+					</tr>
+				@endforeach
+			</tbody>
+		</table>
+	</div>
+<script>
+    // JavaScript to toggle the visibility of the price table
+    document.getElementById('togglePriceTable').addEventListener('click', function() {
+        const priceTable = document.getElementById('priceTable');
+        if (priceTable.style.display === 'none') {
+            priceTable.style.display = 'block';
+            this.innerText = 'Hide Prices';
+        } else {
+            priceTable.style.display = 'none';
+            this.innerText = 'Show Prices';
+        }
+    });
+	</script>
+</body> --}}
+</html>

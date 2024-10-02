@@ -163,8 +163,8 @@ td {
 .custom-form input[type="number"],
 .custom-form input[type="date"],
 .custom-form input[type="checkbox"],
-.custom-form input[type="email"]
- {
+.custom-form input[type="email"],
+.custom-form input[type="file"]{
     width: 100%;
     padding: 8px;
     margin-bottom: 10px;
@@ -232,9 +232,23 @@ td {
 .action_button{
     text-decoration: none;
     background-color: #333;
-    padding: 5px 5px;
-color: #ddd;
+    padding: 2px 2px;
+
+    color: #ddd;
 }
 .action_button:hover{
     color: #13e90b;
+}
+.prices{
+    text-decoration: none;
+    background-color: #333;
+    padding: 5px 5px;
+color: #ddd;
+margin: 10px 10px;
+}
+.prices:hover{
+    color: #13e90b;
+}
+#order_details{
+width: 550px;
 }

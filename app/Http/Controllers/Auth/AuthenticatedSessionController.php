@@ -28,9 +28,11 @@ class AuthenticatedSessionController extends Controller
         $request->session()->regenerate();
         
         if($request->user()->usertype ==='admin'){
-            return redirect('dashboard');
+            return redirect('admin/dashboard');
         }
-
+        if($request->user()->usertype ==='Rabea'){
+            return redirect('orders/rabea');
+        }
         return redirect()->intended(route('gold-items.shop', ['shop' => $request->user()->name]));
     }
 
