@@ -17,9 +17,7 @@
         <button type="submit">Search</button>
 
     </form>
-    
     <nav>   
-        
     <ul>
      <li class="dropdown">
          <a href="#" class="dropbtn">Invetory</a>

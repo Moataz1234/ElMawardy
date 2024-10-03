@@ -88,6 +88,10 @@ Route::post('/orders/store', [OrderController::class, 'store'])->name('orders.st
 
 Route::get('/orders/rabea', [OrderController::class, 'indexForRabea'])->name('orders.rabea.index');
 Route::get('/orders/rabea/{id}', [OrderController::class, 'show'])->name('orders.show');
+Route::get('/orders/rabea/{id}/edit', [OrderController::class, 'edit'])->name('orders.rabea.edit');
+Route::put('/orders/rabea/{id}', [OrderController::class, 'updateOrder'])->name('orders.rabea.update');
+Route::get('/orders/requests', [OrderController::class, 'requests'])->name('orders.requests');
+Route::post('/orders/{order}/accept', [OrderController::class, 'acceptOrder'])->name('orders.accept');
 
 // Route::middleware(['auth'])->group(function () {
 //     Route::get('/dashboard', [HomeController::class, 'checked']);

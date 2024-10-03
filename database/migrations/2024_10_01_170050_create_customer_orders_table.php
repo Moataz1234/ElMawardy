@@ -26,6 +26,7 @@
                 $table->string('seller_name');
                 $table->decimal('deposit', 10, 2);
                 $table->decimal('rest_of_cost', 10, 2);
+                $table->string('payment_method')->nullable();
                 $table->string('customer_phone',11); 
                 $table->date('order_date');
                 $table->date('deliver_date')->nullable();

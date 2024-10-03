@@ -17,161 +17,40 @@
         <thead>
             <tr>
                 <th>Image</th>
+                @php
+                // Array of columns with their display names
+                $columns = [
+                    'serial_number' => 'Serial Number',
+                    'shop_name' => 'Shop Name',
+                    'kind' => 'Kind',
+                    'model' => 'Model',
+                    'gold_color' => 'Gold Color',
+                    'stones' => 'Stones',
+                    'metal_type' => 'Metal Type',
+                    'metal_purity' => 'Metal Purity',
+                    'quantity' => 'Quantity',
+                    'weight' => 'Weight',
+                    'source' => 'Source',
+                    'average_of_stones' => 'Average of Stones',
+                    'net_weight' => 'Net Weight',
+                    'sold_date' => 'sold_date',
+                ];
+            @endphp
+
+            @foreach ($columns as $field => $label)
                 <th>
                     <div class="sort-container">
-                        Serial Number
+                        {{ $label }}
                         <form method="GET" action="{{ route('gold-items.sold') }}" style="display:inline;">
-                            <input type="hidden" name="sort" value="serial_number">
+                            <input type="hidden" name="sort" value="{{ $field }}">
                             <input type="hidden" name="direction" value="{{ request('direction') === 'asc' ? 'desc' : 'asc' }}">
                             <input type="hidden" name="search" value="{{ request('search') }}">
                             <button type="submit">&#8597;</button>
                         </form>
-                    </div>
-                </th>
-                <th>
-                    <div class="sort-container">
-                        Shop Name
-                        <form method="GET" action="{{ route('gold-items.sold') }}" style="display:inline;">
-                            <input type="hidden" name="sort" value="shop_name">
-                            <input type="hidden" name="direction" value="{{ request('direction') === 'asc' ? 'desc' : 'asc' }}">
-                            <input type="hidden" name="search" value="{{ request('search') }}">
-                            <button type="submit">&#8597;</button>
-                        </form>
-                    </div>
-                </th>
-                <th>
-                    <div class="sort-container">
-                        Kind
-                        <form method="GET" action="{{ route('gold-items.sold') }}" style="display:inline;">
-                            <input type="hidden" name="sort" value="kind">
-                            <input type="hidden" name="direction" value="{{ request('direction') === 'asc' ? 'desc' : 'asc' }}">
-                            <input type="hidden" name="search" value="{{ request('search') }}">                        
-                            <button type="submit">&#8597;</button>
-                        </form>
-                    </div>
-                </th>
-                <th>
-                    <div class="sort-container">
-                        Model
-                        <form method="GET" action="{{ route('gold-items.sold') }}" style="display:inline;">
-                            <input type="hidden" name="sort" value="model">
-                            <input type="hidden" name="direction" value="{{ request('direction') === 'asc' ? 'desc' : 'asc' }}">
-                            <input type="hidden" name="search" value="{{ request('search') }}">
-                            <button type="submit">&#8597;</button>
-                        </form>
-                    </div>
-                </th>
-                <th>
-                    <div class="sort-container">
-                        Gold Color
-                        <form method="GET" action="{{ route('gold-items.sold') }}" style="display:inline;">
-                            <input type="hidden" name="sort" value="gold_color">
-                            <input type="hidden" name="direction" value="{{ request('direction') === 'asc' ? 'desc' : 'asc' }}">
-                            <input type="hidden" name="search" value="{{ request('search') }}">                          
-                            <button type="submit">&#8597;</button>
-                        </form>
-                    </div>
-                </th>
-                <th>
-                    <div class="sort-container">
-                        Stones
-                        <form method="GET" action="{{ route('gold-items.sold') }}" style="display:inline;">
-                            <input type="hidden" name="sort" value="stones">
-                            <input type="hidden" name="direction" value="{{ request('direction') === 'asc' ? 'desc' : 'asc' }}">
-                            <input type="hidden" name="search" value="{{ request('search') }}">
-                            <button type="submit">&#8597;</button>
-                        </form>
-                    </div>
-                </th>
-                <th>
-                    <div class="sort-container">
-                        Metal Type
-                        <form method="GET" action="{{ route('gold-items.sold') }}" style="display:inline;">
-                            <input type="hidden" name="sort" value="metal_type">
-                            <input type="hidden" name="direction" value="{{ request('direction') === 'asc' ? 'desc' : 'asc' }}">
-                            <input type="hidden" name="search" value="{{ request('search') }}">
-                            <button type="submit">&#8597;</button>
-                        </form>
-                    </div>
-                </th>
-                <th>
-                    <div class="sort-container">
-                        Metal Purity
-                        <form method="GET" action="{{ route('gold-items.sold') }}" style="display:inline;">
-                            <input type="hidden" name="sort" value="metal_purity">
-                            <input type="hidden" name="direction" value="{{ request('direction') === 'asc' ? 'desc' : 'asc' }}">
-                            <input type="hidden" name="search" value="{{ request('search') }}">
-                            <button type="submit">&#8597;</button>
-                        </form>
-                    </div>
-                </th>
-                <th>
-                    <div class="sort-container">
-                        Quantity
-                        <form method="GET" action="{{ route('gold-items.sold') }}" style="display:inline;">
-                            <input type="hidden" name="sort" value="quantity">
-                            <input type="hidden" name="direction" value="{{ request('direction') === 'asc' ? 'desc' : 'asc' }}">
-                            <input type="hidden" name="search" value="{{ request('search') }}">
-                            <button type="submit">&#8597;</button>
-                        </form>
-                    </div>
-                </th>
-                <th>
-                    <div class="sort-container">
-                        Weight
-                        <form method="GET" action="{{ route('gold-items.sold') }}" style="display:inline;">
-                            <input type="hidden" name="sort" value="weight">
-                            <input type="hidden" name="direction" value="{{ request('direction') === 'asc' ? 'desc' : 'asc' }}">
-                            <input type="hidden" name="search" value="{{ request('search') }}">
-                            <button type="submit">&#8597;</button>
-                        </form>
-                    </div>
-                </th>
-                <th>
-                    <div class="sort-container">
-                        Source
-                        <form method="GET" action="{{ route('gold-items.sold') }}" style="display:inline;">
-                            <input type="hidden" name="sort" value="source">
-                            <input type="hidden" name="direction" value="{{ request('direction') === 'asc' ? 'desc' : 'asc' }}">
-                            <input type="hidden" name="search" value="{{ request('search') }}">
-                            <button type="submit">&#8597;</button>
-                        </form>
-                    </div>
-                </th>
-                <th>
-                    <div class="sort-container">
-                        Average of Stones
-                        <form method="GET" action="{{ route('gold-items.sold') }}" style="display:inline;">
-                            <input type="hidden" name="sort" value="average_of_stones">
-                            <input type="hidden" name="direction" value="{{ request('direction') === 'asc' ? 'desc' : 'asc' }}">
-                            <input type="hidden" name="search" value="{{ request('search') }}">
-                            <button type="submit">&#8597;</button>
-                        </form>
-                    </div>
-                </th>
-                <th>
-                    <div class="sort-container">
-                        Net Weight
-                        <form method="GET" action="{{ route('gold-items.sold') }}" style="display:inline;">
-                            <input type="hidden" name="sort" value="net_weight">
-                            <input type="hidden" name="direction" value="{{ request('direction') === 'asc' ? 'desc' : 'asc' }}">
-                            <input type="hidden" name="search" value="{{ request('search') }}">
-                            <button type="submit">&#8597;</button>
-                        </form>
-                    </div>
-                </th>
-                
-                <th>
-                    <div class="sort-container">
-                        Sold Date
-                        <form method="GET" action="{{ route('gold-items.sold') }}" style="display:inline;">
-                            <input type="hidden" name="sort" value="sold_date">
-                            <input type="hidden" name="direction" value="{{ request('direction') === 'asc' ? 'desc' : 'asc' }}">
-                            <input type="hidden" name="search" value="{{ request('search') }}">
-                            <button type="submit">&#8597;</button>
-                        </form>
-                    </div>
-                </th>
+                    </div>  
+                    @endforeach
+            </th>
+          
                 <th>Actions</th>
             </tr>
         </thead>

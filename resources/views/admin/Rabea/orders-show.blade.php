@@ -1,7 +1,7 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-    @include('dashboard')
+    @include('admin.rabea.dashboard')
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Order Details</title>
@@ -57,7 +57,8 @@
         </div>
         <div class="card-footer">
             <a href="{{ route('orders.rabea.index') }}" class="btn btn-primary">Back to Orders</a>
-            <!-- You can add edit and delete buttons here -->
+            <a href="{{ route('orders.rabea.edit',$order->id)}}" class="btn btn-primary">Edit</a>
+
         </div>
     </div>
 </div>
