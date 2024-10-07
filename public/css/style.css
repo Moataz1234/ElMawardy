@@ -30,12 +30,12 @@ h2{
     border-radius: 8px;
     max-width: 800px;
     margin: auto;
+
 }
 
 /* Flexbox for each row containing fields */
 .row {
     display: flex;
-
     justify-content: space-between; /* Ensure space between fields */
     gap: 10px; /* Add space between inputs */
 }
@@ -162,7 +162,6 @@ td {
 .custom-form input[type="text"],
 .custom-form input[type="number"],
 .custom-form input[type="date"],
-.custom-form input[type="checkbox"],
 .custom-form input[type="email"],
 .custom-form input[type="file"]{
     width: 100%;
@@ -251,4 +250,7 @@ margin: 10px 10px;
 }
 #order_details{
 width: 550px;
+}
+select{
+    width: 150px;
 }

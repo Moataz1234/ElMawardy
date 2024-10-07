@@ -8,6 +8,8 @@
     <link href="{{ asset('css/app.css') }}" rel="stylesheet">
     <link href="{{ asset('css/pagination.css') }}" rel="stylesheet">
     <link href="{{ asset('css/style.css') }}" rel="stylesheet">
+    <link href="{{ asset('css/order-details.css') }}" rel="stylesheet">
+
     <style>
         @media print {
             /* Hide everything except the table */
@@ -28,16 +30,44 @@
                 width: 100%;
             }
         }
-        .light-up {
-        animation: pulse 1s infinite;
-        color: red; /* Change color if desired */
-    }
+   /* custom.css */
+.nav-item {
+    display: inline-block; /* Ensure nav items are inline */
+    margin-right: 15px; /* Space between items */
+}
 
-    @keyframes pulse {
-        0% { transform: scale(1); }
-        50% { transform: scale(1.05); }
-        100% { transform: scale(1); }
-    }
+.nav-link {
+    text-decoration: none; /* Remove underline from links */
+    padding: 10px 15px; /* Add padding */
+    border: 1px solid #007bff; /* Border color */
+    border-radius: 4px; /* Rounded corners */
+    background-color: #f8f9fa; /* Light background */
+    color: #333; /* Text color */
+    transition: background-color 0.3s; /* Smooth transition */
+}
+
+.nav-link:hover {
+    background-color: #e2e6ea; /* Darker background on hover */
+}
+
+.badge {
+    background-color: red; /* Badge background color */
+    color: white; /* Badge text color */
+    border-radius: 10px; /* Rounded badge */
+    padding: 2px 8px; /* Padding for badge */
+}
+
+.light-up {
+    animation: pulse 1s infinite; /* Animation for light-up effect */
+    color: red; /* Change text color when lit */
+}
+
+@keyframes pulse {
+    0% { transform: scale(1); }
+    50% { transform: scale(1.05); }
+    100% { transform: scale(1); }
+}
+
 
     </style>
 </head>
@@ -49,7 +79,7 @@
     @if (session('success'))
         <div class="alert alert-success">{{ session('success') }}</div>
     @elseif (session('error'))
-        <div class="alert alert-danger">{{ session('error') }}</div>
+        <div class="light-up">{{ session('error') }}</div>
     @endif
    
    
@@ -58,10 +88,10 @@
 @endphp
 
 <div class="nav-item">
-    <a href="{{ route('orders.requests') }}" class="nav-link">
+    <a href="{{ route('orders.requests') }}" class="nav-link {{ $pendingOrdersCount > 0 ? 'light-up' : '' }}">
         Order Requests 
         @if ($pendingOrdersCount > 0)
-            <span class="badge badge-danger">{{ $pendingOrdersCount }}</span>
+            <span class="badge">{{ $pendingOrdersCount }}</span>
         @endif
     </a>
 </div>
@@ -73,20 +103,23 @@
                 @php
                     // Array of columns with their display names
                     $columns = [
-                        'order_number' => 'Order Number',
-                        'order_kind' => 'Order Kind',
-                        'order_details' => 'Order Details',
-                        'ring_size' => 'Ring Size',
-                        'weight' => 'Weight',
-                        'gold_color' => 'Gold Color',
-                        'order_fix_type' => 'Order Fix Type',
-                        'customer_name' => 'Customer Name',
-                        'customer_phone' => 'Customer Phone',
-                        'seller_name' => 'Seller Name',
-                        'deposit' => 'Deposit',
-                        'rest_of_cost' => 'Rest of Cost',
-                        'order_date' => 'Order Date',
-                        'deliver_date' => 'Deliver Date',
+                        'shop_name' => ' فرع',
+                        'order_number' => ' رقم الطلب',
+                        'order_kind' => 'النوع',
+                        'order_details' => 'موضوع الطلب',
+                        'ring_size' => 'مقاس الخاتم',
+                        'weight' => 'الوزن',
+                        'gold_color' => 'اللون',
+                        'order_fix_type' => 'المشكلة',
+                        'customer_name' => 'اسم العميل ',
+                        'customer_phone' => ' تليفون العميل',
+                        'seller_name' => 'البائع',
+                        'deposit' => 'المدفوع',
+                        'rest_of_cost' => 'الباقي',
+                        'order_date' => 'تاريخ الاستلام',
+                        'deliver_date' => 'تاريخ التسليم',
+                        '' => 'طريقة الدفع',
+
                         'status' => 'Status',
                     ];
                 @endphp
@@ -129,6 +162,24 @@
                     <td>{{ $order->status }}</td>
                     <td>
                         <a href="{{ route('orders.show', $order->id) }}" class="action_button">View</a>
+                        
+                        <!-- Button to change status to "في الورشة" -->
+                        <form action="{{ route('orders.updateStatus', ['id' => $order->id, 'status' => 'في الورشة']) }}" method="POST" style="display:inline;">
+                            @csrf
+                            <button type="submit" class="info_button2">في الورشة</button>
+                        </form>
+                        
+                        <!-- Button to change status to "في الدمغة" -->
+                        <form action="{{ route('orders.updateStatus', ['id' => $order->id, 'status' => 'في الدمغة']) }}" method="POST" style="display:inline;">
+                            @csrf
+                            <button type="submit" class="info_button">في الدمغة</button>
+                        </form>
+                    
+                        <!-- Button to change status to "خلص" -->
+                        <form action="{{ route('orders.updateStatus', ['id' => $order->id, 'status' => 'خلص']) }}" method="POST" style="display:inline;">
+                            @csrf
+                            <button type="submit" class="success_button">خلص</button>
+                        </form>
                     </td>
                 </tr>
             @endforeach

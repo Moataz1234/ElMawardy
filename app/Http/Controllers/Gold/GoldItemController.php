@@ -149,7 +149,7 @@ class GoldItemController extends Controller
 
         if ($request->hasFile('link')) {
             $image = $request->file('link');
-            $imagePath = $image->store('uploads/gold_items', 'public');
+            $imagePath = $image->store('gold_items', 'public');
             $validated['link'] = $imagePath;
         }
 

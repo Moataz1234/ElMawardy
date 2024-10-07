@@ -26,7 +26,10 @@ class Order extends Model
         'customer_phone',
         'order_date',
         'deliver_date',
-        'status',
+        'payment_method',
+        'by_customer',
+        'by_shop' ,
+        'status',  
     ];
 
     public function shop()

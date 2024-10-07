@@ -91,7 +91,9 @@ Route::get('/orders/rabea/{id}', [OrderController::class, 'show'])->name('orders
 Route::get('/orders/rabea/{id}/edit', [OrderController::class, 'edit'])->name('orders.rabea.edit');
 Route::put('/orders/rabea/{id}', [OrderController::class, 'updateOrder'])->name('orders.rabea.update');
 Route::get('/orders/requests', [OrderController::class, 'requests'])->name('orders.requests');
+// Route::post('/orders/{id}/accept', [OrderController::class, 'acceptOrder'])->name('orders.accept');
 Route::post('/orders/{order}/accept', [OrderController::class, 'acceptOrder'])->name('orders.accept');
+Route::post('/orders/{id}/update-status/{status}', [OrderController::class, 'updateStatus'])->name('orders.updateStatus');
 
 // Route::middleware(['auth'])->group(function () {
 //     Route::get('/dashboard', [HomeController::class, 'checked']);

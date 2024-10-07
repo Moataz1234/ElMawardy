@@ -31,6 +31,8 @@
                 $table->date('order_date');
                 $table->date('deliver_date')->nullable();
                 $table->string('status')->nullable();
+                $table->string('by_customer')->nullable();
+                $table->string('by_Shop')->nullable();
 
                 // $table->enum('status', ['في المحل', 'في الورشة', 'خلص', 'تم استلامه' ,'في الدمغة'])->default('في المحل'); // Order status
                 $table->timestamps();

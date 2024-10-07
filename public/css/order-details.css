@@ -68,3 +68,50 @@ h2 {
 .btn:hover {
     background-color: rgb(1, 26, 81);
 }
+/* custom.css */
+
+.btn-custom {
+    padding: 10px 15px; /* Button padding */
+    border: none; /* Remove default border */
+    border-radius: 5px; /* Rounded corners */
+    color: white; /* Text color */
+    font-weight: bold; /* Make text bold */
+    cursor: pointer; /* Change cursor to pointer */
+    transition: background-color 0.3s, transform 0.2s; /* Transition effects */
+}
+
+/* Optional: Adjust badge styling */
+.badge {
+    background-color: red; /* Badge background color */
+    color: white; /* Badge text color */
+    border-radius: 10px; /* Rounded badge */
+    padding: 2px 8px; /* Padding for badge */
+}
+.success_button{
+    text-decoration: none;
+    background-color: #333;
+    padding: 2px 2px;
+    color: #ddd;
+}
+.success_button:hover{
+    color: #13e90b;
+}
+
+.info_button{
+    text-decoration: none;
+    background-color: #333;
+    padding: 4px 2px;
+    color: #ddd;
+}
+.info_button:hover{
+    color: #13e90b;
+}
+.info_button2{
+    text-decoration: none;
+    background-color: #333;
+    padding: 2px 2px;
+    color: #ddd;
+}
+.info_button2:hover{
+    color: #13e90b;
+}

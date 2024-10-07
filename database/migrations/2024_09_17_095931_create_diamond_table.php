@@ -55,6 +55,7 @@ return new class extends Migration
             $table->decimal('cost4', 10, 2)->nullable();  // COST4
             $table->decimal('cost5', 10, 2)->nullable();  // COST5
             $table->decimal('cost6', 10, 2)->nullable();  // COST6
+            $table->string('certificate_code')->nullable();
             $table->timestamps();  // created_at and updated_at
         });
     }

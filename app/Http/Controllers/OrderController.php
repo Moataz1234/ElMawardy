@@ -20,14 +20,13 @@ class OrderController extends Controller
         Log::info('Order submission received', ['data' => $request->all()]);
 
         // Validate the incoming request
-        $validatedData = $request->validate([
+         $validatedData = $request->validate([
             'image_link' => 'nullable|image|mimes:jpeg,png,jpg,gif|max:2048',
             'order_details' => 'nullable|string',
             'order_kind' => 'required|string',
             'ring_size' => 'nullable|string',
             'weight' => 'nullable|string',
             'gold_color' => 'nullable|string',
-            'order_fix_type' => 'required|string',
             'customer_name' => 'required|string',
             'seller_name' => 'required|string',
             'deposit' => 'required|numeric',
@@ -37,6 +36,7 @@ class OrderController extends Controller
             'deliver_date' => 'nullable|date',
             'status' => 'nullable|string',
             'payment_method' =>'nullable|string',
+            'details_type' => 'nullable|string', // Add this validation for the radio button
         ]);
         
         // Get the ID of the logged-in user (assuming the user is the shop owner)
@@ -55,8 +55,11 @@ class OrderController extends Controller
             Log::info('Image uploaded successfully', ['image_path' => $imagePath]);
 
         }
+        // Determine which column (by_customer or by_shop) to save order details based on the selected radio button
+        $byCustomer = $request->details_type === 'by_customer' ? $request->order_details : null;
+        $byShop = $request->details_type === 'by_shop' ? $request->order_details : null;
     
-        // Create a new order linked to the logged-in user's shop_id
+        // Create$order=  a new order linked to the logged-in user's shop_id
        $order= Order::create([
             'shop_id' => $shop_id,  // Set shop_id to the logged-in user's ID
             'order_number' => $orderNumber,
@@ -74,7 +77,10 @@ class OrderController extends Controller
             'customer_phone' => $request->customer_phone,
             'order_date' => $request->order_date,
             'deliver_date' => $request->deliver_date,
-            'status' => 'في انتظار الموافقة عليه',
+            'payment_method'=>$request->payment_method,
+            'by_customer' => $byCustomer, // Save to by_customer if selected
+            'by_shop' => $byShop,         // Save to by_shop if selected
+            'status' => 'pending',
         ]);
         $rabea = User::where('name', 'Rabea')->first();
         if ($rabea) {
@@ -83,7 +89,9 @@ class OrderController extends Controller
         Log::info('Order created successfully', ['order' => $orderNumber]);
 
         // Redirect with success message
-        return redirect()->route('orders.create')->with('success', 'Order created successfully!');
+        $order->save();
+
+        return redirect()->route('orders.create',['order' => $order->id])->with('success', 'Order created successfully!');
     }
     
 
@@ -104,27 +112,32 @@ class OrderController extends Controller
 }
 public function indexForRabea(Request $request)
 {
+    // Get search input, sorting field, and direction from the request
     $search = $request->input('search');
     $sort = $request->input('sort', 'order_number');
     $direction = $request->input('direction', 'asc');
 
+    // Build the query to exclude pending orders
+    $query = Order::where('status', '<>', 'pending'); // Exclude pending orders
 
+    // Apply search conditions if a search term is provided
+    if ($search) {
+        $query->where(function ($q) use ($search) {
+            $q->where('order_number', 'like', "%{$search}%")
+              ->orWhere('customer_name', 'like', "%{$search}%")
+              ->orWhere('seller_name', 'like', "%{$search}%")
+              ->orWhere('order_kind', 'like', "%{$search}%")
+              ->orWhere('status', 'like', "%{$search}%");
+        });
+    }
 
-    $orders = Order::query()
-    ->when($search, function ($query, $search) {
-        // Apply search conditions based on the fields provided
-        return $query->where('order_number', 'like', "%{$search}%")
-            ->orWhere('customer_name', 'like', "%{$search}%")
-            ->orWhere('seller_name', 'like', "%{$search}%")
-            ->orWhere('order_kind', 'like', "%{$search}%")
-            ->orWhere('status', 'like', "%{$search}%");
-    })
     // Apply sorting based on user input or defaults
-    ->orderBy($sort, $direction)
-    ->paginate(20); // Paginate the results
+    $orders = $query->orderBy($sort, $direction)->paginate(20); // Paginate the results
 
+    // Pass the orders and any other required data to the view
     return view('admin.Rabea.orders', compact('orders'));
 }
+
 public function show($id)
 {
 
@@ -200,15 +213,31 @@ public function requests()
 
     return view('admin.Rabea.orders-requests', compact('orders'));
 }
-public function acceptOrder(Order $order)
+public function acceptOrder($id)
 {
-    $this->authorize('update', $order); // Ensure Rabea is authorized
+    $order = Order::findOrFail($id); // Fetch the order by ID
+    if (!Auth::check()) {
+        return redirect()->route('login')->with('error', 'You need to log in to perform this action.');
+    }
+
+    $this->authorize('update', $order); // Authorization check
+    Log::info('Current Order Status: ' . $order->status);
 
     // Change the status to 'in_progress'
     $order->status = 'in_progress';
-    $order->save();
+    $order->save(); // Update the existing record
 
     return redirect()->route('orders.requests')->with('success', 'Order accepted and is now in progress.');
 }
+public function updateStatus($id, $status)
+{
+    $order = Order::findOrFail($id); // Fetch the order by ID
+    $this->authorize('update', $order); // Ensure the user is authorized to update the order
 
+    // Update the order status
+    $order->status = $status;
+    $order->save(); // Save the updated order
+
+    return redirect()->route('orders.rabea.index')->with('success', 'Order status updated to: ' . $status);
+}
 }

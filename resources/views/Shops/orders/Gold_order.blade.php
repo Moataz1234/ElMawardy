@@ -10,11 +10,22 @@
    <link href="{{ asset('css/pagination.css') }}" rel="stylesheet">
    <link href="{{ asset('css/navbar.css') }}" rel="stylesheet">
    <script>
+     function toggleLabelVisibility() {
+        var checkbox = document.getElementById("toggleLabel");
+        var weight_field = document.getElementById("weight_field");
+
+        
+        if (checkbox.checked) {
+            weight_field.style.display = "inline"; 
+        } else {
+            weight_field.style.display = "none"; 
+        }
+    }
     // JavaScript to toggle the ring size field
     function toggleRingSizeField() {
         const orderKind = document.getElementById('order_kind').value;
         const ringSizeField = document.getElementById('ring_size_field');
-
+        
         // Show the ring size field only if the selected order kind is "ring"
         if (orderKind === 'Ring') {
             ringSizeField.style.display = 'block'; // Show the ring size field
@@ -28,7 +39,30 @@
         toggleRingSizeField(); // Hide initially if not "ring"
         document.getElementById('order_kind').addEventListener('change', toggleRingSizeField);
     });
+    function toggleCustomerDetails() {
+        var textArea = document.getElementById("order_detail");
+        var byCustomer = document.getElementById("by_customer").checked;
+        var byShop = document.getElementById("by_shop").checked;
+
+        // Show textarea if either radio button is selected
+        if (byCustomer || byShop) {
+            textArea.style.display = "block";
+        }
+    }
 </script>
+<style>
+    .radio-group {
+        display: flex;
+        align-items: center;
+    }
+    .radio-group input[type="radio"] {
+        margin-right: 5px;
+    }
+    .radio-group label {
+        margin-right: 15px;
+    }
+</style>
+
 </head>
 <body>
 <form class="custom-form" action="{{ route('orders.store') }}" method="POST" enctype="multipart/form-data" accept-charset="UTF-8">
@@ -45,64 +79,76 @@
 --}}
         
     <!-- Order Kind -->
-    <label for="order_kind">Order Kind:</label>
+    <label for="order_kind">النوع</label>
     <select name="order_kind" id="order_kind" required>
-        <option value="">Select Order Kind</option>
             @foreach ($kinds as $kind)
                 <option value="{{ $kind }}">{{ $kind }}</option>
             @endforeach
     </select>
     <!-- Order Fix Type -->
-    <label for="order_fix_type">Order Fix Type:</label>
-    <input type="text" name="order_fix_type" id="order_fix_type" required>
+    <label for="order_fix_type">المشكلة</label>
+    <select id="order_fix_type" name="order_fix_type" class="form-control">
+        <option value="اوردر جديد" > اوردر جديد</option>
+        <option value=" تصليح"  >تصليح</option>
+        <option value="عمل مقاس"  >عمل مقاس</option>
+        <option value=" تلميع"  >تلميع</option>
 
+    </select>
     <!-- Ring Size -->
     <div id="ring_size_field" style="display:none;">
-        <label for="ring_size">Ring Size:</label>
+        <label for="ring_size">مقاس الخاتم</label>
         <input type="number" name="ring_size" id="ring_size">
     </div>
 
     <!-- Order Details -->
-    <label for="order_details">Order Details:</label>
-    <textarea name="order_details" id="order_details"></textarea>
+    <label for="order_details"> موضوع الطلب :</label>
+    <textarea style="height: 200px" name="order_details" id="order_details"></textarea>
 
-   
     <div class="mb-3">
-        <label for="weight" class="form-label">Weight </label>
-        <input type="number" class="form-control" name="weight" id="weight" step="0.1">
+        <input type="checkbox" id="toggleLabel" onclick="toggleLabelVisibility()"> عينة  </div>
+    <div class="mb-3" id="weight_field" style="display: none">
+        <label for="weight" class="form-label" >الوزن </label>
+        <input type="number" class="form-control" name="weight" step="0.1">
     </div>
 
-    <label for="gold_color">Gold Color</label>
+    <label for="gold_color">لون الدهب</label>
     <select name="gold_color" id="gold_color" required>
-        <option >Select Gold Color</option>
             @foreach ($gold_colors as $gold_color)
                 <option value="{{ $gold_color }}">{{ $gold_color }}</option>
             @endforeach
     </select>
+    <div class="radio-group">
+        <input type="radio" id="by_customer" name="details_type" value="by_customer" onclick="toggleCustomerDetails()"> 
+        <label for="by_customer">خاصة بالعميل</label>
 
-    <div class="mb-3">
-        <label for="customer_name" class="form-label">Customer Name</label>
+        <input type="radio" id="by_shop" name="details_type" value="by_shop" onclick="toggleCustomerDetails()">
+        <label for="by_shop">خاصة بالمحل</label>
+    </div>
+    <textarea style="height: 100px; display:none" name="order_details" id="order_detail"></textarea>
+
+<div class="mb-3">
+        <label for="customer_name" class="form-label"> اسم العميل</label>
         <input type="text" class="form-control" name="customer_name" id="customer_name" required>
     </div>
     
     <div class="mb-3">
-        <label for="customer_phone" class="form-label">Customer Phone</label>
+        <label for="customer_phone" class="form-label">تليفون العميل</label>
         <input type="number" class="form-control" name="customer_phone" id="customer_phone" maxlength="11" required>
     </div>
 
     <div class="mb-3">
-        <label for="seller_name" class="form-label">Seller Name</label>
+        <label for="seller_name" class="form-label">البائع </label>
         <input type="text" class="form-control" name="seller_name" id="seller_name" required>
     </div>
 
     <div class="mb-3">
-        <label for="deposit" class="form-label">Deposit</label>
-        <input type="number" class="form-control" name="deposit" id="deposit" step="0.01" required>
+        <label for="deposit" class="form-label">المدفوع</label>
+        <input type="number" class="form-control" name="deposit" id="deposit" step="0.01" >
     </div>
 
     <div class="mb-3">
-        <label for="rest_of_cost" class="form-label">Rest of Cost</label>
-        <input type="number" class="form-control" name="rest_of_cost" id="rest_of_cost" step="0.01" required>
+        <label for="rest_of_cost" class="form-label">الباقي</label>
+        <input type="number" class="form-control" name="rest_of_cost" id="rest_of_cost" step="0.01" >
     </div>
 
     <div class="mb-3">
