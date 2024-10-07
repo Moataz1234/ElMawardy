@@ -11,13 +11,11 @@ class CheckShop
 {
     public function handle(Request $request, Closure $next): Response
     {
-        $user = Auth::user(); // Get the authenticated user
-
-        // Ensure the user belongs to the correct shop
-        if ($user->shop_id != $request->route('shop')) {
-            return redirect('dashboard')->with('error', 'Unauthorized access to this shop.');
+        {
+            if (Auth::user() && Auth::user()->usertype === 'user') {
+                return $next($request);
+            }
+            return redirect('/dashboard'); // Redirect if not admin
         }
-
-        return $next($request);
     }
 }

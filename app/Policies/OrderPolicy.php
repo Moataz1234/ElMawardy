@@ -17,7 +17,7 @@ class OrderPolicy
     public function viewAny(User $user)
     {
         // Only Rabea can view orders
-        return $user->name === 'Rabea';
+        return $user->name === 'rabea';
     }
 
     /**
@@ -26,7 +26,7 @@ class OrderPolicy
     public function view(User $user, Order $order)
     {
         // Add your logic to check if Rabea can view this specific order
-        return $user->name === 'Rabea';
+        return $user->name === 'rabea';
     }
     public function update(User $user, Order $order)
     {
@@ -34,6 +34,6 @@ class OrderPolicy
         Log::info('Authorization check for user: ' . $user->id . ' with role: ' . $user->role . ' on order: ' . $order->id);
         
         // Check if the user has the 'admin' role
-        return $user->name === 'Rabea';
+        return $user->name === 'rabea';
     }
 }

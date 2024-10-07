@@ -6,7 +6,8 @@ use Closure;
 use Illuminate\Http\Request;
 use Symfony\Component\HttpFoundation\Response;
 use Illuminate\Support\Facades\Auth;
-class admin
+
+class Rabea
 {
     /**
      * Handle an incoming request.
@@ -15,9 +16,11 @@ class admin
      */
     public function handle(Request $request, Closure $next): Response
     {
-        if (Auth::user() && Auth::user()->usertype === 'admin') {
-            return $next($request);
+        {
+            if (Auth::user() && Auth::user()->usertype === 'rabea') {
+                return $next($request);
+            }
+            return redirect('/dashboard'); // Redirect if not admin
         }
-        return redirect('/dashboard'); // Redirect if not admin
     }
 }

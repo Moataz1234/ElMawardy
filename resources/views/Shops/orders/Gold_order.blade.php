@@ -111,7 +111,7 @@
         <input type="number" class="form-control" name="weight" step="0.1">
     </div>
 
-    <label for="gold_color">لون الدهب</label>
+    <label for="gold_color">اللون </label>
     <select name="gold_color" id="gold_color" required>
             @foreach ($gold_colors as $gold_color)
                 <option value="{{ $gold_color }}">{{ $gold_color }}</option>
@@ -124,7 +124,7 @@
         <input type="radio" id="by_shop" name="details_type" value="by_shop" onclick="toggleCustomerDetails()">
         <label for="by_shop">خاصة بالمحل</label>
     </div>
-    <textarea style="height: 100px; display:none" name="order_details" id="order_detail"></textarea>
+    <textarea style="height: 100px;width:500px; display:none" name="order_details" id="order_detail"></textarea>
 
 <div class="mb-3">
         <label for="customer_name" class="form-label"> اسم العميل</label>
@@ -150,9 +150,18 @@
         <label for="rest_of_cost" class="form-label">الباقي</label>
         <input type="number" class="form-control" name="rest_of_cost" id="rest_of_cost" step="0.01" >
     </div>
-
     <div class="mb-3">
-        <label for="order_date" class="form-label">Order Date</label>
+        <label for="payment_method" class="form-label">طريقة الدفع</label>
+        <select type="number" class="form-control" name="payment_method" id="payment_method" step="0.01" >
+        <option value="visa">Visa</option>
+        <option value="value">Value</option>
+        <option value="cash">Cash</option>
+        <option value="instapay">Instapay</option>
+
+        </select>
+        </div>
+    <div class="mb-3">
+        <label for="order_date" class="form-label">تاريخ الاستلام6</label>
         <input type="date" class="form-control" name="order_date" id="order_date" required>
     </div>
 

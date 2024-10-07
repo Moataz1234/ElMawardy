@@ -21,11 +21,11 @@
                 $table->string('ring_size')->nullable(); 
                 $table->string('weight')->nullable();
                 $table->string('gold_color')->nullable();
-                $table->string('order_fix_type'); // kind of the order fix
-                $table->string('customer_name');
+                $table->string('order_fix_type')->nullable(); // kind of the order fix
+                $table->string('customer_name')->nullable();
                 $table->string('seller_name');
-                $table->decimal('deposit', 10, 2);
-                $table->decimal('rest_of_cost', 10, 2);
+                $table->decimal('deposit', 10, 2)->nullable();
+                $table->decimal('rest_of_cost', 10, 2)->nullable();
                 $table->string('payment_method')->nullable();
                 $table->string('customer_phone',11); 
                 $table->date('order_date');

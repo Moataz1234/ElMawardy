@@ -1,6 +1,7 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
+    @include('admin.rabea.dashboard')
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Order Requests</title>
@@ -13,7 +14,8 @@
     padding: 10px 20px;
     border-radius: 5px;
     border: none;
-    color: white;
+    color: rgb(0, 0, 0);
+    background-color: #49dc35;
 }
 
 .btn-primary-custom {
@@ -105,7 +107,7 @@
                         <a href="{{ route('orders.show', $order->id) }}" class="btn btn-primary">View</a>
                         <form action="{{ route('orders.accept', $order->id) }}" method="POST" style="display:inline;">
                             @csrf
-                            <button type="submit" class="btn btn-success">Accept</button>
+                            <button type="submit" class="btn-custom">Accept</button>
                         </form>
                     </td>
                 </tr>

@@ -189,10 +189,9 @@ class GoldItemController extends Controller
     
         return redirect()->route('prices.update.form')->with('success', 'Prices added successfully!');
     }
-    
 public function showUpdateForm()
 {
-    return view('webhook.update-all-prices');
+    return view('admin.gold.update-all-prices');
 }
     /**
      * Remove the specified resource from storage.

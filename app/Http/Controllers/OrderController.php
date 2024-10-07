@@ -102,8 +102,8 @@ class OrderController extends Controller
   $shops = Shop::all();
 
   // Fetch distinct kinds and gold colors from GoldItem model
-  $kinds = \App\Models\GoldItem::select('kind')->distinct()->pluck('kind');
-  $gold_colors = \App\Models\GoldItem::select('gold_color')->distinct()->pluck('gold_color');
+  $kinds = GoldItem::select('kind')->distinct()->pluck('kind');
+  $gold_colors = GoldItem::select('gold_color')->distinct()->pluck('gold_color');
 
   return view('shops.orders.Gold_order', [
       'kinds' => $kinds,
@@ -224,7 +224,7 @@ public function acceptOrder($id)
     Log::info('Current Order Status: ' . $order->status);
 
     // Change the status to 'in_progress'
-    $order->status = 'in_progress';
+    $order->status = 'تم الاستلام';
     $order->save(); // Update the existing record
 
     return redirect()->route('orders.requests')->with('success', 'Order accepted and is now in progress.');

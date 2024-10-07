@@ -67,7 +67,60 @@
     50% { transform: scale(1.05); }
     100% { transform: scale(1); }
 }
+    /* Align the buttons in the Actions column neatly */
+    .action-buttons {
+        display: flex;
+        flex-direction: column; /* Stack buttons vertically */
+        gap: 5px; /* Add space between buttons */
+    }
 
+    .action-buttons button,
+    .action-buttons a {
+        width: 100%; /* Make buttons full width */
+        padding: 5px 10px;
+        text-align: center;
+        border-radius: 5px;
+        border: 1px solid #ddd; /* Optional: border for buttons */
+        transition: background-color 0.3s ease;
+        cursor: pointer;
+    }
+
+    /* Button color and hover effects */
+    .info_button2 {
+        background-color: #17a2b8; /* Light blue color */
+        color: white;
+    }
+
+    .info_button2:hover {
+        background-color: #138496;
+    }
+
+    .info_button {
+        background-color: #ffc107; /* Yellow color */
+        color: white;
+    }
+
+    .info_button:hover {
+        background-color: #e0a800;
+    }
+
+    .success_button {
+        background-color: #28a745; /* Green color */
+        color: white;
+    }
+
+    .success_button:hover {
+        background-color: #218838;
+    }
+
+    .action_button {
+        background-color: #007bff; /* Blue color */
+        color: white;
+    }
+
+    .action_button:hover {
+        background-color: #0056b3;
+    }
 
     </style>
 </head>
@@ -107,7 +160,7 @@
                         'order_number' => ' رقم الطلب',
                         'order_kind' => 'النوع',
                         'order_details' => 'موضوع الطلب',
-                        'ring_size' => 'مقاس الخاتم',
+                        // 'ring_size' => 'مقاس الخاتم',
                         'weight' => 'الوزن',
                         'gold_color' => 'اللون',
                         'order_fix_type' => 'المشكلة',
@@ -145,10 +198,11 @@
                 <tr>
                     <td><img src="{{ asset('storage/' . $order->image_link) }}" alt="Order Image" style="max-width: 100%; height: auto;">
                     </td>
+                    <td>{{ $order->shop->name }}</td>
                     <td>{{ $order->order_number }}</td>
                     <td>{{ $order->order_kind }}</td>
                     <td>{{ $order->order_details }}</td>
-                    <td>{{ $order->ring_size }}</td>
+                    {{-- <td>{{ $order->ring_size }}</td> --}}
                     <td>{{ $order->weight }}</td>
                     <td>{{ $order->gold_color }}</td>
                     <td>{{ $order->order_fix_type }}</td>
@@ -159,8 +213,10 @@
                     <td>{{ $order->rest_of_cost }}</td>
                     <td>{{ $order->order_date }}</td>
                     <td>{{ $order->deliver_date }}</td>
+                    <td>{{ $order->payment_method }}</td>
                     <td>{{ $order->status }}</td>
-                    <td>
+                    <td >
+                        <div class="action-buttons">
                         <a href="{{ route('orders.show', $order->id) }}" class="action_button">View</a>
                         
                         <!-- Button to change status to "في الورشة" -->
@@ -180,6 +236,7 @@
                             @csrf
                             <button type="submit" class="success_button">خلص</button>
                         </form>
+                        </div>
                     </td>
                 </tr>
             @endforeach

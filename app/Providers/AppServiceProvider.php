@@ -5,6 +5,10 @@ namespace App\Providers;
 use Illuminate\Support\ServiceProvider;
 use App\Models\Order;
 use App\Policies\OrderPolicy;
+use App\Http\Middleware\Rabea;
+use Illuminate\Support\Facades\Route;
+use App\Http\Middleware\admin;
+use App\Http\Middleware\CheckShop;
 
 class AppServiceProvider extends ServiceProvider
 {
@@ -25,6 +29,10 @@ protected $policies = [
      */
     public function boot(): void
     {
-        //
+        Route::aliasMiddleware('rabea', Rabea::class);
+        Route::aliasMiddleware('user', CheckShop::class);
+        Route::aliasMiddleware( 'admin', admin::class);
+
+
     }
 }

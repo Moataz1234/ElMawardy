@@ -15,6 +15,7 @@ class ShopUsersSeeder extends Seeder
     public function run(): void
     {
         $shops = [
+            'admin',
             'Mohandessin Office',
             'Mohandessin Shop',
             'Mall of Arabia',
@@ -33,17 +34,16 @@ class ShopUsersSeeder extends Seeder
         ];
 
         foreach ($shops as $shop) {
-            $shopModel = Shop::where('name', $shop)->first();
+            // $shopModel = Shop::where('name', $shop)->first();
+            // if ($shopModel) {
 
-            $user = User::create([
+            User::create([
                 'name' => $shop,
                 'email' => strtolower(str_replace(' ', '_', $shop)) . '@example.com',
                 'password' => Hash::make('12345678'),
             ]);
 
             // Update the shop_id to be the same as the user's id
-            $user->shop_id = $user->id;
-            $user->save();
         }
     }
 }

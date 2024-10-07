@@ -16,9 +16,9 @@
                     <x-nav-link :href="route('admin-dashboard')" :active="request()->routeIs('admin-dashboard')">
                         {{ __('Dashboard') }}
                     </x-nav-link>
-                    <x-nav-link :href="route('new-item.create')" :active="request()->routeIs('new-item.create')">
+                    {{-- <x-nav-link :href="route('new-item.create')" :active="request()->routeIs('new-item.create')">
                         {{ __('ادخال قطعة جديدة') }}
-                    </x-nav-link>
+                    </x-nav-link> --}}
                         {{-- <x-nav-link :href="route('new-item.create')" :active="request()->routeIs('new-item.create')">
                         {{ __('ادخال رقم الدفتر') }}
                     </x-nav-link> --}}
