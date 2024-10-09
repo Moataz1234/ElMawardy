@@ -15,30 +15,22 @@
                 $table->id();
                 $table->foreignId('shop_id')->constrained('shops')->onDelete('cascade'); // Linking shop with order
                 $table->string('order_number')->nullable();
-                $table->string('image_link')->nullable();
                 $table->text('order_details')->nullable(); // Details of the order
-                $table->string('order_kind'); // kind of the order
-                $table->string('ring_size')->nullable(); 
-                $table->string('weight')->nullable();
-                $table->string('gold_color')->nullable();
-                $table->string('order_fix_type')->nullable(); // kind of the order fix
                 $table->string('customer_name')->nullable();
-                $table->string('seller_name');
+                $table->string('seller_name')->nullable();
                 $table->decimal('deposit', 10, 2)->nullable();
                 $table->decimal('rest_of_cost', 10, 2)->nullable();
                 $table->string('payment_method')->nullable();
-                $table->string('customer_phone',11); 
-                $table->date('order_date');
+                $table->string('customer_phone',11)->nullable(); 
+                $table->date('order_date')->nullable();
                 $table->date('deliver_date')->nullable();
                 $table->string('status')->nullable();
                 $table->string('by_customer')->nullable();
                 $table->string('by_Shop')->nullable();
-
-                // $table->enum('status', ['في المحل', 'في الورشة', 'خلص', 'تم استلامه' ,'في الدمغة'])->default('في المحل'); // Order status
+                $table->string('by_two')->nullable();
                 $table->timestamps();
             });
         }
-
         /**
          * Reverse the migrations.
          */

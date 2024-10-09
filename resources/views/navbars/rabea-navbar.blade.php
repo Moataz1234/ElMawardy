@@ -1,9 +1,8 @@
 <nav>
     <!-- Rabea-specific navigation items -->
     <ul>
-        <li><a href="{{ route('orders.rabea.index') }}">Orders List</a></li>
-        <li><a href="{{ route('orders.rabea.index') }}"> الورشة</a></li>   
-        <li><a href="{{ route('admin-dashboard') }}">Dashboard</a></li>
-               {{-- <li><a href="{{ route('orders.create') }}">Custom Order</a></li> --}}
+        <li><a href="{{ route('orders.rabea.index') }}">الاوردرات</a></li>
+        <li><a href="{{ route('orders.rabea.to_print') }}"> الورشة</a></li>   
+               <li><a href="{{ route('completed_orders.index') }}"> الاوردرات التي تم تسليمها</a></li>
            </ul>
 </nav>

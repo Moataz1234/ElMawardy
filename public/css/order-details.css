@@ -1,34 +1,47 @@
 /* Flex container to hold image and details side by side */
+
 .order-container {
     display: flex;
-    gap: 20px; /* Space between image and details */
+    gap: 20px;
+    /* Space between image and details */
 }
 
+
 /* Image styling */
+
 .order-image img {
     max-width: 300px;
     height: auto;
     border-radius: 8px;
 }
 
+
 /* Styling for the order details */
+
 .order-details {
-    flex: 1; /* Take remaining space */
+    flex: 1;
+    /* Take remaining space */
     font-size: 20px;
 }
 
+
 /* Style the container */
+
 .container {
     margin-top: 20px;
 }
 
+
 /* Style the order header */
+
 h2 {
     color: #333;
     font-weight: bold;
 }
 
+
 /* Style the card */
+
 .card {
     background-color: #f9f9f9;
     border-radius: 8px;
@@ -37,7 +50,9 @@ h2 {
     margin-top: 20px;
 }
 
+
 /* Style card header */
+
 .card-header {
     font-size: 24px;
     font-weight: bold;
@@ -47,71 +62,111 @@ h2 {
     border-radius: 8px 8px 0 0;
 }
 
+
 /* Style card body */
+
 .card-body p {
     margin-bottom: 10px;
     font-size: 20px;
 }
 
+
 /* Style card footer */
+
 .card-footer {
     text-align: center;
 }
 
-/* Style the buttons */
-.btn {
-    padding: 10px 20px;
-    font-size: 26px;
-    background-color: rgb(2, 39, 245);
-    color: rgb(5, 178, 5);
-}
-.btn:hover {
-    background-color: rgb(1, 26, 81);
-}
+
 /* custom.css */
 
 .btn-custom {
-    padding: 10px 15px; /* Button padding */
-    border: none; /* Remove default border */
-    border-radius: 5px; /* Rounded corners */
-    color: white; /* Text color */
-    font-weight: bold; /* Make text bold */
-    cursor: pointer; /* Change cursor to pointer */
-    transition: background-color 0.3s, transform 0.2s; /* Transition effects */
+    padding: 10px 15px;
+    /* Button padding */
+    border: none;
+    /* Remove default border */
+    border-radius: 5px;
+    /* Rounded corners */
+    color: rgb(245, 238, 238);
+    /* Text color */
+    font-weight: bold;
+    /* Make text bold */
+    cursor: pointer;
+    /* Change cursor to pointer */
+    transition: background-color 0.3s, transform 0.2s;
+    background-color: rgb(55, 7, 189);
+    margin: 20px 200px;
+    /* Transition effects */
 }
 
+
 /* Optional: Adjust badge styling */
+
 .badge {
-    background-color: red; /* Badge background color */
-    color: white; /* Badge text color */
-    border-radius: 10px; /* Rounded badge */
-    padding: 2px 8px; /* Padding for badge */
+    background-color: red;
+    /* Badge background color */
+    color: white;
+    /* Badge text color */
+    border-radius: 10px;
+    /* Rounded badge */
+    padding: 2px 8px;
+    /* Padding for badge */
 }
-.success_button{
+
+.success_button {
     text-decoration: none;
     background-color: #333;
     padding: 2px 2px;
     color: #ddd;
 }
-.success_button:hover{
+
+.success_button:hover {
     color: #13e90b;
 }
 
-.info_button{
+.info_button {
     text-decoration: none;
     background-color: #333;
     padding: 4px 2px;
     color: #ddd;
 }
-.info_button:hover{
+
+.info_button:hover {
     color: #13e90b;
 }
-.info_button2{
+
+.info_button2 {
     text-decoration: none;
     background-color: #333;
     padding: 2px 2px;
     color: #ddd;
 }
-.info_button2:hover{
+
+.info_button2:hover {
     color: #13e90b;
+}
+
+.order-item {
+    margin-bottom: 20px;
+    padding: 15px;
+    border: 1px solid #ddd;
+    border-radius: 5px;
+    background-color: #f9f9f9;
+}
+
+.remove-item {
+    background-color: red;
+    color: white;
+    padding: 5px 10px;
+    border: none;
+    border-radius: 5px;
+    cursor: pointer;
+}
+
+.remove-item:hover {
+    background-color: darkred;
+}
+
+.order_details {
+    text-align: center;
 }

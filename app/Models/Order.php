@@ -12,13 +12,7 @@ class Order extends Model
     protected $fillable = [
         'shop_id',
         'order_number',
-        'image_link',
         'order_details',
-        'order_kind',
-        'ring_size',
-        'weight',
-        'gold_color',
-        'order_fix_type',
         'customer_name',
         'seller_name',
         'deposit',
@@ -29,11 +23,16 @@ class Order extends Model
         'payment_method',
         'by_customer',
         'by_shop' ,
+        'by_two',
         'status',  
     ];
 
     public function shop()
     {
         return $this->belongsTo(Shop::class);
+    }
+    public function items()
+    {
+        return $this->hasMany(OrderItem::class);
     }
 }

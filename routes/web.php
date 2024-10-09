@@ -67,8 +67,12 @@ Route::middleware(['auth', 'rabea'])->group(function () {
     Route::get('/orders/rabea/{id}/edit', [OrderController::class, 'edit'])->name('orders.rabea.edit');
     Route::put('/orders/rabea/{id}', [OrderController::class, 'updateOrder'])->name('orders.rabea.update');
     Route::get('/orders/requests', [OrderController::class, 'requests'])->name('orders.requests');
-    Route::post('/orders/{order}/accept', [OrderController::class, 'acceptOrder'])->name('orders.accept');
-    Route::post('/orders/{id}/update-status/{status}', [OrderController::class, 'updateStatus'])->name('orders.updateStatus');
+    // Route::post('/orders/{order}/accept', [OrderController::class, 'acceptOrder'])->name('orders.accept');
+    Route::post('/orders/accept', [OrderController::class, 'accept'])->name('orders.accept');
+
+    Route::post('orders/{id}/update-status', [OrderController::class, 'updateStatus'])->name('orders.updateStatus');
+    Route::get('/orders/toPrint', [OrderController::class, 'toPrint'])->name('orders.rabea.to_print');
+    Route::get('/completed-orders', [OrderController::class, 'showCompletedOrders'])->name('completed_orders.index');
 
 });
 

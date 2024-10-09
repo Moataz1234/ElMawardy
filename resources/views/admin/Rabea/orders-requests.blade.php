@@ -32,6 +32,8 @@
         </style>
 </head>
 <body>
+    <form action="{{ route('orders.accept') }}" method="POST">
+        @csrf
 <div class="container">
     <h2>Order Requests</h2>
 
@@ -44,24 +46,17 @@
     <table class="table">
         <thead>
             <tr>
-                <th>Image</th>
+                <th>check</th>
                 @php
                 // Array of columns with their display names
                 $columns = [
+                    'shop_id    ' =>'shop_id',
                     'order_number' => 'Order Number',
-                    'order_kind' => 'Order Kind',
                     'order_details' => 'Order Details',
-                    'ring_size' => 'Ring Size',
-                    'weight' => 'Weight',
-                    'gold_color' => 'Gold Color',
-                    'order_fix_type' => 'Order Fix Type',
                     'customer_name' => 'Customer Name',
                     'customer_phone' => 'Customer Phone',
                     'seller_name' => 'Seller Name',
-                    'deposit' => 'Deposit',
-                    'rest_of_cost' => 'Rest of Cost',
                     'order_date' => 'Order Date',
-                    'deliver_date' => 'Deliver Date',
                     'status' => 'Status',
                 ];
             @endphp
@@ -86,42 +81,33 @@
             @foreach ($orders as $order)
                 <tr>
                    
-                    <td><img src="{{ asset('storage/' . $order->image_link) }}" alt="Order Image" style="max-width: 100%; height: auto;">
-                    </td>
-                    <td>{{ $order->order_number }}</td>
-                    <td>{{ $order->order_kind }}</td>
+                    <td>
+                        <input type="checkbox" name="order_ids[]" value="{{ $order->id }}" class="order-checkbox">
+                    </td>                    
+                    <td>{{ $order->shop_id }}</td>
+                    <td>{{ $order->shop_id }}-{{ $order->order_number }}</td>
                     <td>{{ $order->order_details }}</td>
-                    <td>{{ $order->ring_size }}</td>
-                    <td>{{ $order->weight }}</td>
-                    <td>{{ $order->gold_color }}</td>
-                    <td>{{ $order->order_fix_type }}</td>
                     <td>{{ $order->customer_name }}</td>
                     <td>{{ $order->customer_phone }}</td>
                     <td>{{ $order->seller_name }}</td>
-                    <td>{{ $order->deposit }}</td>
-                    <td>{{ $order->rest_of_cost }}</td>
                     <td>{{ $order->order_date }}</td>
-                    <td>{{ $order->deliver_date }}</td>
                     <td>{{ $order->status }}</td>
-                    <td>
-                        <a href="{{ route('orders.show', $order->id) }}" class="btn btn-primary">View</a>
+                    {{-- <td>
                         <form action="{{ route('orders.accept', $order->id) }}" method="POST" style="display:inline;">
                             @csrf
-                            <button type="submit" class="btn-custom">Accept</button>
+                            <button type="submit" class="btn-custom">Review</button>
                         </form>
-                    </td>
+                    </td> --}}
                 </tr>
             @endforeach
+
         </tbody>
     </table>
-</div>
-<script>
-    // JavaScript for light-up effect and badge updating
-    document.addEventListener('DOMContentLoaded', function () {
-        const badge = document.querySelector('.badge');
-        const link = document.querySelector('.nav-link');
-        // Logic to handle updates (simulated for demonstration)
-    });
-</script>
+    <button type="submit" class="btn-custom">Accept Selected Orders</button>
+
+    </div>
+</form>
+<script src="{{ asset('js/order_details.js') }}"></script>
+
 </body>
 </html>
