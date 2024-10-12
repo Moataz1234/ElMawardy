@@ -100,7 +100,7 @@
                                         {{ $variant['node']['title'] ?? 'No Variant Title' }} - 
                                         ${{ $variant['node']['price'] ?? '0.00' }} 
                                         {{-- | Available: {{ $variant['node']['availableForSale'] ? 'Yes' : 'No' }} --}}
-                                        | Quantity: {{ $variant['node']['inventoryQuantity'] ?? 'Not Available' }}
+                                        {{-- | Quantity: {{ $variant['node']['inventoryQuantity'] ?? 'Not Available' }} --}}
                                     </li>
                                 @endforeach
                             @else
