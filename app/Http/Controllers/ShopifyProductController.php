@@ -62,6 +62,23 @@ class ShopifyProductController extends Controller
 
         return redirect()->route('shopify.products')->with('success', 'Product details updated successfully.');
     }
+    public function updateProduct(Request $request, $productId)
+{
+    $updatedData = [
+        'title' => $request->input('title'),
+        'body_html' => $request->input('description')
+    ];
+
+    // Use ShopifyService to update the product via Shopify API
+    $response = $this->shopifyService->updateProduct($productId, $updatedData);
+
+    if ($response['success']) {
+        return redirect()->back()->with('success', 'Product updated successfully.');
+    } else {
+        return redirect()->back()->with('error', 'Failed to update product.');
+    }
+}
+
 }
 
 
