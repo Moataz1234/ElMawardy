@@ -31,7 +31,13 @@
                 @foreach ($products as $product)
                     <div class="product-item">
                         <h2>{{ $product['node']['title'] ?? 'No Title Available' }}</h2>
-                        <p><strong>Model    :</strong> {{ $product['node']['variants']['edges'][0]['node']['sku'] ?? 'No SKU Available' }}</p>
+                        <p><strong>Model:</strong> {{ $product['node']['variants']['edges'][0]['node']['sku'] ?? 'No SKU Available' }}</p>
+                        <p><strong>Handle:</strong> {{ $product['node']['handle'] ?? 'No Handle Available' }}</p>
+                        <p><strong>Vendor:</strong> {{ $product['node']['vendor'] ?? 'No Vendor Available' }}</p>
+                        <p><strong>Product Type:</strong> {{ $product['node']['productType'] ?? 'No Product Type Available' }}</p>
+                        <p><strong>Tags:</strong> {{ implode(', ', $product['node']['tags'] ?? []) }}</p>
+                        <p><strong>Created At:</strong> {{ $product['node']['createdAt'] ?? 'No Creation Date Available' }}</p>
+                        <p><strong>Updated At:</strong> {{ $product['node']['updatedAt'] ?? 'No Update Date Available' }}</p>
 
                         {{-- Truncate product description initially and show 'See More' --}}
                         <div class="product-description" id="description-{{ $loop->index }}">

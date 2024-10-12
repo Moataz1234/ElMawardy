@@ -26,7 +26,7 @@ class ShopifyProductController extends Controller
         $nextCursor = $products['data']['products']['pageInfo']['endCursor'] ?? null;
         $hasNextPage = $products['data']['products']['pageInfo']['hasNextPage'] ?? false;
     
-        // Pass the data to the view
+        // Pass the data to the view, including additional fields
         return view('shopify.products', [
             'products' => $products['data']['products']['edges'] ?? [],
             'nextCursor' => $nextCursor,
