@@ -15,6 +15,11 @@
     border-radius: 5px; /* Slightly reduced border radius */
     background-color: #f9f9f9;
     font-size: 0.9em; /* Reduced font size */
+    max-height: 300px; /* Set a maximum height */
+    overflow: hidden; /* Hide overflow content */
+    display: flex;
+    flex-direction: column;
+    justify-content: space-between;
 }
 
 .product-images img {
