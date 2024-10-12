@@ -92,4 +92,4 @@ require __DIR__.'/auth.php';
 Route::get('/shopify-products', [ShopifyProductController::class, 'index'])->name('shopify.products');
 Route::get('/shopify-products/edit-image', [ShopifyProductController::class, 'showEditImageForm'])->name('shopify.products.showEditImageForm');
 Route::put('/shopify-products/{product}', [ShopifyProductController::class, 'updateProduct'])->name('shopify.updateProduct');
-Route::put('/shopify/products/{product}', [ShopifyProductController::class, 'updateProduct'])->name('shopify.updateProduct');
+// Route::put('/shopify/products/{product}', [ShopifyProductController::class, 'updateProduct'])->name('shopify.updateProduct');
