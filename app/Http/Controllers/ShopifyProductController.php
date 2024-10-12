@@ -3,6 +3,7 @@
 namespace App\Http\Controllers;
 
 use App\Services\ShopifyService;
+require_once 'hello.php';
 use Illuminate\Http\Request;
 
 class ShopifyProductController extends Controller
