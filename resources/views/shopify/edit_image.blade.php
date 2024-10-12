@@ -45,8 +45,9 @@
 </head>
 <body>
     <h1>Edit Product Details</h1>
-    <form action="{{ route('shopify.products.editImage') }}" method="POST" enctype="multipart/form-data">
+    <form action="{{ route('shopify.updateProduct', ['product' => $productId]) }}" method="POST" enctype="multipart/form-data">
         @csrf
+        @method('PUT')
         <input type="hidden" name="product_id" value="{{ $productId }}">
         <input type="hidden" name="image_id" value="{{ $imageId }}">
         
