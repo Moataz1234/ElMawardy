@@ -90,3 +90,4 @@ Route::get('/gold-items', [GoldItemController::class, 'index'])->name('gold-item
 require __DIR__.'/auth.php';
 // Route::get('/shopify-products', [ShopifyProductController::class, 'index']);
 Route::get('/shopify-products', [ShopifyProductController::class, 'index'])->name('shopify.products');
+Route::post('/shopify-products/edit-image', [ShopifyProductController::class, 'editImage'])->name('shopify.products.editImage');

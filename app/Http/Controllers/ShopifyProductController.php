@@ -34,7 +34,17 @@ class ShopifyProductController extends Controller
         ]);
     }
     
-    
+    public function editImage(Request $request)
+    {
+        $productId = $request->input('product_id');
+        $imageId = $request->input('image_id');
+        $newImageUrl = $request->input('new_image_url');
+
+        // Call the Shopify service to update the image
+        $this->shopifyService->updateProductImage($productId, $imageId, $newImageUrl);
+
+        return redirect()->route('shopify.products')->with('success', 'Image updated successfully.');
+    }
 }
 
 
