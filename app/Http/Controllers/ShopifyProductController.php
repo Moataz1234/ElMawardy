@@ -34,6 +34,14 @@ class ShopifyProductController extends Controller
         ]);
     }
     
+    public function showEditImageForm(Request $request)
+    {
+        $productId = $request->input('product_id');
+        $imageId = $request->input('image_id');
+
+        return view('shopify.edit_image', compact('productId', 'imageId'));
+    }
+
     public function editImage(Request $request)
     {
         $productId = $request->input('product_id');
