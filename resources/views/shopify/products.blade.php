@@ -85,7 +85,11 @@
                                         <img src="{{ $media['node']['image']['url'] }}" 
                                              alt="{{ $media['node']['image']['altText'] ?? 'No Alt Text' }}" 
                                              width="150">
-                                        <button class="btn edit-image" data-id="{{ $product['node']['id'] }}" data-image-id="{{ $media['node']['id'] }}">Edit</button>
+                                        @if(isset($media['node']['id']))
+                                            <button class="btn edit-image" data-id="{{ $product['node']['id'] }}" data-image-id="{{ $media['node']['id'] }}">Edit</button>
+                                        @else
+                                            <p>No ID available for this image</p>
+                                        @endif
                                     @endif
                                 @endforeach
                             </div>
