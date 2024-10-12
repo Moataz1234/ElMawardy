@@ -69,7 +69,7 @@
     <div id="editModal" class="modal">
         <div class="modal-content">
             <span class="close">&times;</span>
-            <form id="editProductForm" action="{{ route('shopify.updateProduct', ['product' => '']) }}" method="POST">
+            <form id="editProductForm" action="{{ route('shopify.updateProduct', ['product' => '']) }}" method="POST" enctype="multipart/form-data">
                 @csrf
                 @method('PUT') {{-- Use PUT for updates --}}
 
