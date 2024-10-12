@@ -5,21 +5,41 @@
     <style>
 .product-grid {
     display: grid;
-    grid-template-columns: repeat(auto-fill, minmax(250px, 1fr));
-    gap: 20px;
+    grid-template-columns: repeat(auto-fill, minmax(200px, 1fr)); /* Reduced min-width for more items */
+    gap: 10px; /* Reduced gap for more compact layout */
 }
 
 .product-item {
     border: 1px solid #ddd;
-    padding: 10px;
-    border-radius: 8px;
+    padding: 5px; /* Reduced padding */
+    border-radius: 5px; /* Slightly reduced border radius */
     background-color: #f9f9f9;
+    font-size: 0.9em; /* Reduced font size */
 }
 
 .product-images img {
     display: block;
-    margin: 0 auto 10px;
+    margin: 0 auto 5px; /* Reduced margin */
     max-width: 100%;
+}
+
+.btn {
+    display: inline-block;
+    padding: 8px 12px;
+    margin-top: 10px;
+    font-size: 0.9em;
+    color: #fff;
+    background-color: #007bff;
+    border: none;
+    border-radius: 5px;
+    text-decoration: none;
+    text-align: center;
+    cursor: pointer;
+    transition: background-color 0.3s ease;
+}
+
+.btn:hover {
+    background-color: #0056b3;
 }
 
     </style>
