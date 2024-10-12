@@ -1,74 +1,138 @@
-<!DOCTYPE html>
-<html>
-<head>
-    <title>Edit Product Details</title>
-    <style>
-        body {
-            font-family: Arial, sans-serif;
-            margin: 20px;
-        }
-        form {
-            max-width: 600px;
-            margin: auto;
-            padding: 20px;
-            border: 1px solid #ddd;
-            border-radius: 5px;
-            background-color: #f9f9f9;
-        }
-        label {
-            display: block;
-            margin-top: 10px;
-            font-weight: bold;
-        }
-        input[type="text"],
-        textarea,
-        input[type="file"] {
-            width: 100%;
-            padding: 8px;
-            margin-top: 5px;
-            border: 1px solid #ccc;
-            border-radius: 4px;
-        }
-        button {
-            margin-top: 15px;
-            padding: 10px 15px;
-            background-color: #007bff;
-            color: white;
-            border: none;
-            border-radius: 5px;
-            cursor: pointer;
-        }
-        button:hover {
-            background-color: #0056b3;
-        }
-    </style>
-</head>
-<body>
-    <h1>Edit Product Details</h1>
-    <form action="{{ route('shopify.products.editImage') }}" method="POST" enctype="multipart/form-data">
-        @csrf
-        <input type="hidden" name="product_id" value="{{ $productId }}">
-        <input type="hidden" name="image_id" value="{{ $imageId }}">
-        
-        <label for="new_image">Upload New Image:</label>
-        <input type="file" id="new_image" name="new_image" accept="image/*">
+@extends('layouts.app')
 
-        <label for="title">Title:</label>
-        <input type="text" id="title" name="title" placeholder="Enter product title">
+@section('content')
+    <h1>Shopify Products with Media</h1>
+    <div class="product-grid">
+        @if(count($products) > 0)
+            @foreach ($products as $product)
+                <div class="product-item">
+                    {{-- Display Product Name (Title) --}}
+                    <h2>{{ $product['node']['title'] ?? 'No Title Available' }}</h2>
 
-        <label for="description">Description:</label>
-        <textarea id="description" name="description" placeholder="Enter product description"></textarea>
+                    {{-- Display Product SKU above Description --}}
+                    <p><strong>SKU:</strong> {{ $product['node']['variants']['edges'][0]['node']['sku'] ?? 'No SKU Available' }}</p>
 
-        <label for="vendor">Vendor:</label>
-        <input type="text" id="vendor" name="vendor" placeholder="Enter vendor name">
+                    {{-- Truncate product description initially and show 'See More' --}}
+                    <div class="product-description" id="description-{{ $loop->index }}">
+                        <p class="short-description">
+                            {{ Str::limit($product['node']['description'], 300) }} {{-- Limit to 300 characters initially --}}
+                        </p>
+                        <p class="full-description" style="display:none;">
+                            {{ $product['node']['description'] ?? 'No Description Available' }}
+                        </p>
+                        @if(strlen($product['node']['description']) > 300)
+                            <a href="javascript:void(0);" class="see-more" data-id="{{ $loop->index }}">See More</a>
+                        @endif
+                    </div>
 
-        <label for="product_type">Product Type:</label>
-        <input type="text" id="product_type" name="product_type" placeholder="Enter product type">
+                    {{-- Display Product Images --}}
+                    @if (!empty($product['node']['media']['edges']))
+                        <div class="product-images">
+                            @foreach ($product['node']['media']['edges'] as $media)
+                                @if ($media['node']['mediaContentType'] === 'IMAGE')
+                                    <img src="{{ $media['node']['image']['url'] }}" 
+                                         alt="{{ $media['node']['image']['altText'] ?? 'No Alt Text' }}" 
+                                         width="150">
+                                @endif
+                            @endforeach
+                        </div>
+                    @else
+                        <p>No images available</p>
+                    @endif
 
-        <label for="tags">Tags:</label>
-        <input type="text" id="tags" name="tags" placeholder="Enter tags, separated by commas">
+                    {{-- Display Variants, Prices, and Available Inventory --}}
+                    <ul>
+                        @if (!empty($product['node']['variants']['edges']))
+                            @foreach ($product['node']['variants']['edges'] as $variant)
+                                <li>
+                                    {{ $variant['node']['title'] ?? 'No Variant Title' }} - 
+                                    ${{ $variant['node']['price'] ?? '0.00' }} 
+                                    | Available Quantity: {{ $variant['node']['inventoryItem']['inventoryLevels']['edges'][0]['node']['availableQuantity'] ?? 'Not Available' }}
+                                    | In Stock: {{ $variant['node']['availableForSale'] ? 'Yes' : 'No' }}
+                                </li>
+                            @endforeach
+                        @else
+                            <p>No variants available</p>
+                        @endif
+                    </ul>
 
-        <button type="submit">Update Product</button>
-    </form>
-</body>
-</html>
+                    {{-- Edit Button --}}
+                    <button class="btn btn-warning edit-btn" data-id="{{ $product['node']['id'] }}" data-title="{{ $product['node']['title'] }}" data-description="{{ $product['node']['description'] }}">Edit</button>
+                </div>
+            @endforeach
+        @else
+            <p>No products available</p>
+        @endif
+    </div>
+
+    {{-- Modal for Editing Product --}}
+    <div id="editModal" class="modal">
+        <div class="modal-content">
+            <span class="close">&times;</span>
+            <form id="editProductForm" action="{{ route('shopify.updateProduct', ['product' => '']) }}" method="POST">
+                @csrf
+                @method('PUT') {{-- Use PUT for updates --}}
+
+                <input type="hidden" id="product_id" name="product_id">
+                
+                {{-- Product Title --}}
+                <div class="form-group">
+                    <label for="title">Product Title</label>
+                    <input type="text" name="title" id="product_title" class="form-control">
+                </div>
+
+                {{-- Product Description --}}
+                <div class="form-group">
+                    <label for="description">Product Description</label>
+                    <textarea name="description" id="product_description" class="form-control"></textarea>
+                </div>
+
+                {{-- Submit Button --}}
+                <button type="submit" class="btn btn-primary">Save Changes</button>
+            </form>
+        </div>
+    </div>
+@endsection
+
+@section('scripts')
+<script>
+    document.addEventListener('DOMContentLoaded', function() {
+        const editButtons = document.querySelectorAll('.edit-btn');
+        const modal = document.getElementById('editModal');
+        const closeModalBtn = document.querySelector('.close');
+        const form = document.getElementById('editProductForm');
+        const titleInput = document.getElementById('product_title');
+        const descriptionInput = document.getElementById('product_description');
+        const productIdInput = document.getElementById('product_id');
+
+        // Open modal when edit button is clicked
+        editButtons.forEach(button => {
+            button.addEventListener('click', function() {
+                const productId = this.getAttribute('data-id');
+                const productTitle = this.getAttribute('data-title');
+                const productDescription = this.getAttribute('data-description');
+
+                titleInput.value = productTitle;
+                descriptionInput.value = productDescription;
+                productIdInput.value = productId;
+
+                form.action = "{{ route('shopify.updateProduct', ['product' => '']) }}/" + productId;
+
+                modal.style.display = 'block';
+            });
+        });
+
+        // Close modal when "x" is clicked
+        closeModalBtn.addEventListener('click', function() {
+            modal.style.display = 'none';
+        });
+
+        // Close modal when clicking outside of it
+        window.onclick = function(event) {
+            if (event.target == modal) {
+                modal.style.display = 'none';
+            }
+        };
+    });
+</script>
+@endsection
