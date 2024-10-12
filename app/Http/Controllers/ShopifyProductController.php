@@ -56,10 +56,7 @@ class ShopifyProductController extends Controller
         // Call the Shopify service to update the product details
         $this->shopifyService->updateProductDetails($productId, $imageId, $newImageUrl, $title, $description, $vendor, $productType, $tags);
 
-        // Call the Shopify service to update the image
-        // $this->shopifyService->updateProductImage($productId, $imageId, $newImageUrl);
-
-        return redirect()->route('shopify.products')->with('success', 'Image updated successfully.');
+        return redirect()->route('shopify.products')->with('success', 'Product details updated successfully.');
     }
 }
 
