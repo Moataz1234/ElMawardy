@@ -5,13 +5,13 @@
 </head>
 <body>
     <h1>Edit Image for Product</h1>
-    <form action="{{ route('shopify.products.editImage') }}" method="POST">
+    <form action="{{ route('shopify.products.editImage') }}" method="POST" enctype="multipart/form-data">
         @csrf
         <input type="hidden" name="product_id" value="{{ $productId }}">
         <input type="hidden" name="image_id" value="{{ $imageId }}">
         
-        <label for="new_image_url">New Image URL:</label>
-        <input type="text" id="new_image_url" name="new_image_url" required>
+        <label for="new_image">Upload New Image:</label>
+        <input type="file" id="new_image" name="new_image" accept="image/*">
 
         <label for="title">Title:</label>
         <input type="text" id="title" name="title" >

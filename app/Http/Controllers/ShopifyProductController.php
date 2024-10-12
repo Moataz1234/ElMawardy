@@ -46,7 +46,11 @@ class ShopifyProductController extends Controller
     {
         $productId = $request->input('product_id');
         $imageId = $request->input('image_id');
-        $newImageUrl = $request->input('new_image_url');
+        $newImageUrl = null;
+        if ($request->hasFile('new_image')) {
+            $file = $request->file('new_image');
+            $newImageUrl = $file->store('images', 'public');
+        }
         $title = $request->input('title');
         $description = $request->input('description');
         $vendor = $request->input('vendor');
