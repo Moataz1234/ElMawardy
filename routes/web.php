@@ -3,7 +3,7 @@
 use App\Http\Controllers\{
     HomeController, ProfileController, NewItemController,
     Gold\GoldItemController, Gold\GoldItemSoldController,
-    Gold\GoldPoundController, ShopsController, OrderController
+    Gold\GoldPoundController, ShopsController, OrderController,ShopifyProductController
 };
 use Illuminate\Support\Facades\Route;
 
@@ -21,6 +21,8 @@ Route::middleware('auth')->group(function () {
 
 // Admin Routes
 Route::middleware(['auth', 'admin'])->group(function () {
+
+    
     Route::get('/admin/dashboard', [HomeController::class, 'index'])->name('admin-dashboard');
     
     Route::get('/new-item/create', [NewItemController::class, 'create'])->name('new-item.create');
@@ -86,3 +88,5 @@ Route::middleware('auth')->group(function () {
 Route::get('/gold-items', [GoldItemController::class, 'index'])->name('gold-items.index');
 
 require __DIR__.'/auth.php';
+// Route::get('/shopify-products', [ShopifyProductController::class, 'index']);
+Route::get('/shopify-products', [ShopifyProductController::class, 'index'])->name('shopify.products');
