@@ -47,6 +47,14 @@ class ShopifyProductController extends Controller
         $productId = $request->input('product_id');
         $imageId = $request->input('image_id');
         $newImageUrl = $request->input('new_image_url');
+        $title = $request->input('title');
+        $description = $request->input('description');
+        $vendor = $request->input('vendor');
+        $productType = $request->input('product_type');
+        $tags = $request->input('tags');
+
+        // Call the Shopify service to update the product details
+        $this->shopifyService->updateProductDetails($productId, $imageId, $newImageUrl, $title, $description, $vendor, $productType, $tags);
 
         // Call the Shopify service to update the image
         $this->shopifyService->updateProductImage($productId, $imageId, $newImageUrl);
