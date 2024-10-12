@@ -66,21 +66,31 @@ class ShopifyProductController extends Controller
         return redirect()->route('shopify.products')->with('success', 'Product details updated successfully.');
     }
     public function updateProduct(Request $request, $productId)
-{
-    $updatedData = [
-        'title' => $request->input('title'),
-        'body_html' => $request->input('description')
-    ];
+    {
+        $updatedData = [
+            'title' => $request->input('title'),
+            'body_html' => $request->input('description'),
+            'vendor' => $request->input('vendor'),
+            'product_type' => $request->input('product_type'),
+            'tags' => $request->input('tags')
+        ];
 
-    // Use ShopifyService to update the product via Shopify API
-    $response = $this->shopifyService->updateProduct($productId, $updatedData);
+        // Handle image upload if a new image is provided
+        if ($request->hasFile('new_image')) {
+            $file = $request->file('new_image');
+            $newImageUrl = $file->store('images', 'public');
+            $updatedData['image'] = ['src' => $newImageUrl];
+        }
 
-    if ($response['success']) {
-        return redirect()->back()->with('success', 'Product updated successfully.');
-    } else {
-        return redirect()->back()->with('error', 'Failed to update product.');
+        // Use ShopifyService to update the product via Shopify API
+        $response = $this->shopifyService->updateProduct($productId, $updatedData);
+
+        if ($response['success']) {
+            return redirect()->back()->with('success', 'Product updated successfully.');
+        } else {
+            return redirect()->back()->with('error', 'Failed to update product.');
+        }
     }
-}
 
 }
 
