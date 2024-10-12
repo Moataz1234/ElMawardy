@@ -85,7 +85,7 @@
                                         <img src="{{ $media['node']['image']['url'] }}" 
                                              alt="{{ $media['node']['image']['altText'] ?? 'No Alt Text' }}" 
                                              width="150">
-                                        <button class="btn edit-image" data-id="{{ $product['node']['id'] }}" data-image-id="{{ $media['node']['id'] ?? '' }}">Edit</button>
+                                        <a href="{{ route('shopify.products.showEditImageForm', ['product_id' => $product['node']['id'], 'image_id' => $media['node']['id'] ?? '']) }}" class="btn edit-image">Edit</a>
                                     @endif
                                 @endforeach
                             </div>
