@@ -4,6 +4,7 @@ namespace App\Http\Controllers;
 
 use App\Services\ShopifyService;
 use Illuminate\Http\Request;
+use App\Models\GoldItem;
 use Illuminate\Support\Facades\Storage;
 
 class ShopifyProductController extends Controller
@@ -42,7 +43,16 @@ class ShopifyProductController extends Controller
         // Ensure products is an array
         $productEdges = $products['data']['products']['edges'] ?? [];
 
-        // Pass the data to the view, including additional fields
+        // Count matching GoldItem models for each Shopify product
+        foreach ($productEdges as &$productEdge) {
+            $shopifyModel = $productEdge['node']['variants']['edges'][0]['node']['sku'] ?? null;
+            if ($shopifyModel) {
+                $matchingGoldItemsCount = GoldItem::where('model', $shopifyModel)->count();
+                foreach ($productEdge['node']['variants']['edges'] as &$variant) {
+                    $variant['node']['inventoryQuantity'] = $matchingGoldItemsCount;
+                }
+            }
+        }
         return view('shopify.products', [
             'products' => is_array($productEdges) ? $productEdges : [],
             'nextCursor' => $nextCursor,
