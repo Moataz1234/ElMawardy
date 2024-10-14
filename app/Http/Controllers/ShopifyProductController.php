@@ -55,16 +55,13 @@ class ShopifyProductController extends Controller
             $shopifyModel = $productEdge['node']['variants']['edges'][0]['node']['sku'] ?? null;
             if ($shopifyModel) {
                 // Transform Shopify model to match database format
-                $transformedShopifyModel = preg_replace('/^G(\d{1})(\d{4})$/', '$1-$2', $shopifyModel);
+                $transformedShopifyModel = preg_replace('/^G(\d{1})(\d{4})$/', 'G-$1$2', $shopifyModel);
                 $matchingGoldItems = GoldItem::where('model', $transformedShopifyModel)->get();
-                $matchingGoldItemsCount = $matchingGoldItems->count();
 
                 // Set the website column to true for matched models
-                if ($matchingGoldItemsCount > 0) {
-                    foreach ($matchingGoldItems as $goldItem) {
-                        $goldItem->website = true;
-                        $goldItem->save();
-                    }
+                foreach ($matchingGoldItems as $goldItem) {
+                    $goldItem->website = true;
+                    $goldItem->save();
                 }
                 // Calculate the maximum weight for the matching GoldItems and GoldItemSold
                 $maxWeightGoldItem = GoldItem::where('model', $transformedShopifyModel)->max('weight');
