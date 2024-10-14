@@ -59,10 +59,8 @@ class ShopifyProductController extends Controller
                 $matchingGoldItems = GoldItem::where('model', $transformedShopifyModel)->get();
                 $matchingGoldItemsCount = $matchingGoldItems->count();
 
-                // Update the website column based on model match
-                foreach ($matchingGoldItems as $goldItem) {
-                    $goldItem->update(['website' => true]);
-                }
+                // Set the website column to true for matched models
+                GoldItem::where('model', $transformedShopifyModel)->update(['website' => true]);
                 // Calculate the maximum weight for the matching GoldItems and GoldItemSold
                 $maxWeightGoldItem = GoldItem::where('model', $transformedShopifyModel)->max('weight');
                 $maxWeightGoldItemSold = GoldItemSold::where('model', $transformedShopifyModel)->max('weight');
