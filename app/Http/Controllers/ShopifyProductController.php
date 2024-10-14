@@ -103,4 +103,3 @@ class ShopifyProductController extends Controller
         return redirect()->route('shopify.products')->with('success', 'Product details updated successfully.');
     }
 }
-}
