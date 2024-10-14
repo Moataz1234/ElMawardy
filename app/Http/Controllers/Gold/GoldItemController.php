@@ -38,7 +38,12 @@ class GoldItemController extends Controller
             })
             ->orderBy($sort, $direction)
             ->paginate(20);
-        return view('admin.Gold.Inventory_list', compact('goldItems'));
+        return view('admin.Gold.Inventory_list', [
+            'goldItems' => $goldItems,
+            'search' => $search,
+            'sort' => $sort,
+            'direction' => $direction
+        ]);
     }
 
     /**
