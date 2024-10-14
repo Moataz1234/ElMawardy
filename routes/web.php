@@ -90,6 +90,11 @@ Route::get('/gold-items', [GoldItemController::class, 'index'])->name('gold-item
 require __DIR__.'/auth.php';
 // Route::get('/shopify-products', [ShopifyProductController::class, 'index']);
 Route::get('/shopify-products', [ShopifyProductController::class, 'index'])->name('shopify.products');
-Route::get('/shopify-products/edit-image', [ShopifyProductController::class, 'showEditImageForm'])->name('shopify.products.showEditImageForm');
-Route::put('/shopify-products/{product}', [ShopifyProductController::class, 'updateProduct'])->name('shopify.updateProduct');
+// Route::get('/shopify-products/edit-image', [ShopifyProductController::class, 'showEditImageForm'])->name('shopify.products.showEditImageForm');
+// Route::put('/shopify/products/update', [ShopifyProductController::class, 'editImage'])->name('shopify.updateProduct');
+Route::get('/shopify-products/edit/{product_id}', [ShopifyProductController::class, 'showEditImageForm'])->name('shopify.products.showEditImageForm');
+Route::post('/shopify-products/edit/{product_id}', [ShopifyProductController::class, 'editProduct'])->name('shopify.products.editProduct');
+
+
+// Route::put('/shopify-products/{product}', [ShopifyProductController::class, 'updateProduct'])->name('shopify.updateProduct');
 // Route::put('/shopify/products/{product}', [ShopifyProductController::class, 'updateProduct'])->name('shopify.updateProduct');

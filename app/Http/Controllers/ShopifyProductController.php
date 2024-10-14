@@ -4,6 +4,7 @@ namespace App\Http\Controllers;
 
 use App\Services\ShopifyService;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Storage;
 
 class ShopifyProductController extends Controller
 {
@@ -37,61 +38,72 @@ class ShopifyProductController extends Controller
         ]);
     }
     
-    public function showEditImageForm(Request $request)
+    public function showEditImageForm(Request $request ,$productId)
     {
-        $productId = $request->input('product_id');
-        $imageId = $request->input('image_id');
+        $product = $this->shopifyService->getProducts(null, $productId);
 
-        return view('shopify.edit_image', compact('productId', 'imageId'));
-    }
-
-    public function editImage(Request $request)
-    {
-        $productId = $request->input('product_id');
-        $imageId = $request->input('image_id');
-        $newImageUrl = null;
-        if ($request->hasFile('new_image')) {
-            $file = $request->file('new_image');
-            $newImageUrl = $file->store('images', 'public');
+        if (!$product) {
+            return redirect()->back()->with('error', 'Product not found.');
         }
-        $title = $request->input('title');
-        $description = $request->input('description');
-        $vendor = $request->input('vendor');
-        $productType = $request->input('product_type');
-        $tags = $request->input('tags');
-
-        // Call the Shopify service to update the product details
-        $this->shopifyService->updateProductDetails($productId, $imageId, $newImageUrl, $title, $description, $vendor, $productType, $tags);
-
-        return redirect()->route('shopify.products')->with('success', 'Product details updated successfully.');
+    
+        // Pass the product data to the view
+        return view('shopify.edit_image', ['product' => $product['data']['product']]);
     }
-    public function updateProduct(Request $request, $productId)
-    {
-        $updatedData = [
-            'title' => $request->input('title'),
-            'body_html' => $request->input('description'),
-            'vendor' => $request->input('vendor'),
-            'product_type' => $request->input('product_type'),
-            'tags' => $request->input('tags')
+
+    public function editProduct(Request $request, $productId)
+{
+    // Validate the form data
+    $request->validate([
+        'title' => 'required|string|max:255',
+        'description' => 'nullable|string',
+        'vendor' => 'required|string|max:255',
+        'product_type' => 'nullable|string|max:255',
+        'tags' => 'nullable|string',
+        'new_image' => 'nullable|image|mimes:jpeg,png,jpg,gif|max:2048'
+    ]);
+
+    // Prepare the updated data array only with fields that are not null
+    $updatedData = [];
+
+    if ($request->filled('title')) {
+        $updatedData['title'] = $request->input('title');
+    }
+
+    if ($request->filled('description')) {
+        $updatedData['body_html'] = $request->input('description');
+    }
+
+    if ($request->filled('vendor')) {
+        $updatedData['vendor'] = $request->input('vendor');
+    }
+
+    if ($request->filled('product_type')) {
+        $updatedData['product_type'] = $request->input('product_type');
+    }
+
+    if ($request->filled('tags')) {
+        $updatedData['tags'] = explode(',', $request->input('tags'));  // Convert the string back to an array
+    }
+
+    // Handle image upload if provided
+    if ($request->hasFile('new_image')) {
+        $file = $request->file('new_image');
+        $filePath = $file->store('images', 'public');  // Store in public storage
+        $newImageUrl = Storage::url($filePath);
+        $updatedData['images'] = [
+            [
+                'src' => $newImageUrl
+            ]
         ];
-
-        // Handle image upload if a new image is provided
-        if ($request->hasFile('new_image')) {
-            $file = $request->file('new_image');
-            $newImageUrl = $file->store('images', 'public');
-            $updatedData['image'] = ['src' => $newImageUrl];
-        }
-
-        // Use ShopifyService to update the product via Shopify API
-        $response = $this->shopifyService->updateProduct($productId, $updatedData);
-
-        if ($response['success']) {
-            return redirect()->back()->with('success', 'Product updated successfully.');
-        } else {
-            return redirect()->back()->with('error', 'Failed to update product.');
-        }
     }
 
+    // Call the Shopify service to update the product
+    $response = $this->shopifyService->updateProduct($productId, $updatedData);
+
+    if (isset($response['success']) && !$response['success']) {
+        return back()->withErrors($response['message'])->withInput();
+    }
+
+    return redirect()->route('shopify.products')->with('success', 'Product details updated successfully.');
 }
-
-
+}

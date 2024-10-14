@@ -45,31 +45,45 @@
 </head>
 <body>
     <h1>Edit Product Details</h1>
-    <form action="{{ route('shopify.updateProduct', ['product' => $productId]) }}" method="POST" enctype="multipart/form-data">
-        @csrf
-        @method('PUT')
-        <input type="hidden" name="product_id" value="{{ $productId }}">
-        <input type="hidden" name="image_id" value="{{ $imageId }}">
-        
-        <label for="new_image">Upload New Image:</label>
-        <input type="file" id="new_image" name="new_image" accept="image/*">
+    {{-- edit_product.blade.php --}}
+<form action="{{ route('shopify.products.editProduct', $product['id']) }}" method="POST" enctype="multipart/form-data">
+    @csrf
+    <input type="hidden" name="product_id" value="{{ $product['id'] }}">
 
-        <label for="title">Title:</label>
-        <input type="text" id="title" name="title" placeholder="Enter product title">
+    <label for="title">Title:</label>
+    <input type="text" name="title" value="{{ old('title', $product['title']) }}" required>
 
-        <label for="description">Description:</label>
-        <textarea id="description" name="description" placeholder="Enter product description"></textarea>
+    <label for="description">Description:</label>
+    <textarea name="description">{{ old('description', $product['description']) }}</textarea>
 
-        <label for="vendor">Vendor:</label>
-        <input type="text" id="vendor" name="vendor" placeholder="Enter vendor name">
+    <label for="vendor">Vendor:</label>
+    <input type="text" name="vendor" value="{{ old('vendor', $product['vendor']) }}" required>
 
-        <label for="product_type">Product Type:</label>
-        <input type="text" id="product_type" name="product_type" placeholder="Enter product type">
+    <label for="product_type">Product Type:</label>
+    <input type="text" name="product_type" value="{{ old('product_type', $product['productType']) }}">
 
-        <label for="tags">Tags:</label>
-        <input type="text" id="tags" name="tags" placeholder="Enter tags, separated by commas">
+    <label for="tags">Tags:</label>
+    <input type="text" name="tags" value="{{ old('tags', is_array($product['tags']) ? implode(', ', $product['tags']) : $product['tags']) }}">
 
-        <button type="submit">Update Product</button>
-    </form>
+    <label for="new_image">New Image:</label>
+    <input type="file" name="new_image">
+
+    {{-- Display current images from Shopify --}}
+    @if (!empty($product['media']['edges']))
+        <div class="product-images">
+            @foreach ($product['media']['edges'] as $media)
+                @if ($media['node']['mediaContentType'] === 'IMAGE')
+                    <img src="{{ $media['node']['image']['url'] }}" alt="{{ $media['node']['image']['altText'] ?? 'No Alt Text' }}" width="150">
+                @endif
+            @endforeach
+        </div>
+    @else
+        <p>No images available</p>
+    @endif
+
+    <button type="submit" class="btn btn-primary">Save Changes</button>
+</form>
+    
+    
 </body>
 </html>
