@@ -74,31 +74,44 @@ class ShopifyProductController extends Controller
         'new_image' => 'nullable|image|mimes:jpeg,png,jpg,gif|max:2048'
     ]);
 
-    $newImageUrl = null;
+    public function editProduct(Request $request, $productId)
+    {
+        // Validate the form data
+        $request->validate([
+            'title' => 'required|string|max:255',
+            'description' => 'nullable|string',
+            'vendor' => 'required|string|max:255',
+            'product_type' => 'nullable|string|max:255',
+            'tags' => 'nullable|string',
+            'new_image' => 'nullable|image|mimes:jpeg,png,jpg,gif|max:2048'
+        ]);
 
-    // Check if a new image is uploaded
-    if ($request->hasFile('new_image')) {
-        $file = $request->file('new_image');
-        $path = $file->store('images', 'public');
-        $newImageUrl = Storage::url($path);
+        $newImageUrl = null;
+
+        // Check if a new image is uploaded
+        if ($request->hasFile('new_image')) {
+            $file = $request->file('new_image');
+            $path = $file->store('images', 'public');
+            $newImageUrl = Storage::url($path);
+        }
+
+        // Call the Shopify service to update the product details
+        $response = $this->shopifyService->updateProductDetails(
+            $productId,
+            $request->input('image_id'),
+            $newImageUrl,
+            $request->input('title'),
+            $request->input('description'),
+            $request->input('vendor'),
+            $request->input('product_type'),
+            $request->input('tags')
+        );
+
+        if (!$response['success']) {
+            return back()->withErrors($response['message'])->withInput();
+        }
+
+        return redirect()->route('shopify.products')->with('success', 'Product details updated successfully.');
     }
-
-    // Call the Shopify service to update the product details
-    $response = $this->shopifyService->updateProductDetails(
-        $productId,
-        $request->input('image_id'),
-        $newImageUrl,
-        $request->input('title'),
-        $request->input('description'),
-        $request->input('vendor'),
-        $request->input('product_type'),
-        $request->input('tags')
-    );
-
-    if (!$response['success']) {
-        return back()->withErrors($response['message'])->withInput();
-    }
-
-    return redirect()->route('shopify.products')->with('success', 'Product details updated successfully.');
 }
 }

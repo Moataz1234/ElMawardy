@@ -48,6 +48,7 @@
     {{-- edit_product.blade.php --}}
 <form action="{{ route('shopify.products.editProduct', ['product_id' => basename($product['id'])]) }}" method="POST" enctype="multipart/form-data">
     @csrf
+    @csrf
     <input type="hidden" name="product_id" value="{{ $product['id'] }}">
 
     <label for="title">Title:</label>
