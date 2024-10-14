@@ -61,7 +61,10 @@ class ShopifyProductController extends Controller
 
                 // Set the website column to true for matched models
                 if ($matchingGoldItemsCount > 0) {
-                    GoldItem::where('model', $transformedShopifyModel)->update(['website' => true]);
+                    foreach ($matchingGoldItems as $goldItem) {
+                        $goldItem->website = true;
+                        $goldItem->save();
+                    }
                 }
                 // Calculate the maximum weight for the matching GoldItems and GoldItemSold
                 $maxWeightGoldItem = GoldItem::where('model', $transformedShopifyModel)->max('weight');
