@@ -55,8 +55,10 @@ class ShopifyProductController extends Controller
                 // Transform Shopify model to match database format
                 $transformedShopifyModel = preg_replace('/^G(\d{1})(\d{4})$/', '$1-$2', $shopifyModel);
                 $matchingGoldItemsCount = GoldItem::where('model', $transformedShopifyModel)->count();
-                // Calculate the maximum weight for the matching GoldItems
-                $maxWeight = GoldItem::where('model', $transformedShopifyModel)->max('weight');
+                // Calculate the maximum weight for the matching GoldItems and GoldItemSold
+                $maxWeightGoldItem = GoldItem::where('model', $transformedShopifyModel)->max('weight');
+                $maxWeightGoldItemSold = GoldItemSold::where('model', $transformedShopifyModel)->max('weight');
+                $maxWeight = max($maxWeightGoldItem, $maxWeightGoldItemSold);
                 $calculatedPrice = ($maxWeight * $goldWithWork) + 100;
 
                 foreach ($productEdge['node']['variants']['edges'] as &$variant) {
