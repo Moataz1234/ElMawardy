@@ -5,6 +5,7 @@ namespace App\Http\Controllers;
 use App\Services\ShopifyService;
 use Illuminate\Http\Request;
 use App\Models\GoldItem;
+use App\Models\GoldPrice;
 use Illuminate\Support\Facades\Storage;
 
 class ShopifyProductController extends Controller
@@ -43,15 +44,26 @@ class ShopifyProductController extends Controller
         // Ensure products is an array
         $productEdges = $products['data']['products']['edges'] ?? [];
 
-        // Count matching GoldItem models for each Shopify product
+        // Retrieve the latest gold_with_work value
+        $latestGoldPrice = GoldPrice::latest()->first();
+        $goldWithWork = $latestGoldPrice ? $latestGoldPrice->gold_with_work : 0;
+
+        // Count matching GoldItem models and calculate price for each Shopify product
         foreach ($productEdges as &$productEdge) {
             $shopifyModel = $productEdge['node']['variants']['edges'][0]['node']['sku'] ?? null;
             if ($shopifyModel) {
                 // Transform Shopify model to match database format
                 $transformedShopifyModel = preg_replace('/^G(\d{1})(\d{4})$/', '$1-$2', $shopifyModel);
                 $matchingGoldItemsCount = GoldItem::where('model', $transformedShopifyModel)->count();
+                // Calculate the maximum weight for the matching GoldItems
+                $maxWeight = GoldItem::where('model', $transformedShopifyModel)->max('weight');
+                $calculatedPrice = ($maxWeight * $goldWithWork) + 100;
+
                 foreach ($productEdge['node']['variants']['edges'] as &$variant) {
+                    // Update the inventory quantity
                     $variant['node']['inventoryQuantity'] = $matchingGoldItemsCount;
+                    // Update the price
+                    $variant['node']['price'] = $calculatedPrice;
                 }
             }
         }
