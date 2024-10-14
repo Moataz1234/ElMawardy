@@ -12,7 +12,7 @@ class GoldItem extends Model
         'link', 'serial_number', 'shop_name', 'shop_id', 'kind', 'model', 'talab', 
         'gold_color', 'stones', 'metal_type', 'metal_purity', 'quantity', 
         'weight', 'rest_since', 'source', 'to_print', 'price', 'semi_or_no', 
-        'average_of_stones', 'net_weight'
+        'average_of_stones', 'net_weight', 'website'
     ];
     public function shop()
     {

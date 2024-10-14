@@ -12,7 +12,7 @@ return new class extends Migration
     public function up()
     {
         Schema::table('gold_items', function (Blueprint $table) {
-            $table->boolean('website')->nullable()->after('net_weight');
+            $table->boolean('website')->default(false)->after('net_weight');
         });
     }
 
