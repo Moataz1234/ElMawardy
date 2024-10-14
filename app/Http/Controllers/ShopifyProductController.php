@@ -74,11 +74,20 @@ class ShopifyProductController extends Controller
         'new_image' => 'nullable|image|mimes:jpeg,png,jpg,gif|max:2048'
     ]);
 
+    $newImageUrl = null;
+
+    // Check if a new image is uploaded
+    if ($request->hasFile('new_image')) {
+        $file = $request->file('new_image');
+        $path = $file->store('images', 'public');
+        $newImageUrl = Storage::url($path);
+    }
+
     // Call the Shopify service to update the product details
     $response = $this->shopifyService->updateProductDetails(
         $productId,
         $request->input('image_id'),
-        $newImageUrl ?? null,
+        $newImageUrl,
         $request->input('title'),
         $request->input('description'),
         $request->input('vendor'),
