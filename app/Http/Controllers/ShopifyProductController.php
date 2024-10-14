@@ -54,7 +54,7 @@ class ShopifyProductController extends Controller
     {
         $product = $this->shopifyService->getProducts(null, $productId);
 
-        if (!$product) {
+        if (!isset($product['data']['product'])) {
             return redirect()->back()->with('error', 'Product not found.');
         }
     
