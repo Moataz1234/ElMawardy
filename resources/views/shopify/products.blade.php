@@ -57,7 +57,7 @@
                     <div class="product-item">
                         <p><strong>Model:</strong> {{ $product['node']['variants']['edges'][0]['node']['sku'] ?? 'No SKU Available' }}</p>
                         <p><strong>Product Type:</strong> {{ $product['node']['productType'] ?? 'No Product Type Available' }}</p>
-                     
+
                         {{-- Truncate product description initially and show 'See More' --}}
                         <div class="product-description" id="description-{{ $loop->index }}">
                             <p class="short-description">
@@ -70,7 +70,7 @@
                                 <a href="javascript:void(0);" class="see-more" data-id="{{ $loop->index }}">See More</a>
                             @endif
                         </div>
-    
+
                         {{-- Display Product Images --}}
                         @if (!empty($product['node']['media']['edges']))
                             <div class="product-images">
@@ -80,25 +80,21 @@
                                              alt="{{ $media['node']['image']['altText'] ?? 'No Alt Text' }}" 
                                              width="150">
                                              <a href="{{ route('shopify.products.showEditImageForm', ['product_id' => basename($product['node']['id']), 'image_id' => $media['node']['id'] ?? '']) }}" class="btn edit-image">Edit</a>
-                                             @endif
+                                    @endif
                                 @endforeach
                             </div>
                         @else
                             <p>No images available</p>
                         @endif
-    
+
                         {{-- Display Variants, Prices, and Inventory Quantities --}}
                         <ul>
                             @if (!empty($product['node']['variants']['edges']))
                                 @foreach ($product['node']['variants']['edges'] as $variant)
                                     <li>
-                                      {{-- Gold-Color:  {{ $variant['node']['title'] ?? 'No Variant Title' }}  --}}
-                                        
-                                      Price:   {{ $variant['node']['price'] ?? '0.00' }} 
-                                      {{-- Available:   {{ $variant['node']['Available'] ?? '0.00' }}  --}}
-                                        
-                                      {{-- | Available: {{ $variant['node']['availableForSale'] ? 'Yes' : 'No' }} --}}
-                                        {{-- | Quantity: {{ $variant['node']['inventoryQuantity'] ?? 'Not Available' }} --}}
+                                        <strong>Gold Color:</strong> {{ $variant['node']['title'] ?? 'No Variant Title' }}<br>
+                                        <strong>Price:</strong> {{ $variant['node']['price'] ?? '0.00' }}<br>
+                                        <strong>Available:</strong> {{ $variant['node']['inventoryQuantity'] ?? 'Not Available' }}
                                     </li>
                                 @endforeach
                             @else
