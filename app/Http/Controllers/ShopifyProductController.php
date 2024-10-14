@@ -74,17 +74,6 @@ class ShopifyProductController extends Controller
         'new_image' => 'nullable|image|mimes:jpeg,png,jpg,gif|max:2048'
     ]);
 
-    public function editProduct(Request $request, $productId)
-    {
-        // Validate the form data
-        $request->validate([
-            'title' => 'required|string|max:255',
-            'description' => 'nullable|string',
-            'vendor' => 'required|string|max:255',
-            'product_type' => 'nullable|string|max:255',
-            'tags' => 'nullable|string',
-            'new_image' => 'nullable|image|mimes:jpeg,png,jpg,gif|max:2048'
-        ]);
 
         $newImageUrl = null;
 
