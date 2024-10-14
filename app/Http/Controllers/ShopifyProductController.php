@@ -47,7 +47,9 @@ class ShopifyProductController extends Controller
         foreach ($productEdges as &$productEdge) {
             $shopifyModel = $productEdge['node']['variants']['edges'][0]['node']['sku'] ?? null;
             if ($shopifyModel) {
-                $matchingGoldItemsCount = GoldItem::where('model', $shopifyModel)->count();
+                // Transform Shopify model to match database format
+                $transformedShopifyModel = preg_replace('/^G(\d{1})(\d{4})$/', '$1-$2', $shopifyModel);
+                $matchingGoldItemsCount = GoldItem::where('model', $transformedShopifyModel)->count();
                 foreach ($productEdge['node']['variants']['edges'] as &$variant) {
                     $variant['node']['inventoryQuantity'] = $matchingGoldItemsCount;
                 }
