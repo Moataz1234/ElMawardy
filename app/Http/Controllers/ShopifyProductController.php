@@ -50,7 +50,7 @@ class ShopifyProductController extends Controller
         ]);
     }
     
-    public function showEditImageForm(Request $request ,$productId)
+    public function showEditImageForm(Request $request, $productId)
     {
         $product = $this->shopifyService->getProducts(null, $productId);
 
