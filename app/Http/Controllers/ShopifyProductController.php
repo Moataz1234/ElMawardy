@@ -6,6 +6,8 @@ use App\Services\ShopifyService;
 use Illuminate\Http\Request;
 use App\Models\GoldItem;
 use App\Models\GoldPrice;
+use App\Models\GoldItemSold;
+
 use Illuminate\Support\Facades\Storage;
 
 class ShopifyProductController extends Controller
@@ -59,7 +61,7 @@ class ShopifyProductController extends Controller
                 $maxWeightGoldItem = GoldItem::where('model', $transformedShopifyModel)->max('weight');
                 $maxWeightGoldItemSold = GoldItemSold::where('model', $transformedShopifyModel)->max('weight');
                 $maxWeight = max($maxWeightGoldItem, $maxWeightGoldItemSold);
-                $calculatedPrice = ($maxWeight * $goldWithWork) + 100;
+                $calculatedPrice = ($maxWeight * $goldWithWork) ;
 
                 foreach ($productEdge['node']['variants']['edges'] as &$variant) {
                     // Update the inventory quantity
