@@ -23,17 +23,17 @@ class ShopifyProductController extends Controller
         // Fetch products from Shopify
         $products = $this->shopifyService->getProducts($cursor);
     
+        // Check if 'data' key exists in the response
+        if (!isset($products['data'])) {
+            return redirect()->back()->with('error', 'Failed to retrieve products from Shopify.');
+        }
+
         // Handle pagination safely
         $nextCursor = $products['data']['products']['pageInfo']['endCursor'] ?? null;
         $hasNextPage = $products['data']['products']['pageInfo']['hasNextPage'] ?? false;
     
         // Ensure products is an array
         $productEdges = $products['data']['products']['edges'] ?? [];
-
-        // Check if 'data' key exists in the response
-        if (!isset($products['data'])) {
-            return redirect()->back()->with('error', 'Failed to retrieve products from Shopify.');
-        }
 
         // Handle pagination safely
         $nextCursor = $products['data']['products']['pageInfo']['endCursor'] ?? null;
