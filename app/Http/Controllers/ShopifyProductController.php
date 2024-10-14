@@ -62,45 +62,19 @@ class ShopifyProductController extends Controller
         'new_image' => 'nullable|image|mimes:jpeg,png,jpg,gif|max:2048'
     ]);
 
-    // Prepare the updated data array only with fields that are not null
-    $updatedData = [];
+    // Call the Shopify service to update the product details
+    $response = $this->shopifyService->updateProductDetails(
+        $productId,
+        $request->input('image_id'),
+        $newImageUrl ?? null,
+        $request->input('title'),
+        $request->input('description'),
+        $request->input('vendor'),
+        $request->input('product_type'),
+        $request->input('tags')
+    );
 
-    if ($request->filled('title')) {
-        $updatedData['title'] = $request->input('title');
-    }
-
-    if ($request->filled('description')) {
-        $updatedData['body_html'] = $request->input('description');
-    }
-
-    if ($request->filled('vendor')) {
-        $updatedData['vendor'] = $request->input('vendor');
-    }
-
-    if ($request->filled('product_type')) {
-        $updatedData['product_type'] = $request->input('product_type');
-    }
-
-    if ($request->filled('tags')) {
-        $updatedData['tags'] = explode(',', $request->input('tags'));  // Convert the string back to an array
-    }
-
-    // Handle image upload if provided
-    if ($request->hasFile('new_image')) {
-        $file = $request->file('new_image');
-        $filePath = $file->store('images', 'public');  // Store in public storage
-        $newImageUrl = Storage::url($filePath);
-        $updatedData['images'] = [
-            [
-                'src' => $newImageUrl
-            ]
-        ];
-    }
-
-    // Call the Shopify service to update the product
-    $response = $this->shopifyService->updateProduct($productId, $updatedData);
-
-    if (isset($response['success']) && !$response['success']) {
+    if (!$response['success']) {
         return back()->withErrors($response['message'])->withInput();
     }
 
