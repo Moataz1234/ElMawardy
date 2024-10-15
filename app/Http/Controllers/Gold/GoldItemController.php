@@ -211,16 +211,17 @@ public function showUpdateForm()
         $totalGoldItemSoldWeightToday = GoldItemSold::whereDate('sold_date', now()->toDateString())->sum('weight');
 
         // Define the kinds of gold items
-        $kinds = ['Anklet','Ring', 'Pendant', 'Brooch', 'Bracelet', 'Necklace', 'Earring' ,'Medal' ,'Cufflink','Money Clip','Tie-Clip'];
+        // $kinds = ['Anklet','Ring', 'Pendant', 'Brooch', 'Bracelet', 'Necklace', 'Earring' ,'Medal' ,'Cufflink','Money Clip','Tie-Clip'];
 
         // Initialize an array to store the analysis results
         $kindAnalysis = [];
+        $Kinds = GoldItem::select('kind')->distinct()->get();
 
         // Calculate the total count and weight for each kind
-        foreach ($kinds as $kind) {
-            $count = GoldItem::where('kind', $kind)->count();
-            $weight = GoldItem::where('kind', $kind)->sum('weight');
-            $kindAnalysis[$kind] = [
+        foreach ($Kinds as $Kind) {
+            $count = GoldItem::where('kind', $Kind->kind)->count();
+            $weight = GoldItem::where('kind', $Kind->kind)->sum('weight');
+            $kindAnalysis[$Kind->kind] = [
                 'count' => $count,
                 'weight' => $weight
             ];
@@ -243,7 +244,8 @@ public function showUpdateForm()
         return view('admin.Gold.WeightAnalysis', [
             'totalGoldItemWeight' => $totalGoldItemWeight,
             'totalGoldItemSoldWeightToday' => $totalGoldItemSoldWeightToday,
-            'kindAnalysis' => $kindAnalysis
+            'kindAnalysis' => $kindAnalysis,
+            'shopAnalysis' =>$shopAnalysis
         ]);
     }
 }
