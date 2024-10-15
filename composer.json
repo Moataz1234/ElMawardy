@@ -11,7 +11,8 @@
         "laravel/framework": "^11.23",
         "laravel/tinker": "^2.9",
         "maatwebsite/excel": "^1.1.5",
-        "phpoffice/phpspreadsheet": "^2.2"
+        "phpoffice/phpspreadsheet": "^2.2",
+        "shopify/shopify-api": "^5.6"
     },
     "require-dev": {
         "fakerphp/faker": "^1.23",
