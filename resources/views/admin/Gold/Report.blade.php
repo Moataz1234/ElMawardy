@@ -51,18 +51,5 @@
                     @endforeach
                 </tbody>
             </table>
-
-            <!-- Summary Section (Dynamic Data) -->
-            <div style="display: flex; justify-content: space-between; padding: 10px;">
-                <div>
-                    <h4>Total Production: {{ $totalProduction }}</h4>
-                    <h4>Remaining: {{ $remaining }}</h4>
-                    <h4>At Workshop: {{ $atWorkshop }}</h4> <!-- Dynamic workshop data -->
-                </div>
-                <div>
-                    <h4>Total Sold: {{ $totalSold }}</h4>
-                    <h4>Model: {{ request('model') }}</h4> <!-- Searched model shown here -->
-                </div>
-            </div>
         @endif
     </div>
