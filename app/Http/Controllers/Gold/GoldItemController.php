@@ -7,6 +7,7 @@ use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Log;
 use Illuminate\Http\Request;
 use App\Models\GoldItem;
+use App\Models\GoldItemSold;
 use App\Models\Shop;
 use App\Models\GoldPrice;
 
