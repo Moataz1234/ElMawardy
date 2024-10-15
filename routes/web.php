@@ -62,6 +62,9 @@ Route::middleware(['auth', 'user'])->group(function () {
     ->name('gold-items.transfer');
     Route::get('/gold-items/{id}/transfer', [ShopsController::class, 'showTransferForm'])
     ->name('gold-items.transferForm');
+    Route::get('/orders', [OrderController::class, 'indexForRabea'])->name('orders.index');
+    Route::get('/orders/history', [OrderController::class, 'indexForRabea'])->name('orders.history');
+    
 });
 
 // Rabea Routes

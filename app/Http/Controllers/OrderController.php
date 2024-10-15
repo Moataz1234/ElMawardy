@@ -134,7 +134,7 @@ public function indexForRabea(Request $request)
 
     // Build the query to exclude pending orders
     $query = Order::where('status', '<>', value: 'pending'); // Exclude pending orders
-    $query = Order::where('status', '<>', value: 'خلص'); // Exclude pending orders
+    $query = Order::where('status', '<>', value: 'خلص'); // Exclude finished orders
 
     // Apply search conditions if a search term is provided
     if ($search) {

@@ -209,7 +209,7 @@
                    <td>{{ $item->average_of_stones }}</td>
                    <td>{{ $item->net_weight }}</td>
                    <td>
-                       <a class="action_button" href="{{ route('shop-items.edit', $item->id) }}" >Edit</a>
+                       <a class="action_button" href="{{ route('shop-items.edit', $item->id) }}" >Sell</a>
                        <a class="action_button" href="{{ route('gold-items.transferForm', $item->id) }}" >Transfer</a>
 
                    </td>
@@ -217,7 +217,6 @@
            @endforeach
        </tbody>
    </table>
-
 
    {{ $goldItems->links('pagination::bootstrap-4') }}
 
