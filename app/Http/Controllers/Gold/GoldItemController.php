@@ -210,9 +210,26 @@ public function showUpdateForm()
         // Calculate total weight of sold gold items for today
         $totalGoldItemSoldWeightToday = GoldItemSold::whereDate('sold_date', now()->toDateString())->sum('weight');
 
+        // Define the kinds of gold items
+        $kinds = ['Ring', 'Pendant', 'Medals', 'Brooch', 'Bracelet', 'Necklace', 'Earring'];
+
+        // Initialize an array to store the analysis results
+        $kindAnalysis = [];
+
+        // Calculate the total count and weight for each kind
+        foreach ($kinds as $kind) {
+            $count = GoldItem::where('kind', $kind)->count();
+            $weight = GoldItem::where('kind', $kind)->sum('weight');
+            $kindAnalysis[$kind] = [
+                'count' => $count,
+                'weight' => $weight
+            ];
+        }
+
         return view('admin.Gold.WeightAnalysis', [
             'totalGoldItemWeight' => $totalGoldItemWeight,
-            'totalGoldItemSoldWeightToday' => $totalGoldItemSoldWeightToday
+            'totalGoldItemSoldWeightToday' => $totalGoldItemSoldWeightToday,
+            'kindAnalysis' => $kindAnalysis
         ]);
     }
 }
