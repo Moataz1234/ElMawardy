@@ -1,89 +1,191 @@
-
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Gold Inventory Report</title>
     <style>
-        .report-table {
-            width: 100%;
-            border-collapse: collapse;
-            margin-bottom: 20px;
+        body {
+            font-family: Arial, sans-serif;
         }
-        .report-table th, .report-table td {
-            border: 1px solid #ddd;
-            padding: 8px;
-            text-align: left;
+
+        .container {
+            display: grid;
+            grid-template-columns: repeat(12, 1fr);
+            grid-gap: 5px;
+            margin: 20px;
         }
-        .report-table th {
+
+        .header {
+            grid-column: span 12;
+            background-color: #d98835;
+            text-align: center;
+            font-size: 24px;
+            padding: 10px;
+            color: white;
+        }
+
+        .first-production, .last-production, .shop, .sold-pieces, .gold-title, .production-date, .production-details, .all-rest, .gold-types, .stats {
+            border: 1px solid black;
+            text-align: center;
+            padding: 5px;
+        }
+
+        .first-production, .last-production, .production-details {
+            grid-column: span 3;
+        }
+
+        .shop {
+            grid-column: span 2;
+        }
+
+        .sold-pieces {
+            grid-column: span 2;
+        }
+
+        .gold-title {
+            grid-column: span 4;
+            background: linear-gradient(to bottom, #f8b500, #f88c00);
+            color: white;
+            font-weight: bold;
+            font-size: 18px;
+        }
+
+        .production-date {
+            grid-column: span 3;
+        }
+
+        .production-details {
+            grid-column: span 3;
+        }
+
+        .all-rest {
+            grid-column: span 3;
+            background-color: #e0e0ff;
+            font-weight: bold;
+        }
+
+        .shops-grid {
+            grid-column: span 9;
+            display: grid;
+            grid-template-columns: repeat(6, 1fr);
+            grid-gap: 5px;
+        }
+
+        .shop-box {
+            border: 1px solid black;
+            padding: 5px;
             background-color: #f2f2f2;
+            text-align: center;
+            min-height: 40px; /* Space for shop data */
         }
-        .report-table tr:nth-child(even) {
-            background-color: #f9f9f9;
+
+        .gold-types {
+            grid-column: span 12;
+            display: grid;
+            grid-template-columns: repeat(3, 1fr);
         }
-        .report-table tr:hover {
-            background-color: #f1f1f1;
+
+        .gold-type-box {
+            padding: 10px;
+            background-color: #f2f2f2;
+            border: 1px solid black;
+            min-height: 30px; /* Space for dynamic gold type data */
         }
+
+        .stats {
+            grid-column: span 3;
+            padding: 10px;
+            border: 1px solid black;
+            background-color: #ffebcc;
+            min-height: 30px; /* Space for stats data */
+        }
+
+        .image-section {
+            grid-column: span 12;
+            text-align: center;
+            padding: 20px;
+            min-height: 150px; /* Space for image */
+        }
+
+        .footer {
+            grid-column: span 12;
+            display: grid;
+            grid-template-columns: repeat(3, 1fr);
+            padding: 10px;
+            grid-gap: 5px;
+        }
+
+        .footer div {
+            padding: 10px;
+            border: 1px solid black;
+            background-color: #f2f2f2;
+            text-align: center;
+            min-height: 40px; /* Space for footer content */
+        }
+
+        .empty-space {
+            min-height: 30px;
+        }
+
     </style>
-    <div class="container" style="font-family: Arial, sans-serif;">
-        <h1>Gold Inventory Report by Model</h1>
+</head>
+<body>
 
-        <!-- Search Form -->
-        <form action="{{ route('gold.report') }}" method="GET" style="margin-bottom: 20px;">
-            <div class="form-group">
-                <label for="model">Search by Model Name:</label>
-                <input type="text" name="model" id="model" class="form-control" placeholder="Enter model name" value="{{ request('model') }}">
-            </div>
-            <button type="submit" class="btn btn-primary">Search</button>
-        </form>
+<div class="container">
+    <!-- Header -->
+    <div class="first-production">First Production<br><span class="empty-space"></span></div>
+    <div class="gold-title">GOLD</div>
+    <div class="shop">Shop<br><span class="empty-space"></span></div>
+    <div class="sold-pieces">Sold Pieces<br><span class="empty-space"></span></div>
 
-        @if($modelsData->isEmpty())
-            <p>No results found for the model '{{ request('model') }}'. Please enter a valid model name.</p>
-        @else
-            <!-- Table showing the models data -->
-            <table class="report-table">
-                <thead>
-                    <tr>
-                        <th>Model (Including Suffixes)</th>
-                        @if(request('model'))
-                            <th>Image</th>
-                            <th>Total Produced</th>
-                            <th>Total Sold</th>
-                            <th>Shops with this Item</th>
-                            <th>Gold Color</th>
-                            <th>Source</th>
-                        @endif
-                        <th>Remaining</th>
-                    </tr>
-                </thead>
-                <tbody>
-                    @foreach($modelsData as $model => $data)
-                        <tr>
-                            <td style="border: 1px solid #000; padding: 5px;">{{ $model }}</td>
-                            @if(request('model'))
-                                <td style="border: 1px solid #000; padding: 5px;">
-                                    @if($data['link'])
-                                        <img src="{{ asset($data['link']) }}" alt="Model Image" width="50">
-                                    @else
-                                        No Image
-                                    @endif
-                                </td>
-                                <td style="border: 1px solid #000; padding: 5px;">{{ $data['total_production'] }}</td>
-                                <td style="border: 1px solid #000; padding: 5px;">{{ $data['total_sold'] }}</td>
-                                <td style="border: 1px solid #000; padding: 5px;">
-                                    @foreach($data['shops'] as $shop)
-                                        {{ $shop }}<br>
-                                    @endforeach
-                                </td>
-                                <td style="border: 1px solid #000; padding: 5px;">{{ $data['gold_color'] }}</td>
-                                <td style="border: 1px solid #000; padding: 5px;">{{ $data['source'] ?? 'N/A' }}</td>
-                            @endif
-                            <td style="border: 1px solid #000; padding: 5px;">{{ $data['remaining'] }}</td>
-                            <td style="border: 1px solid #000; padding: 5px;">
-                                @foreach($data['shops'] as $shop)
-                                    {{ $shop }}<br>
-                                @endforeach
-                            </td>
-                            <td style="border: 1px solid #000; padding: 5px;">{{ $data['gold_color'] }}</td>
-                            <td style="border: 1px solid #000; padding: 5px;">{{ $data['source'] ?? 'N/A' }}</td>
-                        </tr>
-                    @endforeach
-                </tbody>
-            </table>
-        @endif
+    <!-- Production Date -->
+    <div class="last-production">Last Production<br><span class="empty-space"></span></div>
+    <div class="production-details">Production<br><span class="empty-space"></span></div>
+
+    <!-- All Rest -->
+    <div class="all-rest">ALL REST</div>
+
+    <!-- Shops Section -->
+    <div class="shops-grid">
+        <div class="shop-box">SHOP 5</div>
+        <div class="shop-box">Mall of Arabia</div>
+        <div class="shop-box">Nasr City</div>
+        <div class="shop-box">Zamalek</div>
+        <div class="shop-box">Mall of Egypt</div>
+        <div class="shop-box">Arkan</div>
+        <div class="shop-box">District 5</div>
+        <div class="shop-box">U Venues</div>
+        <div class="shop-box">SHOP 5</div>
     </div>
+
+    <!-- Gold Types Section -->
+    <div class="gold-types">
+        <div class="gold-type-box">White Gold</div>
+        <div class="gold-type-box">Yellow Gold</div>
+        <div class="gold-type-box">Rose Gold</div>
+    </div>
+
+    <!-- Stats Section -->
+    <div class="stats">Total Production<br><span class="empty-space"></span></div>
+    <div class="stats">Total Sold<br><span class="empty-space"></span></div>
+    <div class="stats">Remaining<br><span class="empty-space"></span></div>
+    <div class="stats">Model<br><span class="empty-space"></span></div>
+    <div class="stats">At Workshop<br><span class="empty-space"></span></div>
+    <div class="stats">Order Date<br><span class="empty-space"></span></div>
+
+    <!-- Image Section -->
+    <div class="image-section">
+        <img src="path_to_your_image" alt="Gold Item Image" width="150">
+    </div>
+
+    <!-- Footer -->
+    <div class="footer">
+        <div>Sold<br><span class="empty-space"></span></div>
+        <div>Rest<br><span class="empty-space"></span></div>
+        <div>Description<br><span class="empty-space"></span></div>
+    </div>
+</div>
+
+</body>
+</html>
