@@ -264,7 +264,8 @@ public function showUpdateForm()
             'totalGoldItemWeight' => $totalGoldItemWeight,
             'totalGoldItemSoldWeightToday' => $totalGoldItemSoldWeightToday,
             'kindAnalysis' => $kindAnalysis,
-            'shopAnalysis' =>$shopAnalysis
+            'shopAnalysis' => $shopAnalysis,
+            'shopKindAnalysis' => $shopKindAnalysis
         ]);
     }
 }
