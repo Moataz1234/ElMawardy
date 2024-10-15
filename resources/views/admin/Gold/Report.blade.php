@@ -19,6 +19,7 @@
                 <thead>
                     <tr>
                         <th>Model</th>
+                        <th>Image</th>
                         <th>Total Produced</th>
                         <th>Total Sold</th>
                         <th>Remaining</th>
@@ -30,6 +31,13 @@
                     @foreach($modelsData as $model => $data)
                         <tr>
                             <td style="border: 1px solid #000; padding: 5px;">{{ $model }}</td>
+                            <td style="border: 1px solid #000; padding: 5px;">
+                                @if($data['link'])
+                                    <img src="{{ asset($data['link']) }}" alt="Model Image" width="50">
+                                @else
+                                    No Image
+                                @endif
+                            </td>
                             <td style="border: 1px solid #000; padding: 5px;">{{ $data['total_production'] }}</td>
                             <td style="border: 1px solid #000; padding: 5px;">{{ $data['total_sold'] }}</td>
                             <td style="border: 1px solid #000; padding: 5px;">{{ $data['remaining'] }}</td>
