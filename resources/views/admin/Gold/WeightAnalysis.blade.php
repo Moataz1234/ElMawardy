@@ -29,5 +29,24 @@
             @endforeach
         </tbody>
     </table>
+
+    <h2>Shop Analysis</h2>
+    <table>
+        <thead>
+            <tr>
+                <th>Shop Name</th>
+                <th>Total Count</th>
+                <th>Total Weight (grams)</th>
+            </tr>
+        </thead>
+        <tbody>
+            @foreach ($shopAnalysis as $shopName => $data)
+                <tr>
+                    <td>{{ $shopName }}</td>
+                    <td>{{ $data['count'] }}</td>
+                    <td>{{ $data['weight'] }}</td>
+                </tr>
+            @endforeach
+        </tbody>
 </body>
 </html>

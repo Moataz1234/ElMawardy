@@ -226,6 +226,20 @@ public function showUpdateForm()
             ];
         }
 
+        // Initialize an array to store the shop analysis results
+        $shopAnalysis = [];
+
+        // Calculate the total count and weight for each shop
+        $shops = GoldItem::select('shop_name')->distinct()->get();
+        foreach ($shops as $shop) {
+            $count = GoldItem::where('shop_name', $shop->shop_name)->count();
+            $weight = GoldItem::where('shop_name', $shop->shop_name)->sum('weight');
+            $shopAnalysis[$shop->shop_name] = [
+                'count' => $count,
+                'weight' => $weight
+            ];
+        }
+
         return view('admin.Gold.WeightAnalysis', [
             'totalGoldItemWeight' => $totalGoldItemWeight,
             'totalGoldItemSoldWeightToday' => $totalGoldItemSoldWeightToday,
