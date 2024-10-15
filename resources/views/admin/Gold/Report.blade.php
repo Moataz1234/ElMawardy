@@ -40,28 +40,39 @@
                 <thead>
                     <tr>
                         <th>Model (Including Suffixes)</th>
-                        <th>Image</th>
-                        <th>Total Produced</th>
-                        <th>Total Sold</th>
+                        @if(request('model'))
+                            <th>Image</th>
+                            <th>Total Produced</th>
+                            <th>Total Sold</th>
+                            <th>Shops with this Item</th>
+                            <th>Gold Color</th>
+                            <th>Source</th>
+                        @endif
                         <th>Remaining</th>
-                        <th>Shops with this Item</th>
-                        <th>Gold Color</th>
-                        <th>Source</th>
                     </tr>
                 </thead>
                 <tbody>
                     @foreach($modelsData as $model => $data)
                         <tr>
                             <td style="border: 1px solid #000; padding: 5px;">{{ $model }}</td>
-                            <td style="border: 1px solid #000; padding: 5px;">
-                                @if($data['link'])
-                                    <img src="{{ asset($data['link']) }}" alt="Model Image" width="50">
-                                @else
-                                    No Image
-                                @endif
-                            </td>
-                            <td style="border: 1px solid #000; padding: 5px;">{{ $data['total_production'] }}</td>
-                            <td style="border: 1px solid #000; padding: 5px;">{{ $data['total_sold'] }}</td>
+                            @if(request('model'))
+                                <td style="border: 1px solid #000; padding: 5px;">
+                                    @if($data['link'])
+                                        <img src="{{ asset($data['link']) }}" alt="Model Image" width="50">
+                                    @else
+                                        No Image
+                                    @endif
+                                </td>
+                                <td style="border: 1px solid #000; padding: 5px;">{{ $data['total_production'] }}</td>
+                                <td style="border: 1px solid #000; padding: 5px;">{{ $data['total_sold'] }}</td>
+                                <td style="border: 1px solid #000; padding: 5px;">
+                                    @foreach($data['shops'] as $shop)
+                                        {{ $shop }}<br>
+                                    @endforeach
+                                </td>
+                                <td style="border: 1px solid #000; padding: 5px;">{{ $data['gold_color'] }}</td>
+                                <td style="border: 1px solid #000; padding: 5px;">{{ $data['source'] ?? 'N/A' }}</td>
+                            @endif
                             <td style="border: 1px solid #000; padding: 5px;">{{ $data['remaining'] }}</td>
                             <td style="border: 1px solid #000; padding: 5px;">
                                 @foreach($data['shops'] as $shop)
