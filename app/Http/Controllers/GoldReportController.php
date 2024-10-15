@@ -18,26 +18,24 @@ class GoldReportController extends Controller
             $soldItems = GoldItemSold::where('model', 'like', '%' . $modelName . '%')->get();
 
             // Calculate dynamic data
-            // Total production from items of this model in both GoldItem and GoldItemSold
-            $totalProduction = $items->sum('quantity') + $soldItems->sum('quantity');
-            $totalSold = $soldItems->sum('quantity'); // Total sold items of this model
-            $remaining = $items->sum('quantity'); // Remaining items in GoldItem
-            $atWorkshop = 0; // You can calculate the items in the workshop if you have a column for it
 
             // Group data by model (in this case, it will only be the one model)
             $modelsData = $items->groupBy('model')->map(function($modelItems) use ($soldItems) {
                 $modelSold = $soldItems->where('model', $modelItems->first()->model)->count(); // Count sold items by model
-                $modelRemaining = $modelItems->count() - $modelSold; // Remaining count for that model
-
+                $modelRemaining = $modelItems->count(); // Remaining count for that model
+                $totalProduction = $modelItems->count()+ $soldItems->count(); // Remaining count for that model
+                
                 // Get the shops that have this model
                 $shopsWithModel = $modelItems->pluck('shop_name')->unique(); // Get unique shop names
                 $goldColor = $modelItems->first()->gold_color; // Assuming gold color is the same for all items in this model
 
                 $link = $modelItems->first()->link; // Assuming link is the same for all items in this model
+                $source = $modelItems->first()->source; // Assuming link is the same for all items in this model
 
                 return [
+                    'source' => $source, // Add link to the data array
                     'link' => $link, // Add link to the data array
-                    'total_production' => $modelItems->count(), // Count of produced items for the model
+                    'total_production' => $totalProduction, // Count of produced items for the model
                     'total_sold' => $modelSold,
                     'remaining' => $modelRemaining,
                     'shops' => $shopsWithModel, // List of shops with the model
@@ -54,6 +52,6 @@ class GoldReportController extends Controller
             $latestModel = 'No Model Searched';
         }
 
-        return view('Admin.Gold.Report', compact('modelsData', 'totalProduction', 'totalSold', 'remaining', 'atWorkshop', 'modelName'));
+        return view('Admin.Gold.Report', compact('modelsData'));
     }
 }

@@ -47,7 +47,6 @@
                         <th>Shops with this Item</th>
                         <th>Gold Color</th>
                         <th>Source</th>
-                        <th>Source</th>
                     </tr>
                 </thead>
                 <tbody>
@@ -70,7 +69,6 @@
                                 @endforeach
                             </td>
                             <td style="border: 1px solid #000; padding: 5px;">{{ $data['gold_color'] }}</td>
-                            <td style="border: 1px solid #000; padding: 5px;">{{ $data['source'] ?? 'N/A' }}</td>
                             <td style="border: 1px solid #000; padding: 5px;">{{ $data['source'] ?? 'N/A' }}</td>
                         </tr>
                     @endforeach
