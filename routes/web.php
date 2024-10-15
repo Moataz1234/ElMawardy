@@ -3,7 +3,7 @@
 use App\Http\Controllers\{
     HomeController, ProfileController, NewItemController,
     Gold\GoldItemController, Gold\GoldItemSoldController,
-    Gold\GoldPoundController, ShopsController, OrderController,ShopifyProductController
+    Gold\GoldPoundController, ShopsController, OrderController,ShopifyProductController ,GoldReportController
 };
 use Illuminate\Support\Facades\Route;
 
@@ -97,6 +97,7 @@ Route::get('/shopify-products', [ShopifyProductController::class, 'index'])->nam
 Route::get('/shopify-products/edit/{product_id}', [ShopifyProductController::class, 'showEditImageForm'])->name('shopify.products.showEditImageForm');
 Route::post('/shopify-products/edit/{product_id}', [ShopifyProductController::class, 'editProduct'])->name('shopify.products.editProduct');
 
+Route::get('/gold-report', [GoldReportController::class, 'index'])->name('gold.report');
 
 // Route::put('/shopify-products/{product}', [ShopifyProductController::class, 'updateProduct'])->name('shopify.updateProduct');
 // Route::put('/shopify/products/{product}', [ShopifyProductController::class, 'updateProduct'])->name('shopify.updateProduct');

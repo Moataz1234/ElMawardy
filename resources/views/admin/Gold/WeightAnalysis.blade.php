@@ -29,7 +29,25 @@
             @endforeach
         </tbody>
     </table>
-
+    <h2>Shop Analysis</h2>
+    <table>
+        <thead>
+            <tr>
+                <th>Shop Name</th>
+                <th>Total Count</th>
+                <th>Total Weight (grams)</th>
+            </tr>
+        </thead>
+        <tbody>
+            @foreach ($shopAnalysis as $shopName => $data)
+                <tr>
+                    <td>{{ $shopName }}</td>
+                    <td>{{ $data['count'] }}</td>
+                    <td>{{ $data['weight'] }}</td>
+                </tr>
+            @endforeach
+        </tbody>
+    </table>
     <h2>Shop and Category Analysis</h2>
     <table>
         <thead>
@@ -52,7 +70,8 @@
                 @endforeach
             @endforeach
         </tbody>
-
+    </table>
+    
     <h2>Sold Category Analysis</h2>
     <table>
         <thead>
@@ -72,48 +91,5 @@
             @endforeach
         </tbody>
     </table>
-
-    <h2>Sold Shop and Category Analysis</h2>
-    <table>
-        <thead>
-            <tr>
-                <th>Shop Name</th>
-                <th>Category</th>
-                <th>Total Count</th>
-                <th>Total Weight (grams)</th>
-            </tr>
-        </thead>
-        <tbody>
-            @foreach ($soldShopKindAnalysis as $shopName => $kinds)
-                @foreach ($kinds as $kind => $data)
-                    <tr>
-                        <td>{{ $shopName }}</td>
-                        <td>{{ $kind }}</td>
-                        <td>{{ $data['count'] }}</td>
-                        <td>{{ $data['weight'] }}</td>
-                    </tr>
-                @endforeach
-            @endforeach
-        </tbody>
-    </table>
-
-    <h2>Sold Shop Analysis</h2>
-    <table>
-        <thead>
-            <tr>
-                <th>Shop Name</th>
-                <th>Total Count</th>
-                <th>Total Weight (grams)</th>
-            </tr>
-        </thead>
-        <tbody>
-            @foreach ($shopAnalysis as $shopName => $data)
-                <tr>
-                    <td>{{ $shopName }}</td>
-                    <td>{{ $data['count'] }}</td>
-                    <td>{{ $data['weight'] }}</td>
-                </tr>
-            @endforeach
-        </tbody>
 </body>
 </html>

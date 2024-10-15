@@ -9,6 +9,7 @@ use App\Models\GoldPrice;
 use App\Models\GoldItemSold;
 
 use Illuminate\Support\Facades\Storage;
+use Illuminate\Support\Facades\Log;
 
 class ShopifyProductController extends Controller
 {
@@ -55,19 +56,30 @@ class ShopifyProductController extends Controller
             $shopifyModel = $productEdge['node']['variants']['edges'][0]['node']['sku'] ?? null;
             if ($shopifyModel) {
                 // Transform Shopify model to match database format
-                $transformedShopifyModel = preg_replace('/^G(\d{1})(\d{4})$/', 'G-$1$2', $shopifyModel);
+                $transformedShopifyModel = preg_replace('/^G(\d{1})(\d{4})$/', '$1-$2', $shopifyModel);
                 $matchingGoldItems = GoldItem::where('model', $transformedShopifyModel)->get();
+                $matchingGoldItemsCount = $matchingGoldItems->count();
 
                 // Set the website column to true for matched models
-                foreach ($matchingGoldItems as $goldItem) {
-                    $goldItem->website = true;
-                    $goldItem->save();
+                if ($matchingGoldItemsCount > 0) {
+                    foreach ($matchingGoldItems as $goldItem) {
+                        if ($goldItem) {  // Check if $goldItem is not null
+                            $goldItem->website = true;
+                            $goldItem->save(); // Save the changes
+                            Log::info('Website updated for model: ' . $goldItem->model);
+                        } else {
+                            Log::warning('No matching GoldItem found for model: ' . $transformedShopifyModel);
+                        }
+                    }
+                } else {
+                    Log::warning('No GoldItems found for transformed model: ' . $transformedShopifyModel);
                 }
+                
                 // Calculate the maximum weight for the matching GoldItems and GoldItemSold
                 $maxWeightGoldItem = GoldItem::where('model', $transformedShopifyModel)->max('weight');
                 $maxWeightGoldItemSold = GoldItemSold::where('model', $transformedShopifyModel)->max('weight');
-                $maxWeight = max($maxWeightGoldItem, $maxWeightGoldItemSold);
-                $calculatedPrice = ($maxWeight * $goldWithWork) ;
+                $maxWeight = max($maxWeightGoldItem ?? 0, $maxWeightGoldItemSold ?? 0);
+                $calculatedPrice = ($maxWeight * ($goldWithWork ?? 0));
 
                 foreach ($productEdge['node']['variants']['edges'] as &$variant) {
                     // Update the inventory quantity

@@ -3,7 +3,7 @@
 <head>
     <title>Edit Product Details</title>
     <style>
-        body {
+  body {
             font-family: Arial, sans-serif;
             margin: 20px;
         }
@@ -41,6 +41,15 @@
         button:hover {
             background-color: #0056b3;
         }
+        .product-images img {
+            border: 1px solid #ddd;
+            padding: 5px;
+            margin: 10px;
+        }
+        .image-selector {
+            margin-top: 20px;
+        }
+    </style>
     </style>
 </head>
 <body>
@@ -66,9 +75,11 @@
     <label for="tags">Tags:</label>
     <input type="text" name="tags" value="{{ old('tags', is_array($product['tags']) ? implode(', ', $product['tags']) : $product['tags']) }}">
 
-    <label for="new_image">New Image:</label>
-    <input type="file" name="new_image">
-
+    <div class="image-selector">
+        <a href="https://admin.shopify.com/store/elmawardy/products/{{ basename($product['id']) }}" target="_blank" class="btn btn-primary">
+            Add Image from Shopify
+        </a>
+    </div>
     {{-- Display current images from Shopify --}}
     @if (!empty($product['media']['edges']))
         <div class="product-images">
@@ -81,7 +92,8 @@
     @else
         <p>No images available</p>
     @endif
-
+   
+    
     <button type="submit" class="btn btn-primary">Save Changes</button>
 </form>
     

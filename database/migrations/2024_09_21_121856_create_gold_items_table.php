@@ -25,7 +25,7 @@ return new class extends Migration
             $table->string('metal_type')->nullable();
             $table->string('metal_purity')->nullable();
             $table->integer('quantity')->nullable();
-            $table->float('weight')->nullable()->index();
+            $table->float('weight')->nullable();
             $table->date('rest_since')->nullable();
             $table->string('source')->nullable();
             $table->boolean('to_print')->default(false)->nullable();
