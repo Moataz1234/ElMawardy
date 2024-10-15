@@ -211,7 +211,7 @@ public function showUpdateForm()
         $totalGoldItemSoldWeightToday = GoldItemSold::whereDate('sold_date', now()->toDateString())->sum('weight');
 
         // Define the kinds of gold items
-        $kinds = ['Ring', 'Pendant', 'Medals', 'Brooch', 'Bracelet', 'Necklace', 'Earring'];
+        $kinds = ['Anklet','Ring', 'Pendant', 'Brooch', 'Bracelet', 'Necklace', 'Earring' ,'Medal' ,'Cufflink','Money Clip','Tie-Clip'];
 
         // Initialize an array to store the analysis results
         $kindAnalysis = [];
