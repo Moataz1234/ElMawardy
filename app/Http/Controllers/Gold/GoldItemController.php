@@ -241,6 +241,25 @@ public function showUpdateForm()
             ];
         }
 
+        // Initialize an array to store the combined shop and kind analysis results
+        $shopKindAnalysis = [];
+
+        // Calculate the total count and weight for each kind within each shop
+        foreach ($shops as $shop) {
+            foreach ($Kinds as $Kind) {
+                $count = GoldItem::where('shop_name', $shop->shop_name)
+                                 ->where('kind', $Kind->kind)
+                                 ->count();
+                $weight = GoldItem::where('shop_name', $shop->shop_name)
+                                  ->where('kind', $Kind->kind)
+                                  ->sum('weight');
+                $shopKindAnalysis[$shop->shop_name][$Kind->kind] = [
+                    'count' => $count,
+                    'weight' => $weight
+                ];
+            }
+        }
+
         return view('admin.Gold.WeightAnalysis', [
             'totalGoldItemWeight' => $totalGoldItemWeight,
             'totalGoldItemSoldWeightToday' => $totalGoldItemSoldWeightToday,

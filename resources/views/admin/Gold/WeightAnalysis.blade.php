@@ -30,6 +30,29 @@
         </tbody>
     </table>
 
+    <h2>Shop and Category Analysis</h2>
+    <table>
+        <thead>
+            <tr>
+                <th>Shop Name</th>
+                <th>Category</th>
+                <th>Total Count</th>
+                <th>Total Weight (grams)</th>
+            </tr>
+        </thead>
+        <tbody>
+            @foreach ($shopKindAnalysis as $shopName => $kinds)
+                @foreach ($kinds as $kind => $data)
+                    <tr>
+                        <td>{{ $shopName }}</td>
+                        <td>{{ $kind }}</td>
+                        <td>{{ $data['count'] }}</td>
+                        <td>{{ $data['weight'] }}</td>
+                    </tr>
+                @endforeach
+            @endforeach
+        </tbody>
+
     <h2>Shop Analysis</h2>
     <table>
         <thead>
