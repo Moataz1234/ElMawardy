@@ -19,7 +19,7 @@
         <input type="text" name="search" value="{{ $search }}" placeholder="Search...">
         <button type="submit">Search</button>
     </form>
-    <table>
+    <table class="table">
         <thead>
             <tr>
                 <th>Image</th>
@@ -61,7 +61,7 @@
         <tbody>
             @foreach ($goldItems as $item)
                 <tr>
-                    <td><img src="{{ asset($item->link) }}" alt="Image" width="50"></td>
+                    <td><img src="{{ asset($item->link) }}" alt="Image" width="50" class="img-thumbnail"></td>
                     <td>{{ $item->serial_number }}</td>
                     <td>{{ $item->shop->name }}</td>
                     <td>{{ $item->kind }}</td>
