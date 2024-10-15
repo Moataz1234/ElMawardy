@@ -54,6 +54,13 @@ class GoldReportController extends Controller
             $latestModel = 'No Model Searched';
         }
 
-        return view('Admin.Gold.Report', compact('modelsData'));
+        return view('admin.Gold.Report', [
+            'modelsData' => $modelsData,
+            'totalProduction' => $totalProduction ?? 0,
+            'totalSold' => $totalSold ?? 0,
+            'remaining' => $remaining ?? 0,
+            'atWorkshop' => $atWorkshop ?? 0,
+            'latestModel' => $latestModel ?? 'No Model Searched'
+        ]);
     }
 }

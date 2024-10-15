@@ -134,57 +134,26 @@
 
 <div class="container">
     <!-- Header -->
-    <div class="first-production">First Production<br><span class="empty-space"></span></div>
-    <div class="gold-title">GOLD</div>
-    <div class="shop">Shop<br><span class="empty-space"></span></div>
-    <div class="sold-pieces">Sold Pieces<br><span class="empty-space"></span></div>
-
-    <!-- Production Date -->
-    <div class="last-production">Last Production<br><span class="empty-space"></span></div>
-    <div class="production-details">Production<br><span class="empty-space"></span></div>
-
-    <!-- All Rest -->
-    <div class="all-rest">ALL REST</div>
-
-    <!-- Shops Section -->
-    <div class="shops-grid">
-        <div class="shop-box">SHOP 5</div>
-        <div class="shop-box">Mall of Arabia</div>
-        <div class="shop-box">Nasr City</div>
-        <div class="shop-box">Zamalek</div>
-        <div class="shop-box">Mall of Egypt</div>
-        <div class="shop-box">Arkan</div>
-        <div class="shop-box">District 5</div>
-        <div class="shop-box">U Venues</div>
-        <div class="shop-box">SHOP 5</div>
-    </div>
-
-    <!-- Gold Types Section -->
-    <div class="gold-types">
-        <div class="gold-type-box">White Gold</div>
-        <div class="gold-type-box">Yellow Gold</div>
-        <div class="gold-type-box">Rose Gold</div>
-    </div>
-
-    <!-- Stats Section -->
-    <div class="stats">Total Production<br><span class="empty-space"></span></div>
-    <div class="stats">Total Sold<br><span class="empty-space"></span></div>
-    <div class="stats">Remaining<br><span class="empty-space"></span></div>
-    <div class="stats">Model<br><span class="empty-space"></span></div>
-    <div class="stats">At Workshop<br><span class="empty-space"></span></div>
-    <div class="stats">Order Date<br><span class="empty-space"></span></div>
-
-    <!-- Image Section -->
-    <div class="image-section">
-        <img src="path_to_your_image" alt="Gold Item Image" width="150">
-    </div>
-
-    <!-- Footer -->
-    <div class="footer">
-        <div>Sold<br><span class="empty-space"></span></div>
-        <div>Rest<br><span class="empty-space"></span></div>
-        <div>Description<br><span class="empty-space"></span></div>
-    </div>
+    @foreach($modelsData as $model => $data)
+        <div class="gold-title">{{ $model }}</div>
+        <div class="stats">Total Production: {{ $data['total_production'] }}</div>
+        <div class="stats">Total Sold: {{ $data['total_sold'] }}</div>
+        <div class="stats">Remaining: {{ $data['remaining'] }}</div>
+        <div class="stats">Gold Color: {{ $data['gold_color'] }}</div>
+        <div class="stats">Source: {{ $data['source'] }}</div>
+        <div class="image-section">
+            @if($data['link'])
+                <img src="{{ asset($data['link']) }}" alt="Gold Item Image" width="150">
+            @else
+                <p>No Image Available</p>
+            @endif
+        </div>
+        <div class="shops-grid">
+            @foreach($data['shops'] as $shop)
+                <div class="shop-box">{{ $shop }}</div>
+            @endforeach
+        </div>
+    @endforeach
 </div>
 
 </body>
