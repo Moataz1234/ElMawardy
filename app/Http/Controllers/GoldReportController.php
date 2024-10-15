@@ -22,9 +22,10 @@ class GoldReportController extends Controller
 
             // Group data by model (in this case, it will only be the one model)
             $modelsData = $items->groupBy('model')->map(function($modelItems) use ($soldItems) {
-                $modelSold = $soldItems->where('model', $modelItems->first()->model)->count(); // Count sold items by model
+                $modelName = $modelItems->first()->model;
+                $modelSold = $soldItems->where('model', $modelName)->count(); // Count sold items by model
                 $modelRemaining = $modelItems->count(); // Remaining count for that model
-                $totalProduction = $modelItems->count()+ $soldItems->count(); // Remaining count for that model
+                $totalProduction = $modelItems->count() + $modelSold; // Total production for that model
                 
                 // Get the shops that have this model
                 $shopsWithModel = $modelItems->pluck('shop_name')->unique(); // Get unique shop names
