@@ -11,6 +11,8 @@ Route::get('/', function () {
     return view('auth.login');
 });
 
+Route::get('/gold-items/weight-analysis', [GoldItemController::class, 'analyzeWeights'])->name('gold-items.weight-analysis');
+
 // Public Routes
 Route::middleware('auth')->group(function () {
     Route::get('/dashboard', [ShopsController::class, 'showShopItems'])->name('dashboard');

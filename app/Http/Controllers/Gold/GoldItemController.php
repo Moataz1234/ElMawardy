@@ -199,10 +199,19 @@ public function showUpdateForm()
     return view('admin.gold.update-all-prices');
 }
     /**
-     * Remove the specified resource from storage.
+     * Analyze weights of gold items and sold items.
      */
-    public function destroy(string $id)
+    public function analyzeWeights()
     {
-        //
+        // Calculate total weight of all gold items
+        $totalGoldItemWeight = GoldItem::sum('weight');
+
+        // Calculate total weight of sold gold items for today
+        $totalGoldItemSoldWeightToday = GoldItemSold::whereDate('sold_date', now()->toDateString())->sum('weight');
+
+        return view('admin.Gold.WeightAnalysis', [
+            'totalGoldItemWeight' => $totalGoldItemWeight,
+            'totalGoldItemSoldWeightToday' => $totalGoldItemSoldWeightToday
+        ]);
     }
 }
