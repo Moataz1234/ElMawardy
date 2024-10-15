@@ -36,7 +36,7 @@
             <p>No results found for the model '{{ request('model') }}'. Please enter a valid model name.</p>
         @else
             <!-- Table showing the models data -->
-            <table class="table">
+            <table class="report-table">
                 <thead>
                     <tr>
                         <th>Model</th>
@@ -46,6 +46,7 @@
                         <th>Remaining</th>
                         <th>Shops with this Item</th>
                         <th>Gold Color</th>
+                        <th>Source</th>
                         <th>Source</th>
                     </tr>
                 </thead>
@@ -69,6 +70,7 @@
                                 @endforeach
                             </td>
                             <td style="border: 1px solid #000; padding: 5px;">{{ $data['gold_color'] }}</td>
+                            <td style="border: 1px solid #000; padding: 5px;">{{ $data['source'] ?? 'N/A' }}</td>
                             <td style="border: 1px solid #000; padding: 5px;">{{ $data['source'] ?? 'N/A' }}</td>
                         </tr>
                     @endforeach
