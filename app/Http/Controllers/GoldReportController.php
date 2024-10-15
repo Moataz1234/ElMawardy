@@ -18,9 +18,10 @@ class GoldReportController extends Controller
             $soldItems = GoldItemSold::where('model', 'like', '%' . $modelName . '%')->get();
 
             // Calculate dynamic data
-            $totalProduction = $items->sum('quantity'); // Total production from items of this model
+            // Total production from items of this model in both GoldItem and GoldItemSold
+            $totalProduction = $items->sum('quantity') + $soldItems->sum('quantity');
             $totalSold = $soldItems->sum('quantity'); // Total sold items of this model
-            $remaining = $totalProduction - $totalSold; // Remaining items after sold items
+            $remaining = $items->sum('quantity'); // Remaining items in GoldItem
             $atWorkshop = 0; // You can calculate the items in the workshop if you have a column for it
 
             // Group data by model (in this case, it will only be the one model)
