@@ -1,4 +1,25 @@
 
+    <style>
+        .report-table {
+            width: 100%;
+            border-collapse: collapse;
+            margin-bottom: 20px;
+        }
+        .report-table th, .report-table td {
+            border: 1px solid #ddd;
+            padding: 8px;
+            text-align: left;
+        }
+        .report-table th {
+            background-color: #f2f2f2;
+        }
+        .report-table tr:nth-child(even) {
+            background-color: #f9f9f9;
+        }
+        .report-table tr:hover {
+            background-color: #f1f1f1;
+        }
+    </style>
     <div class="container" style="font-family: Arial, sans-serif;">
         <h1>Gold Inventory Report by Model</h1>
 
@@ -25,6 +46,7 @@
                         <th>Remaining</th>
                         <th>Shops with this Item</th>
                         <th>Gold Color</th>
+                        <th>Source</th>
                     </tr>
                 </thead>
                 <tbody>
@@ -47,6 +69,7 @@
                                 @endforeach
                             </td>
                             <td style="border: 1px solid #000; padding: 5px;">{{ $data['gold_color'] }}</td>
+                            <td style="border: 1px solid #000; padding: 5px;">{{ $data['source'] ?? 'N/A' }}</td>
                         </tr>
                     @endforeach
                 </tbody>
