@@ -237,7 +237,46 @@ public function showUpdateForm()
             ];
         }
 
-        // Initialize an array to store the combined shop and kind analysis results
+        // Initialize an array to store the analysis results for sold items
+        $soldKindAnalysis = [];
+        $soldShopAnalysis = [];
+        $soldShopKindAnalysis = [];
+
+        // Calculate the total count and weight for each kind of sold items
+        foreach ($Kinds as $Kind) {
+            $count = GoldItemSold::where('kind', $Kind->kind)->count();
+            $weight = GoldItemSold::where('kind', $Kind->kind)->sum('weight');
+            $soldKindAnalysis[$Kind->kind] = [
+                'count' => $count,
+                'weight' => $weight
+            ];
+        }
+
+        // Calculate the total count and weight for each shop of sold items
+        foreach ($shops as $shop) {
+            $count = GoldItemSold::where('shop_name', $shop->shop_name)->count();
+            $weight = GoldItemSold::where('shop_name', $shop->shop_name)->sum('weight');
+            $soldShopAnalysis[$shop->shop_name] = [
+                'count' => $count,
+                'weight' => $weight
+            ];
+        }
+
+        // Calculate the total count and weight for each kind within each shop of sold items
+        foreach ($shops as $shop) {
+            foreach ($Kinds as $Kind) {
+                $count = GoldItemSold::where('shop_name', $shop->shop_name)
+                                     ->where('kind', $Kind->kind)
+                                     ->count();
+                $weight = GoldItemSold::where('shop_name', $shop->shop_name)
+                                      ->where('kind', $Kind->kind)
+                                      ->sum('weight');
+                $soldShopKindAnalysis[$shop->shop_name][$Kind->kind] = [
+                    'count' => $count,
+                    'weight' => $weight
+                ];
+            }
+        }
         $shopKindAnalysis = [];
 
         // Calculate the total count and weight for each kind within each shop
@@ -261,7 +300,10 @@ public function showUpdateForm()
             'totalGoldItemSoldWeightToday' => $totalGoldItemSoldWeightToday,
             'kindAnalysis' => $kindAnalysis,
             'shopAnalysis' => $shopAnalysis,
-            'shopKindAnalysis' => $shopKindAnalysis
+            'shopKindAnalysis' => $shopKindAnalysis,
+            'soldKindAnalysis' => $soldKindAnalysis,
+            'soldShopAnalysis' => $soldShopAnalysis,
+            'soldShopKindAnalysis' => $soldShopKindAnalysis
         ]);
     }
 }

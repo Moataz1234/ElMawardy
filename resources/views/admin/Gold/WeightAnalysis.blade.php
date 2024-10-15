@@ -53,7 +53,51 @@
             @endforeach
         </tbody>
 
-    <h2>Shop Analysis</h2>
+    <h2>Sold Category Analysis</h2>
+    <table>
+        <thead>
+            <tr>
+                <th>Category</th>
+                <th>Total Count</th>
+                <th>Total Weight (grams)</th>
+            </tr>
+        </thead>
+        <tbody>
+            @foreach ($soldKindAnalysis as $kind => $data)
+                <tr>
+                    <td>{{ $kind }}</td>
+                    <td>{{ $data['count'] }}</td>
+                    <td>{{ $data['weight'] }}</td>
+                </tr>
+            @endforeach
+        </tbody>
+    </table>
+
+    <h2>Sold Shop and Category Analysis</h2>
+    <table>
+        <thead>
+            <tr>
+                <th>Shop Name</th>
+                <th>Category</th>
+                <th>Total Count</th>
+                <th>Total Weight (grams)</th>
+            </tr>
+        </thead>
+        <tbody>
+            @foreach ($soldShopKindAnalysis as $shopName => $kinds)
+                @foreach ($kinds as $kind => $data)
+                    <tr>
+                        <td>{{ $shopName }}</td>
+                        <td>{{ $kind }}</td>
+                        <td>{{ $data['count'] }}</td>
+                        <td>{{ $data['weight'] }}</td>
+                    </tr>
+                @endforeach
+            @endforeach
+        </tbody>
+    </table>
+
+    <h2>Sold Shop Analysis</h2>
     <table>
         <thead>
             <tr>
