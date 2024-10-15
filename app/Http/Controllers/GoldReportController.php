@@ -33,7 +33,10 @@ class GoldReportController extends Controller
                 $shopsWithModel = $modelItems->pluck('shop_name')->unique(); // Get unique shop names
                 $goldColor = $modelItems->first()->gold_color; // Assuming gold color is the same for all items in this model
 
+                $link = $modelItems->first()->link; // Assuming link is the same for all items in this model
+
                 return [
+                    'link' => $link, // Add link to the data array
                     'total_production' => $modelItems->count(), // Count of produced items for the model
                     'total_sold' => $modelSold,
                     'remaining' => $modelRemaining,
