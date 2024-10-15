@@ -62,9 +62,7 @@
             <label for="price">Price:</label>
             <input type="number" name="price" step="0.01" id="price" value="{{ $goldItem->price }}" readonly><br>
             
-            <label for="total_price">Total Price:</label>
-            <input type="number" name="total_price" step="0.01" id="total_price" value="{{ $goldItem->weight * $goldItem->price }}" readonly><br>
-            <label for="semi_or_no">Semi or no:</label>
+           <label for="semi_or_no">Semi or no:</label>
             <input type="text" name="semi_or_no" id="semi_or_no" value="{{ $goldItem->semi_or_no }}" readonly><br>
 
             <label for="average_of_stones">Average of Stones:</label>
@@ -77,28 +75,37 @@
     </div>
 
     <div class="customer-details">
-        <h2>Enter Customer Details</h2>
+        <h2 style="color: rgb(171, 245, 0)">Enter Customer Details</h2>
         <form class="custom-form" action="{{ route('gold-items.markAsSold', $goldItem->id) }}" method="POST" enctype="multipart/form-data">
             @csrf
 
-            <label for="first_name">First Name:</label>
+            <label for="first_name">الاسم الاول</label>
             <input type="text" name="first_name" id="first_name" required><br>
 
-            <label for="last_name">Last Name:</label>
+            <label for="last_name">الاسم الاخير</label>
             <input type="text" name="last_name" id="last_name" required><br>
             
-            <label for="phone_number">Phone Number:</label>
+            <label for="phone_number">رقم التلفيون</label>
             <input type="number" name="phone_number" id="phone_number" required><br>
 
-            <label for="address">Address:</label>
+            <label for="address">العنوان</label>
             <input type="text" name="address" id="address" required><br>
 
             <label for="email">Email:</label>
             <input type="email" name="email" id="email" required><br>
 
-            <label for="payment_method">Payment Method:</label>
-            <input type="text" name="payment_method" id="payment_method" required><br>
-
+            <div class="form-group">
+                <label for="payment_method" class="form-label">طريقة الدفع</label>
+                <select class="form-control" name="payment_method" id="payment_method">
+                    <option value="visa">Visa</option>
+                    <option value="value">Value</option>
+                    <option value="cash">Cash</option>
+                    <option value="instapay">Instapay</option>
+                </select>
+            </div>  
+            <label for="total_price">السعر</label>
+            <input type="number" name="total_price" step="0.01" id="total_price"  ><br>
+          
             <button type="submit">Save Customer</button>
         </form> 
     </div>
