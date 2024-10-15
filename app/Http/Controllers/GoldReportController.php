@@ -14,8 +14,9 @@ class GoldReportController extends Controller
         
         if ($modelName) {
             // Fetch items for the specific model only
-            $items = GoldItem::where('model', 'like', '%' . $modelName . '%')->get();
-            $soldItems = GoldItemSold::where('model', 'like', '%' . $modelName . '%')->get();
+            $baseModelName = preg_replace('/-[A-D]$/', '', $modelName);
+            $items = GoldItem::where('model', 'like', '%' . $baseModelName . '%')->get();
+            $soldItems = GoldItemSold::where('model', 'like', '%' . $baseModelName . '%')->get();
 
             // Calculate dynamic data
 

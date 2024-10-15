@@ -39,7 +39,7 @@
             <table class="report-table">
                 <thead>
                     <tr>
-                        <th>Model</th>
+                        <th>Model (Including Suffixes)</th>
                         <th>Image</th>
                         <th>Total Produced</th>
                         <th>Total Sold</th>
