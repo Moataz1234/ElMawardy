@@ -30,7 +30,10 @@ class GoldItemController extends Controller
                     $query->where('name', 'like', "%{$search}%");
                                 })
                              ->orWhere('kind', 'like', "%{$search}%")
-                             ->orWhere('model', 'like', "%{$search}%")
+                             ->orWhere(function ($query) use ($search) {
+                                 $baseModel = preg_replace('/-[A-D]$/', '', $search);
+                                 $query->where('model', 'like', "%{$baseModel}%");
+                             })
                              ->orWhere('gold_color', 'like', "%{$search}%")
                              ->orWhere('stones', 'like', "%{$search}%")
                              ->orWhere('metal_type', 'like', "%{$search}%")
