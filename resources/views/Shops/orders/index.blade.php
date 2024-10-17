@@ -45,23 +45,6 @@
             background-color: #e2e6ea;
         }
 
-        .badge {
-            background-color: red;
-            color: white;
-            border-radius: 10px;
-            padding: 2px 8px;
-        }
-
-        .light-up {
-            animation: pulse 1s infinite;
-            color: red;
-        }
-
-        @keyframes pulse {
-            0% { transform: scale(1); }
-            50% { transform: scale(1.05); }
-            100% { transform: scale(1); }
-        }
         .action_button { background-color: #007bff; color: white; }
         .action_button:hover { background-color: #0056b3; }
     </style>
@@ -69,26 +52,6 @@
 <body>
 <div class="container">
     <h2>Customer Orders</h2>
-
-    <!-- Display success or error messages -->
-    @if (session('success'))
-        <div class="alert alert-success">{{ session('success') }}</div>
-    @elseif (session('error'))
-        <div class="light-up">{{ session('error') }}</div>
-    @endif
-
-    @php
-        $pendingOrdersCount = \App\Models\Order::where('status', 'pending')->count();
-    @endphp
-
-    <div class="nav-item">
-        <a href="{{ route('orders.requests') }}" class="nav-link {{ $pendingOrdersCount > 0 ? 'light-up' : '' }}">
-            Order Requests 
-            @if ($pendingOrdersCount > 0)
-                <span class="badge">{{ $pendingOrdersCount }}</span>
-            @endif
-        </a>
-    </div>
 
     <!-- Orders Table -->
     <table class="table">
@@ -104,6 +67,8 @@
                     'seller_name' => 'اسم البائع',
                     'order_details' => 'موضوع الطلب',
                     'order_date' => 'تاريخ الاستلام',
+                    'status' => ' حالة الطلب',
+
                 ];
             @endphp
                 @foreach ($columns as $field => $label)
@@ -136,22 +101,15 @@
                     {{-- <td>{{ $order->deposit }}</td>
                     <td>{{ $order->rest_of_cost }}</td> --}}
                     <td>{{ $order->order_date }}</td>
+                    <td>{{ $order->status }}</td>
+
                     {{-- <td>{{ $order->deliver_date }}</td> --}}
                     <td>
-                        <div class="action-buttons">
-                            <a href="{{ route('orders.show', $order->id) }}" class="action_button">View</a>
-                            <form action="{{ route('orders.updateStatus', ['id' => $order->id]) }}" method="POST" id="status-form-{{ $order->id }}">
-                                @csrf
-                                <select name="status" onchange="document.getElementById('status-form-{{ $order->id }}').submit();">
-                                    <option value="تم الاستلام" {{ $order->status == 'تم الاستلام' ? 'selected' : '' }}>تم الاستلام</option>
-                                    <option value="في الورشة" {{ $order->status == 'في الورشة' ? 'selected' : '' }}>في الورشة</option>
-                                    <option value="في الدمغة" {{ $order->status == 'في الدمغة' ? 'selected' : '' }}>في الدمغة</option>
-                                    <option value="خلص" {{ $order->status == 'خلص' ? 'selected' : '' }}>خلص</option>
-                                </select>
-                            </form>
-                        </div>
-                    </td>
-                        </div>
+                    <div class="action-buttons">
+                        @if($order->status === 'pending')
+                            <a href="{{ route('orders.rabea.edit', $order->id) }}" class="action_button">Edit</a>
+                        @endif
+                    </div>
                     </td>
                 </tr>
             @endforeach

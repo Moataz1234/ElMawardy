@@ -3,7 +3,7 @@
 use App\Http\Controllers\{
     HomeController, ProfileController, NewItemController,
     Gold\GoldItemController, Gold\GoldItemSoldController,
-    Gold\GoldPoundController, ShopsController, OrderController,ShopifyProductController ,GoldReportController
+    Gold\GoldPoundController, ShopsController, OrderController,ShopifyProductController ,GoldReportController,RabiaController
 };
 use Illuminate\Support\Facades\Route;
 
@@ -50,6 +50,7 @@ Route::middleware(['auth', 'admin'])->group(function () {
 
 // Shop Routes
 Route::middleware(['auth', 'user'])->group(function () {
+    Route::get('/gold-items', [GoldItemController::class, 'index'])->name('gold-items.index');
     Route::get('/dashboard/{id}/edit', [ShopsController::class, 'edit'])->name('shop-items.edit');
     Route::get('/gold-items/shop', [ShopsController::class, 'showShopItems'])->name('gold-items.shop');
     Route::post('/gold-items/{id}/transfer', [ShopsController::class, 'transferToBranch'])->name('gold-items.transfer');
@@ -62,26 +63,26 @@ Route::middleware(['auth', 'user'])->group(function () {
     ->name('gold-items.transfer');
     Route::get('/gold-items/{id}/transfer', [ShopsController::class, 'showTransferForm'])
     ->name('gold-items.transferForm');
-    Route::get('/orders', [OrderController::class, 'indexForRabea'])->name('orders.index');
-    Route::get('/orders/history', [OrderController::class, 'indexForRabea'])->name('orders.history');
+    Route::get('/orders', [OrderController::class, 'index'])->name('orders.index');
+    Route::get('/orders/history', [OrderController::class, 'showCompletedOrders'])->name('orders.history');
     
 });
 
 // Rabea Routes
 Route::middleware(['auth', 'rabea'])->group(function () {
-    Route::get('/orders/rabea', [OrderController::class, 'indexForRabea'])->name('orders.rabea.index');
-    Route::get('/orders/rabea/{id}', [OrderController::class, 'show'])->name('orders.show');
-    Route::get('/orders/rabea/{id}/edit', [OrderController::class, 'edit'])->name('orders.rabea.edit');
-    Route::put('/orders/rabea/{id}', [OrderController::class, 'updateOrder'])->name('orders.rabea.update');
-    Route::get('/orders/requests', [OrderController::class, 'requests'])->name('orders.requests');
+    Route::get('/orders/rabea', [RabiaController::class, 'indexForRabea'])->name('orders.rabea.index');
+    Route::get('/orders/rabea/{id}', [RabiaController::class, 'show'])->name('orders.show');
+    // Route::put('/orders/rabea/{id}', [RabiaController::class, 'update'])->name('orders.update');
+    Route::get('/orders/requests', [RabiaController::class, 'requests'])->name('orders.requests');
     // Route::post('/orders/{order}/accept', [OrderController::class, 'acceptOrder'])->name('orders.accept');
-    Route::post('/orders/accept', [OrderController::class, 'accept'])->name('orders.accept');
+    Route::post('/orders/accept', [RabiaController::class, 'accept'])->name('orders.accept');
 
-    Route::post('orders/{id}/update-status', [OrderController::class, 'updateStatus'])->name('orders.updateStatus');
-    Route::get('/orders/toPrint', [OrderController::class, 'toPrint'])->name('orders.rabea.to_print');
-    Route::get('/completed-orders', [OrderController::class, 'showCompletedOrders'])->name('completed_orders.index');
-
+    Route::post('orders/{id}/update-status', [RabiaController::class, 'updateStatus'])->name('orders.updateStatus');
+    Route::get('/orders/toPrint', [RabiaController::class, 'toPrint'])->name('orders.rabea.to_print');
+    Route::get('/completed-orders', [RabiaController::class, 'showCompletedOrders'])->name('completed_orders.index');
 });
+Route::get('/orders/rabea/{id}/edit', [RabiaController::class, 'edit'])->name('orders.rabea.edit');
+Route::put('/orders/rabea/{id}', [RabiaController::class, 'update'])->name('orders.update');
 
 // Common Routes for All Authenticated Users
 Route::middleware('auth')->group(function () {
@@ -90,7 +91,6 @@ Route::middleware('auth')->group(function () {
     Route::get('/orders/create', [OrderController::class, 'create'])->name('orders.create');
     Route::post('/orders/store', [OrderController::class, 'store'])->name('orders.store');
 });
-Route::get('/gold-items', [GoldItemController::class, 'index'])->name('gold-items.index');
 
 require __DIR__.'/auth.php';
 // Route::get('/shopify-products', [ShopifyProductController::class, 'index']);

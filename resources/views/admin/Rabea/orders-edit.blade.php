@@ -4,133 +4,112 @@
     @include('admin.rabea.dashboard')
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Edit Order</title>
+    <title>Edit Customer Order</title>
     <link href="{{ asset('css/app.css') }}" rel="stylesheet">
+    <link href="{{ asset('css/pagination.css') }}" rel="stylesheet">
     <link href="{{ asset('css/style.css') }}" rel="stylesheet">
+    <link href="{{ asset('css/order-details.css') }}" rel="stylesheet">
 </head>
 <body>
-<div class="container">
-    <h2>Edit Order</h2>
+<form class="custom-form" action="{{ route('orders.update', $order->id) }}" method="POST" enctype="multipart/form-data">
+    @csrf
+    @method('PUT') <!-- Use PUT method for updating -->
+    
+    <!-- Customer Details -->
+    <div class="mb-3">
+        <label for="customer_name" class="form-label">اسم العميل</label>
+        <input type="text" class="form-control" name="customer_name" id="customer_name" value="{{ $order->customer_name }}" required>
+    </div>
 
-    <!-- Display success or error messages -->
-    @if (session('success'))
-        <div class="alert alert-success">{{ session('success') }}</div>
-    @elseif (session('error'))
-        <div class="alert alert-danger">{{ session('error') }}</div>
-    @endif
+    <div class="mb-3">
+        <label for="customer_phone" class="form-label">تليفون العميل</label>
+        <input type="number" class="form-control" name="customer_phone" id="customer_phone" maxlength="11" value="{{ $order->customer_phone }}" required>
+    </div>
 
-    <!-- Form to edit the order -->
-    <form class="custom-form" action="{{ route('orders.rabea.update', $order->id) }}" method="POST" enctype="multipart/form-data">
-        @csrf
-        @method('PUT')
+    <div class="mb-3">
+        <label for="seller_name" class="form-label">البائع</label>
+        <input type="text" class="form-control" name="seller_name" id="seller_name" value="{{ $order->seller_name }}" required>
+    </div>
 
-        <!-- Order Kind -->
-        <div class="form-group">
-            <label for="order_kind">Order Kind:</label>
-            <input type="text" id="order_kind" name="order_kind" class="form-control" value="{{ $order->order_kind }}" required readonly>
-        </div>
+    <!-- Order Details -->
+    <label for="order_details">موضوع الطلب :</label>
+    <textarea style="height: 200px" name="order_details" id="order_details">{{ $order->order_details }}</textarea>
 
-        <!-- Order Fix Type -->
-        <div class="form-group">
-            <label for="order_fix_type">Order Fix Type:</label>
-            <input type="text" id="order_fix_type" name="order_fix_type" class="form-control" value="{{ $order->order_fix_type }}" required readonly>
-        </div>
+    <div class="mb-3">
+        <label for="deposit" class="form-label">المدفوع</label>
+        <input type="number" class="form-control" name="deposit" id="deposit" value="{{ $order->deposit }}" step="0.01">
+    </div>
+
+    <div class="mb-3">
+        <label for="rest_of_cost" class="form-label">الباقي</label>
+        <input type="number" class="form-control" name="rest_of_cost" id="rest_of_cost" value="{{ $order->rest_of_cost }}" step="0.01">
+    </div>
+
+    <div class="form-group">
+        <label for="payment_method" class="form-label">طريقة الدفع</label>
+        <select class="form-control" name="payment_method" id="payment_method">
+            <option value="visa" {{ $order->payment_method == 'visa' ? 'selected' : '' }}>Visa</option>
+            <option value="value" {{ $order->payment_method == 'value' ? 'selected' : '' }}>Value</option>
+            <option value="cash" {{ $order->payment_method == 'cash' ? 'selected' : '' }}>Cash</option>
+            <option value="instapay" {{ $order->payment_method == 'instapay' ? 'selected' : '' }}>Instapay</option>
+        </select>
+    </div>
+
+    <div class="mb-3">
+        <label for="order_date" class="form-label">تاريخ الاستلام</label>
+        <input type="date" class="form-control" name="order_date" id="order_date" value="{{ $order->order_date }}">
+    </div>
+
+    <!-- Order Items Section -->
+    <h3 style="text-align: center;background-color:rgb(0, 255, 13)">Edit Order Items</h3>
+    <div id="order-items">
+@foreach ($order->items as $index => $item)
+    <div class="order-item">
+        <input type="hidden" name="order_item_id[]" value="{{ $item->id }}"> <!-- Hidden field for item ID -->
         
-        <!-- Order Details -->
         <div class="form-group">
-            <label for="order_details">Order Details:</label>
-            <textarea id="order_details" name="order_details" class="form-control">{{ $order->order_details }}</textarea>
-        </div>
-        <!-- Ring Size -->
-        <div class="form-group">
-            <label for="ring_size">Ring Size:</label>
-            <input type="number" id="ring_size" name="ring_size" class="form-control" value="{{ $order->ring_size }}">
-        </div>
-
-        <!-- Weight -->
-        <div class="form-group">
-            <label for="weight">Weight:</label>
-            <input type="number" id="weight" step="0.1" name="weight" class="form-control" value="{{ $order->weight }}">
-        </div>
-
-        <!-- Gold Color -->
-        <div class="form-group">
-            <label for="gold_color">Gold Color:</label>
-            <input type="text" id="gold_color" name="gold_color" class="form-control" value="{{ $order->gold_color }}" readonly>
-        </div>
-
-        <!-- Customer Name -->
-        <div class="form-group">
-            <label for="customer_name">Customer Name:</label>
-            <input type="text" id="customer_name" name="customer_name" class="form-control" value="{{ $order->customer_name }}" readonly>
-        </div>
-
-        <!-- Customer Phone -->
-        <div class="form-group">
-            <label for="customer_phone">Customer Phone:</label>
-            <input type="text" id="customer_phone" name="customer_phone" class="form-control" value="{{ $order->customer_phone }}" readonly>
-        </div>
-
-        <!-- Seller Name -->
-        <div class="form-group">
-            <label for="seller_name">Seller Name:</label>
-            <input type="text" id="seller_name" name="seller_name" class="form-control" value="{{ $order->seller_name }}" readonly>
-        </div>
-
-        <!-- Deposit -->
-        <div class="form-group">
-            <label for="deposit">Deposit:</label>
-            <input type="text" id="deposit" name="deposit" class="form-control" value="{{ $order->deposit }}" readonly>
-        </div>
-
-        <!-- Rest of Cost -->
-        <div class="form-group">
-            <label for="rest_of_cost">Rest of Cost:</label>
-            <input type="text" id="rest_of_cost" name="rest_of_cost" class="form-control" value="{{ $order->rest_of_cost }}">
-        </div>
-
-        <!-- Order Date -->
-        <div class="form-group">
-            <label for="order_date">Order Date:</label>
-            <input type="date" id="order_date" name="order_date" class="form-control" value="{{ $order->order_date }}" readonly>
-        </div>
-
-        <!-- Deliver Date -->
-        <div class="form-group">
-            <label for="deliver_date">Deliver Date:</label>
-            <input type="date" id="deliver_date" name="deliver_date" class="form-control" value="{{ $order->deliver_date }}">
-        </div>
-
-        <!-- Status -->
-        <div class="form-group">
-            <label for="status">Status:</label>
-            <select id="status" name="status" class="form-control">
-                <option value="في المحل" {{ $order->status == 'في المحل' ? 'selected' : '' }}>في المحل</option>
-                <option value="في المصنع" {{ $order->status == 'في المصنع' ? 'selected' : '' }}>في المصنع </option>
-                <option value="في الورشة" {{ $order->status == 'في الورشة' ? 'selected' : '' }}>في الورشة</option>
-                <option value="في الدمغة" {{ $order->status == 'في الدمغة' ? 'selected' : '' }}>في الدمغة</option>
-                <option value="خلص" {{ $order->status == 'خلص' ? 'selected' : '' }}>خلص</option>
-
-
+            <label for="order_kind_{{ $index }}">النوع</label>
+            <select name="order_kind[]" class="form-control">
+                @foreach ($kinds as $kind)
+                    <option value="{{ $kind }}" {{ $item->order_kind == $kind ? 'selected' : '' }}>{{ $kind }}</option>
+                @endforeach
             </select>
         </div>
 
-        <!-- Image -->
         <div class="form-group">
-            <label for="image_link">Order Image:</label>
-            @if($order->image_link)
-                <img src="{{ asset('storage/' . $order->image_link) }}" alt="Order Image" style="max-width: 200px; display:block; margin-bottom: 10px;">
-            @endif
-            {{-- <input type="file" id="image_link" name="image_link" class="form-control"> --}}
+            <label for="order_fix_type_{{ $index }}">المشكلة</label>
+            <select name="order_fix_type[]" class="form-control">
+                <option value="اوردر جديد" {{ $item->order_fix_type == 'اوردر جديد' ? 'selected' : '' }}>اوردر جديد</option>
+                <option value="تصليح" {{ $item->order_fix_type == 'تصليح' ? 'selected' : '' }}>تصليح</option>
+                <option value="عمل مقاس" {{ $item->order_fix_type == 'عمل مقاس' ? 'selected' : '' }}>عمل مقاس</option>
+                <option value="تلميع" {{ $item->order_fix_type == 'تلميع' ? 'selected' : '' }}>تلميع</option>
+            </select>
         </div>
 
-        <!-- Submit Button -->
-        <button type="submit" class="btn btn-success">Save Changes</button>
-    </form>
+        <div class="form-group">
+            <label for="quantity_{{ $index }}">الكمية</label>
+            <input type="number" class="form-control" name="quantity[]" value="{{ $item->quantity }}">
+        </div>
 
-    <div class="card-footer">
-        <a href="{{ route('orders.rabea.index') }}" class="btn btn-primary">Back to Orders</a>
+        <div class="form-group">
+            <label for="gold_color_{{ $index }}">اللون</label>
+            <select name="gold_color[]" class="form-control">
+                @foreach ($gold_colors as $gold_color)
+                    <option value="{{ $gold_color }}" {{ $item->gold_color == $gold_color ? 'selected' : '' }}>{{ $gold_color }}</option>
+                @endforeach
+            </select>
+        </div>
     </div>
-</div>
+@endforeach
+
+    </div>
+
+    <button type="button" id="add-item" class="btn-custom">Add Item</button>
+
+    <div class="form-group">
+        <button style="margin: 20px 200px" type="submit" class="btn btn-primary">Update Order</button>
+    </div>
+</form>
+<script src="{{ asset('js/order_details.js') }}"></script>
 </body>
 </html>

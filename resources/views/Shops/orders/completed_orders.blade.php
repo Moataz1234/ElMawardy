@@ -28,7 +28,7 @@
             <tbody>
                 @foreach ($completedOrders as $order)
                     <tr>
-                        <td>{{ $order->shop_id }}</td>
+                        <td>{{ $order->order_id }}</td>
                         <td>{{ $order->order_number }}</td>
                         <td>{{ $order->customer_name }}</td>
                         <td>{{ $order->order_details }}</td>

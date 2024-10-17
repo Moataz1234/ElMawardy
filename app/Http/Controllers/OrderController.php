@@ -103,14 +103,12 @@ class OrderController extends Controller
             'image_link' => $imagePath,                        // Can be null
         ]);
     }
-    dd($request->all());
+    // dd($request->all());
 
     Log::info('Order created successfully', ['order_id' => $order->id]);
 
     return redirect()->route('orders.create')->with('success', 'Order created successfully!');
 }
-
-    
     public function create()
 {
   // Fetch all shops to display in the form
@@ -125,16 +123,22 @@ class OrderController extends Controller
       'gold_colors' => $gold_colors,
   ]);
 }
-public function indexForRabea(Request $request)
+public function index(Request $request)
 {
+    $user = Auth::user();
+    $shop = Shop::where('name', $user->name)->first(); // Assuming the Shop model has the name column
+    if (!$shop) {
+        return redirect()->back()->with('error', 'Shop not found for the user.');
+    }
     // Get search input, sorting field, and direction from the request
     $search = $request->input('search');
     $sort = $request->input('sort', 'order_number');
     $direction = $request->input('direction', 'asc');
 
     // Build the query to exclude pending orders
-    $query = Order::where('status', '<>', value: 'pending'); // Exclude pending orders
-    $query = Order::where('status', '<>', value: 'خلص'); // Exclude finished orders
+    $query = Order::where('shop_id', $shop->id) // Filter by the shop ID associated with the user
+    ->where('status', '<>', 'pending') // Exclude pending orders
+    ->where('status', '<>', 'خلص');   // Exclude finished orders
 
     // Apply search conditions if a search term is provided
     if ($search) {
@@ -151,137 +155,19 @@ public function indexForRabea(Request $request)
     $orders = $query->orderBy($sort, $direction)->paginate(20); // Paginate the results
 
     // Pass the orders and any other required data to the view
-    return view('admin.Rabea.orders', compact('orders'));
-}
-
-public function show($id)
-{
-
-    // Show the order details
-    $order = Order::findOrFail($id); // Fetch the order or fail with a 404
-    
-    $this->authorize('view', $order);
-    return view('admin.rabea.orders-show', compact('order')); // Pass the order to the view}
-}
-public function edit($id)
-{
-    // Show the order details
-    $order = Order::findOrFail($id); // Fetch the order or fail with a 404
-    
-    $this->authorize('view', $order);
-    return view('admin.rabea.orders-edit', compact('order')); // Pass the order to the view}
-}
-public function updateOrder(Request $request,$id)
-{
-    // Show the order details
-    $request->validate([
-        'order_kind' => 'required|string|max:255',
-        'order_fix_type' => 'required|string|max:255',
-        'ring_size' => 'nullable|numeric',
-        'weight' => 'nullable|numeric',
-        'gold_color' => 'nullable|string|max:255',
-        'order_details' => 'nullable|string',
-        'customer_name' => 'nullable|string|max:255',
-        'customer_phone' => 'nullable|string|max:20',
-        'seller_name' => 'nullable|string|max:255',
-        'deposit' => 'nullable|numeric',
-        'rest_of_cost' => 'nullable|numeric',
-        'order_date' => 'nullable|date',
-        'deliver_date' => 'nullable|date',
-        'status' => 'required|string',
-        'image_link' => 'nullable|image|mimes:jpeg,png,jpg,gif|max:2048',
-    ]);
-
-    // Find the order by ID
-    $order = Order::findOrFail($id);
-
-    // Update the order details
-    $order->order_kind = $request->input('order_kind');
-    $order->order_fix_type = $request->input('order_fix_type');
-    $order->ring_size = $request->input('ring_size');
-    $order->weight = $request->input('weight');
-    $order->gold_color = $request->input('gold_color');
-    $order->order_details = $request->input('order_details');
-    $order->customer_name = $request->input('customer_name');
-    $order->customer_phone = $request->input('customer_phone');
-    $order->seller_name = $request->input('seller_name');
-    $order->deposit = $request->input('deposit');
-    $order->rest_of_cost = $request->input('rest_of_cost');
-    $order->order_date = $request->input('order_date');
-    $order->deliver_date = $request->input('deliver_date');
-    $order->status = $request->input('status');
-    if ($request->hasFile('image_link')) {
-        $path = $request->file('image_link')->store('public/order_images');
-        $order->image_link = str_replace('public/', '', $path); // Save the relative path
-    }
-
-    $order->save();
-    return redirect()->route('orders.rabea.index')->with('success', 'order updated successfully.');
-
-        
-}
-public function requests()
-{
-    $this->authorize('viewAny', Order::class); // Ensure Rabea is authorized
-
-    // Fetch all orders that are pending
-    $orders = Order::where('status', 'pending')->get();
-
-    return view('admin.Rabea.orders-requests', compact('orders'));
-}
-public function accept(Request $request)
-{
-    $orderIds = $request->input('order_ids');
-
-    if (!$orderIds) {
-        return redirect()->back()->with('error', 'No orders selected.');
-    }
-
-    // Update the status of selected orders to 'reviewing'
-    Order::whereIn('id', $orderIds)->update(['status' => 'تم الاستلام']);
-
-    return redirect()->back()->with('success', 'Selected orders have been marked for review.');
-}
-
-public function updateStatus(Request $request,$id)
-{
-    $order = Order::findOrFail($id); // Fetch the order by ID
-    $this->authorize('update', $order); // Ensure the user is authorized to update the order
-    
-    if ($order->status == 'خلص') {
-        // Redirect to the completed orders view
-        return redirect()->route('completed_orders.index')->with('success', 'Order has been marked as completed.');
-    }
-    // Update the order status
-    $order->status = $request->input('status');
-    $order->save(); // Save the updated order
-
-    return redirect()->route('orders.rabea.index');
+    return view('Shops.orders.index', compact('orders'));
 }
 public function showCompletedOrders()
 {
-    $completedOrders = Order::where('status', 'خلص')->get();
-    return view('admin.rabea.completed', compact('completedOrders'));
-}
-public function toPrint(Request $request)
-{
-    // Start building the query for fetching orders
-    $query = Order::where('status', '!=', 'pending');
-
-    // Optional: Filter by today's orders if 'filter' is passed with 'today'
-    if ($request->has('filter') && $request->filter === 'today') {
-        $query->whereDate('order_date', Carbon::today());
+    $user = Auth::user();
+    $shop = Shop::where('name', $user->name)->first(); // Assuming the Shop model has the name column
+    if (!$shop) {
+        return redirect()->back()->with('error', 'Shop not found for the user.');
     }
-
-    // Set default sorting values
-    $sort = $request->get('sort', 'order_date'); // Default sort by 'order_date'
-    $direction = $request->get('direction', 'desc'); // Default direction is 'desc'
-
-    // Apply sorting to the query
-    $orders = $query->orderBy($sort, $direction)->paginate(20); // Paginate the results
-
-    // Pass the orders and any other required data to the view
-    return view('admin.Rabea.to_print', compact('orders'));
+    $completedOrders = Order::where('shop_id', $shop->id)
+    ->where('status', 'خلص')
+    ->get();
+    return view('shops.orders.completed_orders', compact('completedOrders'));
 }
 
 }
