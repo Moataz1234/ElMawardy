@@ -63,16 +63,18 @@ class ShopifyProductController extends Controller
                 $calculatedPrice = ($maxWeightGoldItem ?? 0) * ($goldWithWork ?? 0);
                 $calculatedPrice = number_format($calculatedPrice, 2, '.', '');
 
-                foreach ($productEdge['node']['variants']['edges'] as &$variant) {
-                    // Update the inventory quantity
-                    $variant['node']['inventoryQuantity'] = $matchingGoldItemsCount;
-    
-                    // Update the price locally
-                    $variant['node']['price'] = $calculatedPrice;
-    
-                    // Now, send the update to Shopify to change the price in Shopify
-                    $shopifyVariantId = $variant['node']['id']; // Get the Shopify variant ID
-                    $this->shopifyService->updateVariantPrice($shopifyVariantId, $calculatedPrice); // Call function to update price on Shopify
+                if ($calculatedPrice > 0) {
+                    foreach ($productEdge['node']['variants']['edges'] as &$variant) {
+                        // Update the inventory quantity
+                        $variant['node']['inventoryQuantity'] = $matchingGoldItemsCount;
+        
+                        // Update the price locally
+                        $variant['node']['price'] = $calculatedPrice;
+        
+                        // Now, send the update to Shopify to change the price in Shopify
+                        $shopifyVariantId = $variant['node']['id']; // Get the Shopify variant ID
+                        $this->shopifyService->updateVariantPrice($shopifyVariantId, $calculatedPrice); // Call function to update price on Shopify
+                    }
                 }
             }
         }
