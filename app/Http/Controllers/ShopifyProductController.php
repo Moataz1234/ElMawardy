@@ -10,6 +10,8 @@ use App\Models\GoldItemSold;
 
 use Illuminate\Support\Facades\Storage;
 use Illuminate\Support\Facades\Log;
+use Illuminate\Support\Facades\Http;
+set_time_limit(600);
 
 class ShopifyProductController extends Controller
 {
@@ -22,79 +24,125 @@ class ShopifyProductController extends Controller
 
     public function index(Request $request)
     {
-        // Retrieve the cursor from the request, default is null for the first page
         $cursor = $request->input('cursor', null);
-    
-        // Fetch products from Shopify
         $products = $this->shopifyService->getProducts($cursor);
-    
-        // Check if 'data' key exists in the response
+        
         if (!isset($products['data'])) {
             return redirect()->back()->with('error', 'Failed to retrieve products from Shopify.');
         }
-
-        // Handle pagination safely
-        $nextCursor = $products['data']['products']['pageInfo']['endCursor'] ?? null;
-        $hasNextPage = $products['data']['products']['pageInfo']['hasNextPage'] ?? false;
     
-        // Ensure products is an array
-        $productEdges = $products['data']['products']['edges'] ?? [];
-
-        // Handle pagination safely
         $nextCursor = $products['data']['products']['pageInfo']['endCursor'] ?? null;
         $hasNextPage = $products['data']['products']['pageInfo']['hasNextPage'] ?? false;
-
-        // Ensure products is an array
         $productEdges = $products['data']['products']['edges'] ?? [];
-
-        // Retrieve the latest gold_with_work value
+        
         $latestGoldPrice = GoldPrice::latest()->first();
         $goldWithWork = $latestGoldPrice ? $latestGoldPrice->gold_with_work : 0;
-
-        // Count matching GoldItem models and calculate price for each Shopify product
+    
         foreach ($productEdges as &$productEdge) {
             $shopifyModel = $productEdge['node']['variants']['edges'][0]['node']['sku'] ?? null;
+    
             if ($shopifyModel) {
-                // Transform Shopify model to match database format
                 $transformedShopifyModel = preg_replace('/^G(\d{1})(\d{4})$/', '$1-$2', $shopifyModel);
+                Log::info('Transformed Shopify Model: ' . $transformedShopifyModel);
+    
                 $matchingGoldItems = GoldItem::where('model', $transformedShopifyModel)->get();
                 $matchingGoldItemsCount = $matchingGoldItems->count();
-
-                // Set the website column to true for matched models
+    
                 if ($matchingGoldItemsCount > 0) {
                     foreach ($matchingGoldItems as $goldItem) {
-                        if ($goldItem) {  // Check if $goldItem is not null
-                            $goldItem->website = true;
-                            $goldItem->save(); // Save the changes
-                            Log::info('Website updated for model: ' . $goldItem->model);
-                        } else {
-                            Log::warning('No matching GoldItem found for model: ' . $transformedShopifyModel);
-                        }
+                        $goldItem->website = true;
+                        $goldItem->save();
+                        Log::info('Website updated for model: ' . $goldItem->model);
                     }
                 } else {
                     Log::warning('No GoldItems found for transformed model: ' . $transformedShopifyModel);
                 }
-                
-                // Calculate the maximum weight for the matching GoldItems and GoldItemSold
+    
+                // Calculate the maximum weight for the matching GoldItems
                 $maxWeightGoldItem = GoldItem::where('model', $transformedShopifyModel)->max('weight');
-                $maxWeightGoldItemSold = GoldItemSold::where('model', $transformedShopifyModel)->max('weight');
-                $maxWeight = max($maxWeightGoldItem ?? 0, $maxWeightGoldItemSold ?? 0);
-                $calculatedPrice = ($maxWeight * ($goldWithWork ?? 0));
+                $calculatedPrice = ($maxWeightGoldItem ?? 0) * ($goldWithWork ?? 0);
+                $calculatedPrice = number_format($calculatedPrice, 2, '.', '');
 
                 foreach ($productEdge['node']['variants']['edges'] as &$variant) {
                     // Update the inventory quantity
                     $variant['node']['inventoryQuantity'] = $matchingGoldItemsCount;
-                    // Update the price
+    
+                    // Update the price locally
                     $variant['node']['price'] = $calculatedPrice;
+    
+                    // Now, send the update to Shopify to change the price in Shopify
+                    $shopifyVariantId = $variant['node']['id']; // Get the Shopify variant ID
+                    $this->shopifyService->updateVariantPrice($shopifyVariantId, $calculatedPrice); // Call function to update price on Shopify
                 }
             }
         }
+        
         return view('shopify.products', [
             'products' => is_array($productEdges) ? $productEdges : [],
             'nextCursor' => $nextCursor,
             'hasNextPage' => $hasNextPage
         ]);
     }
+   
+    private function updateShopifyProductPrice($variantId, $newPrice)
+    {
+        // $shopName = env('SHOPIFY_STORE_NAME');
+        // $accessToken = env('SHOPIFY_ACCESS_TOKEN');
+        
+        // $url = "https://{$shopName}.myshopify.com/admin/api/2024-10/variants/gid://shopify/ProductVariant/{$variantId}.json";
+    
+        $data = [
+            'variant' => [
+                'id' => $variantId,
+                'price' => number_format($newPrice, 2, '.', ''),
+            ]
+        ];
+        Log::info("Attempting to update variant ID {$variantId} with price {$newPrice}.");
+        Log::info("Payload: " . json_encode($data));
+
+        $result = $this->shopifyService->updateVariantPrice($variantId, $newPrice);
+
+        if ($result['success']) {
+            return response()->json([
+                'message' => 'Price updated successfully!',
+                'data' => $result['data']
+            ]);
+        } else {
+            return response()->json([
+                'message' => 'Failed to update price.',
+                'errors' => $result['errors']
+            ], 400);
+        }
+        if ($response->successful()) {
+            Log::info("Price updated for variant ID {$variantId} to {$newPrice}.");
+        } else {
+            Log::error("Failed to update price for variant ID {$variantId}: " . $response->body());
+            Log::error("Response status: " . $response->status());
+            Log::error("Response data: " . json_encode($response->json()));
+            Log::error("Response headers: " . json_encode($response->headers()));
+
+        }
+    }
+    
+    public function updatePrices(Request $request)
+    {
+        // Retrieve the submitted prices
+        $prices = $request->input('prices', []);
+    
+        foreach ($prices as $variantId => $newPrice) {
+            // Check if the new price is greater than 0
+            if ($newPrice > 0) {
+                $this->updateShopifyProductPrice($variantId, $newPrice);
+            } else {
+                Log::info("Skipped updating price for variant ID {$variantId} because the price is 0.");
+            }
+        }
+    
+        return redirect()->back()->with('success', 'Prices updated successfully.');
+    }
+
+
+
     
     public function showEditImageForm(Request $request, $productId)
     {
