@@ -88,10 +88,10 @@ class ShopifyProductController extends Controller
    
     private function updateShopifyProductPrice($variantId, $newPrice)
     {
-        // $shopName = env('SHOPIFY_STORE_NAME');
-        // $accessToken = env('SHOPIFY_ACCESS_TOKEN');
+        $shopName = env('SHOPIFY_STORE_NAME');
+        $accessToken = env('SHOPIFY_ACCESS_TOKEN');
         
-        // $url = "https://{$shopName}.myshopify.com/admin/api/2024-10/variants/gid://shopify/ProductVariant/{$variantId}.json";
+        $url = "https://{$shopName}.myshopify.com/admin/api/2024-10/variants/gid://shopify/ProductVariant/{$variantId}.json";
     
         $data = [
             'variant' => [
@@ -126,23 +126,6 @@ class ShopifyProductController extends Controller
         }
     }
     
-    public function updatePrices(Request $request)
-    {
-        // Retrieve the submitted prices
-        $prices = $request->input('prices', []);
-    
-        foreach ($prices as $variantId => $newPrice) {
-            // Check if the new price is greater than 0
-            if ($newPrice > 0) {
-                $this->updateShopifyProductPrice($variantId, $newPrice);
-            } else {
-                Log::info("Skipped updating price for variant ID {$variantId} because the price is 0.");
-            }
-        }
-    
-        return redirect()->back()->with('success', 'Prices updated successfully.');
-    }
-
 
 
     
