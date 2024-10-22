@@ -11,15 +11,20 @@
 
 .product-item {
     border: 1px solid #ddd;
-    padding: 5px; /* Reduced padding */
-    border-radius: 5px; /* Slightly reduced border radius */
-    background-color: #f9f9f9;
-    font-size: 0.9em; /* Reduced font size */
-    max-height: 300px; /* Set a maximum height */
-    overflow: auto; /* Allow scrolling for overflow content */
+    padding: 10px;
+    border-radius: 8px;
+    background-color: #ffffff;
+    font-size: 1em;
+    max-height: 350px;
+    overflow: hidden;
     display: flex;
     flex-direction: column;
-    justify-content: flex-start; /* Align items to the top */
+    justify-content: space-between;
+    transition: box-shadow 0.3s ease;
+}
+
+.product-item:hover {
+    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
 }
 
 .product-images img {
@@ -56,6 +61,7 @@
                 @foreach ($products as $product)
                     <div class="product-item">
                         <p><strong>Model:</strong> {{ $product['node']['variants']['edges'][0]['node']['sku'] ?? 'No SKU Available' }}</p>
+                        <a href="{{ route('shopify.products.showEditImageForm', ['product_id' => basename($product['node']['id'])]) }}" class="btn">Edit Product</a>
                           {{-- Display Product Images --}}
                           @if (!empty($product['node']['media']['edges']))
                           <div class="product-images">

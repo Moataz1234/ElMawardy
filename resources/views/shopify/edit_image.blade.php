@@ -64,6 +64,12 @@
     <label for="description">Description:</label>
     <textarea name="description">{{ old('description', $product['description']) }}</textarea>
 
+    <label for="price">Price:</label>
+    <input type="text" name="price" value="{{ old('price', $product['variants']['edges'][0]['node']['price']) }}" required>
+
+    <label for="inventoryQuantity">Inventory Quantity:</label>
+    <input type="number" name="inventoryQuantity" value="{{ old('inventoryQuantity', $product['variants']['edges'][0]['node']['inventoryQuantity']) }}" required>
+
     <label for="vendor">Vendor:</label>
     <input type="text" name="vendor" value="{{ old('vendor', $product['vendor']) }}" required>
 
