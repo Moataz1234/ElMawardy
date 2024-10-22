@@ -139,22 +139,18 @@ class ShopifyProductController extends Controller
             'hasNextPage' => $hasNextPage
         ]);
     }
-    private function makeProductDraft($shopifyVariantId)
+    private function makeProductDraft($shopifyProductId)
     {
-        // Prepare the data to update the product status to draft
-        $data = [
-            'product' => [
-                'id' => $shopifyVariantId, // Use the correct product ID
-                'published' => false // Set published to false to make it a draft
-            ]
-        ];
-    
         try {
-            $response = $this->shopifyService->updateProductDraft($data); // Assuming you have a method to do this
-            Log::info("Product ID {$shopifyVariantId} has been made a draft.");
+            $response = $this->shopifyService->updateProductDraft($shopifyProductId);
+            if ($response['success']) {
+                Log::info("Product ID {$shopifyProductId} has been made a draft.");
+            } else {
+                Log::error("Failed to make product ID {$shopifyProductId} a draft. Error: " . $response['message']);
+            }
             return $response;
         } catch (\Exception $e) {
-            Log::error("Failed to make product ID {$shopifyVariantId} a draft. Error: " . $e->getMessage());
+            Log::error("Exception occurred while making product ID {$shopifyProductId} a draft. Error: " . $e->getMessage());
             return false;
         }
     }
