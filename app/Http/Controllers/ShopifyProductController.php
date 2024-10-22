@@ -68,8 +68,8 @@ class ShopifyProductController extends Controller
                     // $source = GoldItemSold::where('model', $transformedShopifyModel)->value('source');
 
                     $shopifyVariantId = $productEdge['node']['variants']['edges'][0]['node']['id'];
-                    $shopifyProductId = $productEdge['node']['id'];
-                    $this->makeProductDraft($shopifyProductId); // Make the product a draft in Shopify
+                    // $shopifyProductId = $productEdge['node']['id'];
+                    $this->makeProductDraft($shopifyVariantId); // Make the product a draft in Shopify
                 }
                         //   $maxWeightGoldItem = GoldItem::where('model', $transformedShopifyModel)->max('weight');
                 // $maxWeightGoldItem = 0;
@@ -155,47 +155,6 @@ class ShopifyProductController extends Controller
             return false;
         }
     }
-    private function updateShopifyProductPrice($variantId, $newPrice)
-    {
-        $shopName = env('SHOPIFY_STORE_NAME');
-        $accessToken = env('SHOPIFY_ACCESS_TOKEN');
-        
-        $url = "https://{$shopName}.myshopify.com/admin/api/2024-10/variants/gid://shopify/ProductVariant/{$variantId}.json";
-    
-        $data = [
-            'variant' => [
-                'id' => $variantId,
-                'price' => number_format($newPrice, 2, '.', ''),
-            ]
-        ];
-        Log::info("Attempting to update variant ID {$variantId} with price {$newPrice}.");
-        Log::info("Payload: " . json_encode($data));
-
-        $result = $this->shopifyService->updateVariantPrice($variantId, $newPrice);
-
-        if ($result['success']) {
-            return response()->json([
-                'message' => 'Price updated successfully!',
-                'data' => $result['data']
-            ]);
-        } else {
-            return response()->json([
-                'message' => 'Failed to update price.',
-                'errors' => $result['errors']
-            ], 400);
-        }
-        if ($response->successful()) {
-            Log::info("Price updated for variant ID {$variantId} to {$newPrice}.");
-        } else {
-            Log::error("Failed to update price for variant ID {$variantId}: " . $response->body());
-            Log::error("Response status: " . $response->status());
-            Log::error("Response data: " . json_encode($response->json()));
-            Log::error("Response headers: " . json_encode($response->headers()));
-
-        }
-    }
-    
-
 
     
     public function showEditImageForm(Request $request, $productId)
