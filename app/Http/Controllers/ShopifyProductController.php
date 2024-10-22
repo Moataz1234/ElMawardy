@@ -40,93 +40,112 @@ class ShopifyProductController extends Controller
     
         foreach ($productEdges as &$productEdge) {
             $shopifyModel = $productEdge['node']['variants']['edges'][0]['node']['sku'] ?? null;
-    
+
             if ($shopifyModel) {
-                $transformedShopifyModel = preg_replace('/^G(\d)(\d{4})([A-D]?)$/', '$1-$2-$3', $shopifyModel);
-                $transformedShopifyModel = rtrim($transformedShopifyModel, '-'); // Remove trailing hyphen if no letter
-        
+                if (str_starts_with($shopifyModel, 'G')) {
+                    $transformedShopifyModel = preg_replace('/^G(\d)(\d{4})([A-D]?)$/', '$1-$2-$3', $shopifyModel);
+                    $transformedShopifyModel = rtrim($transformedShopifyModel, '-'); // Remove trailing hyphen if no letter
 
-                Log::info('Transformed Shopify Model: ' . $transformedShopifyModel);
-    
-                $matchingGoldItems = GoldItem::where('model', $transformedShopifyModel)->get();
-                $matchingGoldItemsCount = $matchingGoldItems->count();
-    
-                if ($matchingGoldItemsCount > 0) {
-                    foreach ($matchingGoldItems as $goldItem) {
-                        $goldItem->website = true;
-                        $goldItem->save();
-                        Log::info('Website updated for model: ' . $goldItem->model);
-                        $maxWeightGoldItem = GoldItem::where('model', $transformedShopifyModel)->max('weight');
-                        $source = GoldItem::where('model', $transformedShopifyModel)->value('source'); 
+                    Log::info('Transformed Shopify Model: ' . $transformedShopifyModel);
 
-                    }
-                } 
-                else {
-                    // $matchingGoldItems = GoldItemSold::where('model', $transformedShopifyModel)->get();
-                    Log::warning('No GoldItems found for transformed model: ' . $transformedShopifyModel);
-                    // $maxWeightGoldItem = GoldItemSold::where('model', $transformedShopifyModel)->avg('weight');
-                    // $source = GoldItemSold::where('model', $transformedShopifyModel)->value('source');
+                    $matchingGoldItems = GoldItem::where('model', $transformedShopifyModel)->get();
+                    $matchingGoldItemsCount = $matchingGoldItems->count();
 
-                    $shopifyProductId = $productEdge['node']['id'];
-                    $this->makeProductDraft($shopifyProductId); // Make the product a draft in Shopify
-                }
-                        //   $maxWeightGoldItem = GoldItem::where('model', $transformedShopifyModel)->max('weight');
-                // $maxWeightGoldItem = 0;
-                // if ($matchingGoldItemsCount > 0) {
-                //     // If GoldItems exist, get the max weight from GoldItem
-                //     $maxWeightGoldItem = GoldItem::where('model', $transformedShopifyModel)->max('weight');
-                // } else {
-                //     // If no GoldItems found, look for GoldItemSold
-                //     $maxWeightGoldItem = GoldItemSold::where('model', $transformedShopifyModel)->max('weight');
-                
-                //     // Optional: Log a warning or info if you're getting weights from GoldItemSold
-                //     if ($maxWeightGoldItem) {
-                //         $maxWeightGoldItem = GoldItemSold::where('model', $transformedShopifyModel)->max('weight');
-                //         Log::info("Using max weight from GoldItemSold for model: " . $transformedShopifyModel);
-                //     } else {
-                //         Log::warning("No matching items found in either GoldItem or GoldItemSold for model: " . $transformedShopifyModel);
-                //     }
-                // }                
-                // $maxWeightGoldItem = $maxWeightGoldItem ?: 0;
-
-//                 $shoghlAgnaby = $latestGoldPrice ? $latestGoldPrice->shoghl_agnaby : 0; // Fallback to 0 if not set
-                if ($source === 'Production' || $source === 'Returned') {
-                    $calculatedPrice = ($maxWeightGoldItem ?? 0) * ($goldWithWork ?? 0);
-                } else {
-                    $calculatedPrice = ($maxWeightGoldItem ?? 0) * ($shoghlAgnaby ?? 0);
-                }       
-                $calculatedPrice = number_format($calculatedPrice, 2, '.', '');
-                $roundedPrice = round($calculatedPrice / 50) * 50; 
-
-                Log::info('the price is: ' . $roundedPrice);
-                Log::info('the weight is: ' . $maxWeightGoldItem);
-
-
-                // $calculatedPrice = ($maxWeightGoldItem ?? 0) * ($goldWithWork ?? 0);
-                // $calculatedPrice = number_format($calculatedPrice, 2, '.', '');
-
-                foreach ($productEdge['node']['variants']['edges'] as &$variant) {
-                    // Update the inventory quantity
-                    $variant['node']['inventoryQuantity'] = $matchingGoldItemsCount;
-
-                    // Update the price locally
-                    $variant['node']['price'] = $roundedPrice;
-
-                    // Check if the product is sold out
-                    if ($matchingGoldItemsCount === 0) {
-                        $shopifyProductId = $productEdge['node']['id'];
-                        $this->makeProductDraft($shopifyProductId); // Make the product a draft
-                        Log::info("Product ID {$shopifyProductId} is sold out and has been made a draft.");
+                    if ($matchingGoldItemsCount > 0) {
+                        foreach ($matchingGoldItems as $goldItem) {
+                            $goldItem->website = true;
+                            $goldItem->save();
+                            Log::info('Website updated for model: ' . $goldItem->model);
+                            $maxWeightGoldItem = GoldItem::where('model', $transformedShopifyModel)->max('weight');
+                            $source = GoldItem::where('model', $transformedShopifyModel)->value('source');
+                        }
                     } else {
-                        // Only update Shopify if the calculated price is greater than 0
-                        if ($roundedPrice > 0) {
-                            $shopifyVariantId = $variant['node']['id']; // Get the Shopify variant ID
-                            $response = $this->shopifyService->updateVariantPrice($shopifyVariantId, $roundedPrice);
+                        Log::warning('No GoldItems found for transformed model: ' . $transformedShopifyModel);
+                        $shopifyProductId = $productEdge['node']['id'];
+                        $this->makeProductDraft($shopifyProductId); // Make the product a draft in Shopify
+                    }
 
-                            if ($response['success']) {
-                                Log::info("Price updated for variant ID: {$shopifyVariantId}, New Price: {$roundedPrice}");
-                            } else {
-                                Log::error("Failed to update price for variant ID: {$shopifyVariantId}, Error: " . $response['message']);
+                    if ($source === 'Production' || $source === 'Returned') {
+                        $calculatedPrice = ($maxWeightGoldItem ?? 0) * ($goldWithWork ?? 0);
+                    } else {
+                        $calculatedPrice = ($maxWeightGoldItem ?? 0) * ($shoghlAgnaby ?? 0);
+                    }
+                    $calculatedPrice = number_format($calculatedPrice, 2, '.', '');
+                    $roundedPrice = round($calculatedPrice / 50) * 50;
+
+                    Log::info('the price is: ' . $roundedPrice);
+                    Log::info('the weight is: ' . $maxWeightGoldItem);
+
+                    foreach ($productEdge['node']['variants']['edges'] as &$variant) {
+                        $variant['node']['inventoryQuantity'] = $matchingGoldItemsCount;
+                        $variant['node']['price'] = $roundedPrice;
+
+                        if ($matchingGoldItemsCount === 0) {
+                            $shopifyProductId = $productEdge['node']['id'];
+                            $this->makeProductDraft($shopifyProductId);
+                            Log::info("Product ID {$shopifyProductId} is sold out and has been made a draft.");
+                        } else {
+                            if ($roundedPrice > 0) {
+                                $shopifyVariantId = $variant['node']['id'];
+                                $response = $this->shopifyService->updateVariantPrice($shopifyVariantId, $roundedPrice);
+
+                                if ($response['success']) {
+                                    Log::info("Price updated for variant ID: {$shopifyVariantId}, New Price: {$roundedPrice}");
+                                } else {
+                                    Log::error("Failed to update price for variant ID: {$shopifyVariantId}, Error: " . $response['message']);
+                                }
+                            }
+                        }
+                    }
+                } elseif (str_starts_with($shopifyModel, 'D')) {
+                    $transformedShopifyModel = preg_replace('/^D(\d)(\d{4})([A-D]?)$/', '$1-$2-$3', $shopifyModel);
+                    $transformedShopifyModel = rtrim($transformedShopifyModel, '-');
+
+                    Log::info('Transformed Shopify Model for Diamond: ' . $transformedShopifyModel);
+
+                    $matchingDiamonds = Diamond::where('model', $transformedShopifyModel)->get();
+                    $matchingDiamondsCount = $matchingDiamonds->count();
+
+                    if ($matchingDiamondsCount > 0) {
+                        foreach ($matchingDiamonds as $diamond) {
+                            $diamond->website = true;
+                            $diamond->save();
+                            Log::info('Website updated for diamond model: ' . $diamond->model);
+                            $maxCaratDiamond = Diamond::where('model', $transformedShopifyModel)->max('carat');
+                            $source = Diamond::where('model', $transformedShopifyModel)->value('source');
+                        }
+                    } else {
+                        Log::warning('No Diamonds found for transformed model: ' . $transformedShopifyModel);
+                        $shopifyProductId = $productEdge['node']['id'];
+                        $this->makeProductDraft($shopifyProductId);
+                    }
+
+                    $diamondPriceFactor = 1000; // Example factor, replace with actual logic
+                    $calculatedPrice = ($maxCaratDiamond ?? 0) * $diamondPriceFactor;
+                    $calculatedPrice = number_format($calculatedPrice, 2, '.', '');
+                    $roundedPrice = round($calculatedPrice / 50) * 50;
+
+                    Log::info('Diamond price is: ' . $roundedPrice);
+                    Log::info('Diamond carat is: ' . $maxCaratDiamond);
+
+                    foreach ($productEdge['node']['variants']['edges'] as &$variant) {
+                        $variant['node']['inventoryQuantity'] = $matchingDiamondsCount;
+                        $variant['node']['price'] = $roundedPrice;
+
+                        if ($matchingDiamondsCount === 0) {
+                            $shopifyProductId = $productEdge['node']['id'];
+                            $this->makeProductDraft($shopifyProductId);
+                            Log::info("Diamond Product ID {$shopifyProductId} is sold out and has been made a draft.");
+                        } else {
+                            if ($roundedPrice > 0) {
+                                $shopifyVariantId = $variant['node']['id'];
+                                $response = $this->shopifyService->updateVariantPrice($shopifyVariantId, $roundedPrice);
+
+                                if ($response['success']) {
+                                    Log::info("Price updated for diamond variant ID: {$shopifyVariantId}, New Price: {$roundedPrice}");
+                                } else {
+                                    Log::error("Failed to update price for diamond variant ID: {$shopifyVariantId}, Error: " . $response['message']);
+                                }
                             }
                         }
                     }
