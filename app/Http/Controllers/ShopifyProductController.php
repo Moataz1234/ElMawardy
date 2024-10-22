@@ -142,23 +142,13 @@ class ShopifyProductController extends Controller
     private function makeProductDraft($shopifyProductId)
     {
         try {
-            // Fetch the product details to check its status
-            $productDetails = $this->shopifyService->getProductById($shopifyProductId);
-            $productStatus = $productDetails['data']['product']['status'] ?? null;
-
-            // Only make the product a draft if it is currently active
-            if ($productStatus === 'active') {
-                $response = $this->shopifyService->updateProductDraft($shopifyProductId);
-                if ($response['success']) {
-                    Log::info("Product ID {$shopifyProductId} has been made a draft.");
-                } else {
-                    Log::error("Failed to make product ID {$shopifyProductId} a draft. Error: " . $response['message']);
-                }
-                return $response;
+            $response = $this->shopifyService->updateProductDraft($shopifyProductId);
+            if ($response['success']) {
+                Log::info("Product ID {$shopifyProductId} has been made a draft.");
             } else {
-                Log::info("Product ID {$shopifyProductId} is not active, skipping draft update.");
-                return ['success' => true, 'message' => 'Product is not active, no draft update needed.'];
+                Log::error("Failed to make product ID {$shopifyProductId} a draft. Error: " . $response['message']);
             }
+            return $response;
         } catch (\Exception $e) {
             Log::error("Exception occurred while making product ID {$shopifyProductId} a draft. Error: " . $e->getMessage());
             return false;
