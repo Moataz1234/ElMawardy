@@ -16,7 +16,7 @@
     background-color: #ffffff;
     font-size: 1em;
     max-height: 350px;
-    overflow: hidden;
+    overflow-y: auto; /* Enable vertical scrolling */
     display: flex;
     flex-direction: column;
     justify-content: space-between;
