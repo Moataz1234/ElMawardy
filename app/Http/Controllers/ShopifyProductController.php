@@ -68,7 +68,8 @@ class ShopifyProductController extends Controller
                     // $source = GoldItemSold::where('model', $transformedShopifyModel)->value('source');
 
                     $shopifyVariantId = $productEdge['node']['variants']['edges'][0]['node']['id'];
-                    $this->makeProductDraft($shopifyVariantId); // Make the product a draft
+                    $shopifyProductId = $productEdge['node']['id'];
+                    $this->makeProductDraft($shopifyProductId); // Make the product a draft in Shopify
                 }
                         //   $maxWeightGoldItem = GoldItem::where('model', $transformedShopifyModel)->max('weight');
                 // $maxWeightGoldItem = 0;
