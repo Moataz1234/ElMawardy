@@ -67,9 +67,8 @@ class ShopifyProductController extends Controller
                     // $maxWeightGoldItem = GoldItemSold::where('model', $transformedShopifyModel)->avg('weight');
                     // $source = GoldItemSold::where('model', $transformedShopifyModel)->value('source');
 
-                    $shopifyVariantId = $productEdge['node']['variants']['edges'][0]['node']['id'];
-                    // $shopifyProductId = $productEdge['node']['id'];
-                    $this->makeProductDraft($shopifyVariantId); // Make the product a draft in Shopify
+                    $shopifyProductId = $productEdge['node']['id'];
+                    $this->makeProductDraft($shopifyProductId); // Make the product a draft in Shopify
                 }
                         //   $maxWeightGoldItem = GoldItem::where('model', $transformedShopifyModel)->max('weight');
                 // $maxWeightGoldItem = 0;
@@ -115,9 +114,9 @@ class ShopifyProductController extends Controller
 
                     // Check if the product is sold out
                     if ($matchingGoldItemsCount === 0) {
-                        $shopifyVariantId = $variant['node']['id'];
-                        $this->makeProductDraft($shopifyVariantId); // Make the product a draft
-                        Log::info("Product ID {$shopifyVariantId} is sold out and has been made a draft.");
+                        $shopifyProductId = $productEdge['node']['id'];
+                        $this->makeProductDraft($shopifyProductId); // Make the product a draft
+                        Log::info("Product ID {$shopifyProductId} is sold out and has been made a draft.");
                     } else {
                         // Only update Shopify if the calculated price is greater than 0
                         if ($roundedPrice > 0) {
