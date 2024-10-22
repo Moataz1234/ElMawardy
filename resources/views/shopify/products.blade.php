@@ -70,7 +70,6 @@
                                       <img src="{{ $media['node']['image']['url'] }}" 
                                            alt="{{ $media['node']['image']['altText'] ?? 'No Alt Text' }}" 
                                            width="150">
-                                           <a href="{{ route('shopify.products.showEditImageForm', ['product_id' => basename($product['node']['id']), 'image_id' => $media['node']['id'] ?? '']) }}" class="btn edit-image">Edit</a>
                                   @endif
                               @endforeach
                           </div>
