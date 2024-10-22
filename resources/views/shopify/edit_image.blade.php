@@ -50,13 +50,11 @@
             margin-top: 20px;
         }
     </style>
-    </style>
 </head>
 <body>
     <h1>Edit Product Details</h1>
     {{-- edit_product.blade.php --}}
 <form action="{{ route('shopify.products.editProduct', ['product_id' => basename($product['id'])]) }}" method="POST" enctype="multipart/form-data">
-    @csrf
     @csrf
     <input type="hidden" name="product_id" value="{{ $product['id'] }}">
 

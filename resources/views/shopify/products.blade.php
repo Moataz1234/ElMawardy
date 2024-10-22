@@ -56,6 +56,21 @@
                 @foreach ($products as $product)
                     <div class="product-item">
                         <p><strong>Model:</strong> {{ $product['node']['variants']['edges'][0]['node']['sku'] ?? 'No SKU Available' }}</p>
+                          {{-- Display Product Images --}}
+                          @if (!empty($product['node']['media']['edges']))
+                          <div class="product-images">
+                              @foreach ($product['node']['media']['edges'] as $media)
+                                  @if ($media['node']['mediaContentType'] === 'IMAGE')
+                                      <img src="{{ $media['node']['image']['url'] }}" 
+                                           alt="{{ $media['node']['image']['altText'] ?? 'No Alt Text' }}" 
+                                           width="150">
+                                           <a href="{{ route('shopify.products.showEditImageForm', ['product_id' => basename($product['node']['id']), 'image_id' => $media['node']['id'] ?? '']) }}" class="btn edit-image">Edit</a>
+                                  @endif
+                              @endforeach
+                          </div>
+                      @else
+                          <p>No images available</p>
+                      @endif
                         <p><strong>Product Type:</strong> {{ $product['node']['productType'] ?? 'No Product Type Available' }}</p>
 
                         {{-- Truncate product description initially and show 'See More' --}}
@@ -71,21 +86,7 @@
                             @endif
                         </div>
 
-                        {{-- Display Product Images --}}
-                        @if (!empty($product['node']['media']['edges']))
-                            <div class="product-images">
-                                @foreach ($product['node']['media']['edges'] as $media)
-                                    @if ($media['node']['mediaContentType'] === 'IMAGE')
-                                        <img src="{{ $media['node']['image']['url'] }}" 
-                                             alt="{{ $media['node']['image']['altText'] ?? 'No Alt Text' }}" 
-                                             width="150">
-                                             <a href="{{ route('shopify.products.showEditImageForm', ['product_id' => basename($product['node']['id']), 'image_id' => $media['node']['id'] ?? '']) }}" class="btn edit-image">Edit</a>
-                                    @endif
-                                @endforeach
-                            </div>
-                        @else
-                            <p>No images available</p>
-                        @endif
+                 
 
                         {{-- Display Variants, Prices, and Inventory Quantities --}}
                         <ul>
@@ -110,6 +111,25 @@
     @if ($hasNextPage)
         <a href="{{ route('shopify.products', ['cursor' => $nextCursor]) }}" class="btn btn-primary">Next Page</a>
     @endif
+    <form action="{{ route('shopify.updatePrices') }}" method="POST">
+        @csrf
+        {{-- @foreach($products as $product)
+            <div>
+                <label for="price_{{ $product['node']['variants']['edges'][0]['node']['id'] }}">
+                    {{ $product['node']['title'] }}
+                </label>
+                <input 
+                    type="number" 
+                    name="prices[{{ $product['node']['variants']['edges'][0]['node']['id'] }}]" 
+                    value="{{ $product['node']['variants']['edges'][0]['node']['price'] }}" 
+                    step="0.01" 
+                    min="0"
+                >
+            </div>
+        @endforeach --}}
+        <button type="submit">Update Prices</button>
+    </form>
+    
     <script>
         document.addEventListener('DOMContentLoaded', function() {
             const seeMoreLinks = document.querySelectorAll('.see-more');
