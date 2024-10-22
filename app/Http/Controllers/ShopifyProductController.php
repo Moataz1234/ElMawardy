@@ -112,17 +112,23 @@ class ShopifyProductController extends Controller
                     // Update the price locally
                     $variant['node']['price'] = $roundedPrice;
 
-                    // Only update Shopify if the calculated price is greater than 0
-                    if ($roundedPrice > 0) {
-                        $shopifyVariantId = $variant['node']['id']; // Get the Shopify variant ID
-                        // $this->updateShopifyProductPrice($shopifyVariantId, $calculatedPrice);
-                        $response = $this->shopifyService->updateVariantPrice($shopifyVariantId, $roundedPrice);
+                    // Check if the product is sold out
+                    if ($matchingGoldItemsCount === 0) {
+                        $shopifyVariantId = $variant['node']['id'];
+                        $this->makeProductDraft($shopifyVariantId); // Make the product a draft
+                        Log::info("Product ID {$shopifyVariantId} is sold out and has been made a draft.");
+                    } else {
+                        // Only update Shopify if the calculated price is greater than 0
+                        if ($roundedPrice > 0) {
+                            $shopifyVariantId = $variant['node']['id']; // Get the Shopify variant ID
+                            $response = $this->shopifyService->updateVariantPrice($shopifyVariantId, $roundedPrice);
 
-                        if ($response['success']) {
-                            Log::info("Price updated for variant ID: {$shopifyVariantId}, New Price: {$roundedPrice}");
-                        } else {
-                            Log::error("Failed to update price for variant ID: {$shopifyVariantId}, Error: " . $response['message']);
-                        }                    
+                            if ($response['success']) {
+                                Log::info("Price updated for variant ID: {$shopifyVariantId}, New Price: {$roundedPrice}");
+                            } else {
+                                Log::error("Failed to update price for variant ID: {$shopifyVariantId}, Error: " . $response['message']);
+                            }
+                        }
                     }
                 }
             }
