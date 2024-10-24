@@ -214,7 +214,7 @@
                                         <form action="{{ route('fulfillWithoutShipping') }}" method="POST">
                                             @csrf
                                             <input type="hidden" name="order_id" value="{{ $order['id'] }}">
-                                            <input type="hidden" name="line_item_id" value="{{ $lineItem->id }}">
+                                            <input type="hidden" name="line_item_id" value="{{ $item['id'] }}">
                                             <button type="submit" class="btn btn-primary">Fulfill Without Shipping</button>
                                         </form>
                                     </div>
