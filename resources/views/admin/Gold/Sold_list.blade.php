@@ -16,6 +16,11 @@
     <table>
         <thead>
             <tr>
+                {{-- <form method="GET" action="{{ route('gold-items-sold.index') }}">
+                    <input type="text" name="search" placeholder="Search..." value="{{ request('search') }}">
+                    <button type="submit">Search</button>
+            
+                </form> --}}
                 <th>Image</th>
                 @php
                 // Array of columns with their display names

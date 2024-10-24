@@ -15,10 +15,6 @@
 </head>
 <body>
     
-    <form method="GET" action="{{ route('gold-items.index') }}">
-        <input type="text" name="search" value="{{ $search }}" placeholder="Search...">
-        <button type="submit">Search</button>
-    </form>
     <table class="table">
         <thead>
             <tr>
@@ -77,8 +73,6 @@
                     <td>{{ $item->net_weight }}</td>
                     <td>
                         <a class="action_button" href="{{ route('gold-items.edit', $item->id) }}" >Edit</a>
-
-                    <td>{{ $item->price }}</td>
                 </tr>
             @endforeach
         </tbody>

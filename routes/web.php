@@ -3,15 +3,23 @@
 use App\Http\Controllers\{
     HomeController, ProfileController, NewItemController,
     Gold\GoldItemController, Gold\GoldItemSoldController,
-    Gold\GoldPoundController, ShopsController, OrderController,ShopifyProductController ,GoldReportController,RabiaController
+    Gold\GoldPoundController, ShopsController, OrderController,ShopifyProductController ,GoldReportController,RabiaController,Auth\AsgardeoAuthController
 };
 use Illuminate\Support\Facades\Route;
 
-Route::get('/', function () {
-    return view('auth.login');
-});
+
+// Route::get('/login', [App\Http\Controllers\Auth\LoginController::class, 'redirectToProvider'])->name('login');
+// Route::get('/callback', [App\Http\Controllers\Auth\LoginController::class, 'handleProviderCallback']);
+
+// web.php
+// Route::get('/shopify/product/update-price', [ShopifyProductController::class, 'showUpdatePriceForm'])->name('shopify.product.updatePriceForm');
+Route::post('/shopify/product/update-price', [ShopifyProductController::class, 'updatePrices'])->name('shopify.updatePrices');
+Route::get('/shopify/product/update-price', function () {
+    return view('shopify.update_price'); // Adjust the path if needed
+})->name('shopify.product.updatePricesForm');
 
 Route::get('/gold-items/weight-analysis', [GoldItemController::class, 'analyzeWeights'])->name('gold-items.weight-analysis');
+Route::get('/gold-items-sold', [GoldItemSoldController::class, 'index'])->name('gold-items-sold.index');
 
 // Public Routes
 Route::middleware('auth')->group(function () {
@@ -19,6 +27,7 @@ Route::middleware('auth')->group(function () {
     Route::get('/profile', [ProfileController::class, 'edit'])->name('profile.edit');
     Route::patch('/profile', [ProfileController::class, 'update'])->name('profile.update');
     Route::delete('/profile', [ProfileController::class, 'destroy'])->name('profile.destroy');
+    
 });
 
 // Admin Routes
@@ -47,9 +56,10 @@ Route::middleware(['auth', 'admin'])->group(function () {
     Route::post('/update-prices', [GoldItemController::class, 'updatePrices'])->name('prices.update');
 
 });
-
 // Shop Routes
 Route::middleware(['auth', 'user'])->group(function () {
+    
+
     Route::get('/gold-items', [GoldItemController::class, 'index'])->name('gold-items.index');
     Route::get('/dashboard/{id}/edit', [ShopsController::class, 'edit'])->name('shop-items.edit');
     Route::get('/gold-items/shop', [ShopsController::class, 'showShopItems'])->name('gold-items.shop');
@@ -67,6 +77,7 @@ Route::middleware(['auth', 'user'])->group(function () {
     Route::get('/orders/history', [OrderController::class, 'showCompletedOrders'])->name('orders.history');
     
 });
+Route::get('/gold-items', [GoldItemController::class, 'index'])->name('gold-items.index');
 
 // Rabea Routes
 Route::middleware(['auth', 'rabea'])->group(function () {
@@ -95,6 +106,13 @@ Route::middleware('auth')->group(function () {
 require __DIR__.'/auth.php';
 // Route::get('/shopify-products', [ShopifyProductController::class, 'index']);
 Route::get('/shopify-products', [ShopifyProductController::class, 'index'])->name('shopify.products');
+Route::get('/shopify-products/orders', [ShopifyProductController::class, 'Order_index'])->name('orders_shopify');
+Route::post('/orders/{id}/mark-paid', [ShopifyProductController::class, 'markAsPaid'])->name('order.markPaid');
+// Route::post('/mark-as-fulfilled/{orderId}', [ShopifyProductController::class, 'markOrderAsFulfilled']);
+// Route::post('/mark-as-fulfilled-with-tracking/{orderId}', [ShopifyProductController::class, 'markOrderAsFulfilledWithTracking']);
+Route::post('/order/fulfill/{order}', [ShopifyProductController::class, 'fulfillOrder'])->name('order.fulfill');
+Route::post('/fulfill-without-shipping', [ShopifyProductController::class, 'fulfillWithoutShipping'])->name('fulfillWithoutShipping');
+
 // Route::get('/shopify-products/edit-image', [ShopifyProductController::class, 'showEditImageForm'])->name('shopify.products.showEditImageForm');
 // Route::put('/shopify/products/update', [ShopifyProductController::class, 'editImage'])->name('shopify.updateProduct');
 Route::get('/shopify-products/edit/{product_id}', [ShopifyProductController::class, 'showEditImageForm'])->name('shopify.products.showEditImageForm');

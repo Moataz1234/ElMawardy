@@ -7,7 +7,10 @@ use Illuminate\Http\Request;
 use App\Models\GoldItem;
 use App\Models\GoldPrice;
 use App\Models\GoldItemSold;
+use App\Models\Diamond;
+use Illuminate\Pagination\Paginator;
 
+use GuzzleHttp\Client; 
 use Illuminate\Support\Facades\Storage;
 use Illuminate\Support\Facades\Log;
 use Illuminate\Support\Facades\Http;
@@ -56,15 +59,15 @@ class ShopifyProductController extends Controller
                             $goldItem->website = true;
                             $goldItem->save();
                             Log::info('Website updated for model: ' . $goldItem->model);
-                            $maxWeightGoldItem = GoldItem::where('model', $transformedShopifyModel)->max('weight');
-                            $source = GoldItem::where('model', $transformedShopifyModel)->value('source');
                         }
                     } else {
                         Log::warning('No GoldItems found for transformed model: ' . $transformedShopifyModel);
                         $shopifyProductId = $productEdge['node']['id'];
-                        $this->makeProductDraft($shopifyProductId); // Make the product a draft in Shopify
+                        // $this->makeProductDraft($shopifyProductId); 
                     }
-
+                    $maxWeightGoldItem = GoldItem::where('model', $transformedShopifyModel)->max('weight');
+                    $source = GoldItem::where('model', $transformedShopifyModel)->value('source');
+          
                     if ($source === 'Production' || $source === 'Returned') {
                         $calculatedPrice = ($maxWeightGoldItem ?? 0) * ($goldWithWork ?? 0);
                     } else {
@@ -80,11 +83,11 @@ class ShopifyProductController extends Controller
                         $variant['node']['inventoryQuantity'] = $matchingGoldItemsCount;
                         $variant['node']['price'] = $roundedPrice;
 
-                        if ($matchingGoldItemsCount === 0) {
-                            $shopifyProductId = $productEdge['node']['id'];
-                            $this->makeProductDraft($shopifyProductId);
-                            Log::info("Product ID {$shopifyProductId} is sold out and has been made a draft.");
-                        } else {
+                        // if ($matchingGoldItemsCount === 0) {
+                        //     $shopifyProductId = $productEdge['node']['id'];
+                        //     // $this->makeProductDraft($shopifyProductId);
+                        //     Log::info("Product ID {$shopifyProductId} is sold out and has been made a draft.");
+                        // } else {
                             if ($roundedPrice > 0) {
                                 $shopifyVariantId = $variant['node']['id'];
                                 $response = $this->shopifyService->updateVariantPrice($shopifyVariantId, $roundedPrice);
@@ -93,7 +96,6 @@ class ShopifyProductController extends Controller
                                     Log::info("Price updated for variant ID: {$shopifyVariantId}, New Price: {$roundedPrice}");
                                 } else {
                                     Log::error("Failed to update price for variant ID: {$shopifyVariantId}, Error: " . $response['message']);
-                                }
                             }
                         }
                     }
@@ -111,13 +113,13 @@ class ShopifyProductController extends Controller
                             $diamond->website = true;
                             $diamond->save();
                             Log::info('Website updated for diamond model: ' . $diamond->model);
-                            $maxCaratDiamond = Diamond::where('model', $transformedShopifyModel)->max('carat');
+                            // $maxCaratDiamond = Diamond::where('model', $transformedShopifyModel)->max('carat');
                             $source = Diamond::where('model', $transformedShopifyModel)->value('source');
                         }
                     } else {
                         Log::warning('No Diamonds found for transformed model: ' . $transformedShopifyModel);
                         $shopifyProductId = $productEdge['node']['id'];
-                        $this->makeProductDraft($shopifyProductId);
+                        // $this->makeProductDraft($shopifyProductId);
                     }
 
                     $diamondPriceFactor = 1000; // Example factor, replace with actual logic
@@ -126,29 +128,29 @@ class ShopifyProductController extends Controller
                     $roundedPrice = round($calculatedPrice / 50) * 50;
 
                     Log::info('Diamond price is: ' . $roundedPrice);
-                    Log::info('Diamond carat is: ' . $maxCaratDiamond);
+                    // Log::info('Diamond carat is: ' . $maxCaratDiamond);
 
-                    foreach ($productEdge['node']['variants']['edges'] as &$variant) {
-                        $variant['node']['inventoryQuantity'] = $matchingDiamondsCount;
-                        $variant['node']['price'] = $roundedPrice;
+                    // foreach ($productEdge['node']['variants']['edges'] as &$variant) {
+                    //     $variant['node']['inventoryQuantity'] = $matchingDiamondsCount;
+                    //     $variant['node']['price'] = $roundedPrice;
 
-                        if ($matchingDiamondsCount === 0) {
-                            $shopifyProductId = $productEdge['node']['id'];
-                            $this->makeProductDraft($shopifyProductId);
-                            Log::info("Diamond Product ID {$shopifyProductId} is sold out and has been made a draft.");
-                        } else {
-                            if ($roundedPrice > 0) {
-                                $shopifyVariantId = $variant['node']['id'];
-                                $response = $this->shopifyService->updateVariantPrice($shopifyVariantId, $roundedPrice);
+                        // if ($matchingDiamondsCount === 0) {
+                        //     $shopifyProductId = $productEdge['node']['id'];
+                        //     $this->makeProductDraft($shopifyProductId);
+                        //     Log::info("Diamond Product ID {$shopifyProductId} is sold out and has been made a draft.");
+                        // } else {
+                        //     if ($roundedPrice > 0) {
+                        //         $shopifyVariantId = $variant['node']['id'];
+                        //         $response = $this->shopifyService->updateVariantPrice($shopifyVariantId, $roundedPrice);
 
-                                if ($response['success']) {
-                                    Log::info("Price updated for diamond variant ID: {$shopifyVariantId}, New Price: {$roundedPrice}");
-                                } else {
-                                    Log::error("Failed to update price for diamond variant ID: {$shopifyVariantId}, Error: " . $response['message']);
-                                }
-                            }
-                        }
-                    }
+                        //         if ($response['success']) {
+                        //             Log::info("Price updated for diamond variant ID: {$shopifyVariantId}, New Price: {$roundedPrice}");
+                        //         } else {
+                        //             Log::error("Failed to update price for diamond variant ID: {$shopifyVariantId}, Error: " . $response['message']);
+                        //         }
+                        //     }
+                        // }
+                    // }
                 }
             }
         }
@@ -158,21 +160,21 @@ class ShopifyProductController extends Controller
             'hasNextPage' => $hasNextPage
         ]);
     }
-    private function makeProductDraft($shopifyProductId)
-    {
-        try {
-            $response = $this->shopifyService->updateProductDraft($shopifyProductId);
-            if ($response['success']) {
-                Log::info("Product ID {$shopifyProductId} has been made a draft.");
-            } else {
-                Log::error("Failed to make product ID {$shopifyProductId} a draft. Error: " . $response['message']);
-            }
-            return $response;
-        } catch (\Exception $e) {
-            Log::error("Exception occurred while making product ID {$shopifyProductId} a draft. Error: " . $e->getMessage());
-            return false;
-        }
-    }
+    // private function makeProductDraft($shopifyProductId)
+    // {
+    //     try {
+    //         $response = $this->shopifyService->updateProductDraft($shopifyProductId);
+    //         if ($response['success']) {
+    //             Log::info("Product ID {$shopifyProductId} has been made a draft.");
+    //         } else {
+    //             Log::error("Failed to make product ID {$shopifyProductId} a draft. Error: " . $response['message']);
+    //         }
+    //         return $response;
+    //     } catch (\Exception $e) {
+    //         Log::error("Exception occurred while making product ID {$shopifyProductId} a draft. Error: " . $e->getMessage());
+    //         return false;
+    //     }
+    // }
 
     
     public function showEditImageForm(Request $request, $productId)
@@ -234,5 +236,194 @@ class ShopifyProductController extends Controller
 
     return redirect()->route('shopify.products')->with('success', 'Product details updated successfully.');
 }
+public function Order_index(Request $request)
+{
+        $currentTab = $request->get('tab', 'unfulfilled');
+        $orders = collect($this->shopifyService->getOrders($currentTab));
+        
+        // if ($currentTab == 'fulfilled') {
+        //     $orders = $orders->where('fulfillment_status', 'fulfilled');
+        // } else {
+        //     $orders = $orders->where('fulfillment_status', '!=', 'fulfilled');
+        // }   
 
+        // Sorting logic
+        $sortBy = $request->get('sort_by_' . $currentTab, 'created_at'); // Default sorting by date per tab
+        $sortDirection = $request->get('sort_direction_' . $currentTab, 'asc'); // Default direction is descending per tab
+        if ($currentTab == 'archived') {
+            $orders = $orders->where('fulfillment_status', 'fulfilled')
+                             ->where('financial_status', '!=', 'voided'); // Exclude voided orders
+        } else {
+            $orders = $orders->where('fulfillment_status', '!=', 'fulfilled');
+        }
+        if ($sortDirection == 'desc') {
+            $orders = $orders->sortBy($sortBy);  // Ascending order
+        } else {
+            $orders = $orders->sortByDesc($sortBy); // Descending order
+        }
+        $perPage = 15; // Define how many orders you want per page
+        $currentPage = Paginator::resolveCurrentPage();
+        $currentPageItems = $orders->slice(($currentPage - 1) * $perPage, $perPage)->values();
+        
+        $paginatedOrders = new Paginator($currentPageItems, $perPage, $currentPage);
+    
+        return view('Shopify.orders', [
+            'orders' => $paginatedOrders,
+            'sortBy' => $sortBy,
+            'sortDirection' => $sortDirection,
+            'currentTab' => $currentTab  
+        ]);
 }
+public function markAsPaid($id)
+{
+    $this->shopifyService->markOrderAsPaid($id);
+    return redirect()->back()->with('success', 'Order marked as paid successfully!');
+}
+
+// public function markAsFulfilled(Request $request, $id)
+// {
+//     $fulfillmentOption = $request->input('fulfillment_option');
+
+//     if ($fulfillmentOption == 'with_tracking') {
+//         // Get tracking info from the request
+//         $trackingNumber = $request->input('tracking_number');
+//         $shippingCarrier = $request->input('shipping_carrier');
+
+//         // Call service to mark as fulfilled with tracking
+//         $this->shopifyService->markOrderAsFulfilledWithTracking($id, $trackingNumber, $shippingCarrier);
+
+//     } else {
+//         // Call service to mark as fulfilled without tracking
+//         $this->shopifyService->markOrderAsFulfilled($id);
+//     }
+
+//     return redirect()->back()->with('success', 'Order marked as fulfilled successfully!');
+// }
+public function markOrderAsFulfilled($orderId)
+{
+    $service = new ShopifyService(); // Assuming you have a ShopifyService class
+
+    // Call the service method to mark as fulfilled without tracking
+    $response = $service->markOrderAsFulfilled($orderId);
+
+    return response()->json(['success' => true, 'message' => 'Order fulfilled successfully!']);
+}
+
+public function markOrderAsFulfilledWithTracking(Request $request, $orderId)
+{
+    $trackingNumber = $request->input('trackingNumber');
+    $shippingCarrier = $request->input('shippingCarrier');
+
+    $service = new ShopifyService(); // Assuming you have a ShopifyService class
+
+    // Call the service method to mark as fulfilled with tracking
+    $response = $service->markOrderAsFulfilledWithTracking($orderId, $trackingNumber, $shippingCarrier);
+
+    return response()->json(['success' => true, 'message' => 'Order fulfilled with tracking successfully!']);
+}
+public function fulfillOrder(Request $request)
+    {
+        // Validate incoming request
+        $validatedData = $request->validate([
+            'tracking_number' => 'nullable|string',
+            'tracking_url' => 'required|url',
+            'shipping_company' => 'nullable|string',
+            'order_id' => 'required|integer',
+            'line_item_id' => 'required|integer',
+        ]);
+
+        $orderId = $validatedData['order_id'];
+        $trackingNumber = $validatedData['tracking_number'];
+        $trackingUrl = $validatedData['tracking_url'];
+        $shippingCompany = $validatedData['shipping_company'] ?? 'Custom Shipping';
+        $lineItemId = $validatedData['line_item_id'];
+
+        // Shopify store information
+        $shopUrl = 'your-shop.myshopify.com';
+        $accessToken = 'your-access-token';
+
+        // Create fulfillment using Shopify API
+        $client = new Client([
+            'base_uri' => "https://{$shopUrl}/admin/api/2023-10/",
+            'headers' => [
+                'X-Shopify-Access-Token' => $accessToken,
+                'Content-Type' => 'application/json',
+            ]
+        ]);
+
+        $fulfillmentData = [
+            'fulfillment' => [
+                'tracking_number' => $trackingNumber,
+                'tracking_urls' => [$trackingUrl],
+                'tracking_company' => $shippingCompany,
+                'line_items' => [
+                    ['id' => $lineItemId]
+                ]
+            ]
+        ];
+
+        try {
+            // Send POST request to fulfill the order
+            $response = $client->post("orders/{$orderId}/fulfillments.json", [
+                'json' => $fulfillmentData
+            ]);
+
+            $fulfillmentResponse = json_decode($response->getBody()->getContents(), true);
+
+            return back()->with('success', 'Order fulfilled successfully!');
+
+        } catch (\Exception $e) {
+            // Handle any errors that occurred during the API request
+            return back()->withErrors(['error' => 'Failed to fulfill the order: ' . $e->getMessage()]);
+        }
+    }
+    public function fulfillWithoutShipping(Request $request)
+    {
+        // Validate incoming request
+        $validatedData = $request->validate([
+            'order_id' => 'required|integer',
+            'line_item_id' => 'required|integer',
+        ]);
+
+        $orderId = $validatedData['order_id'];
+        $lineItemId = $validatedData['line_item_id'];
+
+        // Shopify store information
+        $shopUrl = 'your-shop.myshopify.com'; // Replace with your store URL
+        $accessToken = 'your-access-token'; // Replace with your Shopify API access token
+
+        // Create fulfillment using Shopify API without shipping info
+        $client = new Client([
+            'base_uri' => "https://{$shopUrl}/admin/api/2023-10/",
+            'headers' => [
+                'X-Shopify-Access-Token' => $accessToken,
+                'Content-Type' => 'application/json',
+            ]
+        ]);
+
+        $fulfillmentData = [
+            'fulfillment' => [
+                'line_items' => [
+                    ['id' => $lineItemId]
+                ]
+            ]
+        ];
+
+        try {
+            // Send POST request to fulfill the order
+            $response = $client->post("orders/{$orderId}/fulfillments.json", [
+                'json' => $fulfillmentData
+            ]);
+
+            $fulfillmentResponse = json_decode($response->getBody()->getContents(), true);
+
+            return back()->with('success', 'Order fulfilled successfully without shipping!');
+
+        } catch (\Exception $e) {
+            // Handle any errors that occurred during the API request
+            return back()->withErrors(['error' => 'Failed to fulfill the order: ' . $e->getMessage()]);
+        }
+    }
+}
+
+

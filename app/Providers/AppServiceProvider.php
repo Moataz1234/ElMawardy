@@ -9,6 +9,7 @@ use App\Http\Middleware\Rabea;
 use Illuminate\Support\Facades\Route;
 use App\Http\Middleware\admin;
 use App\Http\Middleware\CheckShop;
+use Laravel\Passport\Passport;
 
 class AppServiceProvider extends ServiceProvider
 {

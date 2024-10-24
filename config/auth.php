@@ -40,9 +40,13 @@ return [
             'driver' => 'session',
             'provider' => 'users',
             'remember' => [
-                'lifetime' => 43200, // 30 days in minutes
             ],
         ],
+        'api' => [
+            'driver' => 'passport',
+            'provider' => 'users',
+        ],
+    
     ],
 
     /*

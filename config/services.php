@@ -13,7 +13,22 @@ return [
     | a conventional file to locate the various service credentials.
     |
     */
+    'asgardeo' => [
+        'client_id' => env('ASGARDEO_CLIENT_ID'),
+        'client_secret' => env('ASGARDEO_CLIENT_SECRET'),
+        'redirect' => env('ASGARDEO_REDIRECT_URI'),
+    'authorize_url' => 'https://asgardeo.io/oauth2/authorize',
+    'token_url' => 'https://asgardeo.io/oauth2/token',
+    'userinfo_url' => 'https://asgardeo.io/oauth2/userinfo',  // Ensure you also have the userinfo URL
 
+],
+
+    'passport' => [
+    'client_id' => env('PASSPORT_CLIENT_ID'),
+    'client_secret' => env('PASSPORT_CLIENT_SECRET'),
+    'redirect' => env('PASSPORT_REDIRECT_URI'),
+    ],
+    
     'postmark' => [
         'token' => env('POSTMARK_TOKEN'),
     ],
