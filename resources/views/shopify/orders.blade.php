@@ -23,6 +23,20 @@
             max-width: 100px; /* Keep images to a reasonable size */
             height: auto;
         }
+
+        /* Add scrolling to the table body */
+        tbody {
+            display: block;
+            max-height: 500px; /* Set a maximum height for the table body */
+            overflow-y: auto; /* Enable vertical scrolling */
+        }
+
+        /* Ensure the table header and body align */
+        thead, tbody tr {
+            display: table;
+            width: 100%;
+            table-layout: fixed; /* Ensure the table layout is fixed */
+        }
     </style>
 </head>
 
