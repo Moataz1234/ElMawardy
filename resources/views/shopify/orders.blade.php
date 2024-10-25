@@ -26,8 +26,7 @@
 
         /* Add scrolling to the table body */
         tbody {
-            display: block;
-            max-height: 500px; /* Set a maximum height for the table body */
+            display: block; /* Set a maximum height for the table body */
             overflow-y: auto; /* Enable vertical scrolling */
         }
 
@@ -57,6 +56,8 @@
                Past Orders
             </a>
         </li>
+        <li><a href="{{ route('abandoned_checkouts_shopify') }}">Abandoned Checkouts</a></li>
+
     </ul>
     <table class="table table-hover table-striped">
         <thead class="table-dark">
@@ -173,58 +174,19 @@
                         <span class="badge bg-secondary">Unfulfilled</span>
                     @endif
                 </td>
-                {{-- <td>{{ count($order['line_items']) }} items</td> --}}
-                      <!-- Action Column with Mark as Paid and Mark as Fulfilled -->
-                      <td>
-                        @if ($order['financial_status'] != 'paid')
-                            <form method="POST" action="{{ route('order.markPaid', $order['id']) }}">
-                                @csrf
-                                <button type="submit" class="btn btn-sm btn-success">Mark as Paid</button>
-                            </form>
-                        @endif
-
-                        @if ($order['fulfillment_status'] != 'fulfilled')
-                        <button type="button" class="btn btn-sm btn-primary" data-bs-toggle="modal" data-bs-target="#fulfillModal_{{ $order['id'] }}">
-                            Fulfill
-                        </button>
-                
-                        <!-- Fulfillment Modal -->
-                        <div class="modal fade" id="fulfillModal_{{ $order['id'] }}" tabindex="-1" aria-labelledby="fulfillModalLabel_{{ $order['id'] }}" aria-hidden="true">
-                            <div class="modal-dialog">
-                                <div class="modal-content">
-                                    <div class="modal-header">
-                                        <h5 class="modal-title" id="fulfillModalLabel_{{ $order['id'] }}">Fulfill Order: {{ $order['name'] }}</h5>
-                                        <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
-                                    </div>
-                                    <div class="modal-body">
-                                        <form method="POST" action="{{ route('order.fulfill', $order['id']) }}">
-                                            @csrf
-                                            <div class="mb-3">
-                                                <label for="tracking_number" class="form-label">Tracking Number</label>
-                                                <input type="text" class="form-control" name="tracking_number" id="tracking_number_{{ $order['id'] }}" required>
-                                            </div>
-                                            <label for="tracking_url">Tracking URL:</label>
-                                            <input type="text" id="tracking_url" name="tracking_url" placeholder="https://www.example.com/track/123456789">
-                                        
-                                            <div class="modal-footer">
-                                                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
-                                                <button type="submit" class="btn btn-primary">Fulfill Order</button>
-                                            </div>
-                                        </form>
-                                        <form action="{{ route('fulfillWithoutShipping') }}" method="POST">
-                                            @csrf
-                                            <input type="hidden" name="order_id" value="{{ $order['id'] }}">
-                                            <input type="hidden" name="line_item_id" value="{{ $item['id'] }}">
-                                            <button type="submit" class="btn btn-primary">Fulfill Without Shipping</button>
-                                        </form>
-                                    </div>
-                                </div>
-                            </div>
-                        </div>
-                    @else
-                        <span class="badge bg-primary">Fulfilled</span>
-                    @endif
-                          </td>
+                <td>
+                    <form action="{{ route('fulfill_order', $order['id']) }}" method="POST">
+                        @csrf
+                        <button type="submit" class="btn btn-primary">Mark as Fulfilled</button>
+                    </form>
+                    <form action="{{ route('mark_as_paid', $order['id']) }}" method="POST">
+                        @csrf
+                        <button type="submit" class="btn btn-success">Mark as Paid</button>
+                    </form>
+                    <a href="{{ route('order.pdf', $order['id']) }}" class="btn btn-sm btn-info" target="_blank">
+                        <i class="fas fa-print"></i> Print Invoice
+                    </a>
+                </td>
             </tr>
             @endforeach
         </tbody>
@@ -236,89 +198,5 @@
 </div>
 
 <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0-alpha1/dist/js/bootstrap.bundle.min.js"></script>
-
-</body>
-<script>
-    // document.addEventListener('DOMContentLoaded', function() {
-    //     var fulfillModals = document.querySelectorAll('[id^="fulfillModal-"]');
-    //     fulfillModals.forEach(function(modal) {
-    //         var orderId = modal.id.split('-')[1];
-    //         var trackingInfo = document.getElementById('trackingInfo-' + orderId);
-    //         var withTracking = document.getElementById('withTracking-' + orderId);
-    //         var withoutTracking = document.getElementById('withoutTracking-' + orderId);
-            
-    //         withTracking.addEventListener('change', function() {
-    //             if (withTracking.checked) {
-    //                 trackingInfo.style.display = 'block';
-    //             }
-    //         });
-    //         withoutTracking.addEventListener('change', function() {
-    //             if (withoutTracking.checked) {
-    //                 trackingInfo.style.display = 'none';
-    //             }
-    //         });
-    //     });
-    // });
-    let currentOrderId = null;
-
-    function openFulfillmentDialog(orderId) {
-        currentOrderId = orderId;
-        document.getElementById('fulfillmentModal').style.display = 'block';
-    }
-
-    function fulfillWithoutTracking() {
-    fetch(`/mark-as-fulfilled/${currentOrderId}`, {
-        method: 'POST',
-        headers: {
-            'Content-Type': 'application/json',
-            'X-CSRF-TOKEN': '{{ csrf_token() }}', // Include the CSRF token
-        },
-        body: JSON.stringify({}),
-    })
-    .then(response => response.json())
-    .then(data => {
-        if (data.success) {
-            alert('Order fulfilled successfully without tracking');
-            document.getElementById('fulfillmentModal').style.display = 'none';
-            location.reload(); // Optional: reload the page to reflect changes
-        } else {
-            alert('Error fulfilling order without tracking');
-        }
-    })
-    .catch(err => alert('Error fulfilling order'));
-}
-
-
-    function showTrackingForm() {
-        document.getElementById('trackingForm').style.display = 'block';
-    }
-    function fulfillWithTracking() {
-    const trackingNumber = document.getElementById('trackingNumber').value;
-    const shippingCarrier = document.getElementById('shippingCarrier').value;
-
-    fetch(`/mark-as-fulfilled-with-tracking/${currentOrderId}`, {
-        method: 'POST',
-        headers: {
-            'Content-Type': 'application/json',
-            'X-CSRF-TOKEN': '{{ csrf_token() }}', // Include CSRF token
-        },
-        body: JSON.stringify({
-            trackingNumber,
-            shippingCarrier
-        }),
-    })
-    .then(response => response.json())
-    .then(data => {
-        if (data.success) {
-            alert('Order fulfilled with tracking successfully');
-            document.getElementById('fulfillmentModal').style.display = 'none';
-            location.reload(); // Optional: reload the page to reflect changes
-        } else {
-            alert('Error fulfilling order with tracking');
-        }
-    })
-    .catch(err => alert('Error fulfilling order with tracking'));
-}
-
-</script>
-</html>
+    
+</body></html>

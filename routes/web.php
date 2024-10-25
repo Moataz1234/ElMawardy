@@ -107,11 +107,13 @@ require __DIR__.'/auth.php';
 // Route::get('/shopify-products', [ShopifyProductController::class, 'index']);
 Route::get('/shopify-products', [ShopifyProductController::class, 'index'])->name('shopify.products');
 Route::get('/shopify-products/orders', [ShopifyProductController::class, 'Order_index'])->name('orders_shopify');
-Route::post('/orders/{id}/mark-paid', [ShopifyProductController::class, 'markAsPaid'])->name('order.markPaid');
-// Route::post('/mark-as-fulfilled/{orderId}', [ShopifyProductController::class, 'markOrderAsFulfilled']);
-// Route::post('/mark-as-fulfilled-with-tracking/{orderId}', [ShopifyProductController::class, 'markOrderAsFulfilledWithTracking']);
-Route::post('/order/fulfill/{order}', [ShopifyProductController::class, 'fulfillOrder'])->name('order.fulfill');
-Route::post('/fulfill-without-shipping', [ShopifyProductController::class, 'fulfillWithoutShipping'])->name('fulfillWithoutShipping');
+Route::post('/shopify/orders/{id}/fulfill', [ShopifyProductController::class, 'fulfillOrder'])->name('fulfill_order');
+Route::post('/shopify/orders/{id}/paid', [ShopifyProductController::class, 'markAsPaid'])->name('mark_as_paid');
+Route::get('/orders/{orderId}/pdf', [ShopifyProductController::class,'generatePDF'])->name('order.pdf');
+Route::get('/shopify-products/abandoned-checkouts', [ShopifyProductController::class, 'AbandonedCheckouts_index'])->name('abandoned_checkouts_shopify');
+
+Route::post('/orders/{orderId}/fulfill', 'ShopifyProductController@fulfillOrder')->name('order.fulfill');
+Route::post('/orders/{orderId}/update-tracking', 'ShopifyProductController@updateTracking')->name('order.updateTracking');
 
 // Route::get('/shopify-products/edit-image', [ShopifyProductController::class, 'showEditImageForm'])->name('shopify.products.showEditImageForm');
 // Route::put('/shopify/products/update', [ShopifyProductController::class, 'editImage'])->name('shopify.updateProduct');

@@ -14,6 +14,7 @@ use App\Http\Controllers\Auth\AsgardeoAuthController; // Import Asgardeo control
 
 
 Route::middleware('guest')->group(function () {
+
     Route::get('login', [AsgardeoAuthController::class, 'redirectToAsgardeo'])
                 ->name('login');
 
@@ -25,12 +26,6 @@ Route::middleware('guest')->group(function () {
                 ->name('register');
 
     Route::post('register', [RegisteredUserController::class, 'store']);
-
-    // Route::get('login', [AsgardeoAuthController::class, 'redirectToAsgardeo'])
-    // ->name('login');
-
-    // Route::get('callback', [AsgardeoAuthController::class, 'handleAsgardeoCallback'])
-    // ->name('callback');
 
     Route::get('forgot-password', [PasswordResetLinkController::class, 'create'])
                 ->name('password.request');

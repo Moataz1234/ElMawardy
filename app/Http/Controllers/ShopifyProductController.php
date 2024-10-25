@@ -9,7 +9,9 @@ use App\Models\GoldPrice;
 use App\Models\GoldItemSold;
 use App\Models\Diamond;
 use Illuminate\Pagination\Paginator;
+use I18N_Arabic;
 
+use Barryvdh\DomPDF\Facade\Pdf;
 use GuzzleHttp\Client; 
 use Illuminate\Support\Facades\Storage;
 use Illuminate\Support\Facades\Log;
@@ -241,13 +243,6 @@ public function Order_index(Request $request)
         $currentTab = $request->get('tab', 'unfulfilled');
         $orders = collect($this->shopifyService->getOrders($currentTab));
         
-        // if ($currentTab == 'fulfilled') {
-        //     $orders = $orders->where('fulfillment_status', 'fulfilled');
-        // } else {
-        //     $orders = $orders->where('fulfillment_status', '!=', 'fulfilled');
-        // }   
-
-        // Sorting logic
         $sortBy = $request->get('sort_by_' . $currentTab, 'created_at'); // Default sorting by date per tab
         $sortDirection = $request->get('sort_direction_' . $currentTab, 'asc'); // Default direction is descending per tab
         if ($currentTab == 'archived') {
@@ -274,156 +269,100 @@ public function Order_index(Request $request)
             'currentTab' => $currentTab  
         ]);
 }
-public function markAsPaid($id)
+public function fulfillOrder($orderId)
 {
-    $this->shopifyService->markOrderAsPaid($id);
-    return redirect()->back()->with('success', 'Order marked as paid successfully!');
-}
+    $response = $this->shopifyService->updateFulfillmentStatus($orderId, 'fulfilled');
 
-// public function markAsFulfilled(Request $request, $id)
-// {
-//     $fulfillmentOption = $request->input('fulfillment_option');
-
-//     if ($fulfillmentOption == 'with_tracking') {
-//         // Get tracking info from the request
-//         $trackingNumber = $request->input('tracking_number');
-//         $shippingCarrier = $request->input('shipping_carrier');
-
-//         // Call service to mark as fulfilled with tracking
-//         $this->shopifyService->markOrderAsFulfilledWithTracking($id, $trackingNumber, $shippingCarrier);
-
-//     } else {
-//         // Call service to mark as fulfilled without tracking
-//         $this->shopifyService->markOrderAsFulfilled($id);
-//     }
-
-//     return redirect()->back()->with('success', 'Order marked as fulfilled successfully!');
-// }
-public function markOrderAsFulfilled($orderId)
-{
-    $service = new ShopifyService(); // Assuming you have a ShopifyService class
-
-    // Call the service method to mark as fulfilled without tracking
-    $response = $service->markOrderAsFulfilled($orderId);
-
-    return response()->json(['success' => true, 'message' => 'Order fulfilled successfully!']);
-}
-
-public function markOrderAsFulfilledWithTracking(Request $request, $orderId)
-{
-    $trackingNumber = $request->input('trackingNumber');
-    $shippingCarrier = $request->input('shippingCarrier');
-
-    $service = new ShopifyService(); // Assuming you have a ShopifyService class
-
-    // Call the service method to mark as fulfilled with tracking
-    $response = $service->markOrderAsFulfilledWithTracking($orderId, $trackingNumber, $shippingCarrier);
-
-    return response()->json(['success' => true, 'message' => 'Order fulfilled with tracking successfully!']);
-}
-public function fulfillOrder(Request $request)
-    {
-        // Validate incoming request
-        $validatedData = $request->validate([
-            'tracking_number' => 'nullable|string',
-            'tracking_url' => 'required|url',
-            'shipping_company' => 'nullable|string',
-            'order_id' => 'required|integer',
-            'line_item_id' => 'required|integer',
-        ]);
-
-        $orderId = $validatedData['order_id'];
-        $trackingNumber = $validatedData['tracking_number'];
-        $trackingUrl = $validatedData['tracking_url'];
-        $shippingCompany = $validatedData['shipping_company'] ?? 'Custom Shipping';
-        $lineItemId = $validatedData['line_item_id'];
-
-        // Shopify store information
-        $shopUrl = 'your-shop.myshopify.com';
-        $accessToken = 'your-access-token';
-
-        // Create fulfillment using Shopify API
-        $client = new Client([
-            'base_uri' => "https://{$shopUrl}/admin/api/2023-10/",
-            'headers' => [
-                'X-Shopify-Access-Token' => $accessToken,
-                'Content-Type' => 'application/json',
-            ]
-        ]);
-
-        $fulfillmentData = [
-            'fulfillment' => [
-                'tracking_number' => $trackingNumber,
-                'tracking_urls' => [$trackingUrl],
-                'tracking_company' => $shippingCompany,
-                'line_items' => [
-                    ['id' => $lineItemId]
-                ]
-            ]
-        ];
-
-        try {
-            // Send POST request to fulfill the order
-            $response = $client->post("orders/{$orderId}/fulfillments.json", [
-                'json' => $fulfillmentData
-            ]);
-
-            $fulfillmentResponse = json_decode($response->getBody()->getContents(), true);
-
-            return back()->with('success', 'Order fulfilled successfully!');
-
-        } catch (\Exception $e) {
-            // Handle any errors that occurred during the API request
-            return back()->withErrors(['error' => 'Failed to fulfill the order: ' . $e->getMessage()]);
-        }
+    if ($response->getStatusCode() === 200) {
+        return redirect()->back()->with('success', 'Order marked as fulfilled.');
+    } else {
+        return redirect()->back()->with('error', 'Failed to mark order as fulfilled.');
     }
-    public function fulfillWithoutShipping(Request $request)
-    {
-        // Validate incoming request
-        $validatedData = $request->validate([
-            'order_id' => 'required|integer',
-            'line_item_id' => 'required|integer',
-        ]);
+}
 
-        $orderId = $validatedData['order_id'];
-        $lineItemId = $validatedData['line_item_id'];
+public function markAsPaid($orderId)
+{
+    $response = $this->shopifyService->updatePaymentStatus($orderId, 'paid');
 
-        // Shopify store information
-        $shopUrl = 'your-shop.myshopify.com'; // Replace with your store URL
-        $accessToken = 'your-access-token'; // Replace with your Shopify API access token
-
-        // Create fulfillment using Shopify API without shipping info
-        $client = new Client([
-            'base_uri' => "https://{$shopUrl}/admin/api/2023-10/",
-            'headers' => [
-                'X-Shopify-Access-Token' => $accessToken,
-                'Content-Type' => 'application/json',
-            ]
-        ]);
-
-        $fulfillmentData = [
-            'fulfillment' => [
-                'line_items' => [
-                    ['id' => $lineItemId]
-                ]
-            ]
-        ];
-
-        try {
-            // Send POST request to fulfill the order
-            $response = $client->post("orders/{$orderId}/fulfillments.json", [
-                'json' => $fulfillmentData
-            ]);
-
-            $fulfillmentResponse = json_decode($response->getBody()->getContents(), true);
-
-            return back()->with('success', 'Order fulfilled successfully without shipping!');
-
-        } catch (\Exception $e) {
-            // Handle any errors that occurred during the API request
-            return back()->withErrors(['error' => 'Failed to fulfill the order: ' . $e->getMessage()]);
-        }
+    if ($response->getStatusCode() === 200) {
+        return redirect()->back()->with('success', 'Order marked as paid.');
+    } else {
+        return redirect()->back()->with('error', 'Failed to mark order as paid.');
     }
+}
+public function generatePdf($orderId)
+{
+    $order = $this->shopifyService->getOrder($orderId);
+    
+    
+    // Format the data
+    $invoiceData = [
+        'invoice_number' => $order['name'],
+        'invoice_date' => \Carbon\Carbon::parse($order['created_at'])->format('d/m/Y'),
+        'customer' => [
+            'name' => $order['shipping_address']['name'] ?? 'N/A',
+            'address' => [
+                'line1' => $order['shipping_address']['address1'] ?? '',
+                'line2' => $order['shipping_address']['address2'] ?? '',
+                'city' => $order['shipping_address']['city'] ?? '',
+                'country' => $order['shipping_address']['country'] ?? ''
+            ]
+        ],
+        'items' => array_map(function($item) {
+            return [
+                'description' => $item['name'],
+                'price' => $item['price'],
+                'quantity' => $item['quantity'],
+                'total' => $item['quantity'] * floatval($item['price'])
+            ];
+        }, $order['line_items']),
+        'total' => $order['total_price'],
+        'paid' => $order['total_price'],
+        'balance_due' => '0.00',
+        'company' => [
+            'name' => 'El Mawardy Jewelry',
+            'tax_id' => '100-450-296',
+            'address' => '7 Soliman Abaza',
+            'city' => 'Giza',
+            'postal_code' => 'Giza 11211'
+        ]
+    ];
+
+    $pdf = PDF::loadView('Shopify.invoice', $invoiceData)
+    ->setPaper('A4')
+    ->setOption('isHtml5ParserEnabled', true)
+    ->setOption('isRemoteEnabled', true);
+    return $pdf->stream('invoice-' . $order['name'] . '.pdf');
+}
+public function AbandonedCheckouts_index(Request $request)
+{
+    $response = $this->shopifyService->getAbandonedCheckouts();
+    
+    $abandonedCheckouts = collect(json_decode($response->getBody()->getContents(), true)['checkouts']);
+    
+    // Sorting logic
+    $sortBy = $request->get('sort_by', 'created_at');
+    $sortDirection = $request->get('sort_direction', 'asc');
+    
+    if ($sortDirection == 'desc') {
+        $abandonedCheckouts = $abandonedCheckouts->sortBy($sortBy);  // Ascending order
+    } else {
+        $abandonedCheckouts = $abandonedCheckouts->sortByDesc($sortBy); // Descending order
+    }
+
+    $perPage = 15; // Define how many items you want per page
+    $currentPage = Paginator::resolveCurrentPage();
+    $currentPageItems = $abandonedCheckouts->slice(($currentPage - 1) * $perPage, $perPage)->values();
+    
+    $paginatedCheckouts = new Paginator($currentPageItems, $perPage, $currentPage);
+    
+    return view('Shopify.abandoned_checkouts', [
+        'checkouts' => $paginatedCheckouts,
+        'sortBy' => $sortBy,
+        'sortDirection' => $sortDirection
+    ]);
+}
+
 }
 
 

@@ -46,7 +46,7 @@ class AuthenticatedSessionController extends Controller
         $request->session()->invalidate();
 
         $request->session()->regenerateToken();
-
-        return redirect('/');
+        return redirect("/");
+        // return redirect()->away('https://api.asgardeo.io/t/elmawardyjewelry/oidc/logout?redirect_uri=' . urlencode(route('login')));
     }
 }
