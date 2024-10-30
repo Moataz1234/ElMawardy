@@ -1,50 +1,66 @@
 /* General body styling */
-body{
-    background-color: #a38080; 
-    
+
+body {
+    background-color: #a38080;
 }
-h2{
+
+h2 {
     margin-left: 500px;
 }
+
 .new-item-body {
-    background-color: #a38080; /* Background color for the entire form */
+    background-color: #a38080;
+    /* Background color for the entire form */
     font-family: Arial, sans-serif;
     color: white;
 }
 
+
 /* Heading */
+
 .new-item-header {
     text-align: center;
-    color: yellow; /* Title color */
+    color: yellow;
+    /* Title color */
     font-size: 40px;
 }
 
+
 /* Form styling */
+
 .new-item-form {
     display: grid;
-    grid-template-columns: 1fr; /* Single column for the entire form */
+    grid-template-columns: 1fr;
+    /* Single column for the entire form */
     grid-gap: 10px;
     padding: 20px;
-    background-color: #550000; /* Dark red form background */
+    background-color: #550000;
+    /* Dark red form background */
     border: 2px solid yellow;
     border-radius: 8px;
     max-width: 800px;
     margin: auto;
-
 }
 
+
 /* Flexbox for each row containing fields */
+
 .row {
     display: flex;
-    justify-content: space-between; /* Ensure space between fields */
-    gap: 10px; /* Add space between inputs */
+    justify-content: space-between;
+    /* Ensure space between fields */
+    gap: 10px;
+    /* Add space between inputs */
 }
 
 .row .field {
-    flex: 1; /* Each field takes equal space */
+    flex: 1;
+    /* Each field takes equal space */
 }
 
+
 /* Styling for form fields and labels */
+
 .new-item-form div {
     background-color: black;
     padding: 6px;
@@ -58,10 +74,13 @@ h2{
     color: lightgray;
 }
 
+
 /* Input styles */
+
 .new-item-form input[type="text"],
 .new-item-form input[type="number"],
-.new-item-form input[type="date"] ,select {
+.new-item-form input[type="date"],
+select {
     padding: 5px;
     border: 2px solid yellow;
     background-color: #333;
@@ -69,10 +88,13 @@ h2{
     display: block;
 }
 
+
 /* Submit and Add Row button styles */
+
 .new-item-form button[type="submit"],
 .add-row {
-    grid-column: span 1; /* Make buttons take one full row */
+    grid-column: span 1;
+    /* Make buttons take one full row */
     padding: 10px;
     border: none;
     font-weight: bold;
@@ -94,21 +116,24 @@ h2{
 .add-row:hover {
     background-color: white;
 }
-a.diamond-list{
+
+a.diamond-list {
     font-size: 30px;
     color: red;
-    margin-left: 100px ;
+    margin-left: 100px;
+}
 
-}
-div.diamond-list{
+div.diamond-list {
     background-color: black;
-   border-radius: 10px;
-   max-width: 400px;
-   margin: 50px 500px;
+    border-radius: 10px;
+    max-width: 400px;
+    margin: 50px 500px;
 }
-.diamond-list:hover{
+
+.diamond-list:hover {
     color: rgb(51, 20, 223);
 }
+
 table {
     width: 100%;
     border-collapse: collapse;
@@ -117,7 +142,8 @@ table {
     text-align: left;
 }
 
-th, td {
+th,
+td {
     /* padding: 12px 15px; */
     border: 2px solid #ddd;
 }
@@ -127,6 +153,7 @@ th {
     color: #333;
 }
 
+
 /* tbody tr:nth-child(even) {
     background-color: #f9f9f9;
 } */
@@ -134,6 +161,8 @@ th {
 tbody tr {
     background-color: #fff;
 }
+
+
 /* 
 tbody tr:hover {
     background-color: #f1f1f1;
@@ -142,6 +171,7 @@ tbody tr:hover {
 td {
     color: #555;
 }
+
 .custom-form {
     display: block;
     margin: 20px auto;
@@ -163,7 +193,7 @@ td {
 .custom-form input[type="number"],
 .custom-form input[type="date"],
 .custom-form input[type="email"],
-.custom-form input[type="file"]{
+.custom-form input[type="file"] {
     width: 100%;
     padding: 8px;
     margin-bottom: 10px;
@@ -185,6 +215,7 @@ td {
 .custom-form button[type="submit"]:hover {
     background-color: #45a049;
 }
+
 .sort-container {
     display: flex;
     align-items: center;
@@ -196,29 +227,41 @@ td {
 }
 
 .sort-container button {
-    background-color: #f0f0f0; /* Light gray background */
-    border: 1px solid #ccc; /* Light border */
-    border-radius: 5px; /* Rounded corners */
-    padding: 5px 10px; /* Padding for better spacing */
-    cursor: pointer; /* Pointer cursor on hover */
-    font-size: 14px; /* Adjust font size */
-    color: #333; /* Text color */
-    transition: background-color 0.3s, transform 0.2s; /* Animation effect */
-}
-.sort-container button:hover {
-    background-color: #b0adad; 
-    transform: scale(1.05); 
-}
-.sort-container button:active{
-    transform: scale(0.98);
-    background-color: #13e90b; 
-}
-.sort-container button.active{
-    transform: scale(0.98);
-    background-color: #13e90b; 
+    background-color: #f0f0f0;
+    /* Light gray background */
+    border: 1px solid #ccc;
+    /* Light border */
+    border-radius: 5px;
+    /* Rounded corners */
+    padding: 5px 10px;
+    /* Padding for better spacing */
+    cursor: pointer;
+    /* Pointer cursor on hover */
+    font-size: 14px;
+    /* Adjust font size */
+    color: #333;
+    /* Text color */
+    transition: background-color 0.3s, transform 0.2s;
+    /* Animation effect */
 }
 
-.sold_button ,.rest_button{
+.sort-container button:hover {
+    background-color: #b0adad;
+    transform: scale(1.05);
+}
+
+.sort-container button:active {
+    transform: scale(0.98);
+    background-color: #13e90b;
+}
+
+.sort-container button.active {
+    transform: scale(0.98);
+    background-color: #13e90b;
+}
+
+.sold_button,
+.rest_button {
     background-color: #4CAF50;
     color: white;
     padding: 10px 20px;
@@ -228,29 +271,67 @@ td {
     font-size: 16px;
     margin-left: 500px;
 }
-.action_button{
+
+.action_button {
     text-decoration: none;
     background-color: #333;
     padding: 2px 2px;
-
     color: #ddd;
 }
-.action_button:hover{
+
+.action_button:hover {
     color: #13e90b;
 }
-.prices{
+
+.prices {
     text-decoration: none;
     background-color: #333;
     padding: 5px 5px;
-color: #ddd;
-margin: 10px 10px;
+    color: #ddd;
+    margin: 10px 10px;
 }
-.prices:hover{
+
+.prices:hover {
     color: #13e90b;
 }
-#order_details{
-width: 550px;
+
+#order_details {
+    width: 550px;
 }
-select{
+
+select {
     width: 150px;
+}
+
+.yellow-row {
+    background-color: yellow;
+}
+
+.pointer-events-none {
+    pointer-events: none;
+    /* Disable all mouse interactions */
+}
+
+#outerFormModal {
+    position: fixed;
+    z-index: 1000;
+    left: 0;
+    top: 0;
+    width: 100%;
+    height: 100%;
+    background-color: rgba(0, 0, 0, 0.5);
+    display: flex;
+    justify-content: center;
+    align-items: center;
+}
+
+#outerForm {
+    background-color: white;
+    /* White background */
+    padding: 20px;
+    /* Some padding */
+    border-radius: 5px;
+    /* Rounded corners */
+    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
+    /* Shadow effect */
 }

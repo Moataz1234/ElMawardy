@@ -15,6 +15,13 @@
             </div>
         </li>
         <li><a href="{{ route('gold-items.sold') }}">Sold Items</a></li>
+        <li class="dropdown">
+            <a href="#" class="dropbtn">Shopify</a>
+            <div class="dropdown-content">
+                <a href="{{ route('shopify.products') }}">Products</a>
+                <a href="{{ route('orders_shopify') }}">Orders</a>
+            </div>
+        </li>
         {{-- <li><a href="{{ route('orders.create') }}">Custom Order</a></li> --}}
        </ul>
 </nav>

@@ -4,6 +4,8 @@ namespace App\Http\Controllers\Gold;
 
 use App\Http\Controllers\Controller;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Auth;
+
 use App\Models\GoldItemSold;
 use App\Models\Customer;
 use App\Models\GoldItem;
@@ -15,11 +17,13 @@ class GoldItemSoldController extends Controller
      */
     public function index(Request $request)
     {
+        $user = Auth::user();
         $search = $request->input('search');
         $sort = $request->input('sort', 'serial_number');
         $direction = $request->input('direction', 'asc');
 
-        $goldItems = GoldItemSold::when($search, function ($query, $search) {
+        $goldItems = GoldItemSold::where('shop_name', $user->shop_name)
+        ->when($search, function ($query, $search) {
             return $query->where('serial_number', 'like', "%{$search}%")
                          ->orWhere('shop_name', 'like', "%{$search}%")
                          ->orWhere('kind', 'like', "%{$search}%")

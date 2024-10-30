@@ -16,18 +16,14 @@ class ShopUsersSeeder extends Seeder
     {
         $shops = [
             'admin',
-            'Mohandessin Office',
             'Mohandessin Shop',
             'Mall of Arabia',
             'Nasr City',
             'Zamalek',
-            'Downtown',
             'Mall of Egypt',
             'El Guezira Shop',
-            'El Korba',
             'Arkan',
             'Online',
-            'Downtown2',
             'District 5',
             'U Venues',
             'rabea'
@@ -37,12 +33,14 @@ class ShopUsersSeeder extends Seeder
             // $shopModel = Shop::where('name', $shop)->first();
             // if ($shopModel) {
 
+            for($i=1 ; $i<= rand(3,4); $i++){
             User::create([
-                'name' => $shop,
-                'email' => strtolower(str_replace(' ', '_', $shop)) . '@example.com',
+                'name' => "{$shop} {$i}",
+                'email' => strtolower(str_replace(' ', '_', $shop)) . "{$i}@gmail.com",
                 'password' => Hash::make('12345678'),
+                'shop_name' =>$shop,
             ]);
-
+        }
             // Update the shop_id to be the same as the user's id
         }
     }

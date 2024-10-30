@@ -30,6 +30,24 @@ document.getElementById('add-item').addEventListener('click', function() {
         template.remove();
     });
 });
+document.addEventListener('DOMContentLoaded', function() {
+    // Add event listener to show ring size input when "ring" is selected
+    const typeDropdown = template.querySelector('select[name="order_kind[]"]');
+    typeDropdown.addEventListener('change', function() {
+        toggleRingSizeVisibility(this);
+    });
+});
+
+function toggleRingSizeVisibility(dropdown) {
+    const itemContainer = dropdown.closest('.order-item');
+    const ringSizeField = itemContainer.querySelector('.ring-size');
+
+    if (dropdown.value === 'Ring') { // Replace 'ring' with the exact value for "ring" option in your dropdown
+        ringSizeField.style.display = 'block';
+    } else {
+        ringSizeField.style.display = 'none';
+    }
+}
 
 function toggleLabelVisibility(checkbox) {
     const itemContainer = checkbox.closest('.order-item');
@@ -76,5 +94,4 @@ document.addEventListener('DOMContentLoaded', function() {
 document.addEventListener('DOMContentLoaded', function() {
     const badge = document.querySelector('.badge');
     const link = document.querySelector('.nav-link');
-    // Logic to handle updates (simulated for demonstration)
 });

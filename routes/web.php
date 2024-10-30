@@ -3,7 +3,7 @@
 use App\Http\Controllers\{
     HomeController, ProfileController, NewItemController,
     Gold\GoldItemController, Gold\GoldItemSoldController,
-    Gold\GoldPoundController, ShopsController, OrderController,ShopifyProductController ,GoldReportController,RabiaController,Auth\AsgardeoAuthController
+    Gold\GoldPoundController, ShopsController, OrderController,ShopifyProductController ,GoldReportController,RabiaController,Auth\AsgardeoAuthController,OuterController,GoldCatalogController,
 };
 use Illuminate\Support\Facades\Route;
 
@@ -23,7 +23,9 @@ Route::get('/gold-items-sold', [GoldItemSoldController::class, 'index'])->name('
 
 // Public Routes
 Route::middleware('auth')->group(function () {
+    Route::get('/', [ShopsController::class, 'showShopItems'])->name('dashboard');
     Route::get('/dashboard', [ShopsController::class, 'showShopItems'])->name('dashboard');
+
     Route::get('/profile', [ProfileController::class, 'edit'])->name('profile.edit');
     Route::patch('/profile', [ProfileController::class, 'update'])->name('profile.update');
     Route::delete('/profile', [ProfileController::class, 'destroy'])->name('profile.destroy');
@@ -46,7 +48,6 @@ Route::middleware(['auth', 'admin'])->group(function () {
     Route::put('/gold-items/{id}', [GoldItemController::class, 'update'])->name('gold-items.update');
 
     // Gold Sold Items
-    Route::get('/gold-items-sold/{id}/edit', [GoldItemSoldController::class, 'edit'])->name('gold-items-sold.edit');
     Route::put('/gold-items-sold/{id}', [GoldItemSoldController::class, 'update'])->name('gold-items-sold.update');
 
     // Transfer Requests
@@ -55,17 +56,43 @@ Route::middleware(['auth', 'admin'])->group(function () {
     Route::get('/update-prices', [GoldItemController::class, 'showUpdateForm'])->name('prices.update.form');
     Route::post('/update-prices', [GoldItemController::class, 'updatePrices'])->name('prices.update');
 
+    //Shopify 
+    Route::get('/shopify-products', [ShopifyProductController::class, 'index'])->name('shopify.products');
+    Route::get('/shopify-products/orders', [ShopifyProductController::class, 'Order_index'])->name('orders_shopify');
+    Route::post('/shopify/orders/{id}/fulfill', [ShopifyProductController::class, 'fulfillOrder'])->name('fulfill_order');
+    Route::post('/shopify/orders/{id}/paid', [ShopifyProductController::class, 'markAsPaid'])->name('mark_as_paid');
+    Route::get('/orders/{orderId}/pdf', [ShopifyProductController::class,'generatePDF'])->name('order.pdf');
+    Route::get('/shopify-products/abandoned-checkouts', [ShopifyProductController::class, 'AbandonedCheckouts_index'])->name('abandoned_checkouts_shopify');
+    Route::get('/shopify-products/edit/{product_id}', [ShopifyProductController::class, 'showEditImageForm'])->name('shopify.products.showEditImageForm');
+    Route::post('/shopify-products/edit/{product_id}', [ShopifyProductController::class, 'editProduct'])->name('shopify.products.editProduct');
+
+    //Gold Report
+    Route::get('/gold-report', [GoldReportController::class, 'index'])->name('gold.report');
+
 });
 // Shop Routes
 Route::middleware(['auth', 'user'])->group(function () {
     
-
+    Route::get('/gold-catalog', [GoldCatalogController::class, 'ThreeView'])->name('gold-catalog');
+   
     Route::get('/gold-items', [GoldItemController::class, 'index'])->name('gold-items.index');
+   
     Route::get('/dashboard/{id}/edit', [ShopsController::class, 'edit'])->name('shop-items.edit');
     Route::get('/gold-items/shop', [ShopsController::class, 'showShopItems'])->name('gold-items.shop');
     Route::post('/gold-items/{id}/transfer', [ShopsController::class, 'transferToBranch'])->name('gold-items.transfer');
     Route::post('/gold-items/{id}/mark-as-sold', [ShopsController::class, 'markAsSold'])->name('gold-items.markAsSold');
     Route::post('/gold-items-sold/{id}/mark-as-rest', [GoldItemSoldController::class, 'markAsRest'])->name('gold-items-sold.markAsRest');
+    Route::get('/gold-items-sold/{id}/edit', action: [GoldItemSoldController::class, 'edit'])->name('gold-items-sold.edit');
+
+    // Route::get('/gold-items/{id}/outer', [OuterController::class, 'create'])->name('gold-items.outerForm');
+    // Route::post('/gold-items/{id}/outer', [OuterController::class, 'storeOuter'])->name('gold-items.storeOuter');
+    Route::post('/gold-items/store-outer', [ShopsController::class, 'storeOuter'])->name('gold-items.storeOuter');
+    // Route::get('/gold-items/highlight', [GoldItemController::class, 'highlightUnreturned'])->name('gold-items.index');
+    Route::post('gold-items/returnOuter/{serialNumber}', [ShopsController::class, 'returnOuter'])->name('gold-items.returnOuter');
+    Route::post('gold-items/toggleReturn/{serial_number}', [ShopsController::class, 'toggleReturn'])->name('gold-items.toggleReturn');
+
+
+
     Route::get('/transfer-request/{id}/{status}', [ShopsController::class, 'handleTransferRequest'])->name('transfer.handle');
     // Route to view pending transfer requests
     Route::get('/transfer-requests', [ShopsController::class, 'viewTransferRequests'])->name('transfer.requests');
@@ -73,10 +100,11 @@ Route::middleware(['auth', 'user'])->group(function () {
     ->name('gold-items.transfer');
     Route::get('/gold-items/{id}/transfer', [ShopsController::class, 'showTransferForm'])
     ->name('gold-items.transferForm');
+
     Route::get('/orders', [OrderController::class, 'index'])->name('orders.index');
-    Route::get('/orders/history', [OrderController::class, 'showCompletedOrders'])->name('orders.history');
-    
+    Route::get('/orders/history', [OrderController::class, 'showCompletedOrders'])->name('orders.history'); 
 });
+
 Route::get('/gold-items', [GoldItemController::class, 'index'])->name('gold-items.index');
 
 // Rabea Routes
@@ -104,23 +132,3 @@ Route::middleware('auth')->group(function () {
 });
 
 require __DIR__.'/auth.php';
-// Route::get('/shopify-products', [ShopifyProductController::class, 'index']);
-Route::get('/shopify-products', [ShopifyProductController::class, 'index'])->name('shopify.products');
-Route::get('/shopify-products/orders', [ShopifyProductController::class, 'Order_index'])->name('orders_shopify');
-Route::post('/shopify/orders/{id}/fulfill', [ShopifyProductController::class, 'fulfillOrder'])->name('fulfill_order');
-Route::post('/shopify/orders/{id}/paid', [ShopifyProductController::class, 'markAsPaid'])->name('mark_as_paid');
-Route::get('/orders/{orderId}/pdf', [ShopifyProductController::class,'generatePDF'])->name('order.pdf');
-Route::get('/shopify-products/abandoned-checkouts', [ShopifyProductController::class, 'AbandonedCheckouts_index'])->name('abandoned_checkouts_shopify');
-
-Route::post('/orders/{orderId}/fulfill', 'ShopifyProductController@fulfillOrder')->name('order.fulfill');
-Route::post('/orders/{orderId}/update-tracking', 'ShopifyProductController@updateTracking')->name('order.updateTracking');
-
-// Route::get('/shopify-products/edit-image', [ShopifyProductController::class, 'showEditImageForm'])->name('shopify.products.showEditImageForm');
-// Route::put('/shopify/products/update', [ShopifyProductController::class, 'editImage'])->name('shopify.updateProduct');
-Route::get('/shopify-products/edit/{product_id}', [ShopifyProductController::class, 'showEditImageForm'])->name('shopify.products.showEditImageForm');
-Route::post('/shopify-products/edit/{product_id}', [ShopifyProductController::class, 'editProduct'])->name('shopify.products.editProduct');
-
-Route::get('/gold-report', [GoldReportController::class, 'index'])->name('gold.report');
-
-// Route::put('/shopify-products/{product}', [ShopifyProductController::class, 'updateProduct'])->name('shopify.updateProduct');
-// Route::put('/shopify/products/{product}', [ShopifyProductController::class, 'updateProduct'])->name('shopify.updateProduct');

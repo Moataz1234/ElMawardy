@@ -10,100 +10,164 @@
 <link href="{{ asset('css/style.css') }}" rel="stylesheet">
 <link href="{{ asset('css/order-details.css') }}" rel="stylesheet">
 
+<style>
+    /* Additional Styling for Layout */
+    body {
+        font-family: Arial, sans-serif;
+    }
+
+    .custom-form {
+        background-color: #6562B9;
+        padding: 20px;
+        border-radius: 10px;
+        color: #000000;
+        max-width: 800px;
+        margin: auto;
+        direction: rtl;
+
+    }
+
+    .form-row {
+        display: flex;
+        justify-content: space-between;
+        margin-bottom: 15px;
+    }
+
+    .column {
+        width: 48%;
+    }
+    .column2{
+        width: 20%;
+    }
+    .form-group label {
+        font-weight: bold;
+    }
+
+    textarea, input[type="text"], input[type="number"], input[type="date"], select {
+        width: 100%;
+        padding: 8px;
+        margin-top: 5px;
+        border: 1px solid #ddd;
+        border-radius: 4px;
+    }
+
+    .btn-custom, .btn-primary {
+        display: block;
+        padding: 10px;
+        color: #ffffff;
+        border: none;
+        border-radius: 5px;
+        margin-top: 10px;
+        margin-right: 330px;
+    }
+
+</style>
 </head>
 <body>
 <form class="custom-form" action="{{ route('orders.store') }}" method="POST" enctype="multipart/form-data">
     @csrf
 
-    <!-- Customer Details -->
-    <div class="mb-3">
-        <label for="customer_name" class="form-label">اسم العميل</label>
-        <input type="text" class="form-control" name="customer_name" id="customer_name" required>
+   
+    <!-- Row 1 -->
+    <div class="form-row">
+        <div class="form-group column">
+            <label for="customer_name">اسم العميل</label>
+            <input type="text" class="form-control" name="customer_name" id="customer_name" required>
+        </div>
+        <div class="form-group column">
+            <label for="customer_phone">تليفون العميل</label>
+            <input type="number" class="form-control" name="customer_phone" id="customer_phone" maxlength="11" required>
+        </div>
     </div>
 
-    <div class="mb-3">
-        <label for="customer_phone" class="form-label">تليفون العميل</label>
-        <input type="number" class="form-control" name="customer_phone" id="customer_phone" maxlength="11" required>
+    <!-- Row 2 -->
+    <div class="form-row">
+        <div class="form-group column">
+            <label for="seller_name">البائع</label>
+            <input type="text" class="form-control" name="seller_name" id="seller_name" required>
+        </div>
+        
+        <div class="form-group column2">
+            <label for="deposit">المدفوع</label>
+            <input type="number" class="form-control" name="deposit" id="deposit" step="0.01">
+        </div>
+        <div class="form-group column2">
+            <label for="rest_of_cost">الباقي</label>
+            <input type="number" class="form-control" name="rest_of_cost" id="rest_of_cost" step="0.01">
+        </div>
     </div>
 
-    <div class="mb-3">
-        <label for="seller_name" class="form-label">البائع</label>
-        <input type="text" class="form-control" name="seller_name" id="seller_name" required>
+    <!-- Row 3 -->
+    <div class="form-row">
+        
+        <div class="form-group column">
+            <label for="order_date">تاريخ الاستلام</label>
+            <input type="date" class="form-control" name="order_date" id="order_date">
+        </div>
+        <div class="form-group column">
+            <label for="payment_method">طريقة الدفع</label>
+            <select class="form-control" name="payment_method" id="payment_method">
+                <option value="visa">لا يوجد</option>
+                <option value="visa">Visa</option>
+                <option value="value">Value</option>
+                <option value="cash">Cash</option>
+                <option value="instapay">Instapay</option>
+            </select>
+        </div>
     </div>
 
-    <!-- Order Details -->
-    <label for="order_details">موضوع الطلب :</label>
-    <textarea style="height: 200px" name="order_details" id="order_details"></textarea>
-
-    <div class="mb-3">
-        <label for="deposit" class="form-label">المدفوع</label>
-        <input type="number" class="form-control" name="deposit" id="deposit" step="0.01">
-    </div>
-
-    <div class="mb-3">
-        <label for="rest_of_cost" class="form-label">الباقي</label>
-        <input type="number" class="form-control" name="rest_of_cost" id="rest_of_cost" step="0.01">
-    </div>
-
+    <!-- Row 4 -->
     <div class="form-group">
-        <label for="payment_method" class="form-label">طريقة الدفع</label>
-        <select class="form-control" name="payment_method" id="payment_method">
-            <option value="visa">Visa</option>
-            <option value="value">Value</option>
-            <option value="cash">Cash</option>
-            <option value="instapay">Instapay</option>
-        </select>
+            <label for="order_details">موضوع الطلب :</label>
+            <textarea style="height: 150px; width: 100%;" name="order_details" id="order_details"></textarea>
     </div>
 
-    <div class="mb-3">
-        <label for="order_date" class="form-label">تاريخ الاستلام</label>
-        <input type="date" class="form-control" name="order_date" id="order_date">
-    </div>
+    <!-- Row 5: Text Area for Order Details -->
+    
 
     <!-- Order Items Section -->
-    <h3 style="text-align: center;background-color:rgb(0, 255, 13)">Order Items</h3>
+    <div class="bg-green-500 text-center text-white font-semibold py-2 rounded-md mb-4">Order Items</div>
     <div id="order-items">
         <div class="order-item" id="order-item-template" style="display: none;">
-            <div class="form-group">
-                <label for="order_kind">النوع</label>
-                <select name="order_kind[]" class="form-control" >
-                    @foreach ($kinds as $kind)
-                        <option value="{{ $kind }}">{{ $kind }}</option>
-                    @endforeach
-                </select>
+            <div class="form-row">
+                <div class="form-group">
+                    <label for="order_kind">النوع</label>
+                    <select name="order_kind[]" class="form-control" >
+                        @foreach ($kinds as $kind)
+                            <option value="{{ $kind }}">{{ $kind }}</option>
+                        @endforeach
+                    </select>
+                </div>
+                <div class="form-group column">
+                    <label for="order_fix_type">المشكلة</label>
+                    <select name="order_fix_type[]" class="form-control">
+                        <option value="اوردر جديد">اوردر جديد</option>
+                        <option value="تصليح">تصليح</option>
+                        <option value="عمل مقاس">عمل مقاس</option>
+                        <option value="تلميع">تلميع</option>
+                    </select>
+                </div>
             </div>
 
-            <div class="form-group">
-                <label for="order_fix_type">المشكلة</label>
-                <select type="string" name="order_fix_type[]" class="form-control">
-                    <option value="اوردر جديد">اوردر جديد</option>
-                    <option value="تصليح">تصليح</option>
-                    <option value="عمل مقاس">عمل مقاس</option>
-                    <option value="تلميع">تلميع</option>
-                </select>
+            <div class="form-row">
+                <div class="form-group column">
+                    <label for="quantity">الكمية</label>
+                    <input type="number" class="form-control" name="quantity[]">
+                </div>
+                <div class="form-group column ring-size" style="display: none;">
+                    <label for="ring_size">مقاس الخاتم</label>
+                    <input type="number" class="form-control" name="ring_size[]" disabled>
+                </div>
             </div>
 
-            <div class="form-group">
-                <label for="quantity">الكمية</label>
-                <input type="number" class="form-control" name="quantity[]" >
+            <div class="form-row">
+              
+                <div class="form-group column mb-3">
+                    <input type="checkbox" class="toggleLabel"> عينة
+                </div>
             </div>
 
-            <div class="form-group ring-size" style="display: none">
-                <label for="ring_size">مقاس الخاتم</label>
-                <input type="number" class="form-control" name="ring_size[]" disabled>
-            </div>
 
-            <div class="form-group">
-                <label for="gold_color">اللون</label>
-                <select name="gold_color[]" class="form-control" >
-                    @foreach ($gold_colors as $gold_color)
-                        <option value="{{ $gold_color }}">{{ $gold_color }}</option>
-                    @endforeach
-                </select>
-            </div>
-            <div class="mb-3">
-                <input type="checkbox" class="toggleLabel"> عينة
-            </div>
 
             <div class="mb-3 weight_field" style="display: none">
                 <label for="weight" class="form-label">الوزن</label>
@@ -122,7 +186,7 @@
     <button type="button" id="add-item" class="btn-custom">Add Item</button>
 
     <div class="form-group">
-        <button style="margin: 20px 200px" type="submit" class="btn btn-primary">Submit Order</button>
+        <button style="margin: 20px 300px" type="submit" class="btn btn-primary">Submit Order</button>
     </div>
 </form>
 <script src="{{ asset('js/order_details.js') }}"></script>

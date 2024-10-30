@@ -126,7 +126,7 @@ class OrderController extends Controller
 public function index(Request $request)
 {
     $user = Auth::user();
-    $shop = Shop::where('name', $user->name)->first(); // Assuming the Shop model has the name column
+    $shop = Shop::where('name', $user->shop_name)->first(); // Assuming the Shop model has the name column
     if (!$shop) {
         return redirect()->back()->with('error', 'Shop not found for the user.');
     }
@@ -160,7 +160,7 @@ public function index(Request $request)
 public function showCompletedOrders()
 {
     $user = Auth::user();
-    $shop = Shop::where('name', $user->name)->first(); // Assuming the Shop model has the name column
+    $shop = Shop::where('name', $user->shop_name)->first(); // Assuming the Shop model has the name column
     if (!$shop) {
         return redirect()->back()->with('error', 'Shop not found for the user.');
     }

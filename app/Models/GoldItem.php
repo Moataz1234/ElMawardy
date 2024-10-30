@@ -27,4 +27,8 @@ class GoldItem extends Model
     {
         return $this->hasMany(TransferRequest::class);
     }
+    public function outers()
+    {
+        return $this->hasMany(Outer::class, 'gold_serial_number', 'serial_number');
+    }
 }

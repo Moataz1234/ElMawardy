@@ -11,7 +11,7 @@
 </head>
 <body>
     <form class="custom-form" action="{{ route('gold-items.transfer', $goldItem->id) }}" method="POST">
-        <nav>
+        {{-- <nav>
             <ul>
                 <li><a href="{{ route('gold-items.shop', ['shop' => Auth::user()->name]) }}">Shop Items</a></li>
                 <li><a href="{{ route('transfer.requests') }}">Transfer Requests</a></li>
@@ -21,12 +21,15 @@
                 <li><a href="{{ route('gold-items.sold') }}">Sold Items</a></li>
 
             </ul>
-        </nav>
+        </nav> --}}
         @csrf
         <p><strong>Serial Number:</strong> {{ $goldItem->serial_number }}</p>
+        <p><strong>Model :</strong> {{ $goldItem->model }}</p>
+        <p><strong>Weight :</strong> {{ $goldItem->weight }}</p>
+
         <p><strong>Current Shop:</strong> {{ $goldItem->shop_name }}</p>
        
-        <label for="shop_id">Shop:</label>
+        <label for="shop_id">to Shop:</label>
         <select name="shop_id" id="shop_id" required>
             @foreach($shops as $shop)
                 <option value="{{ $shop->id }}">{{ $shop->name }}</option>

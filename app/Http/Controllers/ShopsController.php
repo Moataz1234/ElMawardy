@@ -10,6 +10,8 @@ use App\Models\TransferRequest;
 use App\Models\GoldItemSold;
 use App\Models\GoldPrice;
 use App\Models\Customer;
+use App\Models\Outer;
+
 use App\Notifications\TransferRequestNotification;
 use Illuminate\Support\Facades\Notification;
 
@@ -72,7 +74,7 @@ class ShopsController extends Controller
     {
         $goldItem = GoldItem::findOrFail($id);
         $shops = Shop::all();
-        return view('admin.Gold.transfer_form', compact('goldItem', 'shops'));
+        return view('shops.transfer_requests.transfer_form', compact('goldItem', 'shops'));
     }
 
     public function showShopItems(Request $request)
@@ -83,7 +85,7 @@ class ShopsController extends Controller
         $direction = $request->input('direction', 'asc');
 
         $latestPrices = GoldPrice::latest()->take(1)->get();  
-        $goldItems = GoldItem::where('shop_name', $user->name)
+        $goldItems = GoldItem::where('shop_name', $user->shop_name)
         ->when($search, function ($query, $search) {
             return $query->where('serial_number', 'like', "%{$search}%")
                 ->orWhereHas('shop', function ($query) use ($search) {
@@ -121,8 +123,9 @@ class ShopsController extends Controller
     {
         $goldItem = GoldItem::findOrFail($id);
         $shops = Shop::all(); // Assuming you have a Shop model
-        return view('Shops.Gold.Edit_form', compact('goldItem', 'shops'));
+        return view('Shops.Gold.sell_form', compact('goldItem', 'shops'));
     }
+    
     public function markAsSold(Request $request, string $id)
     {
         $validated = $request->validate([
@@ -152,4 +155,49 @@ class ShopsController extends Controller
 
         return redirect()->route('gold-items.index')->with('success', 'Gold item marked as sold successfully.');
     }
+    public function storeOuter(Request $request)
+{
+    $outer = Outer::create([
+        'first_name' => $request->input('first_name'),
+        'last_name' => $request->input('last_name'),
+        'phone_number' => $request->input('phone_number'),
+        'reason' => $request->input('reason'),
+        'gold_serial_number' => $request->input('gold_serial_number'),
+        'is_returned' => false,
+    ]);
+
+    return redirect()->back()->with('status', 'Data saved successfully.');
+}
+public function returnOuter($serialNumber)
+{
+    $outer = Outer::where('gold_serial_number', $serialNumber)->first();
+    if ($outer) {
+        $outer->is_returned = true;
+        $outer->save();
+    }
+
+    return redirect()->back()->with('status', 'Item marked as returned.');
+}
+public function toggleReturn($serial_number)
+{
+    // Find the item by serial number
+    $item = GoldItem::where('serial_number', $serial_number)->first();
+    
+    // Check if the item exists
+    if ($item) {
+        $outer = Outer::where('gold_serial_number', $serial_number)->first();
+        
+        if ($outer) {
+            // Toggle the is_returned value
+            $outer->is_returned = false; // Change it back to false
+            $outer->save();
+            return redirect()->back()->with('success', 'Item status updated to Outer.');
+        } else {
+            // Redirect to a form for creating a new outer entry
+            return view('Shops.Gold.outerform', compact('serial_number'));
+        }
+    }
+
+    return redirect()->back()->with('error', 'Item not found.');
+}
 }

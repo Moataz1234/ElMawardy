@@ -30,13 +30,13 @@
                     'kind' => 'Kind',
                     'model' => 'Model',
                     'gold_color' => 'Gold Color',
-                    'stones' => 'Stones',
+                    // 'stones' => 'Stones',
                     'metal_type' => 'Metal Type',
                     'metal_purity' => 'Metal Purity',
                     'quantity' => 'Quantity',
                     'weight' => 'Weight',
                     'source' => 'Source',
-                    'average_of_stones' => 'Average of Stones',
+                    // 'average_of_stones' => 'Average of Stones',
                     'net_weight' => 'Net Weight',
                     'sold_date' => 'sold_date',
                 ];
@@ -68,13 +68,13 @@
                     <td>{{ $item->kind }}</td>
                     <td>{{ $item->model }}</td>
                     <td>{{ $item->gold_color }}</td>
-                    <td>{{ $item->stones }}</td>
+                    {{-- <td>{{ $item->stones }}</td> --}}
                     <td>{{ $item->metal_type }}</td>
                     <td>{{ $item->metal_purity }}</td>
                     <td>{{ $item->quantity }}</td>
                     <td>{{ $item->weight }}</td>
                     <td>{{ $item->source }}</td>
-                    <td>{{ $item->average_of_stones }}</td>
+                    {{-- <td>{{ $item->average_of_stones }}</td> --}}
                     <td>{{ $item->net_weight }}</td>
                     <td>{{ $item->sold_date }}</td>
 

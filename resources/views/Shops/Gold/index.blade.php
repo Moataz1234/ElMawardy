@@ -187,8 +187,14 @@
            </thead>
        <tbody>
            @foreach ($goldItems as $item)
-               <tr>
-                   <td>
+           @php
+           $isOuter = \App\Models\Outer::where('gold_serial_number', $item->serial_number)
+                                       ->where('is_returned', false)
+                                       ->exists();
+            @endphp
+        <tr style="{{ $isOuter ? 'background-color: yellow;' : '' }}">
+
+                <td>
                        @if($item->link)
                            <img src="{{ asset('storage/' . $item->link) }}" alt="Image" width="50">
                        @else
@@ -209,9 +215,31 @@
                    <td>{{ $item->average_of_stones }}</td>
                    <td>{{ $item->net_weight }}</td>
                    <td>
-                       <a class="action_button" href="{{ route('shop-items.edit', $item->id) }}" >Sell</a>
-                       <a class="action_button" href="{{ route('gold-items.transferForm', $item->id) }}" >Transfer</a>
+                    <a class="action_button" href="{{ route('shop-items.edit', $item->id) }}" 
+                        {{ $isOuter ? 'style=pointer-events:none;opacity:0.5;' : '' }}>
+                        Sell
+                     </a>
+                     <a class="action_button" href="{{ route('gold-items.transferForm', $item->id) }}" 
+                        {{ $isOuter ? 'style=pointer-events:none;opacity:0.5;' : '' }}>
+                        Transfer
+                     </a>
+                     @include('Shops.Gold.outerForm') <!-- Include the form view -->
 
+                    </div>
+                    @if ($isOuter)
+                    <form action="{{ route('gold-items.returnOuter', $item->serial_number) }}" method="POST" style="display:inline;">
+                        @csrf
+                        <button type="submit" class="returned-btn">Returned</button>
+                    </form>
+                @else
+                <form action="{{ route('gold-items.toggleReturn', $item->serial_number) }}" method="POST" style="display:inline;">
+                    @csrf
+                    <button type="submit" class="outer-btn">
+                        Outer
+                    </button>
+                </form>
+                @endif
+            
                    </td>
                </tr>
            @endforeach
@@ -221,6 +249,19 @@
    {{ $goldItems->links('pagination::bootstrap-4') }}
 
    <script>
+    function openOuterForm(serialNumber) {
+    document.getElementById('gold_serial_number').value = serialNumber;
+    document.getElementById('outerFormModal').style.display = 'block';
+}
+function closeOuterForm() {
+    document.getElementById('outerFormModal').style.display = 'none';
+}
+function confirmReturn() {
+    // Optional: Add confirmation dialog if you want to confirm the return action
+    if (confirm('Are you sure you want to mark this item as returned?')) {
+        document.querySelector('#returnOuterForm').submit(); // Submit the return form
+    }
+}
     // JavaScript to toggle the visibility of the price table
     document.getElementById('togglePriceTable').addEventListener('click', function() {
         const priceTable = document.getElementById('priceTable');
