@@ -8,11 +8,11 @@
     @endif
     </x-app-layout> --}}
     <head>@if (auth()->user()->usertype === 'admin')
-        @include('navbars.admin-navbar')
+        @include('sidebars.admin-sidebar')
     @elseif (auth()->user()->usertype === 'user')
-        @include('navbars.user-navbar')
+        @include('sidebars.user-sidebar')
     @elseif (auth()->user()->usertype === 'rabea')
-        @include('navbars.rabea-navbar')
+        @include('sidebars.rabea-sidebar')
     @endif
     </head>
 <body>

@@ -1,36 +1,43 @@
-
 .pagination {
     display: flex;
-    justify-content: center; /* Align items horizontally */
-    align-items: center; 
-    margin-right: 200px;
-    /* Align items vertically */
+    justify-content: center;
+    align-items: center;
+    margin-top: 20px;
+    position: fixed;
+    /* Fixes pagination at the bottom */
+    bottom: 20px;
+    /* 20px from the bottom of the viewport */
+    left: 50%;
+    /* Centers the pagination horizontally */
+    transform: translateX(-50%);
+    /* Adjusts center position */
 }
+
 .pagination .page-item {
     margin: 0 12px;
     font-size: 20px;
-    text-decoration: none; /* Adjust as needed */
+    text-decoration: none;
 }
-/* Hover color */
+
 .page-item:hover .page-link {
     background-color: #ff0066;
-    
 }
-a.page-link
-{
+
+a.page-link {
     display: inline-block;
-    padding: 10px 10px; /* Adjust padding as needed */
-    background-color: #007bff; /* Button background color */
-    color: #fff; /* Button text color */
-    text-decoration: none; /* Remove underline */
-     border-radius: 4px; /* Add rounded corners */
-    cursor: pointer; /* Change cursor to pointer on hover */
+    padding: 10px 10px;
+    background-color: #007bff;
+    color: #fff;
+    text-decoration: none;
+    border-radius: 4px;
+    cursor: pointer;
 }
-ul
-{
-list-style-type: none;
+
+ul {
+    list-style-type: none;
 }
-span{
-    color: #000000; /* Button text color */
+
+span {
+    color: #000000;
     font-size: 30px;
 }

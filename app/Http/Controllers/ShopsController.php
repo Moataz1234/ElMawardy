@@ -200,4 +200,58 @@ public function toggleReturn($serial_number)
 
     return redirect()->back()->with('error', 'Item not found.');
 }
+public function showBulkSellForm(Request $request)
+{
+    $ids = explode(',', $request->input('ids'));
+    $goldItems = GoldItem::whereIn('id', $ids)->get();
+
+    return view('shops.Gold.sell_form', compact('goldItems'));
+}
+
+public function showBulkTransferForm(Request $request)
+{
+    $ids = explode(',', $request->input('ids'));
+    $goldItems = GoldItem::whereIn('id', $ids)->get();
+    $shops = Shop::all(); // Assuming you have a Shop model to fetch all shops
+
+    return view('shops.Gold.bulk_transfer_form', compact('goldItems', 'shops'));
+}
+public function bulkSell(Request $request)
+{
+    $validated=$request->validate([
+        'ids' => 'required|array',
+        'first_name' => 'required|string',
+        'last_name' => 'required|string',
+        'phone_number' => 'required',
+        'address' => 'required|string|max:255',
+        'email' => 'required|email',
+        'payment_method' => 'required'
+    ]);
+
+    // Handle the selling logic here for each item
+    foreach ($request->ids as $id) {
+        $goldItem = GoldItem::findOrFail($id);
+        
+        // Create GoldItemSold and assign customer details, then delete GoldItem entry
+        // GoldItemSold::create(array_merge($goldItem->toArray(), [
+        //     'customer_name' => $request->first_name . ' ' . $request->last_name,
+        //     'sold_date' => now()
+        // ]));
+        $customer = Customer::create($validated);
+    
+        $goldItem = GoldItem::findOrFail($id);
+
+        // Set customer_id in GoldItem
+
+        // Transfer data to GoldItemSold
+        $goldItemSold = GoldItemSold::create($goldItem->toArray());
+        $goldItemSold->customer_id = $customer->id;
+        $goldItemSold->sold_date = now();
+        $goldItemSold->save();
+        $goldItem->delete();
+    }
+    echo "<script>localStorage.removeItem('selectedItems');</script>";
+
+    return redirect()->route('gold-items.shop')->with('success', 'Selected items sold successfully.');
+}
 }

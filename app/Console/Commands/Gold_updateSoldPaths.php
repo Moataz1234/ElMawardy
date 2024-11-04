@@ -5,7 +5,7 @@ namespace App\Console\Commands;
 use Illuminate\Console\Command;
 
 use Illuminate\Support\Facades\DB;
-class Gold_updateGoldPath_sold extends Command
+class Gold_updateSoldPaths extends Command
 {
     protected $signature = 'images:update-paths-sold';
 

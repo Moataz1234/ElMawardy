@@ -10,74 +10,38 @@
 </head>
 <body>
     <div class="item-details">
-        <form class="custom-form" action="{{ route('shop-items.edit', $goldItem->id) }}" method="POST" enctype="multipart/form-data">
+        <form action="{{ route('shop-items.bulkSell') }}" method="POST">
             @csrf
-            @method('PUT')
+            @foreach($goldItems as $item)
+            <div>
 
-            <label for="serial_number">Serial Number:</label>
-            <input type="text" name="serial_number" id="serial_number" value="{{ $goldItem->serial_number }}" readonly><br>
+                <h3>Item {{ $item->serial_number }}</h3>
 
-            <label for="shop_name">Shop Name:</label>
-            <input type="text" name="shop_name" id="shop_name" value="{{ $goldItem->shop_name }}" readonly><br>
+            <input type="hidden" name="ids[]" value="{{ $item->id }}">
 
-            <label for="shop_id">Shop ID:</label>
-            <input type="number" name="shop_id" id="shop_id" value="{{ $goldItem->shop_id }}" readonly><br>
+            <p>Shop Name: {{ $item->shop_name }}</p>
 
-            <label for="kind">Kind:</label>
-            <input type="text" name="kind" id="kind" value="{{ $goldItem->kind }}" readonly><br>
+            <p>Shop ID: {{ $item->shop_id }}</p>
 
-            <label for="model">Model:</label>
-            <input type="text" name="model" id="model" value="{{ $goldItem->model }}" readonly><br>
+            <p>Kind: {{ $item->kind }}</p>
 
-            <label for="talab">Talab:</label>
-            <input type="text" name="talab" id="talab" value="{{ $goldItem->talab }}" readonly><br>
+            <p>Model: {{ $item->model }}</p>
 
-            <label for="gold_color">Gold Color:</label>
-            <input type="text" name="gold_color" id="gold_color" value="{{ $goldItem->gold_color }}" readonly><br>
+            <p>Gold Color: {{ $item->gold_color }}</p>
 
-            <label for="stones">Stones:</label>
-            <input type="text" name="stones" id="stones" value="{{ $goldItem->stones }}" readonly><br>
+            <p>Weight: {{ $item->weight }}</p>
 
-            <label for="metal_type">Metal Type:</label>
-            <input type="text" name="metal_type" id="metal_type" value="{{ $goldItem->metal_type }}" readonly><br>
+            {{-- <label for="price">Price:</label>
+            <input type="number" name="price" step="0.01" id="price" value="{{ $goldItem->price }}" readonly><br> --}}
 
-            <label for="metal_purity">Metal Purity:</label>
-            <input type="text" name="metal_purity" id="metal_purity" value="{{ $goldItem->metal_purity }}" readonly><br>
-
-            <label for="quantity">Quantity:</label>
-            <input type="number" name="quantity" id="quantity" value="{{ $goldItem->quantity }}" readonly><br>
-
-            <label for="weight">Weight:</label>
-            <input type="number" name="weight" step="0.01" id="weight" value="{{ $goldItem->weight }}" readonly><br>
-
-            <label for="rest_since">Rest Since:</label>
-            <input type="date" name="rest_since" id="rest_since" value="{{ $goldItem->rest_since }}" readonly><br>
-
-            <label for="source">Source:</label>
-            <input type="text" name="source" id="source" value="{{ $goldItem->source }}" readonly><br>
-
-            <label for="to_print">To Print:</label>
-            <input type="checkbox" name="to_print" id="to_print" value="1" {{ $goldItem->to_print ? 'checked' : '' }} disabled><br>
-
-            <label for="price">Price:</label>
-            <input type="number" name="price" step="0.01" id="price" value="{{ $goldItem->price }}" readonly><br>
-            
-           <label for="semi_or_no">Semi or no:</label>
-            <input type="text" name="semi_or_no" id="semi_or_no" value="{{ $goldItem->semi_or_no }}" readonly><br>
-
-            <label for="average_of_stones">Average of Stones:</label>
-            <input type="number" name="average_of_stones" step="0.01" id="average_of_stones" value="{{ $goldItem->average_of_stones }}" readonly><br>
-
-            <label for="net_weight">Net Weight:</label>
-            <input type="number" name="net_weight" step="0.01" id="net_weight" value="{{ $goldItem->net_weight }}" readonly><br>
-        </form>
-
+    </div>
+    @endforeach
     </div>
 
     <div class="customer-details">
         <h2 style="color: rgb(171, 245, 0)">Enter Customer Details</h2>
-        <form class="custom-form" action="{{ route('gold-items.markAsSold', $goldItem->id) }}" method="POST" enctype="multipart/form-data">
-            @csrf
+        {{-- <form class="custom-form" action="{{ route('gold-items.markAsSold', $goldItem->id) }}" method="POST" enctype="multipart/form-data"> --}}
+            {{-- @csrf --}}
 
             <label for="first_name">الاسم الاول</label>
             <input type="text" name="first_name" id="first_name" required><br>
@@ -106,7 +70,7 @@
             <label for="total_price">السعر</label>
             <input type="number" name="total_price" step="0.01" id="total_price"  ><br>
           
-            <button type="submit">Save Customer</button>
+            <button type="submit">Complete Sale</button>
         </form> 
     </div>
 </body>

@@ -103,6 +103,13 @@ Route::middleware(['auth', 'user'])->group(function () {
 
     Route::get('/orders', [OrderController::class, 'index'])->name('orders.index');
     Route::get('/orders/history', [OrderController::class, 'showCompletedOrders'])->name('orders.history'); 
+
+    Route::post('/shop-items/bulk-sell', [ShopsController::class, 'BulkSell'])->name('shop-items.bulkSell');
+
+    Route::get('/shop-items/bulk-sell-form', [ShopsController::class, 'showBulkSellForm'])->name('shop-items.bulkSellForm');
+    Route::get('/shop-items/bulk-transfer-form', [ShopsController::class, 'showBulkTransferForm'])->name('shop-items.bulkTransferForm');
+//     Route::post('/shop-items/bulk-sell', [ShopsController::class, 'bulkSell'])->name('shop-items.bulkSell');
+// Route::post('/gold-items/bulk-transfer', [ShopsController::class, 'bulkTransfer'])->name('gold-items.bulkTransfer');
 });
 
 Route::get('/gold-items', [GoldItemController::class, 'index'])->name('gold-items.index');

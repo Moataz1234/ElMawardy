@@ -61,32 +61,34 @@ class GoldItemService
 
         return 'G-000001';
     }
-    public function getGoldItems($request)
-    {
-        $search = $request->input('search');
-        $sort = $request->input('sort', 'serial_number');
-        $direction = $request->input('direction', 'asc');
+    public function getGoldItems( $request)
+{
+    $query = GoldItem::with('shop');
 
-        return GoldItem::with('shop')
-            ->when($search, function ($query, $search) {
-                return $query->where('serial_number', 'like', "%{$search}%")
-                    ->orWhereHas('shop', function ($query) use ($search) {
-                        $query->where('name', 'like', "%{$search}%");
-                    })
-                    ->orWhere('kind', 'like', "%{$search}%")
-                    ->orWhere(function ($query) use ($search) {
-                        $baseModel = preg_replace('/-[A-D]$/', '', $search);
-                        $query->where('model', 'like', "%{$baseModel}%");
-                    })
-                    ->orWhere('gold_color', 'like', "%{$search}%")
-                    ->orWhere('stones', 'like', "%{$search}%")
-                    ->orWhere('metal_type', 'like', "%{$search}%")
-                    ->orWhere('metal_purity', 'like', "%{$search}%")
-                    ->orWhere('source', 'like', "%{$search}%");
-            })
-            ->orderBy($sort, $direction)
-            ->paginate(20);
+    // Apply search filter
+    if ($search = $request->input('search')) {
+        // Normalize search input by removing non-numeric characters and leading zeros
+        $normalizedSearch = ltrim(preg_replace('/\D/', '', $search), '0');
+
+        $query->where(function ($query) use ($normalizedSearch) {
+            $query->where('model', 'like', "%{$normalizedSearch}%")
+                ->orWhere('model', 'like', "%-" . substr($normalizedSearch, 1) . "%"); // Handles "1-0010" pattern
+        });
     }
+    // Apply filters for metal purity and kind
+    if ($metalPurity = $request->input('metal_purity')) {
+        $query->whereIn('metal_purity', $metalPurity);
+    }
+
+    if ($kind = $request->input('kind')) {
+        $query->whereIn('kind', $kind);
+    }
+
+    // Sort and paginate results, preserving query parameters
+    return $query->orderBy($request->input('sort', 'serial_number'), $request->input('direction', 'asc'))
+                 ->paginate(20)
+                 ->appends($request->all());
+}
 
     public function getWeightAnalysis()
 {

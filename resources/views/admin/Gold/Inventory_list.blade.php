@@ -14,7 +14,6 @@
     <link href="{{ asset('css/navbar.css') }}" rel="stylesheet">
 </head>
 <body>
-    
     <table class="table">
         <thead>
             <tr>
@@ -27,14 +26,14 @@
                         'kind' => 'Kind',
                         'model' => 'Model',
                         'gold_color' => 'Gold Color',
-                        'stones' => 'Stones',
-                        'metal_type' => 'Metal Type',
+                        // 'stones' => 'Stones',
+                        // 'metal_type' => 'Metal Type',
                         'metal_purity' => 'Metal Purity',
-                        'quantity' => 'Quantity',
+                        // 'quantity' => 'Quantity',
                         'weight' => 'Weight',
-                        'source' => 'Source',
-                        'average_of_stones' => 'Average of Stones',
-                        'net_weight' => 'Net Weight',
+                        // 'source' => 'Source',
+                        // 'average_of_stones' => 'Average of Stones',
+                        // 'net_weight' => 'Net Weight',
                     ];
                 @endphp
 
@@ -63,14 +62,14 @@
                     <td>{{ $item->kind }}</td>
                     <td>{{ $item->model }}</td>
                     <td>{{ $item->gold_color }}</td>
-                    <td>{{ $item->stones }}</td>
-                    <td>{{ $item->metal_type }}</td>
+                    {{-- <td>{{ $item->stones }}</td> --}}
+                    {{-- <td>{{ $item->metal_type }}</td> --}}
                     <td>{{ $item->metal_purity }}</td>
-                    <td>{{ $item->quantity }}</td>
+                    {{-- <td>{{ $item->quantity }}</td> --}}
                     <td>{{ $item->weight }}</td>
-                    <td>{{ $item->source }}</td>
-                    <td>{{ $item->average_of_stones }}</td>
-                    <td>{{ $item->net_weight }}</td>
+                    {{-- <td>{{ $item->source }}</td> --}}
+                    {{-- <td>{{ $item->average_of_stones }}</td> --}}
+                    {{-- <td>{{ $item->net_weight }}</td> --}}
                     <td>
                         <a class="action_button" href="{{ route('gold-items.edit', $item->id) }}" >Edit</a>
                 </tr>

@@ -1,61 +1,53 @@
-nav {
-    background-color: #f8f9fa;
-    border-bottom: 1px solid #e7e7e7;
-    margin-bottom: 20px;
-}
-
-nav ul {
-    list-style-type: none;
-    padding: 0;
+.w3-bar {
     display: flex;
-    margin: 0;
+    justify-content: center;
+    /* Center the items horizontally */
+    margin: 20px 0;
+    /* Optional: Add some margin for spacing */
 }
 
-nav ul li {
+.w3-bar-item {
     margin: 0 10px;
+    /* Optional: Add spacing between items */
 }
 
-nav ul li a {
-    display: block;
-    padding: 10px 20px;
-    text-decoration: none;
-    color: #333;
-    font-weight: bold;
-    transition: background-color 0.3s, color 0.3s;
-}
-
-nav ul li a:hover {
-    background-color: #3e8e41;
-    color: #000;
-}
-
-nav ul li a.active {
-    background-color: #007bff;
-    color: white;
-}
-/* Style for dropdown */
-.dropdown {
+.search-container {
+    display: flex;
+    text-align: center;
+    width: 50%;
+    /* Set width to 50% */
+    margin: 0 auto;
     position: relative;
-    display: inline-block;
+    /* Enables positioning for the icon */
+    left: -50px;
 }
+
+
+/* Style The Dropdown Button */
 
 .dropbtn {
-    color: rgb(0, 0, 0);
-    padding: 10px 20px;
+    background-color: #4CAF50;
+    color: white;
+    padding: 16px;
     font-size: 16px;
     border: none;
     cursor: pointer;
-    text-decoration: none;
 }
+
+
+/* Dropdown Content (Hidden by Default) */
 
 .dropdown-content {
     display: none;
     position: absolute;
     background-color: #f9f9f9;
     min-width: 160px;
-    box-shadow: 0px 8px 16px 0px rgba(0,0,0,0.2);
-    z-index: 1;
+    box-shadow: 0px 8px 16px 0px rgba(0, 0, 0, 0.2);
+    z-index: 1000;
 }
+
+
+/* Links inside the dropdown */
 
 .dropdown-content a {
     color: black;
@@ -64,14 +56,149 @@ nav ul li a.active {
     display: block;
 }
 
+
+/* Change color of dropdown links on hover */
+
 .dropdown-content a:hover {
-    background-color: #3e8e41;
+    background-color: #f1f1f1
 }
+
+
+/* Show the dropdown menu on hover */
 
 .dropdown:hover .dropdown-content {
     display: block;
 }
 
+
+/* Change the background color of the dropdown button when the dropdown content is shown */
+
 .dropdown:hover .dropbtn {
     background-color: #3e8e41;
+}
+
+.second-section {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    gap: 20px;
+    /* Adds space between elements */
+    padding: 10px 0;
+}
+
+.Profile-image .change-display {
+    margin: 0 10%;
+    padding: 5%;
+}
+
+.search-container {
+    display: flex;
+    text-align: center;
+    width: 50%;
+    /* Set width to 50% */
+    margin: 0 auto;
+    position: relative;
+    /* Enables positioning for the icon */
+    left: -50px;
+}
+
+.search-input {
+    width: 100%;
+    padding: 10px 50px 10px 20px;
+    /* More padding for icon */
+    height: 60px;
+    font-size: 16px;
+    border: 1px solid #ccc;
+    border-radius: 50px;
+    box-shadow: 0px 4px 10px rgba(0, 0, 0, 0.1);
+    /* Subtle shadow */
+}
+
+.search-container::after {
+    content: '\f002';
+    /* Unicode for Font Awesome search icon */
+    font-family: 'Font Awesome 5 Free';
+    /* Use the appropriate font-family for your icon */
+    font-weight: 900;
+    /* Adjust font weight if necessary */
+    position: absolute;
+    right: 10px;
+    /* Position the icon from the  right */
+    top: 50%;
+    /* Center vertically */
+    transform: translateY(-50%);
+    /* Adjust for perfect centering */
+    color: #ccc;
+    /* Change color as needed */
+    pointer-events: none;
+    /* Make sure the icon doesn't interfere with input clicks */
+    width: 50px;
+}
+
+.profile-card {
+    background-color: white;
+    border-radius: 50px;
+    box-shadow: 0 4px 15px rgba(0, 0, 0, 0.2);
+    display: flex;
+    align-items: center;
+    padding: 10px;
+    margin-left: 20px;
+    width: 280px;
+    height: 60px;
+    cursor: pointer;
+    transition: transform 0.3s ease, box-shadow 0.3s ease;
+    /* Smooth transition */
+}
+
+.profile-card:hover {
+    transform: scale(1.05);
+    /* Slight zoom on hover */
+    box-shadow: 0 6px 20px rgba(0, 0, 0, 0.3);
+    /* Stronger shadow on hover */
+}
+
+
+/* Show dropdown menu on hover */
+
+.profile-card:hover .dropdown-menu {
+    display: block;
+}
+
+
+/* Basic positioning and styling */
+
+#dropdown-toggle:checked+.dropdown-menu {
+    display: block;
+}
+
+
+/* Positioning and styling for profile card and dropdown */
+
+.profile-card {
+    position: relative;
+}
+
+.dropdown-menu {
+    display: none;
+    /* Hidden by default */
+    position: absolute;
+    right: 0;
+    top: 100%;
+    margin-top: 0.5rem;
+    width: 12rem;
+    background-color: #ffffff;
+    border-radius: 0.375rem;
+    box-shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.1), 0 4px 6px -2px rgba(0, 0, 0, 0.05);
+    z-index: 10;
+}
+
+.dropdown-menu a {
+    display: block;
+    padding: 0.5rem 1rem;
+    color: #4a5568;
+    text-decoration: none;
+}
+
+.dropdown-menu a:hover {
+    background-color: #f7fafc;
 }
