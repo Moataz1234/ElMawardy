@@ -204,6 +204,7 @@ public function showBulkSellForm(Request $request)
 {
     $ids = explode(',', $request->input('ids'));
     $goldItems = GoldItem::whereIn('id', $ids)->get();
+    session()->flash('clear_selections', true);
 
     return view('shops.Gold.sell_form', compact('goldItems'));
 }
@@ -251,6 +252,7 @@ public function bulkSell(Request $request)
         $goldItem->delete();
     }
     echo "<script>localStorage.removeItem('selectedItems');</script>";
+    session()->flash('clear_selections', true);
 
     return redirect()->route('gold-items.shop')->with('success', 'Selected items sold successfully.');
 }
