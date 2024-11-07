@@ -5,7 +5,6 @@ namespace App\Console\Commands;
 use App\Models\Diamond_Catalog;
 use Illuminate\Console\Command;
 use Illuminate\Support\Facades\File;
-use App\Models\Gold_Catalog;
 
 class ImportDiamondImages extends Command
 {

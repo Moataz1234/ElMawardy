@@ -9,10 +9,10 @@
                         <input type="radio" name="sort" value="serial_number" {{ request('sort') == 'serial_number' ? 'checked' : '' }}>
                         <span class="custom-radio"></span> Serial Number
                     </label>
-                    <label>
+                    {{-- <label>
                         <input type="radio" name="sort" value="shop_name" {{ request('sort') == 'shop_name' ? 'checked' : '' }}>
                         <span class="custom-radio"></span> Shop Name
-                    </label>
+                    </label> --}}
                     <label>
                         <input type="radio" name="sort" value="model" {{ request('sort') == 'model' ? 'checked' : '' }}>
                         <span class="custom-radio"></span> Model
@@ -38,14 +38,14 @@
                         <input type="radio" name="sort" value="z-a" {{ request('sort') == 'z-a' ? 'checked' : '' }}>
                         <span class="custom-radio"></span> Z-A
                     </label> --}}
-                    <label>
+                    {{-- <label>
                         <input type="radio" name="sort" value="new" {{ request('sort') == 'new' ? 'checked' : '' }}>
                         <span class="custom-radio"></span> New
                     </label>
                     <label>
                         <input type="radio" name="sort" value="old" {{ request('sort') == 'old' ? 'checked' : '' }}>
                         <span class="custom-radio"></span> Old
-                    </label>
+                    </label> --}}
                 </div>
         
                 <div class="horizontal-line"></div>

@@ -10,7 +10,8 @@
                 <th>Model</th>
                 <th>Gold Color</th>
                 <th>Weight</th>
-                <th>Actions</th>
+                <th>Category</th>
+                <th>Price</th>
             </tr>
         </thead>
         <tbody id="table-body">   
@@ -38,6 +39,9 @@
                     <td>{{ $item->model }}</td>
                     <td>{{ $item->gold_color }}</td>
                     <td>{{ $item->weight }}</td>
+                    <td>{{ $item->modelCategory->category ?? 'No Category' }}</td>
+                    <td>{{ $item->calculated_price }}</td>
+
                     <td>
                         <a class="action_button" href="{{ route('gold-items.transferForm', $item->id) }}" 
                            {{ $isOuter ? 'style=pointer-events:none;opacity:0.5;' : '' }}>

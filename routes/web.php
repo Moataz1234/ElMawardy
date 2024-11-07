@@ -3,16 +3,12 @@
 use App\Http\Controllers\{
     HomeController, ProfileController, NewItemController,
     Gold\GoldItemController, Gold\GoldItemSoldController,
-    Gold\GoldPoundController, ShopsController, OrderController,ShopifyProductController ,GoldReportController,RabiaController,Auth\AsgardeoAuthController,OuterController,GoldCatalogController,
+    Gold\GoldPoundController, ShopsController, OrderController,ShopifyProductController ,GoldReportController,RabiaController
+    ,Auth\AsgardeoAuthController,OuterController,GoldCatalogController,ExcelImportController,GoldPriceController
 };
 use Illuminate\Support\Facades\Route;
 
 
-// Route::get('/login', [App\Http\Controllers\Auth\LoginController::class, 'redirectToProvider'])->name('login');
-// Route::get('/callback', [App\Http\Controllers\Auth\LoginController::class, 'handleProviderCallback']);
-
-// web.php
-// Route::get('/shopify/product/update-price', [ShopifyProductController::class, 'showUpdatePriceForm'])->name('shopify.product.updatePriceForm');
 Route::post('/shopify/product/update-price', [ShopifyProductController::class, 'updatePrices'])->name('shopify.updatePrices');
 Route::get('/shopify/product/update-price', function () {
     return view('shopify.update_price'); // Adjust the path if needed
@@ -20,6 +16,9 @@ Route::get('/shopify/product/update-price', function () {
 
 Route::get('/gold-items/weight-analysis', [GoldItemController::class, 'analyzeWeights'])->name('gold-items.weight-analysis');
 Route::get('/gold-items-sold', [GoldItemSoldController::class, 'index'])->name('gold-items-sold.index');
+
+Route::get('/gold-prices/update', [GoldPriceController::class, 'create'])->name('gold_prices.create');
+Route::post('/gold-prices', [GoldPriceController::class, 'store'])->name('gold_prices.store');
 
 // Public Routes
 Route::middleware('auth')->group(function () {
@@ -53,8 +52,8 @@ Route::middleware(['auth', 'admin'])->group(function () {
     // Transfer Requests
     Route::get('/transfer-requests/history', [ShopsController::class, 'viewTransferRequestHistory'])->name('transfer.requests.history');
     //prices
-    Route::get('/update-prices', [GoldItemController::class, 'showUpdateForm'])->name('prices.update.form');
-    Route::post('/update-prices', [GoldItemController::class, 'updatePrices'])->name('prices.update');
+    // Route::get('/update-prices', [GoldItemController::class, 'showUpdateForm'])->name('prices.update.form');
+    // Route::post('/update-prices', [GoldItemController::class, 'updatePrices'])->name('prices.update');
 
     //Shopify 
     Route::get('/shopify-products', [ShopifyProductController::class, 'index'])->name('shopify.products');
@@ -108,7 +107,10 @@ Route::middleware(['auth', 'user'])->group(function () {
 
     Route::get('/shop-items/bulk-sell-form', [ShopsController::class, 'showBulkSellForm'])->name('shop-items.bulkSellForm');
     Route::get('/shop-items/bulk-transfer-form', [ShopsController::class, 'showBulkTransferForm'])->name('shop-items.bulkTransferForm');
-//     Route::post('/shop-items/bulk-sell', [ShopsController::class, 'bulkSell'])->name('shop-items.bulkSell');
+
+    Route::get('/import', [ExcelImportController::class, 'showForm'])->name('import.form');
+    Route::post('/import', [ExcelImportController::class, 'import'])->name('excel.import');
+    //     Route::post('/shop-items/bulk-sell', [ShopsController::class, 'bulkSell'])->name('shop-items.bulkSell');
 // Route::post('/gold-items/bulk-transfer', [ShopsController::class, 'bulkTransfer'])->name('gold-items.bulkTransfer');
 });
 

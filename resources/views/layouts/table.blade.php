@@ -13,7 +13,7 @@
     <link href="{{ asset('css/pagination.css') }}" rel="stylesheet">
     <link href="{{ asset('css/modal.css') }}" rel="stylesheet">
 
-</head>
+</head>4
 <body>
     @include('dashboard')
     

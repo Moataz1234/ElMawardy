@@ -31,4 +31,8 @@ class GoldItem extends Model
     {
         return $this->hasMany(Outer::class, 'gold_serial_number', 'serial_number');
     }
+    public function modelCategory()
+    {
+        return $this->belongsTo(Models::class, 'model', 'model');
+    }
 }

@@ -2,15 +2,22 @@
 
 namespace App\Http\Controllers;
 use App\Models\GoldItem;
+use App\Services\SortAndFilterService;
 
 use Illuminate\Http\Request;
 
 class GoldCatalogController extends Controller
 {
+    protected $sortAndFilterService;
+
+    public function __construct(SortAndFilterService $sortAndFilterService)
+    {
+        $this->sortAndFilterService = $sortAndFilterService;
+    }
     public function ThreeView(Request $request)
 {
     // Get sort parameters
-    [$sortColumn, $sortDirection] = $this->getSortColumnAndDirection($request->get('sort'));
+    [$sortColumn, $sortDirection] = $this->sortAndFilterService->getSortColumnAndDirection($request->get('sort'));
     
     
     // Start a query on Gold_Catalog
@@ -47,28 +54,6 @@ class GoldCatalogController extends Controller
     ]);
 }
 
-    public function getSortColumnAndDirection($sort)
-    {
-        switch (strtolower($sort)) {
-            case 'serial_number':
-                return ['serial_number', 'asc'];
-            case 'shop_name':
-                return ['shop_name', 'asc'];
-            case 'model':
-                return ['model', 'asc'];
-            case 'quantity':
-                return ['quantity', 'desc'];
-            case 'kind':
-                return ['kind', 'desc'];
-            case 'new':
-                return ['created_at', 'desc'];
-            case 'old':
-                return ['created_at', 'asc'];
-            default:
-                return ['created_at', 'desc']; // Default sorting
-        }
-    }
-    
     public function FourView()
     {
     $catalogItems = GoldItem::paginate(36);

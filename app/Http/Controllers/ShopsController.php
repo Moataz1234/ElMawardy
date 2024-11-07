@@ -11,12 +11,19 @@ use App\Models\GoldItemSold;
 use App\Models\GoldPrice;
 use App\Models\Customer;
 use App\Models\Outer;
+use App\Services\SortAndFilterService;
 
+use PhpOffice\PhpSpreadsheet\IOFactory;
 use App\Notifications\TransferRequestNotification;
 use Illuminate\Support\Facades\Notification;
 
 class ShopsController extends Controller
 {
+    protected $sortAndFilterService;
+    public function __construct(SortAndFilterService $sortAndFilterService)
+    {
+        $this->sortAndFilterService = $sortAndFilterService;
+    }
     public function transferRequest(Request $request, $id)
     {
     $goldItem = GoldItem::findOrFail($id);
@@ -80,29 +87,65 @@ class ShopsController extends Controller
     public function showShopItems(Request $request)
     {
         $user = Auth::user();
-        $search = $request->input('search');
-        $sort = $request->input('sort', 'serial_number');
-        $direction = $request->input('direction', 'asc');
+        // $search = $request->input('search');
+        [$sortColumn, $sortDirection] = $this->sortAndFilterService->getSortColumnAndDirection($request->get('sort'));
+
+        $query = GoldItem::query();
+        $query = GoldItem::where('shop_name', $user->shop_name);
+
+        
+        // $sort = $request->input('sort', 'serial_number');
+        // $direction = $request->input('direction', 'asc');
 
         $latestPrices = GoldPrice::latest()->take(1)->get();  
-        $goldItems = GoldItem::where('shop_name', $user->shop_name)
-        ->when($search, function ($query, $search) {
-            return $query->where('serial_number', 'like', "%{$search}%")
-                ->orWhereHas('shop', function ($query) use ($search) {
-                    $query->where('name', 'like', "%{$search}%");
-                })
-                ->orWhere('kind', 'like', "%{$search}%")
-                ->orWhere('model', 'like', "%{$search}%")
-                ->orWhere('gold_color', 'like', "%{$search}%")
-                ->orWhere('stones', 'like', "%{$search}%")
-                ->orWhere('metal_type', 'like', "%{$search}%")
-                ->orWhere('metal_purity', 'like', "%{$search}%")
-                ->orWhere('source', 'like', "%{$search}%");
-        })
-        ->orderBy($sort, $direction)
-        ->paginate(20);
+        $latestGoldPrice = GoldPrice::orderBy('id', 'desc')->first();
+        $goldWithWork = $latestGoldPrice ? $latestGoldPrice->gold_with_work : 0;
+        $goldItems = GoldItem::with('modelCategory')->get();
+        $goldItems = GoldItem::with('modelCategory.categoryPrice')->get();
 
-        return view('shops.Gold.index', compact('goldItems','latestPrices'));
+
+        foreach ($goldItems as $item) {
+            if ($item->weight && $goldWithWork) {
+                // Initial calculated price
+                $calculatedPrice = $item->weight * $goldWithWork;
+    
+                // Check the model category and apply adjustments
+                if ($item->modelCategory) {
+                    switch ($item->modelCategory->category) {
+                        case '*':
+                            // No change to calculatedPrice
+                            break;
+                        case '**':
+                            $calculatedPrice -= 200* $item->weight;
+                            break;
+                        case '***':
+                            $calculatedPrice -= 400 *$item->weight;
+                            break;
+                    }
+                }
+    
+                // Assign the calculated price to the item
+                $item->calculated_price = max(0, $calculatedPrice); // Prevent negative prices
+            } else {
+                $item->calculated_price = 0; // Default if weight or gold price is missing
+            }
+            
+        }
+        if ($request->filled('metal_purity')) {
+            $query->whereIn('metal_purity', $request->get('metal_purity'));
+        }
+        if ($request->filled('gold_color')) {
+            $query->whereIn('gold_color', $request->input('gold_color'));
+        }
+        // Apply kind filter if selected
+        if ($request->filled('kind')) {
+            $query->whereIn('kind', $request->get('kind'));
+        }
+        $golditems = $query->orderBy($sortColumn, $sortDirection)->paginate(36);
+
+        $goldItems->appends($request->all());
+
+        return view('shops.Gold.index', compact('goldItems','latestPrices','latestGoldPrice'));
     }
 
     public function transferToBranch(Request $request, string $id)
@@ -124,36 +167,6 @@ class ShopsController extends Controller
         $goldItem = GoldItem::findOrFail($id);
         $shops = Shop::all(); // Assuming you have a Shop model
         return view('Shops.Gold.sell_form', compact('goldItem', 'shops'));
-    }
-    
-    public function markAsSold(Request $request, string $id)
-    {
-        $validated = $request->validate([
-            'first_name' => 'required|string|max:255',
-            'last_name' => 'required|string|max:255',
-            'phone_number' => 'nullable|string|max:255',
-            'address' => 'required|string|max:255',
-            'email' => 'required|email|max:255',
-            'payment_method' => 'required|string|max:255',
-        ]);
-    
-        // Create a new customer entry
-        $customer = Customer::create($validated);
-    
-        $goldItem = GoldItem::findOrFail($id);
-
-        // Set customer_id in GoldItem
-
-        // Transfer data to GoldItemSold
-        $goldItemSold = GoldItemSold::create($goldItem->toArray());
-        $goldItemSold->customer_id = $customer->id;
-        $goldItemSold->sold_date = now();
-        $goldItemSold->save();
-
-        // Delete the item from GoldItem
-        $goldItem->delete();
-
-        return redirect()->route('gold-items.index')->with('success', 'Gold item marked as sold successfully.');
     }
     public function storeOuter(Request $request)
 {
