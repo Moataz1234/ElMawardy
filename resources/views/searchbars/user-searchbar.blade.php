@@ -21,10 +21,20 @@
         </div>
     </div>
     </div><div class="second-section-item search-container">
-        <form action="{{ url()->current() }}" method="GET">
-            <input type="text" name="search" class="search-input" placeholder="Model Name" value="{{ request('search') }}">
-            <button type="submit">Search</button>
-        </form>
+     <form action="{{ url()->current() }}" method="GET" class="search-form">
+        @foreach(request()->except(['search', 'page']) as $key => $value)
+            @if(is_array($value))
+                @foreach($value as $item)
+                    <input type="hidden" name="{{ $key }}[]" value="{{ $item }}">
+                @endforeach
+            @else
+                <input type="hidden" name="{{ $key }}" value="{{ $value }}">
+            @endif
+        @endforeach
+        <input type="text" name="search" class="search-input" 
+               value="{{ request('search') }}" placeholder="Model Name">
+        <button type="submit">Search</button>
+    </form>
     </div>
     
   {{-- <div class="controls">

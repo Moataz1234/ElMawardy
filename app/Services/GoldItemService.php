@@ -1,175 +1,207 @@
 <?php
-
 namespace App\Services;
 
 use App\Models\GoldItem;
-use App\Models\GoldItemSold;
+use App\Models\GoldPrice;
 use App\Models\Shop;
-use Illuminate\Support\Facades\Storage;
+// use App\Models\ModelCategory;
+use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Auth;
+use Illuminate\Database\Eloquent\Builder;
+use Illuminate\Pagination\LengthAwarePaginator;
+use Illuminate\Database\Eloquent\Collection;
+use App\Services\SortAndFilterService;
 
 class GoldItemService
 {
+    private PriceCalculator $priceCalculator;
+
+    protected $sortAndFilterService;
+
+    public function __construct(PriceCalculator $priceCalculator,SortAndFilterService $sortAndFilterService)
+    {
+        $this->priceCalculator = $priceCalculator;
+        $this->sortAndFilterService = $sortAndFilterService;
+
+    }
+
+
+        public function getShopItems(Request $request): array
+        {
+            $query = $this->buildItemsQuery($request);
+            $prices = $this->getPrices();
+
+            // $goldItems = $query->paginate(20);
+            $allowedFilters = [
+                'search',
+                'metal_purity',
+                'gold_color',
+                'kind'
+            ];
     
-    public function createGoldItem(array $validatedData, string $imagePath = null)
-    {
-        // Automatically generate the next serial number
-        $lastItem = GoldItem::orderByRaw('CAST(SUBSTRING(serial_number, 3) AS UNSIGNED) DESC')->first();
-        $nextSerialNumber = $this->generateNextSerialNumber($lastItem);
-
-        GoldItem::create([
-            'serial_number' => $nextSerialNumber,
-            'shop_id' => $validatedData['shop_id'],
-            'shop_name' => Shop::find($validatedData['shop_id'])->name,
-            'kind' => $validatedData['kind'],
-            'model' => $validatedData['model'],
-            'gold_color' => $validatedData['gold_color'],
-            'metal_type' => $validatedData['metal_type'],
-            'metal_purity' => $validatedData['metal_purity'],
-            'quantity' => $validatedData['quantity'],
-            'weight' => $validatedData['weight'],
-            'source' => $validatedData['source'],
-            'link' => $imagePath,
-        ]);
-    }
-
-    public function updateGoldItem($id, array $validatedData, $file = null)
-    {
-        $goldItem = GoldItem::findOrFail($id);
-
-        if ($file) {
-            // Store the file
-            $imagePath = $file->store('uploads/gold_items', 'public');
-            $validatedData['link'] = $imagePath;
-
-            // Optionally delete the old image if needed
-            if ($goldItem->link) {
-                Storage::delete('public/' . $goldItem->link);
-            }
-        }
-
-        // Update the GoldItem
-        $goldItem->update($validatedData);
-    }
-
-    private function generateNextSerialNumber($lastItem)
-    {
-        if ($lastItem) {
-            preg_match('/(\d+)$/', $lastItem->serial_number, $matches);
-            $lastNumber = $matches ? (int)$matches[0] : 0;
-            return 'G-' . str_pad($lastNumber + 1, 6, '0', STR_PAD_LEFT);
-        }
-
-        return 'G-000001';
-    }
-    public function getGoldItems( $request)
-{
-    $query = GoldItem::with('shop');
-
-    // Apply search filter
-    if ($search = $request->input('search')) {
-        // Normalize search input by removing non-numeric characters and leading zeros
-        $normalizedSearch = ltrim(preg_replace('/\D/', '', $search), '0');
-
-        $query->where(function ($query) use ($normalizedSearch) {
-            $query->where('model', 'like', "%{$normalizedSearch}%")
-                ->orWhere('model', 'like', "%-" . substr($normalizedSearch, 1) . "%"); // Handles "1-0010" pattern
-        });
-    }
-    // Apply filters for metal purity and kind
-    if ($metalPurity = $request->input('metal_purity')) {
-        $query->whereIn('metal_purity', $metalPurity);
-    }
-
-    if ($kind = $request->input('kind')) {
-        $query->whereIn('kind', $kind);
-    }
-
-    // Sort and paginate results, preserving query parameters
-    return $query->orderBy($request->input('sort', 'serial_number'), $request->input('direction', 'asc'))
-                 ->paginate(20)
-                 ->appends($request->all());
-}
-
-    public function getWeightAnalysis()
-{
-    // Total weight of all gold items
-    $totalGoldItemWeight = GoldItem::sum('weight');
-
-    // Total weight of sold gold items for today
-    $totalGoldItemSoldWeightToday = GoldItemSold::whereDate('sold_date', now()->toDateString())->sum('weight');
-
-    // Perform other analysis as needed (kind, shop, etc.)
-    $kindAnalysis = $this->analyzeByKind();
-    $shopAnalysis = $this->analyzeByShop();
-    $soldKindAnalysis = $this->analyzeSoldByKind();
-    $soldShopAnalysis = $this->analyzeSoldByShop();
-
-    return compact('totalGoldItemWeight', 'totalGoldItemSoldWeightToday', 'kindAnalysis', 'shopAnalysis', 'soldKindAnalysis', 'soldShopAnalysis');
-}
-
-private function analyzeByKind()
-{
-    // Example analysis for gold items by kind
-    $Kinds = GoldItem::select('kind')->distinct()->get();
-    $analysis = [];
-
-    foreach ($Kinds as $Kind) {
-        $count = GoldItem::where('kind', $Kind->kind)->count();
-        $weight = GoldItem::where('kind', $Kind->kind)->sum('weight');
-        $analysis[$Kind->kind] = [
-            'count' => $count,
-            'weight' => $weight
-        ];
-    }
-
-    return $analysis;
-}
-private function analyzeByShop()
-{
-    $shops = GoldItem::select('shop_name')->distinct()->get();
-    $analysis = [];
-
-    foreach ($shops as $shop) {
-        $count = GoldItem::where('shop_name', $shop->shop_name)->count();
-        $weight = GoldItem::where('shop_name', $shop->shop_name)->sum('weight');
-        $analysis[$shop->shop_name] = [
-            'count' => $count,
-            'weight' => $weight
-        ];
-    }
-
-    return $analysis;
-}
-private function analyzeSoldByKind()
-{
-    $Kinds = GoldItemSold::select('kind')->distinct()->get();
-    $analysis = [];
-
-    foreach ($Kinds as $Kind) {
-        $count = GoldItemSold::where('kind', $Kind->kind)->count();
-        $weight = GoldItemSold::where('kind', $Kind->kind)->sum('weight');
-        $analysis[$Kind->kind] = [
-            'count' => $count,
-            'weight' => $weight
-        ];
-    }
-
-    return $analysis;
-}
-private function analyzeSoldByShop()
-    {
-        $shops = GoldItemSold::select('shop_name')->distinct()->get();
-        $analysis = [];
-
-        foreach ($shops as $shop) {
-            $count = GoldItemSold::where('shop_name', $shop->shop_name)->count();
-            $weight = GoldItemSold::where('shop_name', $shop->shop_name)->sum('weight');
-            $analysis[$shop->shop_name] = [
-                'count' => $count,
-                'weight' => $weight
+            $goldItems = $this->sortAndFilterService->getFilteredAndSortedResults(
+                $query,
+                $request,
+                $allowedFilters
+            );
+            return [
+                'goldItems' => $goldItems,
+                'latestPrices' => $prices['latest'],
+                'latestGoldPrice' => $prices['goldPrice'],
+                'totalPages' => $goldItems->lastPage() ,// Add this line
             ];
         }
 
-        return $analysis;
+    public function getEditFormData(string $id): array
+    {
+        return [
+            'goldItem' => GoldItem::findOrFail($id),
+            'shops' => Shop::all()
+        ];
+    }
+    private function buildItemsQuery(Request $request): Builder
+    {
+        return GoldItem::where('shop_name', Auth::user()->shop_name)
+            ->with(['modelCategory.categoryPrice']);
+    }
+
+    private function getPrices(): array
+    {
+        $latestGoldPrice = GoldPrice::latest()->first();
+        
+        return [
+            'latest' => GoldPrice::latest()->take(1)->get(),
+            'goldPrice' => $latestGoldPrice
+        ];
+    }
+    public function updateItem(string $id, array $data): GoldItem
+    {
+        $goldItem = GoldItem::findOrFail($id);
+        $goldItem->update($data);
+        return $goldItem;
+    }
+
+    public function deleteItem(string $id): void
+    {
+        $goldItem = GoldItem::findOrFail($id);
+        $goldItem->delete();
+    }
+
+    public function getItemsByIds(array $ids): Collection
+    {
+        return GoldItem::whereIn('id', $ids)->get();
+    }
+
+    public function searchItems(string $query): Collection
+    {
+        return GoldItem::where('serial_number', 'LIKE', "%{$query}%")
+            ->orWhere('description', 'LIKE', "%{$query}%")
+            ->get();
+    }
+
+    public function getItemDetails(string $id): GoldItem
+    {
+        return GoldItem::with(['modelCategory', 'shop'])->findOrFail($id);
+    }
+
+    public function validateSerialNumber(string $serialNumber): bool
+    {
+        return GoldItem::where('serial_number', $serialNumber)->exists();
+    }
+
+    public function getItemsByShop(string $shopId): Collection
+    {
+        return GoldItem::where('shop_id', $shopId)
+            ->with(['modelCategory'])
+            ->get();
+    }
+
+    public function calculateTotalValue(Collection $items, float $goldPrice): float
+    {
+        return $items->sum(function ($item) use ($goldPrice) {
+            return $this->priceCalculator->calculatePrice($item, $goldPrice);
+        });
+    }
+
+    public function getItemStatistics(): array
+    {
+        return [
+            'total_items' => GoldItem::count(),
+            'total_weight' => GoldItem::sum('weight'),
+            'items_by_category' => GoldItem::selectRaw('model_category, COUNT(*) as count')
+                ->groupBy('model_category')
+                ->get()
+                ->pluck('count', 'model_category')
+                ->toArray(),
+            'items_by_shop' => GoldItem::selectRaw('shop_name, COUNT(*) as count')
+                ->groupBy('shop_name')
+                ->get()
+                ->pluck('count', 'shop_name')
+                ->toArray()
+        ];
+    }
+
+    // public function filterItems(array $filters): Collection
+    // {
+    //     $query = GoldItem::query();
+
+    //     if (isset($filters['metal_purity'])) {
+    //         $query->whereIn('metal_purity', $filters['metal_purity']);
+    //     }
+
+    //     if (isset($filters['gold_color'])) {
+    //         $query->whereIn('gold_color', $filters['gold_color']);
+    //     }
+
+    //     if (isset($filters['kind'])) {
+    //         $query->whereIn('kind', $filters['kind']);
+    //     }
+
+    //     if (isset($filters['weight_min'])) {
+    //         $query->where('weight', '>=', $filters['weight_min']);
+    //     }
+
+    //     if (isset($filters['weight_max'])) {
+    //         $query->where('weight', '<=', $filters['weight_max']);
+    //     }
+
+    //     if (isset($filters['shop_id'])) {
+    //         $query->where('shop_id', $filters['shop_id']);
+    //     }
+
+    //     return $query->get();
+    // }
+
+    public function bulkUpdate(array $ids, array $data): void
+    {
+        GoldItem::whereIn('id', $ids)->update($data);
+    }
+
+    public function getItemHistory(string $id): Collection
+    {
+        return GoldItem::find($id)
+            ->history()
+            ->orderBy('created_at', 'desc')
+            ->get();
+    }
+
+}
+class PriceCalculator
+{
+    public function calculatePrice(GoldItem $item, float $goldPrice): float
+    {
+        if (!$item->weight || !$goldPrice) {
+            return 0;
+        }
+
+        $price = $item->weight * $goldPrice;
+
+        return match($item->modelCategory?->category) {
+            '**' => max(0, $price - (200 * $item->weight)),
+            '***' => max(0, $price - (400 * $item->weight)),
+            default => $price
+        };
     }
 }
+
+ 

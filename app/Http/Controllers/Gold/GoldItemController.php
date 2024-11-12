@@ -4,7 +4,7 @@ namespace App\Http\Controllers\Gold;
 use App\Http\Controllers\Controller;
 use Illuminate\Http\Request;
 use App\Http\Requests\GoldItemRequest;
-use App\Services\GoldItemService;
+use App\Services\Admin_GoldItemService;
 
 
 use App\Models\GoldItem;
@@ -14,7 +14,7 @@ class GoldItemController extends Controller
 {
     protected $goldItemService;
 
-    public function __construct(GoldItemService $goldItemService)
+    public function __construct(Admin_GoldItemService $goldItemService)
     {
         $this->goldItemService = $goldItemService;
     }

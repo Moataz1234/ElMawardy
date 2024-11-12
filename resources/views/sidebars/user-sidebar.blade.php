@@ -1,7 +1,10 @@
 
 <div class="container">
     <div class="filter-search">
-        <form method="GET" action="{{ url()->current() }}">
+        <form method="GET" action="{{ url()->current() }}" id="filterForm">
+            @if(request('search'))
+            <input type="hidden" name="search" value="{{ request('search') }}">
+             @endif
             <div class="radio-group">
                 <h3>Sort By</h3>
                 <div class="page-2">
@@ -116,3 +119,18 @@
             </div>
         </form>
     </div>    
+    @include('components.pagination')
+
+    <script>
+        document.addEventListener('DOMContentLoaded', function() {
+            // Get all filter inputs
+            const filterInputs = document.querySelectorAll('#filterForm select, #filterForm input');
+            
+            // Add change event listener to each input
+            filterInputs.forEach(input => {
+                input.addEventListener('change', function() {
+                    document.getElementById('filterForm').submit();
+                });
+            });
+        });
+        </script>

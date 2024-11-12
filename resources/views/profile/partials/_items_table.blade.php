@@ -1,3 +1,22 @@
+<style>
+    .select-item:disabled {
+        opacity: 0.5;
+        cursor: not-allowed;
+    }
+    
+    tr.pending-transfer {
+        background-color: #f8f9fa;
+    }
+    
+    .pending-badge {
+        background-color: #ffc107;
+        padding: 2px 6px;
+        border-radius: 4px;
+        font-size: 0.8em;
+        color: #000;
+        display: inline-block;
+    }
+</style>
 <div class="spreadsheet">
     <table>
         <thead>
@@ -21,10 +40,22 @@
                                           ->where('is_returned', false)
                                           ->exists();
                 @endphp
-                <tr style="{{ $isOuter ? 'background-color: yellow;' : '' }}">
-                    <td>
+                <tr 
+                style="{{ $isOuter ? 'background-color: yellow;' : '' }}">
+                <td>
+                    @php
+                        $isPending = \App\Models\TransferRequest::where('gold_item_id', $item->id)
+                            ->where('status', 'pending')
+                            ->exists();
+                    @endphp
+                    @if(!$isPending)
                         <input type="checkbox" class="select-item" data-id="{{ $item->id }}">
-                    </td>
+                    @else
+                        <span class="pending-badge">
+                            Pending Transfer to {{ $item->transferRequests->where('status', 'pending')->first()->to_shop_name }}
+                        </span>
+                    @endif
+                </td>
                     <td>
                         @if($item->link)
                             <img
@@ -41,12 +72,8 @@
                     <td>{{ $item->weight }}</td>
                     <td>{{ $item->modelCategory->category ?? 'No Category' }}</td>
                     <td>{{ $item->calculated_price }}</td>
-
+{{-- 
                     <td>
-                        <a class="action_button" href="{{ route('gold-items.transferForm', $item->id) }}" 
-                           {{ $isOuter ? 'style=pointer-events:none;opacity:0.5;' : '' }}>
-                            Transfer
-                        </a>
                         @include('Shops.Gold.outerForm')
                         
                         @if ($isOuter)
@@ -60,7 +87,7 @@
                                 <button type="submit" class="outer-btn">Outer</button>
                             </form>
                         @endif
-                    </td>
+                    </td> --}}
                 </tr>
             @endforeach
         </tbody>
@@ -69,13 +96,30 @@
     <div class="button-container">
         <button id="sellItemsButton" class="image-button">Sell</button> 
         <button id="transferItemsButton" class="image-button">Transfer</button>
+        {{-- <button type="submit" class="outer-btn">Outer</button> --}}
+
     </div>
 </div>
 
-{{ $goldItems->links('pagination::bootstrap-4') }}
+{{-- {{ $goldItems->links('pagination::bootstrap-4') }} --}}
 
-@if(session('clear_selections'))
+@if(isset($cleared_items))
 <script>
-    localStorage.removeItem('selectedItems');
-</script>
+    document.addEventListener('DOMContentLoaded', function() {
+        const clearedData = @json($cleared_items);
+        const currentTime = Math.floor(Date.now() / 1000);
+        
+        // Only clear if the data is recent (within last 5 seconds)
+        if (currentTime - clearedData.timestamp < 5) {
+            clearedData.items.forEach(itemId => {
+                const checkbox = document.querySelector(`.select-item[data-id="${itemId}"]`);
+                if (checkbox) {
+                    checkbox.checked = false;
+                }
+            });
+        }
+        
+        localStorage.removeItem('selectedItems');
+    });
+    </script>
 @endif
