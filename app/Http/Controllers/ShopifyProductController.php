@@ -362,7 +362,239 @@ public function AbandonedCheckouts_index(Request $request)
         'sortDirection' => $sortDirection
     ]);
 }
+public function updateSpecificProducts()
+{
+    $skuData = [
+        'D10506B' => ['price' => 182050, 'compare_at_price' => 214150],
+        'D10415C' => ['price' => 203450, 'compare_at_price' => 239300],
+        'D50893' => ['price' => 1043450, 'compare_at_price' => 1227550],
+        'D10136A' => ['price' => 343600, 'compare_at_price' => 404200],
+        'D10062A' => ['price' => 42150, 'compare_at_price' => 49550],
+        'D10012A' => ['price' => 14450, 'compare_at_price' => 16950],
+        'D20579' => ['price' => 72850, 'compare_at_price' => 85650],
+        'D20586' => ['price' => 277450, 'compare_at_price' => 326400],
+        'D20584' => ['price' => 99800, 'compare_at_price' => 117400],
+        'D20583' => ['price' => 92650, 'compare_at_price' => 108950],
+        'D20577' => ['price' => 100150, 'compare_at_price' => 117800],
+        'D20573' => ['price' => 100750, 'compare_at_price' => 118500],
+        'D20569' => ['price' => 171450, 'compare_at_price' => 201700],
+        'D20567' => ['price' => 106200, 'compare_at_price' => 124900],
+        'D20522B' => ['price' => 110050, 'compare_at_price' => 129450],
+        'D20482' => ['price' => 154450, 'compare_at_price' => 181700],
+        'D20091' => ['price' => 457250, 'compare_at_price' => 537900],
+        'D11054' => ['price' => 46850, 'compare_at_price' => 55100],
+        'D72637' => ['price' => 44150, 'compare_at_price' => 51900],
+        'D72633' => ['price' => 39400, 'compare_at_price' => 46300],
+        'D20562' => ['price' => 136100, 'compare_at_price' => 160100],
+        'D20555' => ['price' => 52000, 'compare_at_price' => 61150],
+        'D50873' => ['price' => 89000, 'compare_at_price' => 104700],
+        'D41046' => ['price' => 72300, 'compare_at_price' => 85050],
+        'D40915B' => ['price' => 62200, 'compare_at_price' => 73150],
+        'D40773' => ['price' => 163900, 'compare_at_price' => 192800],
+        'D72473' => ['price' => 431700, 'compare_at_price' => 507850],
+        'D20550' => ['price' => 66300, 'compare_at_price' => 77950],
+        'D40968' => ['price' => 51000, 'compare_at_price' => 59950],
+        'D41012' => ['price' => 635050, 'compare_at_price' => 747100],
+        'D40907B' => ['price' => 75700, 'compare_at_price' => 89050],
+        'D41025B' => ['price' => 32900, 'compare_at_price' => 38650],
+        'D50822' => ['price' => 62050, 'compare_at_price' => 72950],
+        'D20506A' => ['price' => 57100, 'compare_at_price' => 67150]
+    ];
 
+    $updatedCount = 0;
+    $errors = [];
+
+    $cursor = null;
+    do {
+        $products = $this->shopifyService->getProducts($cursor);
+        
+        if (!isset($products['data']['products']['edges'])) {
+            continue;
+        }
+
+        foreach ($products['data']['products']['edges'] as $productEdge) {
+            $variants = $productEdge['node']['variants']['edges'] ?? [];
+            
+            foreach ($variants as $variant) {
+                $sku = $variant['node']['sku'] ?? '';
+                
+                if (isset($skuData[$sku])) {
+                    $variantId = $variant['node']['id'];
+                    $price = $skuData[$sku]['price'];
+                    $compareAtPrice = $skuData[$sku]['compare_at_price'];
+                    
+                    try {
+                        $response = $this->shopifyService->updateVariantPrices($variantId, $price, $compareAtPrice);
+                        
+                        if ($response['success']) {
+                            $updatedCount++;
+                            Log::info("Updated SKU: {$sku} - Price: {$price}, Compare At: {$compareAtPrice}");
+                        } else {
+                            $errors[] = "Failed to update SKU: {$sku} - " . ($response['message'] ?? 'Unknown error');
+                        }
+                    } catch (\Exception $e) {
+                        $errors[] = "Error updating SKU {$sku}: " . $e->getMessage();
+                    }
+                }
+            }
+        }
+        
+        $cursor = $products['data']['products']['pageInfo']['endCursor'] ?? null;
+        $hasNextPage = $products['data']['products']['pageInfo']['hasNextPage'] ?? false;
+    } while ($hasNextPage && $cursor);
+
+    return response()->json([
+        'success' => true,
+        'updated_count' => $updatedCount,
+        'errors' => $errors
+    ]);
+}
+public function addProductsToCollection()
+{
+    $skusToAdd = [
+        'D10506B', 'D10415C', 'D50893', 'D10136A', 'D10062A', 
+        'D10012A', 'D20579', 'D20586', 'D20584', 'D20583', 
+        'D20577', 'D20573', 'D20569', 'D20567', 'D20522B', 
+        'D20482', 'D20091', 'D11054', 'D72637', 'D72633', 
+        'D20562', 'D20555', 'D50873', 'D41046', 'D40915B', 
+        'D40773', 'D72473', 'D20550', 'D40968', 'D41012', 
+        'D40907B', 'D41025B', 'D50822', 'D20506A'
+    ];
+
+    $collectionTitle = "Last In Stock Sale";
+    $updatedCount = 0;
+    $errors = [];
+
+    try {
+        // First, get the collection ID by title
+        $query = '{
+            collections(first: 1, query: "title:\'' . $collectionTitle . '\'") {
+                edges {
+                    node {
+                        id
+                    }
+                }
+            }
+        }';
+
+        $response = $this->shopifyService->makeGraphQLRequest($query);
+        
+        if (empty($response['data']['collections']['edges'])) {
+            return response()->json([
+                'success' => false,
+                'message' => "Collection '$collectionTitle' not found"
+            ]);
+        }
+
+        $collectionId = $response['data']['collections']['edges'][0]['node']['id'];
+
+        foreach ($skusToAdd as $sku) {
+            try {
+                // Find product by SKU
+                $query = '{
+                    products(first: 1, query: "sku:' . $sku . '") {
+                        edges {
+                            node {
+                                id
+                            }
+                        }
+                    }
+                }';
+
+                $response = $this->shopifyService->makeGraphQLRequest($query);
+                
+                if (!empty($response['data']['products']['edges'])) {
+                    $productId = $response['data']['products']['edges'][0]['node']['id'];
+                    
+                    // Add product to collection
+                    $response = $this->shopifyService->addProductToCollection($collectionId, $productId);
+                    
+                    if ($response['success']) {
+                        $updatedCount++;
+                        Log::info("Added product with SKU: {$sku} to collection");
+                    } else {
+                        $errors[] = "Failed to add SKU: {$sku} - " . ($response['message'] ?? 'Unknown error');
+                    }
+                } else {
+                    $errors[] = "Product not found for SKU: {$sku}";
+                }
+            } catch (\Exception $e) {
+                $errors[] = "Error processing SKU {$sku}: " . $e->getMessage();
+            }
+        }
+
+    } catch (\Exception $e) {
+        return response()->json([
+            'success' => false,
+            'message' => "Error finding collection: " . $e->getMessage()
+        ]);
+    }
+
+    return response()->json([
+        'success' => true,
+        'updated_count' => $updatedCount,
+        'errors' => $errors
+    ]);
+}
+public function updateQuantityToOne()
+{
+    // List of SKUs to update
+    $skusToUpdate = [
+        'D10506B', 'D10415C', 'D50893', 'D10136A', 'D10062A', 
+        'D10012A', 'D20579', 'D20586', 'D20584', 'D20583', 
+        'D20577', 'D20573', 'D20569', 'D20567', 'D20522B', 
+        'D20482', 'D20091', 'D11054', 'D72637', 'D72633', 
+        'D20562', 'D20555', 'D50873', 'D41046', 'D40915B', 
+        'D40773', 'D72473', 'D20550', 'D40968', 'D41012', 
+        'D40907B', 'D41025B', 'D50822', 'D20506A'
+    ];
+
+    $updatedCount = 0;
+    $errors = [];
+
+    $cursor = null;
+    do {
+        $products = $this->shopifyService->getProducts($cursor);
+        
+        if (!isset($products['data']['products']['edges'])) {
+            continue;
+        }
+
+        foreach ($products['data']['products']['edges'] as $productEdge) {
+            $variants = $productEdge['node']['variants']['edges'] ?? [];
+            
+            foreach ($variants as $variant) {
+                $sku = $variant['node']['sku'] ?? '';
+                
+                if (in_array($sku, $skusToUpdate)) {
+                    $variantId = $variant['node']['id'];
+                    
+                    try {
+                        $response = $this->shopifyService->updateVariantQuantity($variantId, 1);
+                        
+                        if ($response['success']) {
+                            $updatedCount++;
+                            Log::info("Updated quantity for SKU: {$sku} to 1");
+                        } else {
+                            $errors[] = "Failed to update SKU: {$sku} - " . ($response['message'] ?? 'Unknown error');
+                        }
+                    } catch (\Exception $e) {
+                        $errors[] = "Error updating SKU {$sku}: " . $e->getMessage();
+                    }
+                }
+            }
+        }
+        
+        $cursor = $products['data']['products']['pageInfo']['endCursor'] ?? null;
+        $hasNextPage = $products['data']['products']['pageInfo']['hasNextPage'] ?? false;
+    } while ($hasNextPage && $cursor);
+
+    return response()->json([
+        'success' => true,
+        'updated_count' => $updatedCount,
+        'errors' => $errors
+    ]);
+}
 }
 
 

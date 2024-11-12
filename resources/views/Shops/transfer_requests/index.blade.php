@@ -12,9 +12,10 @@
 </head>
 <body>
     @foreach($transferRequests as $request)
+    <div class="transfer-request">
         <p><strong>Gold Item:</strong> {{ $request->goldItem->serial_number }}</p>
-        <p><strong>From Shop:</strong> {{ $request->fromShop->name }}</p>
-        <p><strong>To Shop:</strong> {{ $request->toShop->name }}</p>
+        <p><strong>From Shop:</strong> {{ $request->from_shop_name }}</p>
+        <p><strong>To Shop:</strong> {{ $request->to_shop_name }}</p>
         <p><strong>Status:</strong> {{ $request->status }}</p>
 
         @if($request->status == 'pending')
@@ -23,6 +24,7 @@
         @endif
 
         <hr>
+    </div>
     @endforeach
 </body>
 </html>

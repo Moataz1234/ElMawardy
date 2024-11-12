@@ -115,7 +115,7 @@ class AsgardeoAuthController extends Controller
             Auth::login($newUser);
         }
 
-        return redirect()->intended('/dashboard');
+        return redirect()->intended('{$user}/dashboard');
     }
 
     /**

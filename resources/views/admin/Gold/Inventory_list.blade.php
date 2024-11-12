@@ -3,15 +3,18 @@
 <head>
     {{-- @include("GoldCatalog.Shared.adminNavBar")
     @include("GoldCatalog.Shared.sideBar") --}}
-    @include('dashboard')
-
+    {{-- @include('dashboard') --}}
+@include('Temp.dashboard')
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Catalog Items</title>
     <link href="{{ asset('css/app.css') }}" rel="stylesheet">
-    <link href="{{ asset('css/pagination.css') }}" rel="stylesheet">
-    <link href="{{ asset('css/style.css') }}" rel="stylesheet">
-    <link href="{{ asset('css/navbar.css') }}" rel="stylesheet">
+    <link rel="stylesheet" href="https://www.w3schools.com/w3css/4/w3.css">   
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.6.0/css/all.min.css">
+    <link href="{{ asset('css/first_page.css') }}" rel="stylesheet">
+    {{-- <link href="{{ asset('css/pagination.css') }}" rel="stylesheet"> --}}
+    <link href="{{ asset('css/modal.css') }}" rel="stylesheet">
+
 </head>
 <body>
     <table class="table">
@@ -31,6 +34,7 @@
                         'metal_purity' => 'Metal Purity',
                         // 'quantity' => 'Quantity',
                         'weight' => 'Weight',
+                        'category' =>'Category',
                         // 'source' => 'Source',
                         // 'average_of_stones' => 'Average of Stones',
                         // 'net_weight' => 'Net Weight',
@@ -43,14 +47,11 @@
                             {{ $label }}
                             <form method="GET" action="{{ route('gold-items.index') }}" style="display:inline;">
                                 <input type="hidden" name="sort" value="{{ $field }}">
-                                <input type="hidden" name="direction" value="{{ request('direction') === 'asc' ? 'desc' : 'asc' }}">
-                                <input type="hidden" name="search" value="{{ request('search') }}">
-                                <button type="submit">&#8597;</button>
                             </form>
                         </div>  
                         @endforeach
                 </th>
-                <th>Actions</th>
+                {{-- <th>Actions</th> --}}
             </tr>
         </thead>
         <tbody>
@@ -67,13 +68,15 @@
                     <td>{{ $item->metal_purity }}</td>
                     {{-- <td>{{ $item->quantity }}</td> --}}
                     <td>{{ $item->weight }}</td>
+                    <td>{{ $item->modelCategory->category ?? 'No Category' }}</td>
+
                     {{-- <td>{{ $item->source }}</td> --}}
                     {{-- <td>{{ $item->average_of_stones }}</td> --}}
                     {{-- <td>{{ $item->net_weight }}</td> --}}
-                    <td>
-                        <a class="action_button" href="{{ route('gold-items.edit', $item->id) }}" >Edit</a>
+                    {{-- <td>
+                        <a class="action_button" href="{{ route('gold-items.edit', $item->id) }}" >Edit</a> --}}
                 </tr>
-            @endforeach
+            @endforeach 
         </tbody>
     </table>
     

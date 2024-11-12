@@ -11,11 +11,12 @@ return new class extends Migration
      */
     public function up(): void
     {
-        Schema::create('calico_cost', function (Blueprint $table) {
+        Schema::create('transfer_requests', function (Blueprint $table) {
             $table->id();
-            $table->foreignId('diamond_id')->constrained('diamond')->onDelete('cascade');
-            $table->string('calico');
-            $table->decimal('cost', 10, 2);
+            $table->foreignId('gold_item_id')->constrained('gold_items');
+            $table->string('from_shop_name');
+            $table->string('to_shop_name');
+            $table->enum('status', ['pending', 'accepted', 'rejected'])->default('pending');
             $table->timestamps();
         });
     }
@@ -25,6 +26,6 @@ return new class extends Migration
      */
     public function down(): void
     {
-        Schema::dropIfExists('calico_cost');
+        Schema::dropIfExists('transfer_requests');
     }
 };

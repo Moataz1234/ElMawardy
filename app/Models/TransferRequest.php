@@ -9,35 +9,26 @@ class TransferRequest extends Model
 {
     use HasFactory;
 
-    // Define the fillable fields
     protected $fillable = [
         'gold_item_id',
-        'from_shop_id',
-        'to_shop_id',
+        'from_shop_name',  // Changed from from_shop_id
+        'to_shop_name',    // Changed from to_shop_id
         'status',
     ];
 
-    /**
-     * Get the gold item that is being transferred.
-     */
     public function goldItem()
     {
         return $this->belongsTo(GoldItem::class, 'gold_item_id');
     }
 
-    /**
-     * Get the shop from which the item is being transferred.
-     */
+    // Update relationships to use User model instead of Shop
     public function fromShop()
     {
-        return $this->belongsTo(Shop::class, 'from_shop_id');
+        return $this->belongsTo(User::class, 'from_shop_name', 'shop_name');
     }
 
-    /**
-     * Get the shop to which the item is being transferred.
-     */
     public function toShop()
     {
-        return $this->belongsTo(Shop::class, 'to_shop_id');
+        return $this->belongsTo(User::class, 'to_shop_name', 'shop_name');
     }
 }

@@ -51,7 +51,7 @@ class OrderController extends Controller
     }
 
     // Get the logged-in user's shop ID
-    $shop_id = Auth::user()->id;
+    $shop_id = Auth::user()->shop_id;
 
     // Get the current shop's orders count and increment the order number for this shop
     $shopOrdersCount = Order::where('shop_id', $shop_id)->count();

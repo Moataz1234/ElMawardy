@@ -1,4 +1,5 @@
 <?php
+use Illuminate\Support\Facades\Auth;
 
 use App\Http\Controllers\{
     HomeController, ProfileController, NewItemController,
@@ -8,7 +9,8 @@ use App\Http\Controllers\{
 };
 use Illuminate\Support\Facades\Route;
 
-
+// Route::post('/update-specific-products', [ShopifyProductController::class, 'updateQuantityToOne'])->name('shopify.update-specific-products');
+// Route::post('/update-compare-at-prices', [ShopifyProductController::class, 'updateCompareAtPrices'])->name('shopify.update-specific-products');
 Route::post('/shopify/product/update-price', [ShopifyProductController::class, 'updatePrices'])->name('shopify.updatePrices');
 Route::get('/shopify/product/update-price', function () {
     return view('shopify.update_price'); // Adjust the path if needed
@@ -19,23 +21,37 @@ Route::get('/gold-items-sold', [GoldItemSoldController::class, 'index'])->name('
 
 Route::get('/gold-prices/update', [GoldPriceController::class, 'create'])->name('gold_prices.create');
 Route::post('/gold-prices', [GoldPriceController::class, 'store'])->name('gold_prices.store');
-
+Route::get('/gold-items', [GoldItemController::class, 'index'])->name('gold-items.index');
+   
 // Public Routes
 Route::middleware('auth')->group(function () {
-    Route::get('/', [ShopsController::class, 'showShopItems'])->name('dashboard');
-    Route::get('/dashboard', [ShopsController::class, 'showShopItems'])->name('dashboard');
+    // Route::get('/', [GoldItemController::class, 'index'])->name('dashboard');
 
     Route::get('/profile', [ProfileController::class, 'edit'])->name('profile.edit');
     Route::patch('/profile', [ProfileController::class, 'update'])->name('profile.update');
     Route::delete('/profile', [ProfileController::class, 'destroy'])->name('profile.destroy');
-    
+    Route::get('/dashboard', function () {
+        $usertype = Auth::user()->usertype;
+        
+        switch ($usertype) {
+            case 'admin':
+                return redirect()->route('gold-items.index');
+            case 'rabea':
+                return redirect()->route('orders.rabea.index');
+                
+            case 'user':
+                return redirect()->route('dashboard');
+            default:
+                return redirect()->route('login');
+        }
+    })->middleware('auth')->name('dashboard');    
 });
 
 // Admin Routes
 Route::middleware(['auth', 'admin'])->group(function () {
 
-    
-    Route::get('/admin/dashboard', [HomeController::class, 'index'])->name('admin-dashboard');
+    // Route::get('/', [GoldItemController::class, 'index'])->name('admin-dashboard');
+    // Route::get('/admin/dashboard', [HomeController::class, 'index'])->name('admin-dashboard');
     
     Route::get('/new-item/create', [NewItemController::class, 'create'])->name('new-item.create');
     Route::post('/new-item/store', [NewItemController::class, 'store'])->name('new-item.store');
@@ -73,12 +89,11 @@ Route::middleware(['auth', 'admin'])->group(function () {
 Route::middleware(['auth', 'user'])->group(function () {
     
     Route::get('/gold-catalog', [GoldCatalogController::class, 'ThreeView'])->name('gold-catalog');
-   
-    Route::get('/gold-items', [GoldItemController::class, 'index'])->name('gold-items.index');
-   
+    Route::get('/', [ShopsController::class, 'showShopItems'])->name('dashboard');
+
+ 
     Route::get('/dashboard/{id}/edit', [ShopsController::class, 'edit'])->name('shop-items.edit');
     Route::get('/gold-items/shop', [ShopsController::class, 'showShopItems'])->name('gold-items.shop');
-    Route::post('/gold-items/{id}/transfer', [ShopsController::class, 'transferToBranch'])->name('gold-items.transfer');
     Route::post('/gold-items/{id}/mark-as-sold', [ShopsController::class, 'markAsSold'])->name('gold-items.markAsSold');
     Route::post('/gold-items-sold/{id}/mark-as-rest', [GoldItemSoldController::class, 'markAsRest'])->name('gold-items-sold.markAsRest');
     Route::get('/gold-items-sold/{id}/edit', action: [GoldItemSoldController::class, 'edit'])->name('gold-items-sold.edit');
@@ -91,14 +106,19 @@ Route::middleware(['auth', 'user'])->group(function () {
     Route::post('gold-items/toggleReturn/{serial_number}', [ShopsController::class, 'toggleReturn'])->name('gold-items.toggleReturn');
 
 
-
+    Route::post('/gold-items/{id}/transfer-request', [ShopsController::class, 'transferRequest'])
+    ->name('gold-items.transfer-request');
     Route::get('/transfer-request/{id}/{status}', [ShopsController::class, 'handleTransferRequest'])->name('transfer.handle');
     // Route to view pending transfer requests
     Route::get('/transfer-requests', [ShopsController::class, 'viewTransferRequests'])->name('transfer.requests');
-    Route::post('/gold-items/{id}/transfer', [ShopsController::class, 'transferToBranch'])
-    ->name('gold-items.transfer');
+    // Route::post('/gold-items/{id}/transfer', [ShopsController::class, 'transferToBranch'])
+    // ->name('gold-items.transfer');
     Route::get('/gold-items/{id}/transfer', [ShopsController::class, 'showTransferForm'])
     ->name('gold-items.transferForm');
+    Route::get('/bulk-transfer', [ShopsController::class, 'showBulkTransferForm'])
+    ->name('gold-items.bulk-transfer-form');
+Route::post('/bulk-transfer', [ShopsController::class, 'bulkTransfer'])
+    ->name('gold-items.bulk-transfer');
 
     Route::get('/orders', [OrderController::class, 'index'])->name('orders.index');
     Route::get('/orders/history', [OrderController::class, 'showCompletedOrders'])->name('orders.history'); 
@@ -118,17 +138,24 @@ Route::get('/gold-items', [GoldItemController::class, 'index'])->name('gold-item
 
 // Rabea Routes
 Route::middleware(['auth', 'rabea'])->group(function () {
-    Route::get('/orders/rabea', [RabiaController::class, 'indexForRabea'])->name('orders.rabea.index');
+    // Route::get('/', [RabiaController::class, 'indexForRabea'])->name('dashboard');
+    // Route::get('/dashboard', [RabiaController::class, 'indexForRabea'])->name('dashboard');
+    Route::prefix(prefix: 'orders')->group(function () {
+        Route::get('/', [RabiaController::class, 'indexForRabea'])->name('orders.rabea.index');
+        Route::get('/search', [RabiaController::class, 'search'])->name('orders.search');
+        Route::post('/update-status/{id}', [RabiaController::class, 'updateStatus'])->name('orders.updateStatus');
+    });
+    // Route::get('/orders/rabea', [RabiaController::class, 'indexForRabea'])->name('orders.rabea.index');
     Route::get('/orders/rabea/{id}', [RabiaController::class, 'show'])->name('orders.show');
     // Route::put('/orders/rabea/{id}', [RabiaController::class, 'update'])->name('orders.update');
     Route::get('/orders/requests', [RabiaController::class, 'requests'])->name('orders.requests');
     // Route::post('/orders/{order}/accept', [OrderController::class, 'acceptOrder'])->name('orders.accept');
     Route::post('/orders/accept', [RabiaController::class, 'accept'])->name('orders.accept');
 
-    Route::post('orders/{id}/update-status', [RabiaController::class, 'updateStatus'])->name('orders.updateStatus');
+    // Route::post('orders/{id}/update-status', [RabiaController::class, 'updateStatus'])->name('orders.updateStatus');
     Route::get('/orders/toPrint', [RabiaController::class, 'toPrint'])->name('orders.rabea.to_print');
-    Route::get('/completed-orders', [RabiaController::class, 'showCompletedOrders'])->name('completed_orders.index');
-});
+    Route::get('/orders/completed', [RabiaController::class, 'completed'])
+    ->name('orders.completed');});
 Route::get('/orders/rabea/{id}/edit', [RabiaController::class, 'edit'])->name('orders.rabea.edit');
 Route::put('/orders/rabea/{id}', [RabiaController::class, 'update'])->name('orders.update');
 

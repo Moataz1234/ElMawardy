@@ -8,7 +8,7 @@ use Illuminate\Support\Facades\Http;
 
 class ShopifyService
 {
-    protected $client;
+    protected Client $client;
     protected $storeName;
     protected $accessToken;
 
@@ -499,5 +499,142 @@ public function updateTracking($orderId, $fulfillmentId, array $trackingInfo)
 
     return json_decode($response->getBody()->getContents(), true);
 }
-}
+public function updateVariantPrices($variantGid, $price, $compareAtPrice)
+{
+    try {
+        $variantId = preg_replace('/^gid:\/\/shopify\/ProductVariant\//', '', $variantGid);
+        $url = "/admin/api/2024-10/variants/{$variantId}.json";
 
+        $data = [
+            'variant' => [
+                'id' => $variantId,
+                'price' => number_format($price, 2, '.', ''),
+                'compare_at_price' => number_format($compareAtPrice, 2, '.', '')
+            ]
+        ];
+
+        $response = $this->client->put($url, [
+            'json' => $data
+        ]);
+
+        $responseBody = json_decode($response->getBody(), true);
+        
+        Log::info('Shopify update response for variant ' . $variantId . ': ' . json_encode($responseBody));
+        
+        if (isset($responseBody['errors'])) {
+            return [
+                'success' => false,
+                'message' => 'Shopify API error: ' . json_encode($responseBody['errors'])
+            ];
+        }
+
+        return [
+            'success' => true,
+            'data' => $responseBody['variant']
+        ];
+    } catch (\Exception $e) {
+        return [
+            'success' => false,
+            'message' => $e->getMessage()
+        ];
+    }
+}
+public function addProductToCollection($collectionId, $productId)
+{
+    try {
+        $mutation = 'mutation collectionAdd {
+            collectionAddProducts(
+                id: "' . $collectionId . '",
+                productIds: ["' . $productId . '"]
+            ) {
+                collection {
+                    id
+                }
+                userErrors {
+                    field
+                    message
+                }
+            }
+        }';
+
+        $response = $this->client->post('', [
+            'body' => json_encode(['query' => $mutation])
+        ]);
+
+        $responseBody = json_decode($response->getBody(), true);
+        
+        if (isset($responseBody['data']['collectionAddProducts']['userErrors']) 
+            && !empty($responseBody['data']['collectionAddProducts']['userErrors'])) {
+            return [
+                'success' => false,
+                'message' => $responseBody['data']['collectionAddProducts']['userErrors'][0]['message']
+            ];
+        }
+
+        return [
+            'success' => true,
+            'data' => $responseBody['data']['collectionAddProducts']
+        ];
+    } catch (\Exception $e) {
+        return [
+            'success' => false,
+            'message' => $e->getMessage()
+        ];
+    }
+}
+public function makeGraphQLRequest($query)
+{
+    try {
+        $response = $this->client->post('', [
+            'body' => json_encode(['query' => $query])
+        ]);
+        
+        return json_decode($response->getBody(), true);
+    } catch (\Exception $e) {
+        return [
+            'success' => false,
+            'message' => $e->getMessage()
+        ];
+    }
+}
+public function updateVariantQuantity($variantGid, $quantity)
+{
+    try {
+        $variantId = preg_replace('/^gid:\/\/shopify\/ProductVariant\//', '', $variantGid);
+        $url = "/admin/api/2024-10/variants/{$variantId}.json";
+
+        $data = [
+            'variant' => [
+                'id' => $variantId,
+                'inventory_quantity' => $quantity,
+                'old_inventory_quantity' => $quantity
+            ]
+        ];
+
+        $response = $this->client->put($url, [
+            'json' => $data
+        ]);
+
+        $responseBody = json_decode($response->getBody(), true);
+        
+        Log::info('Shopify update response for variant ' . $variantId . ': ' . json_encode($responseBody));
+        
+        if (isset($responseBody['errors'])) {
+            return [
+                'success' => false,
+                'message' => 'Shopify API error: ' . json_encode($responseBody['errors'])
+            ];
+        }
+
+        return [
+            'success' => true,
+            'data' => $responseBody['variant']
+        ];
+    } catch (\Exception $e) {
+        return [
+            'success' => false,
+            'message' => $e->getMessage()
+        ];
+    }
+}
+}

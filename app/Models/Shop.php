@@ -19,4 +19,13 @@ class Shop extends Model
     {
         return $this->hasMany(Order::class);
     }
+    public static function getIdByName($shopName)
+    {
+        return static::where('name', $shopName)->value('id');
+    }
+
+    public function users()
+    {
+        return $this->hasMany(User::class, 'shop_name', 'name');
+    }
 }

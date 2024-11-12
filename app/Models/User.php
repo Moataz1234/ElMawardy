@@ -24,6 +24,7 @@ class User extends Authenticatable
         'password',
         'shop_id',
     ];
+    protected $appends = ['shop_id'];
 
     /**
      * The attributes that should be hidden for serialization.
@@ -49,9 +50,14 @@ class User extends Authenticatable
     }
     public function shop()
     {
-        return $this->belongsTo(Shop::class);
+        return $this->belongsTo(Shop::class, 'shop_name', 'name');
     }
-
+    public function getShopIdAttribute()
+    {
+        if (in_array($this->shop_name, ['admin', 'rabea'])) {
+            return null;
+        }
+        return Shop::getIdByName($this->shop_name);    }
     public function goldItems()
 {
     return $this->hasMany(GoldItem::class, 'shop_name', 'name');

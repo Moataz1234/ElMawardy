@@ -1,43 +1,52 @@
-.pagination {
-    display: flex;
-    justify-content: center;
-    align-items: center;
-    margin-top: 20px;
-    position: fixed;
-    /* Fixes pagination at the bottom */
-    bottom: 20px;
-    /* 20px from the bottom of the viewport */
-    left: 50%;
-    /* Centers the pagination horizontally */
-    transform: translateX(-50%);
-    /* Adjusts center position */
-}
+/* Hide default Bootstrap pagination styling */
 
 .pagination .page-item {
-    margin: 0 12px;
-    font-size: 20px;
-    text-decoration: none;
+    display: none !important;
 }
 
-.page-item:hover .page-link {
-    background-color: #ff0066;
+
+/* New pagination container */
+
+.pagination {
+    display: flex !important;
+    align-items: center !important;
+    justify-content: space-between !important;
+    gap: 12px !important;
+    margin: 20px 0 !important;
 }
 
-a.page-link {
-    display: inline-block;
-    padding: 10px 10px;
-    background-color: #007bff;
-    color: #fff;
-    text-decoration: none;
-    border-radius: 4px;
-    cursor: pointer;
+
+/* Previous button (left arrow) */
+
+.pagination .page-item:first-child {
+    display: block !important;
 }
 
-ul {
-    list-style-type: none;
+.pagination .page-item:first-child .page-link {
+    border: 1px solid #dee2e6 !important;
+    background-color: #fff !important;
+    padding: 8px 16px !important;
+    border-radius: 4px !important;
+    color: #666 !important;
 }
 
-span {
-    color: #000000;
-    font-size: 30px;
+
+/* Next button (with blue background) */
+
+.pagination .page-item:last-child {
+    display: block !important;
 }
+
+.pagination .page-item:last-child .page-link {
+    background-color: #4285f4 !important;
+    color: white !important;
+    border: none !important;
+    padding: 8px 16px !important;
+    border-radius: 4px !important;
+    display: flex !important;
+    align-items: center !important;
+    gap: 8px !important;
+}
+
+
+/* Add the text "Next Page" to the next button

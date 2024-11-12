@@ -3,13 +3,47 @@
 namespace App\Http\Controllers;
 
 use App\Models\Diamond;
+use App\Models\GoldItem;
+use App\Models\GoldPrice;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 
 class HomeController extends Controller
 {
-    public function index(){
-        return view('admin.dashboard');    
+    public function index()
+    {
+        $user = Auth::user();
+        
+        if ($user->usertype === 'user') {
+            // Fetch required data for user dashboard
+            $goldItems = GoldItem::with(['shop', 'modelCategory', 'transferRequests'])
+                ->paginate(10);
+            
+                $latestGoldPrice = GoldPrice::latest()->first();
+        
+            return view('layouts.dashboard', [
+                'user' => $user,
+                'goldItems' => $goldItems,
+                'latestPrices' => $latestGoldPrice,
+                'dashboardContent' => 'Shops.Gold.index'
+            ]);
+        }
+        
+        switch ($user->usertype) {
+            case 'admin':
+                $dashboardView = 'admin.dashboard';
+                break;
+            case 'rabea':
+                $dashboardView = 'admin.Rabea.orders';
+                break;
+            default:
+                $dashboardView = 'dashboard.default';
+        }
+
+        return view('layouts.dashboard', [
+            'user' => $user,
+            'dashboardContent' => $dashboardView
+        ]);
     }
     public function getShopsWithPieces($modelName)
     {

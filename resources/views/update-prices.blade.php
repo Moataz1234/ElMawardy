@@ -73,6 +73,11 @@
     
 </head>
 <body>
+    {{-- <form  method="POST" action="{{ route('shopify.update-specific-products') }}">
+        @csrf
+ 
+        <button type="submit" >Update Shopify Prices</button>
+    </form> --}}
     <h1>Update Gold Prices</h1>
     <form id="goldPriceForm" method="POST" action="{{ route('gold_prices.store') }}">
         @csrf
