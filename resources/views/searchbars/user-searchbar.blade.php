@@ -1,7 +1,7 @@
 <nav class="second-section">
     <div class="profile-card relative">
         <!-- Hidden Checkbox Toggle -->
-        <input type="checkbox" id="dropdown-toggle" class="hidden" />
+        {{-- <input type="checkbox" id="dropdown-toggle" class="hidden" /> --}}
     
         <!-- Label for Checkbox (User's Name) -->
         <label for="dropdown-toggle" class="profile-info cursor-pointer font-medium text-gray-700 hover:text-gray-900">

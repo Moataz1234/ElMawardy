@@ -32,13 +32,19 @@ class SortAndFilterService
     {
         foreach ($allowedFilters as $filter) {
             if ($request->filled($filter)) {
-                if ($filter === 'search') {
-                    $this->applySearchFilter($query, $request->input('search'));
-                } else {
-                    $filterValues = (array) $request->input($filter);
-                    if (!empty($filterValues)) {
-                        $query->whereIn($filter, $filterValues);
-                    }
+                switch ($filter) {
+                    case 'search':
+                        $this->applySearchFilter($query, $request->input('search'));
+                        break;
+                    case 'categories':
+                        $this->applyCategoryFilter($query, $request->input('category'));
+                        break;
+                    default:
+                        $filterValues = (array) $request->input($filter);
+                        if (!empty($filterValues)) {
+                            $query->whereIn($filter, $filterValues);
+                        }
+                        break;
                 }
             }
         }
@@ -77,5 +83,11 @@ class SortAndFilterService
 
         return $query->paginate($perPage ?? $this->defaultPerPage)
                     ->appends($request->all());
+    }
+    protected function applyCategoryFilter(Builder $query, $categories): Builder
+    {
+        return $query->whereHas('modelCategory', function ($q) use ($categories) {
+            $q->whereIn('category', (array) $categories);
+        });
     }
 }

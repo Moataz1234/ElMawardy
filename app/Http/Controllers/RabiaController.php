@@ -26,36 +26,25 @@ class RabiaController extends Controller
 
    public function indexForRabea(Request $request)
 {
-    $query = Order::query();
-
-    // Handle search
-    if ($request->has('search_type') && $request->has('search_term')) {
-        $searchType = $request->input('search_type');
-        $searchTerm = $request->input('search_term');
-        
-        switch ($searchType) {
-            case 'order_number':
-                $query->where('order_number', 'like', "%{$searchTerm}%");
-                break;
-            case 'customer_name':
-                $query->where('customer_name', 'like', "%{$searchTerm}%");
-                break;
-            case 'customer_phone':
-                $query->where('customer_phone', 'like', "%{$searchTerm}%");
-                break;
-            // Add more search types as needed
-        }
-    }
-
-    // Handle sorting
     $sortField = $request->input('sort', 'created_at');
     $sortDirection = $request->input('direction', 'desc');
-    $query->orderBy($sortField, $sortDirection);
+    $orders = $this->orderRepository->getFilteredOrders($sortField,$sortDirection);
 
-    // Get paginated results
-    $orders = $query->paginate(20);
+    return view('admin.Rabea.orders_index', compact('orders'));
+}
+public function updateStatusBulk(Request $request)
+{
+    $status = $request->input('status');
+    $orderIds = json_decode($request->input('order_ids'));
 
-    return view('admin.Rabea.orders', compact('orders'));
+    try {
+        // Update all selected orders
+        Order::whereIn('id', $orderIds)->update(['status' => $status]);
+
+        return redirect()->back()->with('success', 'Orders status updated successfully');
+    } catch (\Exception $e) {
+        return redirect()->back()->with('error', 'Failed to update orders status');
+    }
 }
     public function show($id)
     {

@@ -1,0 +1,203 @@
+     /* body{
+            direction: r
+        } */
+     
+     .filter-search {
+         height: 800px;
+     }
+     
+     .search-container {
+         display: flex;
+         width: 45%;
+         height: 60px;
+         border-radius: 50px;
+         overflow: hidden;
+     }
+     
+     .model-dropdown {
+         flex: 0 0 40%;
+         background-color: darkblue;
+         color: white;
+         padding: 10px;
+         border: none;
+         border-radius: 50px 0 0 50px;
+         font-size: 16px;
+     }
+     
+     .search-input {
+         flex: 1;
+         padding: 10px;
+         border: 1px solid #ccc;
+         border-radius: 0 50px 50px 0;
+         font-size: 16px;
+     }
+     
+     h1 {
+         margin-left: 40px;
+         font-weight: bold;
+         color: darkblue;
+     }
+     
+     nav {
+         display: flex;
+         justify-content: space-between;
+         align-items: center;
+         padding: 20px;
+     }
+     
+     .notification-icon {
+         margin-right: 50px;
+         font-size: 24px;
+         color: darkblue;
+     }
+     
+     table {
+         width: 100%;
+         border-collapse: collapse;
+         /* Collapses borders between cells */
+         direction: rtl;
+     }
+     
+     th {
+         text-align: center;
+         padding: 12px;
+         /* Increased padding for header */
+         border: none;
+         /* No border for headers */
+     }
+     
+     td {
+         width: 150px;
+         /* Set width */
+         height: 50px;
+         /* Increased height for cells */
+         text-align: center;
+         padding: 5px;
+         /* Added padding to give margin effect */
+         border: 1px solid transparent;
+         /* Invisible border for separation */
+         position: relative;
+         /* Position for inner boxes */
+     }
+     
+     .status-box {
+         height: 100%;
+         display: flex;
+         justify-content: center;
+         align-items: center;
+         border: 1px solid #ccc;
+         /* Box border for cell contents */
+         border-radius: 5px;
+         /* Small radius for inner boxes */
+         background-color: rgba(104, 180, 22, 0.971);
+         /* No background */
+     }
+     
+     .order-status {
+         margin-top: 20px;
+         position: fixed;
+         bottom: 20px;
+         left: 0;
+         right: 0;
+         text-align: center;
+         /* Center buttons horizontally */
+     }
+     
+     .status-button {
+         cursor: pointer;
+         border: none;
+         padding: 8px;
+         margin-right: 10px;
+         /* Space between buttons */
+         color: white;
+         font-weight: bold;
+     }
+     
+     .status-خلص {
+         background-color: rgb(179, 5, 121);
+     }
+     
+     .status-في-الدمغة {
+         background-color: rgba(64, 152, 199, 0.862);
+     }
+     
+     .status-في-الورشة {
+         background-color: rgb(200, 151, 5);
+     }
+     
+     .status-تم-الإستلام {
+         background-color: rgba(104, 180, 22, 0.971);
+     }
+     /* Style for checkbox */
+     
+     input[type="checkbox"] {
+         transform: scale(1.5);
+         /* Makes checkbox larger */
+         margin: 0 10px;
+         /* Adds margin on sides */
+     }
+     
+     .spreadsheet {
+         font-size: 20px;
+         font-family: 'Franklin Gothic Medium', 'Arial Narrow', Arial, sans-serif;
+         padding: 10px;
+     }
+     /* Center the set button below radio choices */
+     
+     .button-container {
+         text-align: center;
+         /* Center the Set button */
+         margin-top: 10px;
+         /* Some margin for styling */
+     }
+     
+     input[type="checkbox"] {
+         display: inline;
+     }
+     
+     .radio-group label {
+         font-size: 25px;
+         font-family: Cambria, Cochin, Georgia, Times, 'Times New Roman', serif;
+         font-style: normal;
+     }
+     
+     .nav-link {
+         text-decoration: none;
+         padding: 10px 15px;
+         /* border: 1px solid #007bff; */
+         /* border-radius: 4px; */
+         /* background-color: #f8f9fa; */
+         color: #333;
+         transition: background-color 0.3s;
+     }
+     /* .nav-link:hover {
+            background-color: #e2e6ea;
+        } */
+     
+     .badge {
+         background-color: rgb(255, 0, 0);
+         color: white;
+         border-radius: 10px;
+         padding: 2px 8px;
+     }
+     
+     .light-up {
+         animation: pulse 1s infinite;
+         color: rgb(0, 60, 255);
+     }
+     
+     @keyframes pulse {
+         0% {
+             transform: scale(1);
+         }
+         50% {
+             transform: scale(1.05);
+         }
+         100% {
+             transform: scale(1);
+         }
+     }
+     
+     #notification {
+         font-size: 40px;
+     }

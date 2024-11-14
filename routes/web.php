@@ -22,7 +22,7 @@ Route::get('/gold-items-sold', [GoldItemSoldController::class, 'index'])->name('
 Route::get('/gold-prices/update', [GoldPriceController::class, 'create'])->name('gold_prices.create');
 Route::post('/gold-prices', [GoldPriceController::class, 'store'])->name('gold_prices.store');
 Route::get('/gold-items', [GoldItemController::class, 'index'])->name('gold-items.index');
-   
+// routes/web.php
 // Public Routes
 Route::middleware('auth')->group(function () {
     // Route::get('/', [GoldItemController::class, 'index'])->name('dashboard');
@@ -49,6 +49,9 @@ Route::middleware('auth')->group(function () {
 
 // Admin Routes
 Route::middleware(['auth', 'admin'])->group(function () {
+
+    Route::get('/daily-report', [GoldReportController::class, 'generateDailyReport'])->name('daily.report');
+    Route::get('/daily-report/pdf', [GoldReportController::class, 'generateDailyReport'])->name('daily.report.pdf');
 
     // Route::get('/', [GoldItemController::class, 'index'])->name('admin-dashboard');
     // Route::get('/admin/dashboard', [HomeController::class, 'index'])->name('admin-dashboard');
@@ -82,7 +85,6 @@ Route::middleware(['auth', 'admin'])->group(function () {
     Route::post('/shopify-products/edit/{product_id}', [ShopifyProductController::class, 'editProduct'])->name('shopify.products.editProduct');
 
     //Gold Report
-    Route::get('/gold-report', [GoldReportController::class, 'index'])->name('gold.report');
 
 });
 // Shop Routes
@@ -144,6 +146,8 @@ Route::middleware(['auth', 'rabea'])->group(function () {
         Route::get('/', [RabiaController::class, 'indexForRabea'])->name('orders.rabea.index');
         Route::get('/search', [RabiaController::class, 'search'])->name('orders.search');
         Route::post('/update-status/{id}', [RabiaController::class, 'updateStatus'])->name('orders.updateStatus');
+        Route::post('/orders/update-status-bulk', [RabiaController::class, 'updateStatusBulk'])
+    ->name('orders.updateStatus.bulk');
     });
     // Route::get('/orders/rabea', [RabiaController::class, 'indexForRabea'])->name('orders.rabea.index');
     Route::get('/orders/rabea/{id}', [RabiaController::class, 'show'])->name('orders.show');

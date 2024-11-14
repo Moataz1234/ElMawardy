@@ -1,3 +1,4 @@
+
 <nav>
     <ul>
         {{-- Admin-specific navigation items --}}
@@ -41,7 +42,7 @@
                 <div class="dropdown">
                     <button class="w3-bar-item w3-button">Inventory</button>
                     <div class="dropdown-content">
-                        <a href="{{ route('gold-items.index') }}">Gold Inventory</a>
+                        <a href="{{ route('dashboard') }}">Gold Inventory</a>
                         <a href="{{ route('gold-items.create') }}">Diamond Inventory</a>
                         {{-- <a href="{{ route('gold-pounds.index') }}">Coins</a>
                         <a href="{{ route('gold-items.create') }}">Bars</a>

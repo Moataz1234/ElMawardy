@@ -36,7 +36,7 @@ class GoldItemService
                 'search',
                 'metal_purity',
                 'gold_color',
-                'kind'
+                'kind',
             ];
     
             $goldItems = $this->sortAndFilterService->getFilteredAndSortedResults(
@@ -44,11 +44,16 @@ class GoldItemService
                 $request,
                 $allowedFilters
             );
+            $gold_color = $query->distinct('gold_color')->pluck('gold_color')->toArray();
+            $kind = $query->distinct('kind')->pluck('kind')->toArray();
+        
             return [
                 'goldItems' => $goldItems,
                 'latestPrices' => $prices['latest'],
                 'latestGoldPrice' => $prices['goldPrice'],
-                'totalPages' => $goldItems->lastPage() ,// Add this line
+                'totalPages' => $goldItems->lastPage() ,
+                'gold_color' => $gold_color,
+                'kind' => $kind,
             ];
         }
 

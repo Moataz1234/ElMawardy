@@ -1,5 +1,9 @@
 /* Flex container to hold image and details side by side */
 
+body {
+    background-color: rgb(211, 207, 207);
+}
+
 .order-container {
     display: flex;
     gap: 20px;

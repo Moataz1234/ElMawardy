@@ -43,23 +43,19 @@ body {
 }
 
 .product-image {
-    height: 200px;
-    /* Fixed height for the image */
-    background-size: cover;
-    /* Make sure the image covers the area */
+    height: 150px;
+    background-size: contain;
     background-position: center;
-    /* Center the background image */
+    background-repeat: no-repeat;
 }
 
 .product-name {
     position: absolute;
-    color: white;
-    /* Text color */
+    color: rgb(0, 0, 0);
     font-size: 15px;
-    /* Font size */
-    padding: 5px;
+    font-weight: bold;
     border-radius: 5px;
-    /* Rounded corners for the name background */
+    margin-right: 250px;
 }
 
 .button-container {
