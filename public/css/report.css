@@ -1,0 +1,200 @@
+/* Base Styles */
+
+:root {
+    --primary-color: #6A6458;
+    --white: #ffffff;
+    --shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
+    --border-radius: 10px;
+    --divider-border: 2px solid var(--primary-color);
+}
+
+html,
+body {
+    height: 100%;
+    margin: 0;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    font-family: Arial, sans-serif;
+}
+
+
+/* Layout Containers */
+
+.container {
+    display: flex;
+    max-width: 800px;
+    padding: 20px;
+    justify-content: space-between;
+}
+
+
+/* Image Styles */
+
+.image-container {
+    flex: 0 0 60%;
+    padding: 10px;
+}
+
+.image-container img {
+    width: 700px;
+    height: 500px;
+    border: 10px solid var(--primary-color);
+    border-radius: var(--border-radius);
+    box-shadow: var(--shadow);
+}
+
+
+/* Right Container */
+
+.right-container {
+    flex: 0 0 35%;
+    padding: 10px;
+    display: flex;
+    flex-direction: column;
+    justify-content: space-between;
+}
+
+
+/* Colored Divs */
+
+.colored-div {
+    width: 170px;
+    height: 100px;
+    border-radius: var(--border-radius);
+    box-shadow: var(--shadow);
+    margin: 10px;
+    padding: 5px;
+    text-align: center;
+}
+
+.div1,
+.div2 {
+    background: linear-gradient(to bottom, var(--primary-color) 50%, var(--white) 50%);
+    color: var(--white);
+}
+
+
+/* Half Circle Div */
+
+.half-circle-div {
+    width: 200px;
+    height: 30px;
+    border-radius: 50px;
+    background: linear-gradient(to right, var(--primary-color) 50%, var(--white) 50%);
+    box-shadow: var(--shadow);
+    padding: 10px;
+    display: flex;
+    align-items: center;
+    margin: 10px;
+}
+
+.half-circle-text {
+    margin-right: 50px;
+    color: var(--white);
+}
+
+
+/* Large Div */
+
+.large-div {
+    width: 170px;
+    height: 150px;
+    background: linear-gradient(to bottom, var(--primary-color) 50%, var(--white) 50%);
+    border-radius: var(--border-radius);
+    box-shadow: var(--shadow);
+    margin: 10px;
+    text-align: center;
+}
+
+
+/* Divider Container */
+
+.divider-container {
+    width: 800px;
+    border-radius: var(--border-radius);
+    box-shadow: var(--shadow);
+    margin-top: 5px;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+}
+
+
+/* Divider Rows */
+
+.divider-div {
+    display: flex;
+    width: 100%;
+    justify-content: center;
+    text-align: center;
+}
+
+.dark-div {
+    background-color: var(--primary-color);
+    color: var(--white);
+}
+
+.light-div {
+    background-color: var(--white);
+    color: var(--primary-color);
+}
+
+
+/* Divider Sections */
+
+.divider-section {
+    flex: 1;
+    text-align: center;
+    line-height: 40px;
+    padding: 10px;
+    border-right: var(--divider-border);
+    border-bottom: var(--divider-border);
+}
+
+.divider-section:last-child {
+    border-right: none;
+}
+
+.light-div .divider-section:first-child {
+    background-color: #8c8c8c;
+    color: var(--white);
+}
+
+
+/* Data Text */
+
+.data-text {
+    color: #333;
+    margin: 5px 0;
+    font-weight: bold;
+}
+
+
+/* Print Styles */
+
+@media print {
+    .report-page {
+        page-break-after: always;
+    }
+    .report-page:last-child {
+        page-break-after: avoid;
+    }
+    body {
+        margin-bottom: 5px;
+    }
+    .container {
+        max-width: 600px;
+        margin-bottom: -30px;
+    }
+    .image-container {
+        flex: 0 0 85%;
+        margin-right: 70px;
+        margin-left: -170px;
+    }
+    .image-container img {
+        max-height: 220px;
+        border-width: 3px;
+    }
+}

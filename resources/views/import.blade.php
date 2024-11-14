@@ -13,5 +13,7 @@
         <input type="file" name="file" id="file" accept=".xlsx, .xls, .csv" required>
         <button type="submit">Upload</button>
     </form>
-</body>
+    <div class="print-section">
+        <a href="{{ route('daily.report.pdf') }}" class="btn btn-primary">Download PDF Report</a>
+    </div></body>
 </html>
