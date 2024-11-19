@@ -5,10 +5,34 @@ use App\Http\Controllers\{
     HomeController, ProfileController, NewItemController,
     Gold\GoldItemController, Gold\GoldItemSoldController,
     Gold\GoldPoundController, ShopsController, OrderController,ShopifyProductController ,GoldReportController,RabiaController
-    ,Auth\AsgardeoAuthController,OuterController,GoldCatalogController,ExcelImportController,GoldPriceController
+    ,Auth\AsgardeoAuthController,OuterController,GoldCatalogController,ExcelImportController,GoldPriceController,AdminDashboardController
 };
 use Illuminate\Support\Facades\Route;
+//
+Route::get('/test-smtp', function() {
+    try {
+        $transport = new \Symfony\Component\Mailer\Transport\Smtp\EsmtpTransport(
+            'smtp.bizmail.yahoo.com',
+            465,
+            true
+        );
+        
+        $transport->setUsername('reports@elmawardy.com');
+        $transport->setPassword('xwyqtxljscenmdyv');
+        
+        $transport->start();
+        
+        return "SMTP connection successful";
+    } catch (\Exception $e) {
+        return "Error: " . $e->getMessage();
+    }
+});
+// Route::post('/dashboard_shopify', [ShopifyProductController::class, 'updatePrices'])->name('shopify.updatePrices');
+Route::post('/send-daily-report', [GoldReportController::class, 'sendDailyReport'])
+    ->name('send.reports');
 
+
+    
 // Route::post('/update-specific-products', [ShopifyProductController::class, 'updateQuantityToOne'])->name('shopify.update-specific-products');
 // Route::post('/update-compare-at-prices', [ShopifyProductController::class, 'updateCompareAtPrices'])->name('shopify.update-specific-products');
 Route::post('/shopify/product/update-price', [ShopifyProductController::class, 'updatePrices'])->name('shopify.updatePrices');
@@ -35,7 +59,7 @@ Route::middleware('auth')->group(function () {
         
         switch ($usertype) {
             case 'admin':
-                return redirect()->route('gold-items.index');
+                return redirect()->route('admin.dashboard');
             case 'rabea':
                 return redirect()->route('orders.rabea.index');
                 
@@ -48,12 +72,16 @@ Route::middleware('auth')->group(function () {
 });
 
 // Admin Routes
-Route::middleware(['auth', 'admin'])->group(function () {
+Route::middleware(['auth', 'admin'])->prefix('admin')->group(function () {
 
+    Route::get('/dashboard', [AdminDashboardController::class, 'index'])->name('admin.dashboard');
+    Route::get('/inventory', [GoldItemController::class, 'index'])->name('gold-items.index');
     Route::get('/daily-report', [GoldReportController::class, 'generateDailyReport'])->name('daily.report');
     Route::get('/daily-report/pdf', [GoldReportController::class, 'generateDailyReport'])->name('daily.report.pdf');
-
-    // Route::get('/', [GoldItemController::class, 'index'])->name('admin-dashboard');
+    // Route::get('/email-pdf-link', [GoldReportController::class, 'emailPdfLink'])->name('email.pdf.link');    // Route::get('/', [GoldItemController::class, 'index'])->name('admin-dashboard');
+    Route::post('/send-report-email', [GoldReportController::class, 'generateDailyReport'])
+    ->name('send.report.email');
+    
     // Route::get('/admin/dashboard', [HomeController::class, 'index'])->name('admin-dashboard');
     
     Route::get('/new-item/create', [NewItemController::class, 'create'])->name('new-item.create');

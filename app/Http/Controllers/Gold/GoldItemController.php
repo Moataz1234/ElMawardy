@@ -30,7 +30,7 @@ class GoldItemController extends Controller
             'direction' => $request->input('direction', 'asc')
         ]);
     }
-
+    
     public function create()
     {
         $shops = Shop::all();

@@ -11,7 +11,7 @@
 <body>
     
     @include('components.navbar')
-    @include('components.searchbar')
+    {{-- @include('components.searchbar') --}}
     @include('components.sidebar')
 
 </body>

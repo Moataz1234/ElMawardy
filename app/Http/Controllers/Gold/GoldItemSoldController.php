@@ -9,34 +9,33 @@ use Illuminate\Support\Facades\Auth;
 use App\Models\GoldItemSold;
 use App\Models\Customer;
 use App\Models\GoldItem;
+use App\Services\GoldItemSoldService;
 
 class GoldItemSoldController extends Controller
 {
-    /**
-     * Display a listing of the sold items.
-     */
+    protected $goldItemSoldService;
+
+    public function __construct(GoldItemSoldService $goldItemSoldService)
+    {
+        $this->goldItemSoldService = $goldItemSoldService;
+    }
+
     public function index(Request $request)
     {
-        $user = Auth::user();
-        $search = $request->input('search');
-        $sort = $request->input('sort', 'serial_number');
-        $direction = $request->input('direction', 'asc');
+        $goldItems = $this->goldItemSoldService->getGoldItemsSold($request);
+        
+        // Get unique values for filters
+        $gold_color = GoldItemSold::distinct()->pluck('gold_color')->filter();
+        $kind = GoldItemSold::distinct()->pluck('kind')->filter();
 
-        $goldItems = GoldItemSold::where('shop_name', $user->shop_name)
-        ->when($search, function ($query, $search) {
-            return $query->where('serial_number', 'like', "%{$search}%")
-                         ->orWhere('shop_name', 'like', "%{$search}%")
-                         ->orWhere('kind', 'like', "%{$search}%")
-                         ->orWhere('model', 'like', "%{$search}%")
-                         ->orWhere('gold_color', 'like', "%{$search}%")
-                         ->orWhere('stones', 'like', "%{$search}%")
-                         ->orWhere('metal_type', 'like', "%{$search}%")
-                         ->orWhere('metal_purity', 'like', "%{$search}%")
-                         ->orWhere('source', 'like', "%{$search}%");
-        })
-        ->orderBy($sort, $direction)
-        ->paginate(20);
-        return view('admin.Gold.sold_list', compact('goldItems'));
+        return view('Shops.Gold.sold_index', [
+            'goldItems' => $goldItems,
+            'search' => $request->input('search'),
+            'sort' => $request->input('sort', 'serial_number'),
+            'direction' => $request->input('direction', 'asc'),
+            'gold_color' => $gold_color,
+            'kind' => $kind
+        ]);
     }
 
     /**

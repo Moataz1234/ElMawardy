@@ -73,7 +73,7 @@ class ShopsController extends Controller
     public function viewTransferRequests()
     {
         $data = $this->transferService->getPendingTransfers();
-        return view('shops.transfer_requests.index', $data);
+        return view('shops.transfer_requests.show_requests', $data);
     }
 
     public function viewTransferRequestHistory()
@@ -82,18 +82,18 @@ class ShopsController extends Controller
         return view('shops.transfer_requests.history', compact('history'));
     }
 
-    public function showTransferForm(string $id)
-    {
-        $data = $this->transferService->getTransferFormData($id);
-        return view('shops.transfer_requests.transfer_form', $data);
-    }
+    // public function showTransferForm(string $id)
+    // {
+    //     $data = $this->transferService->getTransferFormData($id);
+    //     return view('shops.transfer_requests.transfer_form', $data);
+    // }
 
-    public function transferToBranch(TransferRequest $request, string $id)
-    {
-        $this->transferService->transferItem($id, $request->validated());
-        return redirect()->route('gold-items.index')
-            ->with('success', 'Gold item transferred successfully.');
-    }
+    // public function transferToBranch(TransferRequest $request, string $id)
+    // {
+    //     $this->transferService->transferItem($id, $request->validated());
+    //     return redirect()->route('gold-items.index')
+    //         ->with('success', 'Gold item transferred successfully.');
+    // }
 
     public function edit(string $id)
     {
@@ -146,7 +146,8 @@ class ShopsController extends Controller
             : explode(',', $request->input('ids'));
         
         $data = $this->transferService->getBulkTransferFormData($itemIds);
-        
+        // $goldItems = $this->goldItemService->getShopItems($request);
+
         if ($data['goldItems']->isEmpty()) {
             return redirect()->back()
                 ->with('error', 'No valid items available for transfer. Some items might already be in transfer process.');

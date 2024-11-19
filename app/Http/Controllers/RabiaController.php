@@ -30,7 +30,7 @@ class RabiaController extends Controller
     $sortDirection = $request->input('direction', 'desc');
     $orders = $this->orderRepository->getFilteredOrders($sortField,$sortDirection);
 
-    return view('admin.Rabea.orders_index', compact('orders'));
+    return view('Rabea.orders_index', compact('orders'));
 }
 public function updateStatusBulk(Request $request)
 {
@@ -53,7 +53,7 @@ public function updateStatusBulk(Request $request)
         $order = Order::findOrFail($id); // Fetch the order or fail with a 404
         
         $this->authorize('view', $order);
-        return view('admin.rabea.orders-show', compact('order')); // Pass the order to the view}
+        return view('rabea.orders-show', compact('order')); // Pass the order to the view}
     }
     public function edit($id)
     {
@@ -66,7 +66,7 @@ public function updateStatusBulk(Request $request)
         $gold_colors = OrderItem::distinct()->pluck('gold_color');
     
         // $this->authorize('view', $order);
-        return view('admin.rabea.orders-edit', compact('order', 'kinds', 'gold_colors')); // Pass the order to the view}
+        return view('rabea.orders-edit', compact('order', 'kinds', 'gold_colors')); // Pass the order to the view}
     }
     public function update(Request $request, $id)
     {
@@ -117,7 +117,7 @@ public function updateStatusBulk(Request $request)
         $this->authorize('viewAny', Order::class);
         $orders = $this->orderRepository->getPendingOrders();
         
-        return view('admin.Rabea.orders-requests', compact('orders'));
+        return view('Rabea.orders-requests', compact('orders'));
     }
 
     public function toPrint(Request $request)
@@ -128,7 +128,7 @@ public function updateStatusBulk(Request $request)
             $request->get('direction', 'desc')
         );
 
-        return view('admin.Rabea.to_print', compact('orders'));
+        return view('Rabea.to_print', compact('orders'));
     }
     public function completed()
     {
@@ -136,7 +136,7 @@ public function updateStatusBulk(Request $request)
             ->orderBy('created_at', 'desc')
             ->paginate(20);
             
-        return view('admin.rabea.completed', compact('completedOrders'));
+        return view('rabea.completed', compact('completedOrders'));
     }
     public function updateStatus(Request $request,$id)
 {

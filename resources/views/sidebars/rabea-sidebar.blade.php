@@ -6,10 +6,7 @@
                 <div class="radio-group">
                     <h3>Sort By</h3>
                     <div class="page-2">
-                        <label>
-                            <input type="radio" name="sort" value="branch_number" {{ request('sort') == 'branch_number' ? 'checked' : '' }}>
-                            <span class="custom-radio"></span> رقم الفرع
-                        </label>
+                    
                         <label>
                             <input type="radio" name="sort" value="order_number" {{ request('sort') == 'order_number' ? 'checked' : '' }}>
                             <span class="custom-radio"></span> رقم الأوردر
@@ -21,6 +18,10 @@
                         <label>
                             <input type="radio" name="sort" value="seller_name" {{ request('sort') == 'seller_name' ? 'checked' : '' }}>
                             <span class="custom-radio"></span> اسم البائع
+                        </label>
+                        <label>
+                            <input type="radio" name="sort" value="status" {{ request('sort') == 'status' ? 'checked' : '' }}>
+                            <span class="custom-radio"></span> الحالة
                         </label>
                     </div>
                 </div>

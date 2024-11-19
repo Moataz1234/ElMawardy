@@ -1,7 +1,7 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-    @include('admin.rabea.dashboard')
+    @include('rabea.dashboard')
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Customer Orders</title>
@@ -10,43 +10,9 @@
     <link href="{{ asset('css/style.css') }}" rel="stylesheet">
     <link href="{{ asset('css/order-details.css') }}" rel="stylesheet">
     <style>
-        /* Custom CSS for the buttons and table layout */
-        .action-buttons {
-            display: flex;
-            flex-direction: column;
-            gap: 5px;
+        table{
+            direction: rtl;
         }
-        .action-buttons button, .action-buttons a {
-            width: 100%;
-            padding: 5px 10px;
-            text-align: center;
-            border-radius: 5px;
-            border: 1px solid #ddd;
-            transition: background-color 0.3s ease;
-            cursor: pointer;
-        }
-       
-        .nav-item {
-            display: inline-block;
-            margin-right: 15px;
-        }
-
-        .nav-link {
-            text-decoration: none;
-            padding: 10px 15px;
-            border: 1px solid #007bff;
-            border-radius: 4px;
-            background-color: #f8f9fa;
-            color: #333;
-            transition: background-color 0.3s;
-        }
-
-        .nav-link:hover {
-            background-color: #e2e6ea;
-        }
-
-        .action_button { background-color: #007bff; color: white; }
-        .action_button:hover { background-color: #0056b3; }
     </style>
 </head>
 <body>
@@ -75,17 +41,11 @@
                 <th>
                     <div class="sort-container">
                         {{ $label }}
-                        <form method="GET" action="{{ route('orders.rabea.index') }}" style="display:inline;">
-                            <input type="hidden" name="sort" value="{{ $field }}">
-                            <input type="hidden" name="direction" value="{{ request('direction') === 'asc' ? 'desc' : 'asc' }}">
-                            <input type="hidden" name="search" value="{{ request('search') }}">
-                            <button type="submit">&#8597;</button>
-                        </form>
                     </div>
                 </th>
                 @endforeach
                 {{-- <th>Delivery Date</th> --}}
-                <th>Actions</th>
+                {{-- <th>Actions</th> --}}
             </tr>
         </thead>
         <tbody>
@@ -105,11 +65,11 @@
 
                     {{-- <td>{{ $order->deliver_date }}</td> --}}
                     <td>
-                    <div class="action-buttons">
+                    {{-- <div class="action-buttons">
                         @if($order->status === 'pending')
                             <a href="{{ route('orders.rabea.edit', $order->id) }}" class="action_button">Edit</a>
                         @endif
-                    </div>
+                    </div> --}}
                     </td>
                 </tr>
             @endforeach

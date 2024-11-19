@@ -159,13 +159,13 @@
                     <th>First Production</th>
                     <th>Last Production</th>
                     <th>Shop</th>
-                    <th>Sold Prices</th>
+                    <th> Sold Pieces</th>
                 </tr>
                 <tr>
                     <td>{{ $data['first_sale'] }}</td>
                     <td>{{ $data['last_sale'] }}</td>
                     <td>{{ $data['shop'] }}</td>
-                    <td>{{ $data['sold_prices'] }}</td>
+                    <td>{{ $data['pieces_sold_today'] }}</td>
                 </tr>
             </table>
 

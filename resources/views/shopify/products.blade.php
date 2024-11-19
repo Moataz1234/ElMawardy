@@ -51,10 +51,14 @@
 .btn:hover {
     background-color: #0056b3;
 }
-
     </style>
     </head>
     <body>
+        <form id="sendReportForm" onsubmit="sendReports(event)">
+            @csrf
+            <button type="submit" class="email-button">Send Reports</button>
+        </form>
+
         <h1>Shopify Products with Media</h1>
         <div class="product-grid">
             @if(count($products) > 0)
@@ -154,5 +158,62 @@
             });
         });
     </script>
+   <script>
+   function sendReports() {
+    // Show loading state
+    const button = document.querySelector('.email-button');
+    button.disabled = true;
+    button.textContent = 'Sending...';
+
+    fetch('{{ route("send.reports") }}', {
+        method: 'POST',
+        headers: {
+            'X-CSRF-TOKEN': '{{ csrf_token() }}',
+            'Accept': 'application/json',
+            'Content-Type': 'application/json'
+        },
+        credentials: 'same-origin'
+    })
+    .then(response => {
+        if (!response.ok) {
+            throw new Error('Network response was not ok');
+        }
+        return response.json();
+    })
+    .then(data => {
+        if (data.success) {
+            alert(data.message);
+        } else {
+            alert(data.message || 'No sales reported for today');
+        }
+    })
+    .catch(error => {
+        console.error('Error:', error);
+        alert('Error sending reports: ' + error.message);
+    })
+    .finally(() => {
+        // Reset button state
+        button.disabled = false;
+        button.textContent = 'Send Reports';
+    });
+}
+    </script>
+    
+    <style>
+   .email-button {
+    background-color: #6A6458;
+    color: white;
+    padding: 10px 20px;
+    border: none;
+    border-radius: 5px;
+    cursor: pointer;
+    margin: 10px;
+    font-size: 14px;
+}
+
+.email-button:hover {
+    background-color: #555048;
+}
+    </style>
     </body>
 </html>

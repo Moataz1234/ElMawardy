@@ -1,110 +1,16 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-    @include('dashboard')
+    @include('components.navbar')
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Transfer Gold Item</title>
-    {{-- <link href="{{ asset('css/app.css') }}" rel="stylesheet">
-    <link href="{{ url('css/style.css') }}" rel="stylesheet">
-    <link href="{{ asset('css/navbar.css') }}" rel="stylesheet">
-    <link href="{{ asset('css/style.css') }}" rel="stylesheet"> --}}
-    <style>
-        /* Container for the whole view */
-        .transfer-container {
-            width: 750px;
-            margin:20px 350px ;
-            background-color: #0D3B66;
-            color: white;
-            border-radius: 10px;
-            padding: 20px;
-            box-shadow: 0 0 10px rgba(0, 0, 0, 0.2);
-            font-family: Arial, sans-serif;
-            
-        }
-        
-        /* Section for shop selection */
-        .shop-select-container {
-            display: flex;
-            justify-content: space-between;
-            margin-bottom: 15px;
-            background-color: #e2e1e0;
-            border-radius: 20px;
-        }
-        
-        .shop-select-container div {
-            width: 60%;
-        }
-        
-        select {
-            width: 100%;
-            padding: 5px;
-            border-radius: 5px;
-            border: 1px solid #ccc;
-            font-size: 16px;
-            color: #fafafa;
-        }
-
-        /* Code label styling */
-        .code-label {
-            font-size: 1.2em;
-            font-weight: bold;
-            margin-bottom: 10px;
-            color:#0D3B66;
-        }
-        
-        /* Table for item details */
-        .details-table {
-            width: 100%;
-            border-spacing: 0;
-            margin-bottom: 15px;
-        }
-        
-        .details-table th, .details-table td {
-            padding: 10px;
-            background-color: #e0e0e0;
-            text-align: left;
-            color: #333;
-            font-weight: bold;
-        }
-        
-        .details-table th {
-            background-color: #0D3B66;
-            color: white;
-        }
-        
-        /* Button styling */
-        .transfer-button {
-            width: 100%;
-            padding: 10px;
-            background-color: #28a745;
-            color: white;
-            border: none;
-            border-radius: 5px;
-            font-size: 16px;
-            cursor: pointer;
-            text-align: center;
-        }
-
-        .transfer-button:hover {
-            background-color: #218838;
-        }
-        .header{
-        }
-        .shop_label{
-
-        }
-        #shop_name{
-            background-color: #0D3B66
-        }
-    </style>
+    <link href="{{ asset('css/transferForm.css') }}" rel="stylesheet">
 </head>
 <body>
- 
     <div class="transfer-container">
         <form action="{{ route('gold-items.bulk-transfer') }}" method="POST">
             @csrf
-            
             <div class="shop-select-container">
                 <div >
                     <label class="code-label">From Shop:</label>
