@@ -67,15 +67,9 @@ class AdminDashboardController extends Controller
             ->groupBy('gold_items.kind')
             ->get();
     
-        $todaySales = GoldItemSold::whereDate('sold_date', today())
-            ->sum('price');
-        
-        $yesterdaySales = GoldItemSold::whereDate('sold_date', today()->subDay())
-            ->sum('price');
-    
-        $percentChange = $yesterdaySales > 0 
-            ? (($todaySales - $yesterdaySales) / $yesterdaySales) * 100 
-            : 0;
+        $todaySales = GoldItemSold::whereDate('sold_date', today())->sum('price');
+        $yesterdaySales = GoldItemSold::whereDate('sold_date', today()->subDay())->sum('price');
+        $percentChange = $yesterdaySales > 0 ? (($todaySales - $yesterdaySales) / $yesterdaySales) * 100 : 0;
     
             $shopWeightAnalysis = GoldItemSold::rightJoin('gold_items', function($join) {
                 $join->on('gold_items.kind', '=', 'gold_items_sold.kind')

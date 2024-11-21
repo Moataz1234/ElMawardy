@@ -57,32 +57,32 @@ class GoldItemController extends Controller
 
     public function update(Request $request, string $id)
     {
-    $validated = $request->validate([
-        'link' => 'nullable|file|image',
-        'serial_number' => 'nullable|string',
-        'shop_name' => 'nullable|string',
-        'shop_id' => 'nullable|integer',
-        'kind' => 'nullable|string',
-        'model' => 'nullable|string',
-        'talab' => 'nullable|string',
-        'gold_color' => 'nullable|string',
-        'stones' => 'nullable|string',
-        'metal_type' => 'nullable|string',
-        'metal_purity' => 'nullable|string',
-        'quantity' => 'nullable|integer',
-        'weight' => 'nullable|numeric',
-        'rest_since' => 'nullable|date',
-        'source' => 'nullable|string',
-        'to_print' => 'nullable|boolean',
-        'price' => 'nullable|numeric',
-        'semi_or_no' => 'nullable|string',
-        'average_of_stones' => 'nullable|numeric',
-        'net_weight' => 'nullable|numeric',
-    ]);
+        $validated = $request->validate([
+            'link' => 'nullable|file|image',
+            'serial_number' => 'nullable|string',
+            'shop_name' => 'nullable|string',
+            'shop_id' => 'nullable|integer',
+            'kind' => 'nullable|string',
+            'model' => 'nullable|string',
+            'talab' => 'nullable|string',
+            'gold_color' => 'nullable|string',
+            'stones' => 'nullable|string',
+            'metal_type' => 'nullable|string',
+            'metal_purity' => 'nullable|string',
+            'quantity' => 'nullable|integer',
+            'weight' => 'nullable|numeric',
+            'rest_since' => 'nullable|date',
+            'source' => 'nullable|string',
+            'to_print' => 'nullable|boolean',
+            'price' => 'nullable|numeric',
+            'semi_or_no' => 'nullable|string',
+            'average_of_stones' => 'nullable|numeric',
+            'net_weight' => 'nullable|numeric',
+        ]);
 
-    $this->goldItemService->updateGoldItem($id, $validated, $request->file('link'));
+        $this->goldItemService->updateGoldItem($id, $validated, $request->file('link'));
 
-    return redirect()->route('gold-items.index')->with('success', 'Gold item updated successfully.');
+        return redirect()->route('gold-items.index')->with('success', 'Gold item updated successfully.');
     }
 
 

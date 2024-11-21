@@ -12,7 +12,7 @@ class AsgardeoProvider extends AbstractProvider implements ProviderInterface
      */
     protected function getAuthUrl($state)
     {
-        return $this->buildAuthUrlFromBase('https://asgardeo.io/oauth2/authorize', $state);
+        return $this->buildAuthUrlFromBase(env('ASGARDEO_AUTHORIZE_URL', 'https://asgardeo.io/oauth2/authorize'), $state);
     }
 
     /**

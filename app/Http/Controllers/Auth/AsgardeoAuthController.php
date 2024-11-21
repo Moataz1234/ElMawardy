@@ -58,11 +58,11 @@ class AsgardeoAuthController extends Controller
             Log::error('Invalid state.');
             return redirect('/login')->withErrors('Invalid state.');
         }
-    
-        session()->forget('asgardeo_oauth_state'); // Clear the state from the session
-    
+
+        session()->forget('asgardeo_oauth_state');
+
         $code = $request->query('code');
-    
+
         if (!$code) {
             Log::error('Authorization code not provided.');
             return redirect('/login')->withErrors('Authorization code not provided.');
