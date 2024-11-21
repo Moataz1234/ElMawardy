@@ -15,7 +15,6 @@ Route::get('/', function () {
     }
     return redirect()->route('login');
 });
-Route::get('/hello', [HelloController::class, 'hello'])->name('hello');
 
 Route::get('/test-smtp', function() {
     try {
