@@ -2,7 +2,7 @@
 use Illuminate\Support\Facades\Auth;
 
 use App\Http\Controllers\{
-    HomeController, ProfileController, NewItemController,
+    HomeController, ProfileController, NewItemController, HelloController,
     Gold\GoldItemController, Gold\GoldItemSoldController,
     Gold\GoldPoundController, ShopsController, OrderController,ShopifyProductController ,GoldReportController,RabiaController
     ,Auth\AsgardeoAuthController,OuterController,GoldCatalogController,ExcelImportController,GoldPriceController,AdminDashboardController
@@ -15,6 +15,8 @@ Route::get('/', function () {
     }
     return redirect()->route('login');
 });
+Route::get('/hello', [HelloController::class, 'hello'])->name('hello');
+
 Route::get('/test-smtp', function() {
     try {
         $transport = new \Symfony\Component\Mailer\Transport\Smtp\EsmtpTransport(
