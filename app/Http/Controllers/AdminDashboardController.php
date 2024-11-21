@@ -24,7 +24,7 @@ class AdminDashboardController extends Controller
                 'shop_name',
                 DB::raw('COUNT(*) as total_items'),
                 DB::raw('SUM(quantity) as total_quantity'),
-                DB::raw('SUM(net_weight) as total_weight')
+                DB::raw('SUM(weight) as total_weight')
             )
             ->groupBy('shop_name')
             ->get();
@@ -43,7 +43,7 @@ class AdminDashboardController extends Controller
         $weightAnalysis = GoldItemSold::rightJoin('gold_items', 'gold_items.kind', '=', 'gold_items_sold.kind')
             ->select(
                 'gold_items.kind',
-                DB::raw('COALESCE(SUM(gold_items_sold.net_weight), 0) as total_weight_sold'),
+                DB::raw('COALESCE(SUM(gold_items_sold.weight), 0) as total_weight_sold'),
                 DB::raw('COUNT(gold_items_sold.id) as items_count')
             )
             ->groupBy('gold_items.kind')
@@ -77,23 +77,71 @@ class AdminDashboardController extends Controller
             ? (($todaySales - $yesterdaySales) / $yesterdaySales) * 100 
             : 0;
     
-        return view('admin.admin-dashboard', compact(
-            'todayStats',
-            'popularModels',
-            'weightAnalysis',
-            'inventoryAnalysis',
-            'todaySales',
-            'yesterdaySales',
-            'percentChange',
-            'salesByCategory'
-        ));
+            $shopWeightAnalysis = GoldItemSold::rightJoin('gold_items', function($join) {
+                $join->on('gold_items.kind', '=', 'gold_items_sold.kind')
+                    ->on('gold_items.shop_name', '=', 'gold_items_sold.shop_name');
+            })
+            ->select(
+                'gold_items.shop_name',
+                'gold_items.kind',
+                DB::raw('COALESCE(SUM(gold_items_sold.weight), 0) as total_weight_sold'),
+                DB::raw('SUM(gold_items.weight) as total_weight_inventory'),
+                DB::raw('COUNT(gold_items_sold.id) as items_sold'),
+                DB::raw('COUNT(gold_items.id) as items_in_stock')
+            )
+            ->groupBy('gold_items.shop_name', 'gold_items.kind')
+            ->get();
+        
+            // Most sold category by shop today
+            $topCategoryByShopToday = GoldItemSold::whereDate('sold_date', today())
+                ->select(
+                    'shop_name',
+                    'kind',
+                    DB::raw('SUM(quantity) as total_quantity')
+                )
+                ->groupBy('shop_name', 'kind')
+                ->orderByRaw('SUM(quantity) DESC')
+                ->get()
+                ->groupBy('shop_name')
+                ->map(function($items) {
+                    return $items->first();
+                });
+        
+            // Most sold category by shop overall
+            $topCategoryByShopOverall = GoldItemSold::select(
+                    'shop_name',
+                    'kind',
+                    DB::raw('SUM(quantity) as total_quantity')
+                )
+                ->groupBy('shop_name', 'kind')
+                ->orderByRaw('SUM(quantity) DESC')
+                ->get()
+                ->groupBy('shop_name')
+                ->map(function($items) {
+                    return $items->first();
+                });
+        
+            // Add these to your existing return statement
+            return view('admin.admin-dashboard', compact(
+                'todayStats',
+                'popularModels',
+                'weightAnalysis',
+                'inventoryAnalysis',
+                'todaySales',
+                'yesterdaySales',
+                'percentChange',
+                'salesByCategory',
+                'shopWeightAnalysis',
+                'topCategoryByShopToday',
+                'topCategoryByShopOverall'
+            ));
     }
     public function weightAnalysis()
 {
     // Get weights sold grouped by kind
     $weightsSold = GoldItemSold::select(
         'kind',
-        DB::raw('SUM(net_weight) as total_weight_sold'),
+        DB::raw('SUM(weight) as total_weight_sold'),
         DB::raw('COUNT(*) as items_count')
     )
     ->groupBy('kind')
