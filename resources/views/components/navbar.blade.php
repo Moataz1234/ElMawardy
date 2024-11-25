@@ -36,43 +36,35 @@
 
         {{-- Rabea-specific navigation items --}}
         @if(auth()->user()->usertype === 'rabea')
-        <div class="w3-bar">
-    
-        <li><a href="{{ route('orders.rabea.index') }}" class="w3-bar-item w3-button">الاوردرات</a></li>
-            <li><a href="{{ route('orders.rabea.to_print') }}" class="w3-bar-item w3-button">الورشة</a></li>   
-            <li><a href="{{ route('orders.completed') }}" class="w3-bar-item w3-button">الاوردرات التي تم تسليمها</a></li>
-        </div>
+        <li class="navbar-item"><a href="{{ route('orders.rabea.index') }}" class="navbar-link">الاوردرات</a></li>
+        <li class="navbar-item"><a href="{{ route('orders.rabea.to_print') }}" class="navbar-link">الورشة</a></li>
+        <li class="navbar-item"><a href="{{ route('orders.completed') }}" class="navbar-link">الاوردرات التي تم تسليمها</a></li>
             @endif
 
         {{-- Third user-specific navigation items --}}
         @if(auth()->user()->usertype === 'user')
-            <div class="w3-bar">
-                <div class="dropdown">
-                    <button class="w3-bar-item w3-button">Inventory</button>
-                    <div class="dropdown-content">
-                        <a href="{{ route('dashboard') }}">Gold Inventory</a>
-                        <a href="{{ route('gold-items.create') }}">Diamond Inventory</a>
-                        {{-- <a href="{{ route('gold-pounds.index') }}">Coins</a>
-                        <a href="{{ route('gold-items.create') }}">Bars</a>
-                        <a href="{{ route('gold-items.create') }}">Chains</a> --}}
-                        <a href="{{ route('gold-items.index') }}">All Items</a>
-                    </div>
-                </div>
-                <a href="{{ route('gold-items.sold') }}" class="w3-bar-item w3-button">Sold Items</a>
-                <a href="{{ route('orders.create') }}" class="w3-bar-item w3-button">Custom Order</a>
-
-                <div class="dropdown">
-                    <button class="w3-bar-item w3-button">Orders</button>
-                    <div class="dropdown-content">
-                        <a href="{{ route('orders.index') }}">Orders List</a>
-                        <a href="{{ route('orders.history') }}">Orders History</a>
-                    </div>
-                </div>
-
-                <a href="{{ route('gold-catalog') }}" class="w3-bar-item w3-button">Catalog</a>
-                <a href="{{ route('transfer.requests') }}" class="w3-bar-item w3-button">Transfer Requests</a>
-
-            </div>    
+            <li class="navbar-item dropdown">
+                <a href="#" class="navbar-link dropdown-toggle">Inventory</a>
+                <ul class="dropdown-menu">
+                    <li><a href="{{ route('dashboard') }}" class="dropdown-item">Gold Inventory</a></li>
+                    <li><a href="{{ route('gold-items.create') }}" class="dropdown-item">Diamond Inventory</a></li>
+                    {{-- <li><a href="{{ route('gold-pounds.index') }}" class="dropdown-item">Coins</a></li>
+                    <li><a href="{{ route('gold-items.create') }}" class="dropdown-item">Bars</a></li>
+                    <li><a href="{{ route('gold-items.create') }}" class="dropdown-item">Chains</a></li> --}}
+                    <li><a href="{{ route('gold-items.index') }}" class="dropdown-item">All Items</a></li>
+                </ul>
+            </li>
+            <li class="navbar-item"><a href="{{ route('gold-items.sold') }}" class="navbar-link">Sold Items</a></li>
+            <li class="navbar-item"><a href="{{ route('orders.create') }}" class="navbar-link">Custom Order</a></li>
+            <li class="navbar-item dropdown">
+                <a href="#" class="navbar-link dropdown-toggle">Orders</a>
+                <ul class="dropdown-menu">
+                    <li><a href="{{ route('orders.index') }}" class="dropdown-item">Orders List</a></li>
+                    <li><a href="{{ route('orders.history') }}" class="dropdown-item">Orders History</a></li>
+                </ul>
+            </li>
+            <li class="navbar-item"><a href="{{ route('gold-catalog') }}" class="navbar-link">Catalog</a></li>
+            <li class="navbar-item"><a href="{{ route('transfer.requests') }}" class="navbar-link">Transfer Requests</a></li>
         @endif
     </ul>
 </nav>
