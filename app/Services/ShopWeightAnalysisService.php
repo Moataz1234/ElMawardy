@@ -10,17 +10,20 @@ class ShopWeightAnalysisService
     public function getShopWeightAnalysis()
     {
         return Cache::remember('shop_weight_analysis', 300, function () {
-            return DB::table('gold_items')
-                ->leftJoin('gold_items_sold', function($join) {
-                    $join->on('gold_items.id', '=', 'gold_items_sold.gold_item_id');
-                })
-                ->select(
-                    'gold_items.shop_name',
-                    DB::raw('COALESCE(SUM(gold_items_sold.weight), 0) as total_weight_sold'),
-                    DB::raw('SUM(gold_items.weight) as total_weight_inventory')
-                )
-                ->groupBy('gold_items.shop_name')
+            $totalWeightSold = DB::table('gold_items_sold')
+                ->select('shop_name', DB::raw('SUM(weight) as total_weight_sold'))
+                ->groupBy('shop_name')
                 ->get();
+
+            $totalWeightInventory = DB::table('gold_items')
+                ->select('shop_name', DB::raw('SUM(weight) as total_weight_inventory'))
+                ->groupBy('shop_name')
+                ->get();
+
+            return [
+                'totalWeightSold' => $totalWeightSold,
+                'totalWeightInventory' => $totalWeightInventory,
+            ];
         });
     }
 }
