@@ -50,4 +50,9 @@ class GoldItemSoldService
                     ->paginate(20)
                     ->appends($request->all());
     }
+
+    public function getAllSoldItems(): \Illuminate\Pagination\LengthAwarePaginator
+    {
+        return GoldItemSold::orderBy('sold_date', 'desc')->paginate(20);
+    }
 }

@@ -28,6 +28,15 @@ class AdminDashboardController extends Controller
         $this->shopWeightAnalysisService = $shopWeightAnalysisService;
         $this->popularModelsService = $popularModelsService;
     }
+
+    public function allSoldItems()
+    {
+        $goldItems = $this->goldItemSoldService->getAllSoldItems();
+
+        return view('admin.sold-items', [
+            'goldItems' => $goldItems,
+        ]);
+    }
     public function index(Request $request)
     {
         $goldItems = $this->goldItemService->getGoldItems($request);
