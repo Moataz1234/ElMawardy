@@ -151,8 +151,9 @@
     text-decoration: none;
 }
 
-.navbar-link:hover, .dropdown:hover .navbar-link {
+.navbar-link:hover, .dropdown:hover .navbar-link, .navbar-link.active {
     background-color: #575757;
+    color: #fff;
 }
 
 .dropdown-menu {

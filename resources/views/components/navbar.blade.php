@@ -22,7 +22,7 @@
                 <li><a href="{{ route('gold-items.create') }}" class="dropdown-item">Chains</a></li>
             </ul>
         </li>
-        <li class="navbar-item"><a href="{{ route('gold-items.sold') }}" class="navbar-link">Sold Items</a></li>
+        <li class="navbar-item"><a href="{{ route('admin.sold-items') }}" class="navbar-link">Sold Items</a></li>
         <li class="navbar-item dropdown">
             <a href="#" class="navbar-link dropdown-toggle">Shopify</a>
             <ul class="dropdown-menu">

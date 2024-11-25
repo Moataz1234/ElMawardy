@@ -27,19 +27,13 @@ class AuthenticatedSessionController extends Controller
 
         $request->session()->regenerate();
         
-<<<<<<< HEAD
-        switch ($request->user()->usertype) {
-            case 'admin':
-                return redirect()->route('admin.dashboard');
-            case 'rabea':
-                return redirect()->route('orders.rabea.index');
-            default:
-                return redirect()->intended(route('gold-items.shop', ['shop' => $request->user()->name]));
-=======
         if($request->user()->usertype ==='admin'){
             return redirect('admin/inventory');
->>>>>>> f6b866230d849c5df5c291e82aeecf4c795c326e
         }
+        if($request->user()->usertype ==='rabea'){
+            return redirect('orders/rabea');
+        }
+        return redirect()->intended(route('gold-items.shop', ['shop' => $request->user()->name]));
     }
 
     /**

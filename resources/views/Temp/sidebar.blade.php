@@ -196,3 +196,18 @@
             </div>
         </form>
     </div>    
+    @include('components.pagination')
+
+    <script>
+        document.addEventListener('DOMContentLoaded', function() {
+            // Get all filter inputs
+            const filterInputs = document.querySelectorAll('#filterForm select, #filterForm input');
+            
+            // Add change event listener to each input
+            filterInputs.forEach(input => {
+                input.addEventListener('change', function() {
+                    document.getElementById('filterForm').submit();
+                });
+            });
+        });
+        </script>

@@ -71,4 +71,3 @@
 
 </div>
 
-{{ $goldItems->links('pagination::bootstrap-4') }}

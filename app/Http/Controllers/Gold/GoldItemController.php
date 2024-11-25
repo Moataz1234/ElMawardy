@@ -55,37 +55,6 @@ class GoldItemController extends Controller
         return view('admin.Gold.Edit_form', compact('goldItem', 'shops'));
     }
 
-<<<<<<< HEAD
-    public function update(Request $request, string $id)
-    {
-        $validated = $request->validate([
-            'link' => 'nullable|file|image',
-            'serial_number' => 'nullable|string',
-            'shop_name' => 'nullable|string',
-            'shop_id' => 'nullable|integer',
-            'kind' => 'nullable|string',
-            'model' => 'nullable|string',
-            'talab' => 'nullable|string',
-            'gold_color' => 'nullable|string',
-            'stones' => 'nullable|string',
-            'metal_type' => 'nullable|string',
-            'metal_purity' => 'nullable|string',
-            'quantity' => 'nullable|integer',
-            'weight' => 'nullable|numeric',
-            'rest_since' => 'nullable|date',
-            'source' => 'nullable|string',
-            'to_print' => 'nullable|boolean',
-            'price' => 'nullable|numeric',
-            'semi_or_no' => 'nullable|string',
-            'average_of_stones' => 'nullable|numeric',
-            'net_weight' => 'nullable|numeric',
-        ]);
-
-        $this->goldItemService->updateGoldItem($id, $validated, $request->file('link'));
-
-        return redirect()->route('gold-items.index')->with('success', 'Gold item updated successfully.');
-    }
-=======
     // public function update(Request $request, string $id)
     // {
     // $validated = $request->validate([
@@ -115,7 +84,6 @@ class GoldItemController extends Controller
 
     // return redirect()->route('gold-items.index')->with('success', 'Gold item updated successfully.');
     // }
->>>>>>> f6b866230d849c5df5c291e82aeecf4c795c326e
 
 
     public function analyzeWeights()

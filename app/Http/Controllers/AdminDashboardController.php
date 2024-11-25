@@ -12,14 +12,13 @@ use App\Services\Admin_GoldItemService;
 class AdminDashboardController extends Controller
 {
     protected $goldItemService;
-    protected $goldItemSoldService;
+    // protected $goldItemSoldService;
 
     protected $shopWeightAnalysisService;
     protected $popularModelsService;
 
     public function __construct(
         Admin_GoldItemService $goldItemService,
-        Admin_GoldItemService $goldItemSoldService,
 
         ShopWeightAnalysisService $shopWeightAnalysisService,
         PopularModelsService $popularModelsService
@@ -29,14 +28,14 @@ class AdminDashboardController extends Controller
         $this->popularModelsService = $popularModelsService;
     }
 
-    public function allSoldItems()
-    {
-        $goldItems = $this->goldItemSoldService->getAllSoldItems();
+    // public function allSoldItems()
+    // {
+    //     $goldItems = $this->goldItemSoldService->getAllSoldItems();
 
-        return view('admin.sold-items', [
-            'goldItems' => $goldItems,
-        ]);
-    }
+    //     return view('admin.sold-items', [
+    //         'goldItems' => $goldItems,
+    //     ]);
+    // }
     public function index(Request $request)
     {
         $goldItems = $this->goldItemService->getGoldItems($request);
@@ -100,13 +99,13 @@ public function bulkAction(Request $request)
     }
     public function Sold(Request $request)
     {
-        $goldItems = $this->goldItemSoldService->getGoldItemsSold($request);
+        $goldItems = $this->goldItemService->getGoldItemsSold($request);
         
         // Get unique values for filters
         $gold_color = GoldItemSold::distinct()->pluck('gold_color')->filter();
         $kind = GoldItemSold::distinct()->pluck('kind')->filter();
 
-        return view('Shops.Gold.sold_index', [
+        return view('Admin.Gold.sold_index', [
             'goldItems' => $goldItems,
             'search' => $request->input('search'),
             'sort' => $request->input('sort', 'serial_number'),
