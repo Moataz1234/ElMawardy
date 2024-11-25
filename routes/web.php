@@ -77,10 +77,6 @@ Route::middleware('auth')->group(function () {
 // Admin Routes
 Route::middleware(['auth', 'admin'])->group(function () {
 
-<<<<<<< HEAD
-    // Route::get('admin/dashboard', [AdminDashboardController::class, 'index'])->name('admin.dashboard');
-    // Route::get('/das', [GoldItemController::class, 'index'])->name('gold-items.index');
-=======
     Route::get('/admin/inventory', [AdminDashboardController::class, 'index'])->name('admin.inventory');
     Route::get('/admin/inventory/{id}/edit', [AdminDashboardController::class, 'edit'])->name('gold-items.edit');
     Route::put('/admin/inventory/{id}', [AdminDashboardController::class, 'update'])->name('gold-items.update');
@@ -90,7 +86,6 @@ Route::middleware(['auth', 'admin'])->group(function () {
     // Route::get('admin/dashboard', [AdminDashboardController::class, 'index'])->name('admin.dashboard');
     Route::get('/admin/dashboard', [AdminDashboardController::class, 'dashboard'])->name('admin.dashboard');
     // Route::get('/dashboard', [GoldItemController::class, 'index'])->name('gold-items.index');
->>>>>>> f6b866230d849c5df5c291e82aeecf4c795c326e
     
     Route::get('/daily-report', [GoldReportController::class, 'generateDailyReport'])->name('daily.report');
     Route::get('/daily-report/pdf', [GoldReportController::class, 'generateDailyReport'])->name('daily.report.pdf');
@@ -98,11 +93,7 @@ Route::middleware(['auth', 'admin'])->group(function () {
     Route::post('/send-report-email', [GoldReportController::class, 'generateDailyReport'])
     ->name('send.report.email');
     
-<<<<<<< HEAD
-    Route::get('/admin/dashboard', [GoldItemController::class, 'index'])->name('admin.dashboard');
-=======
     // Route::get('/admin/dashboard', [GoldItemController::class, 'index'])->name('admin.dashboard');
->>>>>>> f6b866230d849c5df5c291e82aeecf4c795c326e
     
     Route::get('/new-item/create', [NewItemController::class, 'create'])->name('new-item.create');
     Route::post('/new-item/store', [NewItemController::class, 'store'])->name('new-item.store');
