@@ -123,6 +123,63 @@
             <canvas id="weightDistributionChart"></canvas>
         </div>
     </div>
+    <!-- Shop Analysis Section -->
+<div class="card">
+    <h2>Shop Performance Analysis</h2>
+    <div class="table-responsive">
+        <table class="table">
+            <thead>
+                <tr>
+                    <th>Shop</th>
+                    <th>Category</th>
+                    <th>Weight Sold (g)</th>
+                    <th>Weight in Stock (g)</th>
+                    <th>Items Sold</th>
+                    <th>Items in Stock</th>
+                    <th>Top Category Today</th>
+                    <th>Top Category Overall</th>
+                </tr>
+            </thead>
+            <tbody>
+                @foreach($shopWeightAnalysis->groupBy('shop_name') as $shopName => $categories)
+                    @foreach($categories as $analysis)
+                        <tr>
+                            <td>{{ $shopName }}</td>
+                            <td>{{ $analysis->kind }}</td>
+                            <td>{{ number_format($analysis->total_weight_sold, 2) }}</td>
+                            <td>{{ number_format($analysis->total_weight_inventory, 2) }}</td>
+                            <td>{{ $analysis->items_sold }}</td>
+                            <td>{{ $analysis->items_in_stock }}</td>
+                            <td>
+                                @if($topCategoryByShopToday->has($shopName))
+                                    {{ $topCategoryByShopToday[$shopName]->kind }}
+                                    ({{ $topCategoryByShopToday[$shopName]->total_quantity }})
+                                @else
+                                    No sales today
+                                @endif
+                            </td>
+                            <td>
+                                @if($topCategoryByShopOverall->has($shopName))
+                                    {{ $topCategoryByShopOverall[$shopName]->kind }}
+                                    ({{ $topCategoryByShopOverall[$shopName]->total_quantity }})
+                                @else
+                                    No sales
+                                @endif
+                            </td>
+                        </tr>
+                    @endforeach
+                @endforeach
+            </tbody>
+        </table>
+    </div>
+</div>
+
+<!-- Shop Weight Distribution Chart -->
+<div class="card">
+    <h2>Shop Weight Analysis</h2>
+    <canvas id="shopWeightChart"></canvas>
+</div>
+
 <style>
  /* dashboard.css */
  .analysis-section {
@@ -337,6 +394,46 @@ new Chart(weightCtx, {
         }, {
             label: 'Weight in Stock',
             data: {!! json_encode($inventoryAnalysis->pluck('total_weight_inventory')) !!},
+            backgroundColor: '#A5D8DD',
+        }]
+    },
+    options: {
+        responsive: true,
+        scales: {
+            y: {
+                beginAtZero: true,
+                title: {
+                    display: true,
+                    text: 'Weight (g)'
+                }
+            }
+        },
+        plugins: {
+            legend: {
+                position: 'top'
+            }
+        }
+    }
+});
+const shopCtx = document.getElementById('shopWeightChart').getContext('2d');
+const shopData = {!! json_encode($shopWeightAnalysis->groupBy('shop_name')->map(function($items) {
+    return [
+        'sold' => $items->sum('total_weight_sold'),
+        'inventory' => $items->sum('total_weight_inventory')
+    ];
+})) !!};
+
+new Chart(shopCtx, {
+    type: 'bar',
+    data: {
+        labels: {!! json_encode($shopWeightAnalysis->pluck('shop_name')->unique()) !!},
+        datasets: [{
+            label: 'Weight Sold',
+            data: Object.values(shopData).map(d => d.sold),
+            backgroundColor: '#1C4E80',
+        }, {
+            label: 'Weight in Stock',
+            data: Object.values(shopData).map(d => d.inventory),
             backgroundColor: '#A5D8DD',
         }]
     },
