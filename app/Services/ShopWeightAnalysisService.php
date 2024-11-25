@@ -29,4 +29,22 @@ class ShopWeightAnalysisService
     {
         return DB::table('gold_items')->sum('weight');
     }
-}
+    }
+
+    public function getSalesTrends(): array
+    {
+        return DB::table('gold_items_sold')
+            ->select(DB::raw('DATE_FORMAT(sold_date, "%Y-%m") as month'), DB::raw('SUM(weight) as total_weight_sold'))
+            ->groupBy('month')
+            ->orderBy('month')
+            ->get()
+            ->pluck('total_weight_sold', 'month')
+            ->toArray();
+    }
+
+    public function getInventoryTurnover(): float
+    {
+        $totalSales = DB::table('gold_items_sold')->sum('weight');
+        $averageInventory = DB::table('gold_items')->avg('weight');
+        return $averageInventory ? $totalSales / $averageInventory : 0;
+    }

@@ -43,7 +43,22 @@
             <h2>Total Weight in Inventory</h2>
             <p>{{ number_format($totalWeightInventory, 2) }} g</p>
         </div>
-        <div class="chart-container">
+        <div class="card">
+            <h2>Sales Trends Over Time</h2>
+            <canvas id="salesTrendsChart"></canvas>
+        </div>
+        <div class="card">
+            <h2>Top Selling Items</h2>
+            <ul>
+                @foreach($topSellingItems as $item)
+                    <li>{{ $item->model }}: {{ $item->total_quantity }} sold</li>
+                @endforeach
+            </ul>
+        </div>
+        <div class="card">
+            <h2>Inventory Turnover Ratio</h2>
+            <p>{{ number_format($inventoryTurnover, 2) }}</p>
+        </div>
             <canvas id="weightChart"></canvas>
         </div>
     <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
@@ -94,6 +109,46 @@
             };
 
             new Chart(ctx, config);
+        });
+        const salesTrendsCtx = document.getElementById('salesTrendsChart').getContext('2d');
+        new Chart(salesTrendsCtx, {
+            type: 'line',
+            data: {
+                labels: @json(array_keys($salesTrends)),
+                datasets: [{
+                    label: 'Total Weight Sold',
+                    data: @json(array_values($salesTrends)),
+                    borderColor: 'rgba(75, 192, 192, 1)',
+                    fill: false,
+                }]
+            },
+            options: {
+                responsive: true,
+                scales: {
+                    x: {
+                        title: {
+                            display: true,
+                            text: 'Month'
+                        }
+                    },
+                    y: {
+                        beginAtZero: true,
+                        title: {
+                            display: true,
+                            text: 'Weight (g)'
+                        }
+                    }
+                },
+                plugins: {
+                    legend: {
+                        position: 'top',
+                    },
+                    title: {
+                        display: true,
+                        text: 'Sales Trends Over Time'
+                    }
+                }
+            }
         });
     </script>
 </html>

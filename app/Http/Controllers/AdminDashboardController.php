@@ -74,7 +74,14 @@ public function bulkAction(Request $request)
         $totalWeightSoldByYearAndShop = $this->shopWeightAnalysisService->getTotalWeightSoldByYearAndShop();
         $totalWeightInventory = $this->shopWeightAnalysisService->getTotalWeightInventory();
 
+        $salesTrends = $this->shopWeightAnalysisService->getSalesTrends();
+        $topSellingItems = $this->popularModelsService->getPopularModels();
+        $inventoryTurnover = $this->shopWeightAnalysisService->getInventoryTurnover();
+
         return view('admin.new-dashboard', [
+            'salesTrends' => $salesTrends,
+            'topSellingItems' => $topSellingItems,
+            'inventoryTurnover' => $inventoryTurnover,
             'totalWeightSoldByYearAndShop' => $totalWeightSoldByYearAndShop,
             'totalWeightInventory' => $totalWeightInventory
         ]);
