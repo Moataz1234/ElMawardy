@@ -64,65 +64,6 @@
             <canvas id="weightDistributionChart"></canvas>
         </div>
     </div>
-<<<<<<< HEAD
-    <!-- Shop Analysis Section -->
-<div class="card">
-    <h2>Shop Performance Analysis</h2>
-    <div class="table-responsive">
-        <table class="table">
-            <thead>
-                <tr>
-                    <th>Shop</th>
-                    <th>Category</th>
-                    <th>Weight Sold (g)</th>
-                    <th>Weight in Stock (g)</th>
-                    <th>Items Sold</th>
-                    <th>Items in Stock</th>
-                    <th>Top Category Today</th>
-                    <th>Top Category Overall</th>
-                </tr>
-            </thead>
-            <tbody>
-                @foreach($shopWeightAnalysis->groupBy('shop_name') as $shopName => $categories)
-                    @foreach($categories as $analysis)
-                        <tr>
-                            <td>{{ $shopName }}</td>
-                            <td>{{ $analysis->kind }}</td>
-                            <td>{{ number_format($analysis->total_weight_sold, 2) }}</td>
-                            <td>{{ number_format($analysis->total_weight_inventory, 2) }}</td>
-                            <td>{{ $analysis->items_sold }}</td>
-                            <td>{{ $analysis->items_in_stock }}</td>
-                            <td>
-                                @if($topCategoryByShopToday->has($shopName))
-                                    {{ $topCategoryByShopToday[$shopName]->kind }}
-                                    ({{ $topCategoryByShopToday[$shopName]->total_quantity }})
-                                @else
-                                    No sales today
-                                @endif
-                            </td>
-                            <td>
-                                @if($topCategoryByShopOverall->has($shopName))
-                                    {{ $topCategoryByShopOverall[$shopName]->kind }}
-                                    ({{ $topCategoryByShopOverall[$shopName]->total_quantity }})
-                                @else
-                                    No sales
-                                @endif
-                            </td>
-                        </tr>
-                    @endforeach
-                @endforeach
-            </tbody>
-        </table>
-    </div>
-</div>
-
-<!-- Shop Weight Distribution Chart -->
-<div class="card">
-    <h2>Shop Weight Analysis</h2>
-    <canvas id="shopWeightChart"></canvas>
-</div>
-=======
->>>>>>> f6b866230d849c5df5c291e82aeecf4c795c326e
 
 <style>
 /* Your existing CSS remains the same */
