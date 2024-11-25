@@ -48,6 +48,7 @@ Route::middleware('auth')->group(function () {
         }
     })->name('dashboard');
 });
+Route::get('/gold-items', action: [GoldItemController::class, 'index'])->name('gold-items.index');
 
 // Admin Routes
 Route::middleware(['auth', 'admin'])->group(function () {
