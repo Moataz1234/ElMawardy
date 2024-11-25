@@ -26,8 +26,12 @@
 <body>
     <div class="dashboard-container">
         <div class="card">
-            <h2>Total Weight Sold</h2>
-            <p>{{ number_format($totalWeightSold, 2) }} g</p>
+            <h2>Total Weight Sold by Year</h2>
+            <ul>
+                @foreach($totalWeightSoldByYear as $year => $weight)
+                    <li>{{ $year }}: {{ number_format($weight, 2) }} g</li>
+                @endforeach
+            </ul>
         </div>
         <div class="card">
             <h2>Total Weight in Inventory</h2>

@@ -33,9 +33,15 @@ class ShopWeightAnalysisService
             return $shopWeightAnalysis->values();
         });
     }
-    public function getTotalWeightSold(): float
+    public function getTotalWeightSoldByYear(): array
     {
-        return DB::table('gold_items_sold')->sum('weight');
+        return DB::table('gold_items_sold')
+            ->select(DB::raw('YEAR(sold_date) as year'), DB::raw('SUM(weight) as total_weight_sold'))
+            ->groupBy('year')
+            ->orderBy('year', 'desc')
+            ->get()
+            ->pluck('total_weight_sold', 'year')
+            ->toArray();
     }
 
     public function getTotalWeightInventory(): float
