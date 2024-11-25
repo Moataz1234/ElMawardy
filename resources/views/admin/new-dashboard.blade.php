@@ -21,7 +21,10 @@
             width: 300px;
             text-align: center;
         }
-    </style>
+        .chart-container {
+            width: 80%;
+            margin: 20px auto;
+        }
 </head>
 <body>
     <div class="dashboard-container">
@@ -40,6 +43,57 @@
             <h2>Total Weight in Inventory</h2>
             <p>{{ number_format($totalWeightInventory, 2) }} g</p>
         </div>
-    </div>
-</body>
+        <div class="chart-container">
+            <canvas id="weightChart"></canvas>
+        </div>
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <script>
+        document.addEventListener('DOMContentLoaded', function() {
+            const ctx = document.getElementById('weightChart').getContext('2d');
+            const data = {
+                labels: @json(array_keys($totalWeightSoldByYearAndShop)),
+                datasets: [
+                    @foreach($totalWeightSoldByYearAndShop as $year => $shops)
+                    {
+                        label: '{{ $year }}',
+                        data: @json(array_values($shops)),
+                        backgroundColor: 'rgba({{ rand(0, 255) }}, {{ rand(0, 255) }}, {{ rand(0, 255) }}, 0.5)',
+                    },
+                    @endforeach
+                ]
+            };
+
+            const config = {
+                type: 'bar',
+                data: data,
+                options: {
+                    responsive: true,
+                    scales: {
+                        x: {
+                            stacked: true,
+                        },
+                        y: {
+                            beginAtZero: true,
+                            stacked: true,
+                            title: {
+                                display: true,
+                                text: 'Weight (g)'
+                            }
+                        }
+                    },
+                    plugins: {
+                        legend: {
+                            position: 'top',
+                        },
+                        title: {
+                            display: true,
+                            text: 'Total Weight Sold by Year and Shop'
+                        }
+                    }
+                }
+            };
+
+            new Chart(ctx, config);
+        });
+    </script>
 </html>
