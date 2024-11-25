@@ -11,7 +11,7 @@
     <link href="{{ asset('css/order-details.css') }}" rel="stylesheet">
     <link href="{{ asset('css/first_page.css') }}" rel="stylesheet">
     <link href="{{ asset('css/order_index.css') }}" rel="stylesheet">
-    @include('admin.Rabea.dashboard')
+    @include('Rabea.dashboard')
 
     <title>Document</title>
 </head>

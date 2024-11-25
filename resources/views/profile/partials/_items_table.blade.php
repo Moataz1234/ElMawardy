@@ -1,3 +1,5 @@
+@include('dashboard')
+
 <style>
     .select-item:disabled {
         opacity: 0.5;

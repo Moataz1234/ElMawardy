@@ -12,7 +12,10 @@ use App\Http\Controllers\Auth\VerifyEmailController;
 use Illuminate\Support\Facades\Route;
 use App\Http\Controllers\Auth\AsgardeoAuthController; // Import Asgardeo controller
 
+Route::get('callback', [AsgardeoAuthController::class, 'handleAsgardeoCallback'])
+            ->name('callback');
 
+<<<<<<< HEAD
 // Route::middleware('guest')->group(function () {
 
 //     Route::get('login', [AsgardeoAuthController::class, 'redirectToAsgardeo'])
@@ -21,6 +24,11 @@ use App\Http\Controllers\Auth\AsgardeoAuthController; // Import Asgardeo control
 //     Route::get('callback', [AsgardeoAuthController::class, 'handleAsgardeoCallback'])
 //                 ->name('callback');
 // });
+=======
+// Route::middleware(middleware: 'guest')->group(function () {
+//     Route::get('login', [AsgardeoAuthController::class, 'redirectToAsgardeo'])
+//     ->name('login');
+>>>>>>> f6b866230d849c5df5c291e82aeecf4c795c326e
 Route::middleware('guest')->group(function () {
     Route::get('login', [AuthenticatedSessionController::class, 'create'])
                 ->name('login');

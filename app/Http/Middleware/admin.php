@@ -18,6 +18,10 @@ class admin
         if (Auth::user() && Auth::user()->usertype === 'admin') {
             return $next($request);
         }
+<<<<<<< HEAD
         return redirect('/admin/dashboard'); // Redirect if not admin
+=======
+        return redirect('admin/dashboard'); // Redirect if not admin
+>>>>>>> f6b866230d849c5df5c291e82aeecf4c795c326e
     }
 }

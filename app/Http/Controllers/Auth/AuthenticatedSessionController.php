@@ -27,6 +27,7 @@ class AuthenticatedSessionController extends Controller
 
         $request->session()->regenerate();
         
+<<<<<<< HEAD
         switch ($request->user()->usertype) {
             case 'admin':
                 return redirect()->route('admin.dashboard');
@@ -34,12 +35,26 @@ class AuthenticatedSessionController extends Controller
                 return redirect()->route('orders.rabea.index');
             default:
                 return redirect()->intended(route('gold-items.shop', ['shop' => $request->user()->name]));
+=======
+        if($request->user()->usertype ==='admin'){
+            return redirect('admin/inventory');
+>>>>>>> f6b866230d849c5df5c291e82aeecf4c795c326e
         }
     }
 
     /**
      * Destroy an authenticated session.
      */
+    // public function destroy(Request $request): RedirectResponse
+    // {
+    //     Auth::guard('web')->logout();
+
+    //     $request->session()->invalidate();
+
+    //     $request->session()->regenerateToken();
+    //     // return redirect("/");
+    //     return redirect()->away('https://api.asgardeo.io/t/elmawardyjewelry/oidc/logout?redirect_uri=' . urlencode(route('login')));
+    // }
     public function destroy(Request $request): RedirectResponse
     {
         Auth::guard('web')->logout();
@@ -47,7 +62,7 @@ class AuthenticatedSessionController extends Controller
         $request->session()->invalidate();
 
         $request->session()->regenerateToken();
-        // return redirect("/");
-        return redirect()->away('https://api.asgardeo.io/t/elmawardyjewelry/oidc/logout?redirect_uri=' . urlencode(route('login')));
+
+        return redirect('/');
     }
 }

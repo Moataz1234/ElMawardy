@@ -3,6 +3,7 @@
 @section('content')
     @include('profile.partials._price_table')
     @include('profile.partials._items_table')
+
 @endsection
 
 @push('modals')
