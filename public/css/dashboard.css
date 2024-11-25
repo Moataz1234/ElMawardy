@@ -13,7 +13,31 @@
     padding: 20px;
     margin: 10px;
     width: 300px;
-    text-align: center;
+    text-align: left;
+}
+
+.year-section {
+    margin-bottom: 15px;
+    border-bottom: 1px solid #ddd;
+    padding-bottom: 10px;
+}
+
+.shop-list {
+    list-style-type: none;
+    padding: 0;
+}
+
+.shop-list li {
+    margin: 5px 0;
+}
+
+.top-selling-list {
+    list-style-type: none;
+    padding: 0;
+}
+
+.top-selling-list li {
+    margin: 5px 0;
 }
 
 .chart-container {

@@ -13,16 +13,18 @@
         <div class="card">
             <h3>Total Weight Sold by Year and Shop</h3>
             @foreach($totalWeightSoldByYearAndShop as $year => $shops)
-                <h3>{{ $year }}</h3>
-                <ul>
-                    @foreach($shops as $shopName => $weight)
-                        <li>{{ $shopName }}: {{ number_format($weight, 2) }} g</li>
-                    @endforeach
-                </ul>
+                <div class="year-section">
+                    <h4>{{ $year }}</h4>
+                    <ul class="shop-list">
+                        @foreach($shops as $shopName => $weight)
+                            <li><strong>{{ $shopName }}:</strong> {{ number_format($weight, 2) }} g</li>
+                        @endforeach
+                    </ul>
+                </div>
             @endforeach
         </div>
         <div class="card">
-            <h3>Total Weight in Inventory</h3   >
+            <h3>Total Weight in Inventory</h3>
             <p>{{ number_format($totalWeightInventory, 2) }} g</p>
         </div>
         <div class="card">
@@ -31,9 +33,9 @@
         </div>
         <div class="card">
             <h3>Top Selling Items</h3>
-            <ul>
+            <ul class="top-selling-list">
                 @foreach($topSellingItems as $item)
-                    <li>{{ $item->model }}: {{ $item->total_quantity }} sold</li>
+                    <li><strong>{{ $item->model }}:</strong> {{ $item->total_quantity }} sold</li>
                 @endforeach
             </ul>
         </div>
@@ -41,8 +43,7 @@
             <h3>Inventory Turnover Ratio</h3>
             <p>{{ number_format($inventoryTurnover, 2) }}</p>
         </div>
-            <canvas id="weightChart"></canvas>
-        </div>
+    </div>
     <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
     <script>
         document.addEventListener('DOMContentLoaded', function() {
