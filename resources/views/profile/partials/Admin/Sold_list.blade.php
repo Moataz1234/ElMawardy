@@ -19,6 +19,10 @@
     }
 </style>
 <div class="spreadsheet">
+    <form method="GET" action="{{ route('admin.sold-items') }}" class="search-form">
+        <input type="text" name="search" placeholder="Search by Serial Number or Model" value="{{ request('search') }}">
+        <button type="submit">Search</button>
+    </form>
     <table>
         <thead>
             <tr>
@@ -69,5 +73,8 @@
         </tbody>
     </table>
 
+</div>
+<div class="pagination-container">
+    {{ $goldItems->links('pagination::bootstrap-4') }}
 </div>
 
