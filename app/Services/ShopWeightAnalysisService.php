@@ -29,7 +29,6 @@ class ShopWeightAnalysisService
     {
         return DB::table('gold_items')->sum('weight');
     }
-    }
 
     public function getSalesTrends(): array
     {
