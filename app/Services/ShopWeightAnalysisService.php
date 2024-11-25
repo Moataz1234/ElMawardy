@@ -10,14 +10,18 @@ class ShopWeightAnalysisService
     public function getShopWeightAnalysis()
     {
         return Cache::remember('shop_weight_analysis', 300, function () {
+            $excludedShops = ['EL Korba', 'Downtown', 'Downtown2', 'Mohandessin Office'];
+
             $totalWeightSold = DB::table('gold_items_sold')
                 ->select('shop_name', DB::raw('SUM(weight) as total_weight_sold'))
+                ->whereNotIn('shop_name', $excludedShops)
                 ->groupBy('shop_name')
                 ->get()
                 ->keyBy('shop_name');
 
             $totalWeightInventory = DB::table('gold_items')
                 ->select('shop_name', DB::raw('SUM(weight) as total_weight_inventory'))
+                ->whereNotIn('shop_name', $excludedShops)
                 ->groupBy('shop_name')
                 ->get()
                 ->keyBy('shop_name');
