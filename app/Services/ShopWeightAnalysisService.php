@@ -33,4 +33,13 @@ class ShopWeightAnalysisService
             return $shopWeightAnalysis->values();
         });
     }
+    public function getTotalWeightSold(): float
+    {
+        return DB::table('gold_items_sold')->sum('weight');
+    }
+
+    public function getTotalWeightInventory(): float
+    {
+        return DB::table('gold_items')->sum('weight');
+    }
 }

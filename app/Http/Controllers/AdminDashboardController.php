@@ -71,12 +71,12 @@ public function bulkAction(Request $request)
 }
     public function dashboard(): View
     {
-        $shopWeightAnalysis = $this->shopWeightAnalysisService->getShopWeightAnalysis();
-        $popularModels = $this->popularModelsService->getPopularModels();
+        $totalWeightSold = $this->shopWeightAnalysisService->getTotalWeightSold();
+        $totalWeightInventory = $this->shopWeightAnalysisService->getTotalWeightInventory();
 
-        return view('admin.admin-dashboard', [
-            'shopWeightAnalysis' => $shopWeightAnalysis,
-            'popularModels' => $popularModels
+        return view('admin.new-dashboard', [
+            'totalWeightSold' => $totalWeightSold,
+            'totalWeightInventory' => $totalWeightInventory
         ]);
     }
 }
