@@ -48,3 +48,4 @@ class ShopWeightAnalysisService
         return $averageInventory ? $totalSales / $averageInventory : 0;
     }
 }
+}
