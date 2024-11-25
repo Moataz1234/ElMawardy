@@ -47,3 +47,4 @@ class ShopWeightAnalysisService
         $averageInventory = DB::table('gold_items')->avg('weight');
         return $averageInventory ? $totalSales / $averageInventory : 0;
     }
+}
