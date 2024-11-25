@@ -4,7 +4,7 @@ namespace App\Http\Controllers;
 use App\Services\ShopWeightAnalysisService;
 use App\Services\PopularModelsService;
 use Illuminate\View\View;
-
+use App\Models\GoldItemSold;
 use Illuminate\Http\Request;
 // use App\Http\Requests\GoldItemRequest;
 use App\Services\Admin_GoldItemService;
@@ -12,12 +12,15 @@ use App\Services\Admin_GoldItemService;
 class AdminDashboardController extends Controller
 {
     protected $goldItemService;
+    protected $goldItemSoldService;
 
     protected $shopWeightAnalysisService;
     protected $popularModelsService;
 
     public function __construct(
         Admin_GoldItemService $goldItemService,
+        Admin_GoldItemService $goldItemSoldService,
+
         ShopWeightAnalysisService $shopWeightAnalysisService,
         PopularModelsService $popularModelsService
     ) {
@@ -84,6 +87,23 @@ public function bulkAction(Request $request)
             'inventoryTurnover' => $inventoryTurnover,
             'totalWeightSoldByYearAndShop' => $totalWeightSoldByYearAndShop,
             'totalWeightInventory' => $totalWeightInventory
+        ]);
+    }
+    public function Sold(Request $request)
+    {
+        $goldItems = $this->goldItemSoldService->getGoldItemsSold($request);
+        
+        // Get unique values for filters
+        $gold_color = GoldItemSold::distinct()->pluck('gold_color')->filter();
+        $kind = GoldItemSold::distinct()->pluck('kind')->filter();
+
+        return view('Shops.Gold.sold_index', [
+            'goldItems' => $goldItems,
+            'search' => $request->input('search'),
+            'sort' => $request->input('sort', 'serial_number'),
+            'direction' => $request->input('direction', 'asc'),
+            'gold_color' => $gold_color,
+            'kind' => $kind
         ]);
     }
 }
