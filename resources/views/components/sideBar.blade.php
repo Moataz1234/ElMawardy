@@ -18,4 +18,12 @@
 <body>
 
 </body>
-</html>
+</html><div class="sidebar">
+    <ul class="sidebar-list">
+        <li class="sidebar-item"><a href="{{ route('admin.dashboard') }}" class="sidebar-link">Dashboard</a></li>
+        <li class="sidebar-item"><a href="{{ route('gold-items.index') }}" class="sidebar-link">Inventory</a></li>
+        <li class="sidebar-item"><a href="{{ route('gold-items.sold') }}" class="sidebar-link">Sold Items</a></li>
+        <li class="sidebar-item"><a href="{{ route('orders.index') }}" class="sidebar-link">Orders</a></li>
+        <li class="sidebar-item"><a href="{{ route('reports.index') }}" class="sidebar-link">Reports</a></li>
+    </ul>
+</div>

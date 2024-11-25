@@ -8,13 +8,16 @@
     <link href="{{ asset('css/first_page.css') }}" rel="stylesheet">
     <link href="{{ asset('css/modal.css') }}" rel="stylesheet">
     <link href="{{ asset('css/navbar.css') }}" rel="stylesheet">
+    <link href="{{ asset('css/sidebar.css') }}" rel="stylesheet">
 
 </head>
 <body>
-    
-    <main>
-        @yield('content')
-    </main>
+    <div class="layout-container">
+        @include('components.sidebar')
+        <main class="main-content">
+            @yield('content')
+        </main>
+    </div>
 
     @stack('modals')
     @stack('scripts')
