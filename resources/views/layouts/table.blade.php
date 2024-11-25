@@ -10,7 +10,6 @@
 
 </head>
 <body>
-    @include('dashboard')
     
     <main>
         @yield('content')

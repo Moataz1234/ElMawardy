@@ -51,38 +51,49 @@ Route::get('/gold-items', [GoldItemController::class, 'index'])->name('gold-item
 Route::middleware('auth')->group(function () {
     // Route::get('/', [GoldItemController::class, 'index'])->name('dashboard');
 
-    Route::get('/profile', [ProfileController::class, 'edit'])->name('profile.edit');
-    Route::patch('/profile', [ProfileController::class, 'update'])->name('profile.update');
-    Route::delete('/profile', [ProfileController::class, 'destroy'])->name('profile.destroy');
+    // Route::get('/profile', [ProfileController::class, 'edit'])->name('profile.edit');
+    // Route::patch('/profile', [ProfileController::class, 'update'])->name('profile.update');
+    // Route::delete('/profile', [ProfileController::class, 'destroy'])->name('profile.destroy');
     Route::get('/dashboard', function () {
         $usertype = Auth::user()->usertype;
-        
+        if (!$usertype) {
+            Auth::logout();
+            return redirect()->route('login');
+        }
         switch ($usertype) {
             case 'admin':
-                return redirect()->route('admin.dashboard');
+                return redirect()->route('admin.inventory');
             case 'rabea':
                 return redirect()->route('orders.rabea.index');
-                
             case 'user':
                 return redirect()->route('dashboard');
             default:
+                Auth::logout();
                 return redirect()->route('login');
         }
-    })->middleware('auth')->name('dashboard');    
+    })->name('dashboard');    
 });
 
 // Admin Routes
-Route::middleware(['auth', 'admin'])->prefix('admin')->group(function () {
+Route::middleware(['auth', 'admin'])->group(function () {
 
-    Route::get('/dashboard', [AdminDashboardController::class, 'index'])->name('admin.dashboard');
-    Route::get('/inventory', [GoldItemController::class, 'index'])->name('gold-items.index');
+    Route::get('/admin/inventory', [AdminDashboardController::class, 'index'])->name('admin.inventory');
+    Route::get('/admin/inventory/{id}/edit', [AdminDashboardController::class, 'edit'])->name('gold-items.edit');
+    Route::put('/admin/inventory/{id}', [AdminDashboardController::class, 'update'])->name('gold-items.update');
+    
+    Route::post('/admin/inventory/bulk-action', [AdminDashboardController::class, 'bulkAction'])->name('bulk-action');
+    
+    // Route::get('admin/dashboard', [AdminDashboardController::class, 'index'])->name('admin.dashboard');
+    Route::get('/admin/dashboard', [AdminDashboardController::class, 'dashboard'])->name('admin.dashboard');
+    // Route::get('/dashboard', [GoldItemController::class, 'index'])->name('gold-items.index');
+    
     Route::get('/daily-report', [GoldReportController::class, 'generateDailyReport'])->name('daily.report');
     Route::get('/daily-report/pdf', [GoldReportController::class, 'generateDailyReport'])->name('daily.report.pdf');
     // Route::get('/email-pdf-link', [GoldReportController::class, 'emailPdfLink'])->name('email.pdf.link');    // Route::get('/', [GoldItemController::class, 'index'])->name('admin-dashboard');
     Route::post('/send-report-email', [GoldReportController::class, 'generateDailyReport'])
     ->name('send.report.email');
     
-    // Route::get('/admin/dashboard', [HomeController::class, 'index'])->name('admin-dashboard');
+    // Route::get('/admin/dashboard', [GoldItemController::class, 'index'])->name('admin.dashboard');
     
     Route::get('/new-item/create', [NewItemController::class, 'create'])->name('new-item.create');
     Route::post('/new-item/store', [NewItemController::class, 'store'])->name('new-item.store');
@@ -117,14 +128,14 @@ Route::middleware(['auth', 'admin'])->prefix('admin')->group(function () {
 });
 // Shop Routes
 Route::middleware(['auth', 'user'])->group(function () {
-    
+    Route::get('/dashboard', [ShopsController::class, 'showShopItems'])->name('dashboard');
+
     Route::get('/gold-catalog', [GoldCatalogController::class, 'ThreeView'])->name('gold-catalog');
-    Route::get('/', [ShopsController::class, 'showShopItems'])->name('dashboard');
 
  
     Route::get('/dashboard/{id}/edit', [ShopsController::class, 'edit'])->name('shop-items.edit');
     Route::get('/gold-items/shop', [ShopsController::class, 'showShopItems'])->name('gold-items.shop');
-    Route::post('/gold-items/{id}/mark-as-sold', [ShopsController::class, 'markAsSold'])->name('gold-items.markAsSold');
+    // Route::post('/gold-items/{id}/mark-as-sold', [ShopsController::class, 'markAsSold'])->name('gold-items.markAsSold');
     Route::post('/gold-items-sold/{id}/mark-as-rest', [GoldItemSoldController::class, 'markAsRest'])->name('gold-items-sold.markAsRest');
     Route::get('/gold-items-sold/{id}/edit', action: [GoldItemSoldController::class, 'edit'])->name('gold-items-sold.edit');
 
@@ -170,13 +181,11 @@ Route::get('/gold-items', [GoldItemController::class, 'index'])->name('gold-item
 Route::middleware(['auth', 'rabea'])->group(function () {
     // Route::get('/', [RabiaController::class, 'indexForRabea'])->name('dashboard');
     // Route::get('/dashboard', [RabiaController::class, 'indexForRabea'])->name('dashboard');
-    Route::prefix(prefix: 'orders')->group(function () {
         Route::get('/', [RabiaController::class, 'indexForRabea'])->name('orders.rabea.index');
         Route::get('/search', [RabiaController::class, 'search'])->name('orders.search');
         Route::post('/update-status/{id}', [RabiaController::class, 'updateStatus'])->name('orders.updateStatus');
         Route::post('/orders/update-status-bulk', [RabiaController::class, 'updateStatusBulk'])
     ->name('orders.updateStatus.bulk');
-    });
     // Route::get('/orders/rabea', [RabiaController::class, 'indexForRabea'])->name('orders.rabea.index');
     Route::get('/orders/rabea/{id}', [RabiaController::class, 'show'])->name('orders.show');
     // Route::put('/orders/rabea/{id}', [RabiaController::class, 'update'])->name('orders.update');

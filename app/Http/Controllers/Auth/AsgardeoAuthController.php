@@ -34,18 +34,17 @@ class AsgardeoAuthController extends Controller
     {
         $state = Str::random(40);
         session(['asgardeo_oauth_state' => $state]);
-
-        $query = http_build_query([
-        'client_id' => $this->clientId,
-        'redirect_uri' => $this->redirectUri,
-        'response_type' => 'code',
-        'scope' => 'openid profile email',
-        'state' => $state, // Use the session state
-        ]);
-
-    return redirect("{$this->authorizeUrl}?{$query}");
+    
+        $params = [
+            'client_id' => $this->clientId,
+            'redirect_uri' => $this->redirectUri,
+            'response_type' => 'code',
+            'scope' => implode(' ', $this->scopes),
+            'state' => $state
+        ];
+    
+        return redirect($this->authorizeUrl . '?' . http_build_query($params));
     }
-
     /**
      * Handle the callback from Asgardeo.
      */
@@ -110,12 +109,13 @@ class AsgardeoAuthController extends Controller
                 'name' => $name,
                 'email' => $email,
                 'password' => bcrypt(Str::random(16)), // Random password, since we're using Asgardeo
+                'usertype' => 'user' // Ensure this is set
             ]);
 
             Auth::login($newUser);
         }
 
-        return redirect()->intended('{$user}/dashboard');
+        return redirect()->intended('/dashboard');
     }
 
     /**

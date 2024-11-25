@@ -28,7 +28,7 @@ class AuthenticatedSessionController extends Controller
         $request->session()->regenerate();
         
         if($request->user()->usertype ==='admin'){
-            return redirect('admin/dashboard');
+            return redirect('admin/inventory');
         }
         if($request->user()->usertype ==='rabea'){
             return redirect('orders/rabea');
@@ -39,6 +39,16 @@ class AuthenticatedSessionController extends Controller
     /**
      * Destroy an authenticated session.
      */
+    // public function destroy(Request $request): RedirectResponse
+    // {
+    //     Auth::guard('web')->logout();
+
+    //     $request->session()->invalidate();
+
+    //     $request->session()->regenerateToken();
+    //     // return redirect("/");
+    //     return redirect()->away('https://api.asgardeo.io/t/elmawardyjewelry/oidc/logout?redirect_uri=' . urlencode(route('login')));
+    // }
     public function destroy(Request $request): RedirectResponse
     {
         Auth::guard('web')->logout();
@@ -46,7 +56,7 @@ class AuthenticatedSessionController extends Controller
         $request->session()->invalidate();
 
         $request->session()->regenerateToken();
-        // return redirect("/");
-        return redirect()->away('https://api.asgardeo.io/t/elmawardyjewelry/oidc/logout?redirect_uri=' . urlencode(route('login')));
+
+        return redirect('/');
     }
 }

@@ -146,37 +146,6 @@ class GoldItemService
         ];
     }
 
-    // public function filterItems(array $filters): Collection
-    // {
-    //     $query = GoldItem::query();
-
-    //     if (isset($filters['metal_purity'])) {
-    //         $query->whereIn('metal_purity', $filters['metal_purity']);
-    //     }
-
-    //     if (isset($filters['gold_color'])) {
-    //         $query->whereIn('gold_color', $filters['gold_color']);
-    //     }
-
-    //     if (isset($filters['kind'])) {
-    //         $query->whereIn('kind', $filters['kind']);
-    //     }
-
-    //     if (isset($filters['weight_min'])) {
-    //         $query->where('weight', '>=', $filters['weight_min']);
-    //     }
-
-    //     if (isset($filters['weight_max'])) {
-    //         $query->where('weight', '<=', $filters['weight_max']);
-    //     }
-
-    //     if (isset($filters['shop_id'])) {
-    //         $query->where('shop_id', $filters['shop_id']);
-    //     }
-
-    //     return $query->get();
-    // }
-
     public function bulkUpdate(array $ids, array $data): void
     {
         GoldItem::whereIn('id', $ids)->update($data);

@@ -5,11 +5,21 @@ namespace App\Services;
 use App\Models\GoldItem;
 use App\Models\GoldItemSold;
 use App\Models\Shop;
+use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Storage;
+use App\Services\SortAndFilterService;
+// use App\Services\PriceCalculator;
 
 class Admin_GoldItemService
 {
-    
+
+    protected $sortAndFilterService;
+
+    public function __construct(SortAndFilterService $sortAndFilterService)
+    {
+        $this->sortAndFilterService = $sortAndFilterService;
+
+    }
     public function createGoldItem(array $validatedData, string $imagePath = null)
     {
         // Automatically generate the next serial number
@@ -31,25 +41,47 @@ class Admin_GoldItemService
             'link' => $imagePath,
         ]);
     }
-
-    public function updateGoldItem($id, array $validatedData, $file = null)
+    public function findGoldItem($id)
     {
-        $goldItem = GoldItem::findOrFail($id);
-
-        if ($file) {
-            // Store the file
-            $imagePath = $file->store('uploads/gold_items', 'public');
-            $validatedData['link'] = $imagePath;
-
-            // Optionally delete the old image if needed
-            if ($goldItem->link) {
-                Storage::delete('public/' . $goldItem->link);
-            }
-        }
-
-        // Update the GoldItem
-        $goldItem->update($validatedData);
+        return GoldItem::findOrFail($id);
     }
+
+    public function updateGoldItem(Request $request, $id)
+    {
+        $goldItem = $this->findGoldItem($id);
+        $goldItem->update($request->validated());
+        return $goldItem;
+    }
+
+    public function bulkDelete(array $ids)
+    {
+        return GoldItem::whereIn('id', $ids)->delete();
+    }
+
+    public function bulkRequest(array $ids)
+    {
+        // Implement your request logic here
+        return GoldItem::whereIn('id', $ids)
+            ->update(['status' => 'requested']);
+    }
+    // public function updateGoldItem($id, array $validatedData, $file = null)
+    // {
+    //     $goldItem = GoldItem::findOrFail($id);
+
+    //     if ($file) {
+    //         // Store the file
+    //         $imagePath = $file->store('uploads/gold_items', 'public');
+    //         $validatedData['link'] = $imagePath;
+
+    //         // Optionally delete the old image if needed
+    //         if ($goldItem->link) {
+    //             Storage::delete('public/' . $goldItem->link);
+    //         }
+    //     }
+
+    //     // Update the GoldItem
+    //     $goldItem->update($validatedData);
+    // }
 
     private function generateNextSerialNumber($lastItem)
     {
@@ -62,8 +94,8 @@ class Admin_GoldItemService
         return 'G-000001';
     }
     public function getGoldItems( $request)
-{
-    // $query = GoldItem::with('shop');
+{ 
+    $query = GoldItem::with('shop');
     $query = GoldItem::query();
 
     // Apply search filter
@@ -100,8 +132,32 @@ class Admin_GoldItemService
     return $query->orderBy($sortField, $sortDirection)
                  ->paginate(20)
                  ->appends($request->all());
-}
 
+
+//     $query = GoldItem::query();
+//     $allowedFilters = [
+//     'search',
+//     'metal_purity',
+//     'gold_color',
+//     'kind',
+// ];
+
+// $goldItems = $this->sortAndFilterService->getFilteredAndSortedResults(
+//     $query,
+//     $request,
+//     $allowedFilters
+// );
+// $gold_color = $query->distinct('gold_color')->pluck('gold_color')->toArray();
+// $kind = $query->distinct('kind')->pluck('kind')->toArray();
+
+// return [
+//     'goldItems' => $goldItems,
+//     'totalPages' => $goldItems->lastPage() ,
+//     'gold_color' => $gold_color,
+//     'kind' => $kind,
+// ];
+}
+  
     public function getWeightAnalysis()
 {
     // Total weight of all gold items
