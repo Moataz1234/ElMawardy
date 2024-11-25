@@ -75,7 +75,7 @@ public function bulkAction(Request $request)
         $totalWeightInventory = $this->shopWeightAnalysisService->getTotalWeightInventory();
 
         return view('admin.new-dashboard', [
-            'totalWeightSoldByYear' => $totalWeightSoldByYear,
+            'totalWeightSoldByYearAndShop' => $totalWeightSoldByYearAndShop,
             'totalWeightInventory' => $totalWeightInventory
         ]);
     }
