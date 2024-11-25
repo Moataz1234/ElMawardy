@@ -1,8 +1,8 @@
 <?php
 namespace App\Http\Controllers;
 
-use Illuminate\Support\Facades\DB;
-use Illuminate\Support\Facades\Cache;
+use App\Services\ShopWeightAnalysisService;
+use App\Services\PopularModelsService;
 use Illuminate\View\View;
 
 use Illuminate\Http\Request;
@@ -13,10 +13,17 @@ class AdminDashboardController extends Controller
 {
     protected $goldItemService;
 
-    public function __construct(Admin_GoldItemService $goldItemService)
-    {
-        $this->goldItemService = $goldItemService;
+    protected $shopWeightAnalysisService;
+    protected $popularModelsService;
 
+    public function __construct(
+        Admin_GoldItemService $goldItemService,
+        ShopWeightAnalysisService $shopWeightAnalysisService,
+        PopularModelsService $popularModelsService
+    ) {
+        $this->goldItemService = $goldItemService;
+        $this->shopWeightAnalysisService = $shopWeightAnalysisService;
+        $this->popularModelsService = $popularModelsService;
     }
     public function index(Request $request)
     {
@@ -64,33 +71,8 @@ public function bulkAction(Request $request)
 }
     public function dashboard(): View
     {
-        $shopWeightAnalysis = Cache::remember('shop_weight_analysis', 300, function () {
-            return DB::table('gold_items')
-                ->leftJoin('gold_items_sold', function($join) {
-                    $join->on('gold_items.kind', '=', 'gold_items_sold.kind')
-                        ->on('gold_items.shop_name', '=', 'gold_items_sold.shop_name');
-                })
-                ->select(
-                    'gold_items.shop_name',
-                    DB::raw('COALESCE(SUM(gold_items_sold.weight), 0) as total_weight_sold'),
-                    DB::raw('SUM(gold_items.weight) as total_weight_inventory')
-                )
-                ->groupBy('gold_items.shop_name')
-                ->get();
-        });
-
-        $popularModels = Cache::remember('popular_models', 300, function () {
-            return DB::table('gold_items_sold')
-                ->select(
-                    'model',
-                    DB::raw('SUM(quantity) as total_quantity'),
-                    DB::raw('SUM(weight) as total_weight')
-                )
-                ->groupBy('model')
-                ->orderByDesc('total_quantity')
-                ->limit(10)
-                ->get();
-        });
+        $shopWeightAnalysis = $this->shopWeightAnalysisService->getShopWeightAnalysis();
+        $popularModels = $this->popularModelsService->getPopularModels();
 
         return view('admin.admin-dashboard', [
             'shopWeightAnalysis' => $shopWeightAnalysis,
