@@ -13,17 +13,24 @@ class ShopWeightAnalysisService
             $totalWeightSold = DB::table('gold_items_sold')
                 ->select('shop_name', DB::raw('SUM(weight) as total_weight_sold'))
                 ->groupBy('shop_name')
-                ->get();
+                ->get()
+                ->keyBy('shop_name');
 
             $totalWeightInventory = DB::table('gold_items')
                 ->select('shop_name', DB::raw('SUM(weight) as total_weight_inventory'))
                 ->groupBy('shop_name')
-                ->get();
+                ->get()
+                ->keyBy('shop_name');
             
-            return [
-                'totalWeightSold' => $totalWeightSold,
-                'totalWeightInventory' => $totalWeightInventory,
-            ];
+            $shopWeightAnalysis = $totalWeightInventory->map(function ($inventory, $shopName) use ($totalWeightSold) {
+                return [
+                    'shop_name' => $shopName,
+                    'total_weight_sold' => $totalWeightSold->get($shopName)->total_weight_sold ?? 0,
+                    'total_weight_inventory' => $inventory->total_weight_inventory,
+                ];
+            });
+
+            return $shopWeightAnalysis->values();
         });
     }
 }
