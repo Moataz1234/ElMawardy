@@ -6,27 +6,7 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>New Dashboard</title>
     <link href="{{ asset('css/app.css') }}" rel="stylesheet">
-    <style>
-        .dashboard-container {
-            display: flex;
-            flex-direction: column;
-            align-items: center;
-            padding: 20px;
-        }
-        .card {
-            background-color: #f9f9f9;
-            border-radius: 8px;
-            box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
-            padding: 20px;
-            margin: 10px;
-            width: 300px;
-            text-align: center;
-        }
-        .chart-container {
-            width: 80%;
-            margin: 20px auto;
-        }
-        </style>
+    <link href="{{ asset('css/dashboard.css') }}" rel="stylesheet">
 </head>
 <body>
     <div class="dashboard-container">

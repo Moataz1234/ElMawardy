@@ -8,6 +8,7 @@
      <link href="{{ asset('css/app.css') }}" rel="stylesheet">
      <link href="{{ asset('css/style.css') }}" rel="stylesheet">
      <link href="{{ asset('css/navbar.css') }}" rel="stylesheet">
+     <link href="{{ asset('css/form.css') }}" rel="stylesheet">
  </head>
  <body>
      <form class="custom-form" action="{{ route('gold-items.store') }}" method="POST" enctype="multipart/form-data">
