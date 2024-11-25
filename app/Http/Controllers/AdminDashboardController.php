@@ -71,7 +71,7 @@ public function bulkAction(Request $request)
 }
     public function dashboard(): View
     {
-        $totalWeightSoldByYear = $this->shopWeightAnalysisService->getTotalWeightSoldByYear();
+        $totalWeightSoldByYearAndShop = $this->shopWeightAnalysisService->getTotalWeightSoldByYearAndShop();
         $totalWeightInventory = $this->shopWeightAnalysisService->getTotalWeightInventory();
 
         return view('admin.new-dashboard', [
