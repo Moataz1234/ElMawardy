@@ -2,7 +2,7 @@
 
 @section('content')
     {{-- @include('profile.partials._price_table') --}}
-    @include('profile.partials.admin.sold_list')
+    @include('admin.Gold.Sold_list')
 @endsection
 
 @push('modals')
