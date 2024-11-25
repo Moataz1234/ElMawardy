@@ -19,7 +19,7 @@ class ShopWeightAnalysisService
                 ->select('shop_name', DB::raw('SUM(weight) as total_weight_inventory'))
                 ->groupBy('shop_name')
                 ->get();
-
+            
             return [
                 'totalWeightSold' => $totalWeightSold,
                 'totalWeightInventory' => $totalWeightInventory,
