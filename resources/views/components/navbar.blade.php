@@ -8,35 +8,29 @@
     {{-- <link href="{{ asset('css/pagination.css') }}" rel="stylesheet"> --}}
 
 </head>
-<nav>
-    <ul>
-        {{-- Admin-specific navigation items --}}
+<nav class="navbar">
+    <ul class="navbar-list">
         @if(auth()->user()->usertype === 'admin')
-        <div class="w3-bar">
-            <li><a href="{{ route('admin.dashboard') }}" class="w3-bar-item w3-button">Dashboard</a></li>
-            <li><a href="{{ route('gold-items.create') }}" class="w3-bar-item w3-button">Add New Item</a></li>
-                <div class="dropdown">
-                    <button class="w3-bar-item w3-button">Inventory</button>
-                    <div class="dropdown-content">
-                        {{-- <a href="{{ route('dashboard') }}">Gold Inventory</a> --}}
-                        {{-- <a href="{{ route('gold-items.create') }}">Diamond Inventory</a> --}}
-                        <a href="{{ route('admin.inventory') }}">All Items</a>
-                        <a href="{{ route('gold-pounds.index') }}">Coins</a>
-                        <a href="{{ route('gold-items.create') }}">Bars</a> 
-                        <a href="{{ route('gold-items.create') }}">Chains</a>
-                    </div>
-                </div>
-            <li><a href="{{ route('gold-items.sold') }}" class="w3-bar-item w3-button">Sold Items</a></li>
-            <li class="dropdown">
-                <button class="w3-bar-item w3-button">Shopify</button>
-                <div class="dropdown-content">
-                    <a href="{{ route('shopify.products') }}">Products</a>
-                    <a href="{{ route('orders_shopify') }}">Orders</a>
-                </div>
-            </li>
-            <li><a href="{{ route('admin.dashboard') }}" class="w3-bar-item w3-button">Reports</a></li>
-
-        </div>
+        <li class="navbar-item"><a href="{{ route('admin.dashboard') }}" class="navbar-link">Dashboard</a></li>
+        <li class="navbar-item"><a href="{{ route('gold-items.create') }}" class="navbar-link">Add New Item</a></li>
+        <li class="navbar-item dropdown">
+            <a href="#" class="navbar-link dropdown-toggle">Inventory</a>
+            <ul class="dropdown-menu">
+                <li><a href="{{ route('admin.inventory') }}" class="dropdown-item">All Items</a></li>
+                <li><a href="{{ route('gold-pounds.index') }}" class="dropdown-item">Coins</a></li>
+                <li><a href="{{ route('gold-items.create') }}" class="dropdown-item">Bars</a></li>
+                <li><a href="{{ route('gold-items.create') }}" class="dropdown-item">Chains</a></li>
+            </ul>
+        </li>
+        <li class="navbar-item"><a href="{{ route('gold-items.sold') }}" class="navbar-link">Sold Items</a></li>
+        <li class="navbar-item dropdown">
+            <a href="#" class="navbar-link dropdown-toggle">Shopify</a>
+            <ul class="dropdown-menu">
+                <li><a href="{{ route('shopify.products') }}" class="dropdown-item">Products</a></li>
+                <li><a href="{{ route('orders_shopify') }}" class="dropdown-item">Orders</a></li>
+            </ul>
+        </li>
+        <li class="navbar-item"><a href="{{ route('admin.dashboard') }}" class="navbar-link">Reports</a></li>
         @endif
 
         {{-- Rabea-specific navigation items --}}

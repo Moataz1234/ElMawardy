@@ -7,6 +7,7 @@
     
     <link href="{{ asset('css/first_page.css') }}" rel="stylesheet">
     <link href="{{ asset('css/modal.css') }}" rel="stylesheet">
+    <link href="{{ asset('css/navbar.css') }}" rel="stylesheet">
 
 </head>
 <body>
