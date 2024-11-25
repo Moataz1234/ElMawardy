@@ -12,8 +12,7 @@ class ShopWeightAnalysisService
         return Cache::remember('shop_weight_analysis', 300, function () {
             return DB::table('gold_items')
                 ->leftJoin('gold_items_sold', function($join) {
-                    $join->on('gold_items.kind', '=', 'gold_items_sold.kind')
-                        ->on('gold_items.shop_name', '=', 'gold_items_sold.shop_name');
+                    $join->on('gold_items.id', '=', 'gold_items_sold.gold_item_id');
                 })
                 ->select(
                     'gold_items.shop_name',
