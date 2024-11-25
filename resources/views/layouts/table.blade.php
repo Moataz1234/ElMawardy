@@ -20,6 +20,26 @@
     </div>
 
     @stack('modals')
+    <script>
+        document.addEventListener('DOMContentLoaded', function() {
+            const sidebar = document.querySelector('.sidebar');
+            const toggleButton = document.createElement('button');
+            toggleButton.textContent = 'Toggle Sidebar';
+            toggleButton.style.position = 'fixed';
+            toggleButton.style.top = '10px';
+            toggleButton.style.left = '10px';
+            toggleButton.style.zIndex = '1000';
+            toggleButton.onclick = function() {
+                sidebar.classList.toggle('collapsed');
+            };
+            document.body.appendChild(toggleButton);
+
+            const sidebarItems = document.querySelectorAll('.sidebar-item');
+            sidebarItems.forEach(item => {
+                item.setAttribute('title', item.textContent.trim());
+            });
+        });
+    </script>
     @stack('scripts')
 </body>
 </html>
