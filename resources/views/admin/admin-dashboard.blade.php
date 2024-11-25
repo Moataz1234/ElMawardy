@@ -5,6 +5,35 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Weight Analysis Dashboard</title>
     <link href="{{ asset('css/app.css') }}" rel="stylesheet">
+    <style>
+        .dashboard-container {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 20px;
+            padding: 20px;
+        }
+        .table-container, .card {
+            background-color: #f9f9f9;
+            border-radius: 8px;
+            box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+            padding: 20px;
+            flex: 1;
+            min-width: 300px;
+        }
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            margin-top: 10px;
+        }
+        th, td {
+            padding: 10px;
+            text-align: left;
+            border-bottom: 1px solid #ddd;
+        }
+        th {
+            background-color: #f1f1f1;
+        }
+    </style>
     <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
     @include('components.navbar')
 </head>
@@ -103,47 +132,6 @@ document.addEventListener('DOMContentLoaded', function() {
                 }
             }
         }
-    });
-});
-const shopCtx = document.getElementById('shopWeightChart').getContext('2d');
-const shopData = {!! json_encode($shopWeightAnalysis->groupBy('shop_name')->map(function($items) {
-    return [
-        'sold' => $items->sum('total_weight_sold'),
-        'inventory' => $items->sum('total_weight_inventory')
-    ];
-})) !!};
-
-new Chart(shopCtx, {
-    type: 'bar',
-    data: {
-        labels: {!! json_encode($shopWeightAnalysis->pluck('shop_name')->unique()) !!},
-        datasets: [{
-            label: 'Weight Sold',
-            data: Object.values(shopData).map(d => d.sold),
-            backgroundColor: '#1C4E80',
-        }, {
-            label: 'Weight in Stock',
-            data: Object.values(shopData).map(d => d.inventory),
-            backgroundColor: '#A5D8DD',
-        }]
-    },
-    options: {
-        responsive: true,
-        scales: {
-            y: {
-                beginAtZero: true,
-                title: {
-                    display: true,
-                    text: 'Weight (g)'
-                }
-            }
-        },
-        plugins: {
-            legend: {
-                position: 'top'
-            }
-        }
-    }
 });
 </script>
 </body>
