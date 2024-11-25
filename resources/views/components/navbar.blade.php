@@ -13,7 +13,8 @@
         @if(auth()->user()->usertype === 'admin')
         <li class="navbar-item"><a href="{{ route('admin.dashboard') }}" class="navbar-link">Dashboard</a></li>
         <li class="navbar-item"><a href="{{ route('gold-items.create') }}" class="navbar-link">Add New Item</a></li>
-        <li class="navbar-item dropdown">
+        <li  class="navbar-item"><a href="{{ route('admin.inventory') }}" class="navbar-link">Gold Inventory</a></li>
+        {{-- <li class="navbar-item dropdown">
             <a href="#" class="navbar-link dropdown-toggle">Inventory</a>
             <ul class="dropdown-menu">
                 <li><a href="{{ route('admin.inventory') }}" class="dropdown-item">All Items</a></li>
@@ -21,7 +22,7 @@
                 <li><a href="{{ route('gold-items.create') }}" class="dropdown-item">Bars</a></li>
                 <li><a href="{{ route('gold-items.create') }}" class="dropdown-item">Chains</a></li>
             </ul>
-        </li>
+        </li> --}}
         <li class="navbar-item"><a href="{{ route('admin.sold-items') }}" class="navbar-link">Sold Items</a></li>
         <li class="navbar-item dropdown">
             <a href="#" class="navbar-link dropdown-toggle">Shopify</a>
