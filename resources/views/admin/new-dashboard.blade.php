@@ -1,6 +1,7 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
+    @include('components.navbar')
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>New Dashboard</title>
@@ -25,11 +26,12 @@
             width: 80%;
             margin: 20px auto;
         }
+        </style>
 </head>
 <body>
     <div class="dashboard-container">
         <div class="card">
-            <h2>Total Weight Sold by Year and Shop</h2>
+            <h3>Total Weight Sold by Year and Shop</h3>
             @foreach($totalWeightSoldByYearAndShop as $year => $shops)
                 <h3>{{ $year }}</h3>
                 <ul>
@@ -40,15 +42,15 @@
             @endforeach
         </div>
         <div class="card">
-            <h2>Total Weight in Inventory</h2>
+            <h3>Total Weight in Inventory</h3   >
             <p>{{ number_format($totalWeightInventory, 2) }} g</p>
         </div>
         <div class="card">
-            <h2>Sales Trends Over Time</h2>
+            <h3>Sales Trends Over Time</h3>
             <canvas id="salesTrendsChart"></canvas>
         </div>
         <div class="card">
-            <h2>Top Selling Items</h2>
+            <h3>Top Selling Items</h3>
             <ul>
                 @foreach($topSellingItems as $item)
                     <li>{{ $item->model }}: {{ $item->total_quantity }} sold</li>
@@ -56,7 +58,7 @@
             </ul>
         </div>
         <div class="card">
-            <h2>Inventory Turnover Ratio</h2>
+            <h3>Inventory Turnover Ratio</h3>
             <p>{{ number_format($inventoryTurnover, 2) }}</p>
         </div>
             <canvas id="weightChart"></canvas>
@@ -151,4 +153,5 @@
             }
         });
     </script>
+</body>
 </html>
