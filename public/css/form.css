@@ -7,15 +7,6 @@
     box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
 }
 
-.custom-form {
-    max-width: 800px;
-    margin: 0 auto;
-    padding: 20px;
-    background-color: #f9f9f9;
-    border-radius: 8px;
-    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
-}
-
 .form-grid {
     display: grid;
     grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
@@ -64,14 +55,9 @@
 .custom-form button:hover {
     background-color: #45a049;
 }
-.search-form {
-    display: flex;
-    justify-content: center;
-    margin-bottom: 20px;
-}
 
 .search-form input[type="text"] {
-    width: 300px;
+    width: 600px;
     padding: 10px;
     border: 1px solid #ccc;
     border-radius: 4px;
@@ -89,11 +75,5 @@
 }
 
 .search-form button:hover {
-    background-color: #45a049;
-}
-
-.pagination-container {
-    display: flex;
-    justify-content: center;
-    margin-top: 20px;
+    background-color: #167a1b;
 }

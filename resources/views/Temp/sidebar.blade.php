@@ -1,4 +1,4 @@
-<nav class="second-section">
+{{-- <nav class="second-section">
 
     <div class="second-section-item search-container">
         <form action="{{ url()->current() }}" method="GET">
@@ -8,7 +8,7 @@
     </div>
    
   
-</nav>
+</nav> --}}
 
 <div class="container">
     <div class="filter-search">

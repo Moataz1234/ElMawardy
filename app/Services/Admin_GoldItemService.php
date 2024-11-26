@@ -6,6 +6,8 @@ use App\Models\GoldItem;
 use App\Models\GoldItemSold;
 use App\Models\Shop;
 use Illuminate\Http\Request;
+use App\Http\Requests\UpdateGoldItemRequest;
+
 use Illuminate\Support\Facades\Storage;
 use Illuminate\Support\Facades\Auth;
 
@@ -48,12 +50,14 @@ class Admin_GoldItemService
         return GoldItem::findOrFail($id);
     }
 
-    public function updateGoldItem(Request $request, $id)
+    public function updateGoldItem(UpdateGoldItemRequest $request, $id)
     {
         $goldItem = $this->findGoldItem($id);
         $goldItem->update($request->validated());
         return $goldItem;
     }
+    
+    
 
     public function bulkDelete(array $ids)
     {
@@ -97,7 +101,7 @@ class Admin_GoldItemService
     }
     public function getGoldItems( $request)
 { 
-    $query = GoldItem::with('shop');
+    // $query = GoldItem::with('shop');
     $query = GoldItem::query();
 
     // Apply search filter
@@ -134,7 +138,7 @@ class Admin_GoldItemService
     return $query->orderBy($sortField, $sortDirection)
                  ->paginate(20)
                  ->appends($request->all());
-
+}
 
 //     $query = GoldItem::query();
 //     $allowedFilters = [
@@ -158,90 +162,7 @@ class Admin_GoldItemService
 //     'gold_color' => $gold_color,
 //     'kind' => $kind,
 // ];
-}
   
-    public function getWeightAnalysis()
-{
-    // Total weight of all gold items
-    $totalGoldItemWeight = GoldItem::sum('weight');
-
-    // Total weight of sold gold items for today
-    $totalGoldItemSoldWeightToday = GoldItemSold::whereDate('sold_date', now()->toDateString())->sum('weight');
-
-    // Perform other analysis as needed (kind, shop, etc.)
-    $kindAnalysis = $this->analyzeByKind();
-    $shopAnalysis = $this->analyzeByShop();
-    $soldKindAnalysis = $this->analyzeSoldByKind();
-    $soldShopAnalysis = $this->analyzeSoldByShop();
-
-    return compact('totalGoldItemWeight', 'totalGoldItemSoldWeightToday', 'kindAnalysis', 'shopAnalysis', 'soldKindAnalysis', 'soldShopAnalysis');
-}
-
-private function analyzeByKind()
-{
-    // Example analysis for gold items by kind
-    $Kinds = GoldItem::select('kind')->distinct()->get();
-    $analysis = [];
-
-    foreach ($Kinds as $Kind) {
-        $count = GoldItem::where('kind', $Kind->kind)->count();
-        $weight = GoldItem::where('kind', $Kind->kind)->sum('weight');
-        $analysis[$Kind->kind] = [
-            'count' => $count,
-            'weight' => $weight
-        ];
-    }
-
-    return $analysis;
-}
-private function analyzeByShop()
-{
-    $shops = GoldItem::select('shop_name')->distinct()->get();
-    $analysis = [];
-
-    foreach ($shops as $shop) {
-        $count = GoldItem::where('shop_name', $shop->shop_name)->count();
-        $weight = GoldItem::where('shop_name', $shop->shop_name)->sum('weight');
-        $analysis[$shop->shop_name] = [
-            'count' => $count,
-            'weight' => $weight
-        ];
-    }
-
-    return $analysis;
-}
-private function analyzeSoldByKind()
-{
-    $Kinds = GoldItemSold::select('kind')->distinct()->get();
-    $analysis = [];
-
-    foreach ($Kinds as $Kind) {
-        $count = GoldItemSold::where('kind', $Kind->kind)->count();
-        $weight = GoldItemSold::where('kind', $Kind->kind)->sum('weight');
-        $analysis[$Kind->kind] = [
-            'count' => $count,
-            'weight' => $weight
-        ];
-    }
-
-    return $analysis;
-}
-private function analyzeSoldByShop()
-    {
-        $shops = GoldItemSold::select('shop_name')->distinct()->get();
-        $analysis = [];
-
-        foreach ($shops as $shop) {
-            $count = GoldItemSold::where('shop_name', $shop->shop_name)->count();
-            $weight = GoldItemSold::where('shop_name', $shop->shop_name)->sum('weight');
-            $analysis[$shop->shop_name] = [
-                'count' => $count,
-                'weight' => $weight
-            ];
-        }
-
-        return $analysis;
-    }
     public function getGoldItemsSold($request)
     {
         $query = GoldItemSold::query();

@@ -11,7 +11,7 @@
 </head>
 <body>
     @include('dashboard')
-    
+    @include('components.pagination')
     <main>
         @yield('content')
     </main>

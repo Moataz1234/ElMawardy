@@ -1,15 +1,3 @@
-<?php include 'hello.php'; ?>
-
-<head>
-    <link rel="stylesheet" href="https://www.w3schools.com/w3css/4/w3.css">
-    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.6.0/css/all.min.css">
-    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.4/css/all.min.css">
-    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css" integrity="sha384-k6RqeWeci5ZR/Lv4MR0sA0FfDOM8kNq7/8z2zVw5U5NAuTp6WVsMSXJ1pO9aX1l" crossorigin="anonymous">
-    <link href="{{ asset('css/sidebar.css') }}" rel="stylesheet">
-    <link href="{{ asset('css/navbar.css') }}" rel="stylesheet">
-    {{-- <link href="{{ asset('css/pagination.css') }}" rel="stylesheet"> --}}
-
-</head>
 <nav class="navbar">
     <ul class="navbar-list">
         @if(auth()->user()->usertype === 'admin')
@@ -45,17 +33,14 @@
 
         {{-- Third user-specific navigation items --}}
         @if(auth()->user()->usertype === 'user')
-        <div class="dropdown">
-            <button class="w3-bar-item w3-button">Inventory</button>
-            <div class="dropdown-content">
-                <li><a href="{{ route('dashboard') }}" class="dropdown-item">Gold Inventory</a></li>
-                    <li><a href="{{ route('gold-items.create') }}" class="dropdown-item">Diamond Inventory</a></li>
-                    {{-- <li><a href="{{ route('gold-pounds.index') }}" class="dropdown-item">Coins</a></li>
-                    <li><a href="{{ route('gold-items.create') }}" class="dropdown-item">Bars</a></li>
-                    <li><a href="{{ route('gold-items.create') }}" class="dropdown-item">Chains</a></li> --}}
-                    <li><a href="{{ route('gold-items.index') }}" class="dropdown-item">All Items</a></li>
+        <li class="navbar-item dropdown">
+            <a href="#" class="navbar-link dropdown-toggle">Inventory</a>
+            <div class="dropdown-menu">
+                <a href="{{ route('dashboard') }}" class="dropdown-item">Gold Inventory</a>
+                <a href="{{ route('gold-items.create') }}" class="dropdown-item">Diamond Inventory</a>
+                <a href="{{ route('gold-items.index') }}" class="dropdown-item">All Items</a>
             </div>
-            </div>
+        </li>
             <li class="navbar-item"><a href="{{ route('gold-items.sold') }}" class="navbar-link">Sold Items</a></li>
             <li class="navbar-item"><a href="{{ route('orders.create') }}" class="navbar-link">Custom Order</a></li>
             <li class="navbar-item dropdown">
@@ -68,5 +53,23 @@
             <li class="navbar-item"><a href="{{ route('gold-catalog') }}" class="navbar-link">Catalog</a></li>
             <li class="navbar-item"><a href="{{ route('transfer.requests') }}" class="navbar-link">Transfer Requests</a></li>
         @endif
+        <div class="dropdown">
+            <button class="navbar-link dropdown-toggle">Profile</button>
+            <div class="dropdown-menu">
+                <div class="profile-info cursor-pointer font-medium text-gray-700 hover:text-gray-900">
+                    <h4 class="name">{{ Auth::user()->name }}</h4>
+                </div>
+                <form method="POST" action="{{ route('logout') }}">
+                    @csrf
+                    <x-dropdown-link :href="route('logout')"
+                                 onclick="event.preventDefault(); this.closest('form').submit();"
+                                 class="block px-4 py-2 text-gray-700 hover:bg-gray-100">
+                        {{ __('Log Out') }}
+                    </x-dropdown-link>
+                </form>
+            </div>
+        </div>
+        
+        
     </ul>
 </nav>

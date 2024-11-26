@@ -1,14 +1,8 @@
-<nav class="second-section">
-<div class="profile-card relative">
-    <!-- Hidden Checkbox Toggle -->
-    {{-- <input type="checkbox" id="dropdown-toggle" class="hidden" /> --}}
-
-    <!-- Label for Checkbox (User's Name) -->
+{{-- <div class="profile-card relative">
     <label  for="dropdown-toggle" class="profile-info cursor-pointer font-medium text-gray-700 hover:text-gray-900">
         <h4 class="name">{{ Auth::user()->name }}</h4>
     </label>
 
-    <!-- Dropdown Menu (Logout option) -->
     <div class="dropdown-menu absolute right-0 mt-2 w-48 bg-white rounded-md shadow-lg hidden">
         <form method="POST" action="{{ route('logout') }}">
             @csrf
@@ -19,8 +13,9 @@
             </x-dropdown-link>
         </form>
     </div>
-</div>
-</div><div class="second-section-item search-container">
+</div> --}}
+
+<nav class="second-section">
     <form action="{{ url()->current() }}" method="GET" class="search-form">
        @foreach(request()->except(['search', 'page']) as $key => $value)
            @if(is_array($value))
@@ -35,7 +30,6 @@
               value="{{ request('search') }}" placeholder="Model Name">
        <button type="submit">Search</button>
    </form>
-   </div>
 </nav>
 <div class="container">
     <div class="filter-search">
@@ -96,12 +90,11 @@
     
                 <div class="button-container">
                     <button type="submit" class="reset-button">Set</button>
-                    <a href="{{ url()->current() }}" class="reset-button">Reset</a>
-                </div>
+                    <button type="button" onclick="location.href='{{ url()->current() }}';"  class="reset-button">Reset</a>
+                    </div>
             </div>
         </form>
     </div>
-    @include('components.pagination')
 
     <script>
         document.addEventListener('DOMContentLoaded', function() {

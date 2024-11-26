@@ -7,6 +7,8 @@
     <title>New Dashboard</title>
     <link href="{{ asset('css/app.css') }}" rel="stylesheet">
     <link href="{{ asset('css/dashboard.css') }}" rel="stylesheet">
+    <link href="{{ asset('css/navbar.css') }}" rel="stylesheet">
+
 </head>
 <body>
     <div class="dashboard-container">

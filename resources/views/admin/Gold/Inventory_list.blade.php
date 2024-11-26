@@ -1,7 +1,7 @@
 @extends('layouts.table')
 
 @section('content')
-    @include('profile.partials.admin_items')
+    @include('profile.partials.admin.inventory_list')
 @endsection
 
 @push('modals')

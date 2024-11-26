@@ -1,24 +1,3 @@
-<!DOCTYPE html>
-<html lang="en">
-<head>
-    {{-- @include("GoldCatalog.Shared.adminNavBar")
-    @include("GoldCatalog.Shared.sideBar") --}}
-    {{-- @include('dashboard') --}}
-    @include('components.navbar')
-    @include('Temp.sidebar')
-
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Catalog Items</title>
-    <link href="{{ asset('css/app.css') }}" rel="stylesheet">
-    <link rel="stylesheet" href="https://www.w3schools.com/w3css/4/w3.css">   
-    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.6.0/css/all.min.css">
-    <link href="{{ asset('css/first_page.css') }}" rel="stylesheet">
-    {{-- <link href="{{ asset('css/pagination.css') }}" rel="stylesheet"> --}}
-    <link href="{{ asset('css/modal.css') }}" rel="stylesheet">
-
-</head>
-
 <body>
     <form method="POST" action="{{ route('bulk-action') }}">
         @csrf
@@ -89,46 +68,8 @@
         </tbody>
     </table>
     
-    <button type="submit" name="action" value="delete">Delete </button>
-    <button type="submit" name="action" value="request">Request Item</button>
+    <button class="delete_btn"  type="submit" name="action" value="delete">Delete </button>
+    <button class="request_btn" type="submit" name="action" value="request">Request Item</button>
 </form>
-@push('modals')
-    @include('profile.partials._image_modal')
-@endpush
-@include('components.pagination')
-
-@push('scripts')
-
-    <script>
-        document.getElementById('select-all').onclick = function() {
-            var checkboxes = document.getElementsByName('selected_items[]');
-            for (var checkbox of checkboxes) {
-                checkbox.checked = this.checked;
-            }
-        }
-    </script>
-    
-<script src="{{ asset('js/modal.js') }}"></script>
-<script src="{{ asset('js/checkbox-selection.js') }}"></script>
-@if(isset($cleared_items))
-<script>
-    document.addEventListener('DOMContentLoaded', function() {
-        const clearedData = @json($cleared_items);
-        const currentTime = Math.floor(Date.now() / 1000);
-        
-        // Only clear if the data is recent (within last 5 seconds)
-        if (currentTime - clearedData.timestamp < 5) {
-            clearedData.items.forEach(itemId => {
-                const checkbox = document.querySelector(`.select-item[data-id="${itemId}"]`);
-                if (checkbox) {
-                    checkbox.checked = false;
-                }
-            });
-        }
-        
-        localStorage.removeItem('selectedItems');
-    });
-    </script>
-@endif
 </body>
 </html>

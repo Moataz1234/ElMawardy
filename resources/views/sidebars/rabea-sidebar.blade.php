@@ -1,5 +1,21 @@
+{{-- <nav class="second-section">
+        <form action="{{ url()->current() }}" method="GET" class="search-form">
+               @foreach(request()->except(['search', 'page']) as $key => $value)
+                   @if(is_array($value))
+                       @foreach($value as $item)
+                           <input type="hidden" name="{{ $key }}[]" value="{{ $item }}">
+                       @endforeach
+                   @else
+                       <input type="hidden" name="{{ $key }}" value="{{ $value }}">
+                   @endif
+               @endforeach
+               <input type="text" name="search" class="search-input" 
+                      value="{{ request('search') }}" placeholder="Model Name">
+               <button type="submit">Search</button>
+           </form>
+        </nav> --}}
 
-<div class="page-2">
+        <div class="page-2">
     <div class="container">
         <div class="filter-search">
             <form method="GET" action="{{ route('orders.rabea.index') }}">

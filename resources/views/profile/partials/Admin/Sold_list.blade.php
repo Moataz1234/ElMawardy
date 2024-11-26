@@ -1,4 +1,4 @@
-@include('Temp.sidebar')
+{{-- @include('Temp.sidebar') --}}
 <style>
     .select-item:disabled {
         opacity: 0.5;
@@ -19,11 +19,8 @@
     }
 </style>
 <div class="spreadsheet">
-    <form method="GET" action="{{ route('admin.sold-items') }}" class="search-form">
-        <input type="text" name="search" placeholder="Search by Serial Number or Model" value="{{ request('search') }}">
-        <button type="submit">Search</button>
-    </form>
-    <table>
+  
+    <table class="table">
         <thead>
             <tr>
                 <th>Select</th>
@@ -74,7 +71,5 @@
     </table>
 
 </div>
-<div class="pagination-container">
-    {{ $goldItems->links('pagination::bootstrap-4') }}
-</div>
+
 

@@ -477,3 +477,8 @@ img {
 .dropdown:hover .dropbtn {
     background-color: #3e8e41;
 }
+
+.delete_btn,.request_btn{
+    float: right;
+    margin-left: 10px;
+}

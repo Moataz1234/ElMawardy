@@ -7,6 +7,8 @@ use Illuminate\View\View;
 use App\Models\GoldItemSold;
 use Illuminate\Http\Request;
 // use App\Http\Requests\GoldItemRequest;
+use App\Http\Requests\UpdateGoldItemRequest;
+
 use App\Services\Admin_GoldItemService;
 
 class AdminDashboardController extends Controller
@@ -44,13 +46,21 @@ class AdminDashboardController extends Controller
             'goldItems' => $goldItems,
         ]);
     }
+    public function Sold(Request $request)
+    {
+        $goldItems = $this->goldItemService->getGoldItemsSold($request);
+        
+        return view('Admin.Gold.sold_index', [
+            'goldItems' => $goldItems,
+        ]);
+    }
     public function edit($id)
 {
     $goldItem = $this->goldItemService->findGoldItem($id);
     return view('Admin.Gold.edit', compact('goldItem'));
 }
 
-public function update(Request $request, $id)
+public function update(UpdateGoldItemRequest $request, $id)
 {
     $this->goldItemService->updateGoldItem($request, $id);
     return redirect()->route('admin.inventory')->with('success', 'Item updated successfully');
@@ -97,21 +107,5 @@ public function bulkAction(Request $request)
             'totalWeightInventory' => $totalWeightInventory
         ]);
     }
-    public function Sold(Request $request)
-    {
-        $goldItems = $this->goldItemService->getGoldItemsSold($request);
-        
-        // Get unique values for filters
-        $gold_color = GoldItemSold::distinct()->pluck('gold_color')->filter();
-        $kind = GoldItemSold::distinct()->pluck('kind')->filter();
-
-        return view('Admin.Gold.sold_index', [
-            'goldItems' => $goldItems,
-            'search' => $request->input('search'),
-            'sort' => $request->input('sort', 'serial_number'),
-            'direction' => $request->input('direction', 'asc'),
-            'gold_color' => $gold_color,
-            'kind' => $kind
-        ]);
-    }
+  
 }

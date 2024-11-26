@@ -14,7 +14,6 @@
     <link href="{{ asset('css/first_page.css') }}" rel="stylesheet">
     {{-- <link href="{{ asset('css/pagination.css') }}" rel="stylesheet"> --}}
     <link href="{{ asset('css/modal.css') }}" rel="stylesheet">
-
 </head>
 <body>
     <table class="table">
@@ -79,8 +78,5 @@
             @endforeach 
         </tbody>
     </table>
-    
-    {{ $goldItems->links('pagination::bootstrap-4') }}
-
 </body>
 </html>
