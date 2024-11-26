@@ -43,17 +43,17 @@
 
         {{-- Third user-specific navigation items --}}
         @if(auth()->user()->usertype === 'user')
-            <li class="navbar-item dropdown">
-                <a href="#" class="navbar-link dropdown-toggle">Inventory</a>
-                <ul class="dropdown-menu">
-                    <li><a href="{{ route('dashboard') }}" class="dropdown-item">Gold Inventory</a></li>
+        <div class="dropdown">
+            <button class="w3-bar-item w3-button">Inventory</button>
+            <div class="dropdown-content">
+                <li><a href="{{ route('dashboard') }}" class="dropdown-item">Gold Inventory</a></li>
                     <li><a href="{{ route('gold-items.create') }}" class="dropdown-item">Diamond Inventory</a></li>
                     {{-- <li><a href="{{ route('gold-pounds.index') }}" class="dropdown-item">Coins</a></li>
                     <li><a href="{{ route('gold-items.create') }}" class="dropdown-item">Bars</a></li>
                     <li><a href="{{ route('gold-items.create') }}" class="dropdown-item">Chains</a></li> --}}
                     <li><a href="{{ route('gold-items.index') }}" class="dropdown-item">All Items</a></li>
-                </ul>
-            </li>
+            </div>
+            </div>
             <li class="navbar-item"><a href="{{ route('gold-items.sold') }}" class="navbar-link">Sold Items</a></li>
             <li class="navbar-item"><a href="{{ route('orders.create') }}" class="navbar-link">Custom Order</a></li>
             <li class="navbar-item dropdown">
