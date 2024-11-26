@@ -49,11 +49,6 @@
     padding: 10px 0;
 }
 
-.Profile-image .change-display {
-    margin: 0 10%;
-    padding: 5%;
-}
-
 .search-container {
     display: flex;
     text-align: center;
@@ -85,6 +80,7 @@
     height: 60px;
     cursor: pointer;
     transition: transform 0.3s ease, box-shadow 0.3s ease;
+    position: relative;
 }
 
 .profile-card:hover {
@@ -92,16 +88,8 @@
     box-shadow: 0 6px 20px rgba(0, 0, 0, 0.3);
 }
 
-.profile-card:hover .dropdown-menu {
-    display: block;
-}
-
 #dropdown-toggle:checked+.dropdown-menu {
     display: block;
-}
-
-.profile-card {
-    position: relative;
 }
 
 .dropdown-menu {
@@ -127,6 +115,7 @@
 .dropdown-menu a:hover {
     background-color: #f7fafc;
 }
+
 .navbar {
     background: #002E5E;
     overflow: hidden;

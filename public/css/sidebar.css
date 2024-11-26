@@ -1,30 +1,19 @@
 .container {
     display: flex;
-    /* Use flexbox to arrange children in a row */
 }
 
 .filter-search {
     width: 20%;
-    /* Set width for filter/search div */
     padding: 20px;
-    /* Optional padding */
+    background: #002E5E;
+    border-radius: 5px;
+    box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
 }
 
 .horizontal-line {
     width: 100%;
-    /* Full width */
     height: 2px;
-    /* Height of the line */
     background-color: white;
-    /* Color of the line */
-}
-
-.filter-search {
-    background: #002E5E;
-    padding: 20px;
-    border-radius: 5px;
-    box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
-    width: 20%;
 }
 
 h2 {
@@ -42,393 +31,147 @@ label {
     cursor: pointer;
     display: flex;
     align-items: center;
-}
-
-input[type="radio"] {
-    margin-right: 10px;
-}
-
-.filter-search {
-    background: #002E5E;
-    padding: 20px;
-    border-radius: 5px;
-    box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
-}
-
-h2 {
-    color: #ffffff;
-}
-
-.radio-group {
-    display: flex;
-    flex-direction: column;
-}
-
-label {
-    margin: 10px 0;
-    cursor: pointer;
-    display: flex;
-    align-items: center;
     position: relative;
-    /* Create a positioning context */
 }
 
 input[type="radio"] {
     display: none;
-    /* Hide the default radio button */
 }
 
 .custom-radio {
     width: 20px;
-    /* Width of the custom square */
     height: 20px;
-    /* Height of the custom square */
     background-color: #fff;
-    /* Background color */
     border: 2px solid #007bff;
-    /* Border color */
     border-radius: 3px;
-    /* Optional: To slightly round corners */
     margin-right: 10px;
     position: relative;
-    /* Positioning context for the checkmark */
 }
 
 input[type="radio"]:checked+.custom-radio::after {
     content: '';
-    /* Create a pseudo-element */
     position: absolute;
     left: 4px;
-    /* Position the check */
     top: 2px;
-    /* Position the check */
     width: 8px;
-    /* Width of the check */
     height: 12px;
-    /* Height of the check */
     border: solid #007bff;
-    /* Border color for the check */
     border-width: 0 2px 2px 0;
-    /* Create the checkmark shape */
     transform: rotate(45deg);
-    /* Rotate to form a check */
-}
-
-.horizontal-line {
-    width: 100%;
-    /* Full width */
-    height: 2px;
-    /* Height of the line */
-    background-color: white;
-    /* Color of the line */
 }
 
 .page-2 {
     .custom-radio {
         display: inline-block;
         width: 20px;
-        /* Size of the outer circle */
         height: 20px;
         border: 2px solid #ccc;
-        /* Border for the outer circle */
         border-radius: 50%;
-        /* Makes it circular */
         margin-right: 10px;
         position: relative;
         vertical-align: middle;
         cursor: pointer;
         background-color: #fff;
-        /* Background for the outer circle */
     }
     .inner-circle {
         display: none;
-        /* Initially hidden */
         position: absolute;
         top: 50%;
         left: 50%;
         width: 10px;
-        /* Size of the inner circle */
         height: 10px;
         background-color: #007BFF;
-        /* Color of the inner circle */
         border-radius: 50%;
-        /* Make it circular */
         transform: translate(-50%, -50%);
-        /* Center the inner circle */
     }
     input[type="radio"] {
         display: none;
-        /* Hide the default radio button */
     }
     input[type="radio"]:checked+.custom-radio .inner-circle {
         display: block;
-        /* Show the inner circle when checked */
     }
     label {
         display: block;
-        /* Allow vertical stacking of labels */
         cursor: pointer;
-        /* Cursor pointer for better UX */
         margin-bottom: 10px;
-        /* Space between options */
         font-size: 16px;
-        /* Adjust text size */
     }
     label:hover .custom-radio {
         border-color: #007BFF;
-        /* Change border color on hover */
     }
-    /* Different styles for page2 */
     .page2 .custom-radio {
         border-color: green;
-        /* Different border color for page2 */
     }
-    /* Checked state for both pages */
     input[type="radio"]:checked+.custom-radio {
         border-color: #007BFF;
         background-color: #007BFF;
     }
-    /* Specific hover effect for page1 */
     .page1 label:hover .custom-radio {
         border-color: navy;
     }
-    /* Specific hover effect for page2 */
     .page2 label:hover .custom-radio {
         border-color: darkgreen;
     }
 }
 
-
-/* Hide the default checkbox */
-
-
-/* input[type="checkbox"] {
-        display: none;
-    } */
-
-
-/* Style for the custom checkbox (Categories) */
-
-.custom-checkbox-category {
-    display: inline-block;
-    width: 20px;
-    /* Width of the checkbox */
-    height: 20px;
-    /* Height of the checkbox */
-    border: 2px solid #999;
-    /* Border color */
-    border-radius: 3px;
-    /* Slightly rounded corners */
-    position: relative;
-    /* Positioning of checkmark */
-    margin-right: 10px;
-    /* Space between checkbox and label text */
-    transition: background-color 0.3s;
-    /* Smooth transition for background */
-    cursor: pointer;
-    /* Pointer cursor on hover */
-}
-
-
-/* Style for checkmark (Categories) */
-
-.custom-checkbox-category:after {
-    content: "";
-    position: absolute;
-    left: 6px;
-    /* Adjust left position for the checkmark */
-    top: 2px;
-    /* Adjust top position for the checkmark */
-    width: 5px;
-    /* Width of the checkmark */
-    height: 10px;
-    /* Height of the checkmark */
-    border: solid black;
-    /* Checkmark color */
-    border-width: 0 3px 3px 0;
-    /* Only drawing part of the border */
-    opacity: 0;
-    /* Initially hidden */
-    transform: rotate(45deg);
-    /* Rotate to create checkmark */
-    transition: opacity 0.3s;
-    /* Fade in/out effect */
-}
-
-
-/* Checkbox checked state (Categories) */
-
-input[type="checkbox"][name="category"]:checked+.custom-checkbox-category {
-    background-color: #2196F3;
-    /* Background color when checked */
-    border-color: #2196F3;
-    /* Change border color when checked */
-}
-
-input[type="checkbox"][name="category"]:checked+.custom-checkbox-category:after {
-    opacity: 1;
-    /* Show the checkmark when checked */
-}
-
-
-/* Style for the custom checkbox (Metal Purity) */
-
-.custom-checkbox-purity {
-    display: inline-block;
-    width: 20px;
-    /* Width of the checkbox */
-    height: 20px;
-    /* Height of the checkbox */
-    border: 2px solid #999;
-    /* Border color */
-    border-radius: 3px;
-    /* Slightly rounded corners */
-    position: relative;
-    /* Positioning of checkmark */
-    margin-right: 10px;
-    /* Space between checkbox and label text */
-    transition: background-color 0.3s;
-    /* Smooth transition for background */
-    cursor: pointer;
-    /* Pointer cursor on hover */
-}
-
-
-/* Style for checkmark (Metal Purity) */
-
-.custom-checkbox-purity:after {
-    content: "";
-    position: absolute;
-    left: 6px;
-    /* Adjust left position for the checkmark */
-    top: 2px;
-    /* Adjust top position for the checkmark */
-    width: 5px;
-    /* Width of the checkmark */
-    height: 10px;
-    /* Height of the checkmark */
-    border: solid black;
-    /* Checkmark color */
-    border-width: 0 3px 3px 0;
-    /* Only drawing part of the border */
-    opacity: 0;
-    /* Initially hidden */
-    transform: rotate(45deg);
-    /* Rotate to create checkmark */
-    transition: opacity 0.3s;
-    /* Fade in/out effect */
-}
-
-
-/* Checkbox checked state (Metal Purity) */
-
-input[type="checkbox"][name="metal_purity[]"]:checked+.custom-checkbox-purity {
-    background-color: #2196F3;
-    /* Background color when checked */
-    border-color: #2196F3;
-    /* Change border color when checked */
-}
-
-input[type="checkbox"][name="metal_purity[]"]:checked+.custom-checkbox-purity:after {
-    opacity: 1;
-    /* Show the checkmark when checked */
-}
-
-
-/* Style for the custom checkbox (Kind) */
-
+.custom-checkbox-category,
+.custom-checkbox-purity,
 .custom-checkbox-kind {
     display: inline-block;
     width: 20px;
-    /* Width of the checkbox */
     height: 20px;
-    /* Height of the checkbox */
     border: 2px solid #999;
-    /* Border color */
     border-radius: 3px;
-    /* Slightly rounded corners */
     position: relative;
-    /* Positioning of checkmark */
     margin-right: 10px;
-    /* Space between checkbox and label text */
     transition: background-color 0.3s;
-    /* Smooth transition for background */
     cursor: pointer;
-    /* Pointer cursor on hover */
 }
 
-
-/* Style for checkmark (Kind) */
-
+.custom-checkbox-category:after,
+.custom-checkbox-purity:after,
 .custom-checkbox-kind:after {
     content: "";
     position: absolute;
     left: 6px;
-    /* Adjust left position for the checkmark */
     top: 2px;
-    /* Adjust top position for the checkmark */
     width: 5px;
-    /* Width of the checkmark */
     height: 10px;
-    /* Height of the checkmark */
     border: solid black;
-    /* Checkmark color */
     border-width: 0 3px 3px 0;
-    /* Only drawing part of the border */
     opacity: 0;
-    /* Initially hidden */
     transform: rotate(45deg);
-    /* Rotate to create checkmark */
     transition: opacity 0.3s;
-    /* Fade in/out effect */
 }
 
-
-/* Checkbox checked state (Kind) */
-
+input[type="checkbox"][name="category"]:checked+.custom-checkbox-category,
+input[type="checkbox"][name="metal_purity[]"]:checked+.custom-checkbox-purity,
 input[type="checkbox"][name="kind[]"]:checked+.custom-checkbox-kind {
     background-color: #2196F3;
-    /* Background color when checked */
     border-color: #2196F3;
-    /* Change border color when checked */
 }
 
+input[type="checkbox"][name="category"]:checked+.custom-checkbox-category:after,
+input[type="checkbox"][name="metal_purity[]"]:checked+.custom-checkbox-purity:after,
 input[type="checkbox"][name="kind[]"]:checked+.custom-checkbox-kind:after {
     opacity: 1;
-    /* Show the checkmark when checked */
 }
 
 .reset-button {
     padding: 10px 20px;
-    /* Padding around the button */
     background-color: #2196F3;
-    /* Background color */
     color: white;
-    /* Text color */
     border: none;
-    /* Remove border */
     border-radius: 5px;
-    /* Slightly rounded corners */
     cursor: pointer;
-    /* Pointer cursor on hover */
     font-size: 16px;
-    /* Font size */
     transition: background-color 0.3s;
-    /* Smooth transition for hover */
 }
-
-
-/* Change background color on hover */
 
 .reset-button:hover {
     background-color: #1976D2;
-    /* Darken background on hover */
 }
-
-
-/* Change background color on active state */
 
 .reset-button:active {
     background-color: #155A8A;
-    /* Darker shade when button is pressed */
 }
