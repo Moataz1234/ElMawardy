@@ -1,3 +1,4 @@
+/* Layout */
 .container {
     display: flex;
 }
@@ -10,16 +11,25 @@
     box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
 }
 
+.sidebar_order {
+    padding: 20px;
+    background: #002E5E;
+    border-radius: 5px;
+    box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
+}
+
+/* Typography */
+h2 {
+    color: #ffffff;
+}
+
 .horizontal-line {
     width: 100%;
     height: 2px;
     background-color: white;
 }
 
-h2 {
-    color: #ffffff;
-}
-
+/* Radio Buttons */
 .radio-group {
     display: flex;
     flex-direction: column;
@@ -48,7 +58,7 @@ input[type="radio"] {
     position: relative;
 }
 
-input[type="radio"]:checked+.custom-radio::after {
+input[type="radio"]:checked + .custom-radio::after {
     content: '';
     position: absolute;
     left: 4px;
@@ -60,60 +70,7 @@ input[type="radio"]:checked+.custom-radio::after {
     transform: rotate(45deg);
 }
 
-.page-2 {
-    .custom-radio {
-        display: inline-block;
-        width: 20px;
-        height: 20px;
-        border: 2px solid #ccc;
-        border-radius: 50%;
-        margin-right: 10px;
-        position: relative;
-        vertical-align: middle;
-        cursor: pointer;
-        background-color: #fff;
-    }
-    .inner-circle {
-        display: none;
-        position: absolute;
-        top: 50%;
-        left: 50%;
-        width: 10px;
-        height: 10px;
-        background-color: #007BFF;
-        border-radius: 50%;
-        transform: translate(-50%, -50%);
-    }
-    input[type="radio"] {
-        display: none;
-    }
-    input[type="radio"]:checked+.custom-radio .inner-circle {
-        display: block;
-    }
-    label {
-        display: block;
-        cursor: pointer;
-        margin-bottom: 10px;
-        font-size: 16px;
-    }
-    label:hover .custom-radio {
-        border-color: #007BFF;
-    }
-    .page2 .custom-radio {
-        border-color: green;
-    }
-    input[type="radio"]:checked+.custom-radio {
-        border-color: #007BFF;
-        background-color: #007BFF;
-    }
-    .page1 label:hover .custom-radio {
-        border-color: navy;
-    }
-    .page2 label:hover .custom-radio {
-        border-color: darkgreen;
-    }
-}
-
+/* Checkboxes */
 .custom-checkbox-category,
 .custom-checkbox-purity,
 .custom-checkbox-kind {
@@ -144,19 +101,48 @@ input[type="radio"]:checked+.custom-radio::after {
     transition: opacity 0.3s;
 }
 
-input[type="checkbox"][name="category"]:checked+.custom-checkbox-category,
-input[type="checkbox"][name="metal_purity[]"]:checked+.custom-checkbox-purity,
-input[type="checkbox"][name="kind[]"]:checked+.custom-checkbox-kind {
+input[type="checkbox"][name="category"]:checked + .custom-checkbox-category,
+input[type="checkbox"][name="metal_purity[]"]:checked + .custom-checkbox-purity,
+input[type="checkbox"][name="kind[]"]:checked + .custom-checkbox-kind {
     background-color: #2196F3;
     border-color: #2196F3;
 }
 
-input[type="checkbox"][name="category"]:checked+.custom-checkbox-category:after,
-input[type="checkbox"][name="metal_purity[]"]:checked+.custom-checkbox-purity:after,
-input[type="checkbox"][name="kind[]"]:checked+.custom-checkbox-kind:after {
+input[type="checkbox"][name="category"]:checked + .custom-checkbox-category:after,
+input[type="checkbox"][name="metal_purity[]"]:checked + .custom-checkbox-purity:after,
+input[type="checkbox"][name="kind[]"]:checked + .custom-checkbox-kind:after {
     opacity: 1;
 }
 
+/* Page 2 Specific Styles */
+.page-2 .custom-radio {
+    border-radius: 50%;
+    border: 2px solid #ccc;
+    background-color: #fff;
+}
+
+.page-2 .inner-circle {
+    display: none;
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    width: 10px;
+    height: 10px;
+    background-color: #007BFF;
+    border-radius: 50%;
+    transform: translate(-50%, -50%);
+}
+
+.page-2 input[type="radio"]:checked + .custom-radio {
+    border-color: #007BFF;
+    background-color: #007BFF;
+}
+
+.page-2 input[type="radio"]:checked + .custom-radio .inner-circle {
+    display: block;
+}
+
+/* Buttons */
 .reset-button {
     padding: 10px 20px;
     background-color: #2196F3;
@@ -165,8 +151,8 @@ input[type="checkbox"][name="kind[]"]:checked+.custom-checkbox-kind:after {
     border-radius: 5px;
     cursor: pointer;
     font-size: 16px;
-    transition: background-color 0.3s;
     margin-left: 10px;
+    transition: background-color 0.3s;
 }
 
 .reset-button:hover {

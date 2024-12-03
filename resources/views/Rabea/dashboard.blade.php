@@ -9,7 +9,7 @@
 <body>
     @include('components.navbar')
     @include('sidebars.rabea-sidebar')
-    @include('searchbars.rabea-searchbar')
+    {{-- @include('searchbars.rabea-searchbar') --}}
 
     {{-- <form method="GET" action="{{ route('gold-items.index') }}">
         <input type="text" name="search" placeholder="Search..." value="{{ request('search') }}">

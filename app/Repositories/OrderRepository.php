@@ -7,11 +7,17 @@ use Carbon\Carbon;
 use App\Constants\OrderStatus;
 class OrderRepository
 {
-    public function getFilteredOrders($sort, $direction)
+    public function getFilteredOrders($sort, $direction, $searchType = null, $searchValue = null)
     {
-        return Order::where('status', '<>', OrderStatus::PENDING)
-            ->where('status', '<>', OrderStatus::COMPLETED)
-                ->orderBy($sort, $direction)
+        $query = Order::query()
+            ->where('status', '<>', OrderStatus::PENDING)
+            ->where('status', '<>', OrderStatus::COMPLETED);
+    
+        if ($searchType && $searchValue) {
+            $query->where($searchType, 'LIKE', "%{$searchValue}%");
+        }
+    
+        return $query->orderBy($sort, $direction)
             ->paginate(20);
     }
 

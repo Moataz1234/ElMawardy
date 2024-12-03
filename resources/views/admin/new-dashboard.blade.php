@@ -11,6 +11,12 @@
 
 </head>
 <body>
+    <form action="/update-prices" method="POST" enctype="multipart/form-data">
+        @csrf
+        <input type="file" name="excel_files[]" multiple required>
+        <button type="submit">Upload</button>
+    </form>
+    
     <div class="dashboard-container">
         <div class="card">
             <h3>Total Weight Sold by Year and Shop</h3>

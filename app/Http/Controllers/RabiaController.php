@@ -24,14 +24,36 @@ class RabiaController extends Controller
         $this->orderRepository = $orderRepository;
     }
 
-   public function indexForRabea(Request $request)
-{
-    $sortField = $request->input('sort', 'created_at');
-    $sortDirection = $request->input('direction', 'desc');
-    $orders = $this->orderRepository->getFilteredOrders($sortField,$sortDirection);
-
-    return view('Rabea.orders_index', compact('orders'));
-}
+    public function indexForRabea(Request $request)
+    {
+        $sortDirection = $request->input('direction', 'asc');
+        $sortField = $request->input('sort', 'created_at');
+        $searchType = $request->input('search_type');
+        $searchValue = $request->input('search_value');
+    
+        // Map Arabic field names to database columns
+        $sortFieldMap = [
+            'رقم_الأوردر' => 'order_number',
+            'اسم_العميل' => 'customer_name',
+            'اسم_البائع' => 'seller_name',
+            'الحالة' => 'status'
+        ];
+    
+        // Convert Arabic sort field to database column name if needed
+        if (isset($sortFieldMap[$sortField])) {
+            $sortField = $sortFieldMap[$sortField];
+        }
+    
+        // Pass all parameters to repository method
+        $orders = $this->orderRepository->getFilteredOrders(
+            $sortField,
+            $sortDirection,
+            $searchType,
+            $searchValue
+        );
+    
+        return view('Rabea.orders_index', compact('orders'));
+    }
 public function updateStatusBulk(Request $request)
 {
     $status = $request->input('status');
@@ -101,7 +123,7 @@ public function updateStatusBulk(Request $request)
             $item->save();
         }
         // Redirect to the orders list or wherever necessary
-        return redirect()->route('orders.index')->with('success', 'Order updated successfully.');
+        return redirect()->route('orders.rabea.index')->with('success', 'Order updated successfully.');
     }
     public function updateOrder(OrderUpdateRequest $request, $id)
     {
@@ -130,13 +152,40 @@ public function updateStatusBulk(Request $request)
 
         return view('Rabea.to_print', compact('orders'));
     }
-    public function completed()
+    public function completed(Request $request)
     {
-        $completedOrders = Order::where('status', 'خلص')
-            ->orderBy('created_at', 'desc')
-            ->paginate(20);
-            
-        return view('rabea.completed', compact('completedOrders'));
+        $searchType = $request->input('search_type');
+        $searchValue = $request->input('search_value');
+        $sortField = $request->input('sort', 'created_at');
+        $sortDirection = $request->input('direction', 'asc');
+    
+        $query = Order::where('status', 'خلص');
+    
+        // Add search logic
+        if ($searchType && $searchValue) {
+            $query->where($searchType, 'LIKE', "%{$searchValue}%");
+        }
+    
+        // Add sort logic
+        $allowedSortFields = [
+            'order_number',
+            'customer_name',
+            'seller_name',
+            'status',
+            'created_at'
+        ];
+    
+        if (in_array($sortField, $allowedSortFields)) {
+            $orders = $query
+                ->orderBy($sortField, $sortDirection)
+                ->paginate(20);
+        } else {
+            $orders = $query
+                ->orderBy('created_at', 'desc')
+                ->paginate(20);
+        }
+        
+        return view('rabea.completed', compact('orders'));
     }
     public function updateStatus(Request $request,$id)
 {

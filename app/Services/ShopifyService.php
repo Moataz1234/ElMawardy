@@ -502,25 +502,30 @@ public function updateTracking($orderId, $fulfillmentId, array $trackingInfo)
 public function updateVariantPrices($variantGid, $price, $compareAtPrice)
 {
     try {
+        // Extract variant ID from GID
         $variantId = preg_replace('/^gid:\/\/shopify\/ProductVariant\//', '', $variantGid);
+        
+        // Prepare API endpoint URL
         $url = "/admin/api/2024-10/variants/{$variantId}.json";
 
+        // Prepare data for update
         $data = [
             'variant' => [
-                'id' => $variantId,
+                'id' => (int)$variantId,
                 'price' => number_format($price, 2, '.', ''),
                 'compare_at_price' => number_format($compareAtPrice, 2, '.', '')
             ]
         ];
 
+        // Make PUT request to update variant prices
         $response = $this->client->put($url, [
             'json' => $data
         ]);
 
+        // Decode response body
         $responseBody = json_decode($response->getBody(), true);
-        
-        Log::info('Shopify update response for variant ' . $variantId . ': ' . json_encode($responseBody));
-        
+
+        // Check for errors in the response
         if (isset($responseBody['errors'])) {
             return [
                 'success' => false,
@@ -535,7 +540,7 @@ public function updateVariantPrices($variantGid, $price, $compareAtPrice)
     } catch (\Exception $e) {
         return [
             'success' => false,
-            'message' => $e->getMessage()
+            'message' => "Error updating variant prices: " . $e->getMessage()
         ];
     }
 }
@@ -634,6 +639,36 @@ public function updateVariantQuantity($variantGid, $quantity)
         return [
             'success' => false,
             'message' => $e->getMessage()
+        ];
+    }
+}
+public function updateVariantPricesAndWeight($variantGid, $price, $compareAtPrice, $weight)
+{
+    try {
+        // Extract variant ID from GID
+        $variantId = preg_replace('/^gid:\/\/shopify\/ProductVariant\//', '', $variantGid);
+        // Prepare API endpoint URL for updating variant details
+        $url = "/admin/api/2024-10/variants/{$variantId}.json";
+
+        // Prepare data for update including weight
+        $data = [
+            'variant' => [
+                'id' => (int)$variantId,
+                'price' => number_format($price, 2, '.', ''),
+                'compare_at_price' => number_format($compareAtPrice, 2, '.', ''),
+                'weight' => number_format($weight, 2, '.', ''), // Update weight here
+                'weight_unit' => 'g' // Specify appropriate weight unit (e.g., kg, g, lb)
+            ]
+        ];
+
+        // Make PUT request to update variant prices and weight
+        return json_decode($this->client->put($url, [
+            'json' => $data
+        ])->getBody(), true);
+    } catch (\Exception $e) {
+        return [
+            'success' => false,
+            'message' => "Error updating variant prices and weight: " . $e->getMessage()
         ];
     }
 }

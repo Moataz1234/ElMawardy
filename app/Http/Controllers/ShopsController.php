@@ -13,12 +13,17 @@ use App\Models\Shop;
 use App\Models\GoldItemSold;
 use App\Models\GoldPrice;
 use App\Models\Customer;
+use App\Models\ItemRequest;
 use App\Models\Outer;
+use App\Models\Warehouse;
 use App\Services\SortAndFilterService;
 use App\Services\TransferService;
 use App\Services\GoldItemService;
 use App\Services\SellService;
 use App\Services\OuterService;
+use App\Services\WarehouseService;
+use Illuminate\Support\Facades\DB;
+
 
 
 use PhpOffice\PhpSpreadsheet\IOFactory;
@@ -31,17 +36,21 @@ class ShopsController extends Controller
     private GoldItemService $goldItemService;
     private OuterService $outerService;
     private SellService $saleService;
+    private WarehouseService $warehouseService;
 
     public function __construct(
         TransferService $transferService,
         GoldItemService $goldItemService,
         OuterService $outerService,
-        SellService $saleService
+        SellService $saleService,
+        WarehouseService $warehouseService
     ) {
         $this->transferService = $transferService;
         $this->goldItemService = $goldItemService;
         $this->outerService = $outerService;
         $this->saleService = $saleService;
+        $this->warehouseService = $warehouseService;
+
     }
 
     public function showShopItems(Request $request)
@@ -169,5 +178,65 @@ class ShopsController extends Controller
         return redirect()->back()
             ->with('error', 'Failed to create transfer requests: ' . $e->getMessage());
     }
+}
+
+public function showAdminRequests()
+{
+    $requests = ItemRequest::where('shop_name', Auth::user()->shop_name)
+        ->with(['item', 'admin'])
+        ->latest()
+        ->paginate(10);
+        
+    return view('shops.admin_requests', compact('requests'));
+}
+public function updateAdminRequests(Request $request, ItemRequest $itemRequest)
+{
+    $validated = $request->validate([
+        'status' => 'required|in:accepted,rejected'
+    ]);
+    
+    try {
+        DB::transaction(function () use ($validated, $itemRequest) {
+            $itemRequest->update(['status' => $validated['status']]);
+            
+            if ($validated['status'] === 'accepted') {
+                $goldItem = $itemRequest->item;
+                
+                $goldItem->update([
+                    'shop_name' => 'admin',
+                    'status' => 'accepted'
+                ]);
+                
+        // Create warehouse record
+        Warehouse::create([
+            'link' => $goldItem->link,
+            'serial_number' => $goldItem->serial_number,
+            'shop_name' => 'admin',
+            'shop_id' => $goldItem->shop_id,
+            'kind' => $goldItem->kind,
+            'model' => $goldItem->model,
+            'talab' => $goldItem->talab,
+            'gold_color' => $goldItem->gold_color,
+            'stones' => $goldItem->stones,
+            'metal_type' => $goldItem->metal_type,
+            'metal_purity' => $goldItem->metal_purity,
+            'quantity' => $goldItem->quantity,
+            'weight' => $goldItem->weight,
+            'rest_since' => $goldItem->rest_since,
+            'source' => $goldItem->source,
+            'to_print' => $goldItem->to_print,
+            'price' => $goldItem->price,
+            'semi_or_no' => $goldItem->semi_or_no,
+            'average_of_stones' => $goldItem->average_of_stones,
+            'net_weight' => $goldItem->net_weight,
+            'website' => $goldItem->website
+        ]);
+    }
+});
+
+return redirect()->back()->with('success', 'Request status updated successfully');
+} catch (\Exception $e) {
+    return redirect()->back()->with('error', 'Failed to process request: ' . $e->getMessage());
+}
 }
 }

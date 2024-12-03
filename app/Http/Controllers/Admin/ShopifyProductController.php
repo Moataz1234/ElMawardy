@@ -1,7 +1,8 @@
 <?php
 
-namespace App\Http\Controllers;
+namespace App\Http\Controllers\Admin;
 
+use App\Http\Controllers\Controller;
 use App\Services\ShopifyService;
 use Illuminate\Http\Request;
 use App\Models\GoldItem;
@@ -570,6 +571,206 @@ public function updateQuantityToOne()
         'errors' => $errors
     ]);
 }
+public function updatePricesFromCsv(Request $request)
+{
+    $files = $request->file('excel_files'); // Assuming both files are uploaded
+    $updatedCount = 0;
+    $errors = [];
+
+    foreach ($files as $file) {
+        // Read the CSV file
+        $data = array_map('str_getcsv', file($file->getRealPath()));
+        // Skip header row
+        array_shift($data);
+
+        foreach ($data as $row) {
+            $sku = trim($row[0]);
+            $price = isset($row[1]) ? (float)$row[1] : null;
+            $compareAtPrice = isset($row[2]) ? (float)$row[2] : null;
+
+            if ($price !== null && $compareAtPrice !== null) {
+                try {
+                    // Find product variant by SKU
+                    $query = '{
+                        products(first: 1, query: "sku:' . $sku . '") {
+                            edges {
+                                node {
+                                    variants(first: 1) {
+                                        edges {
+                                            node {
+                                                id
+                                            }
+                                        }
+                                    }
+                                }
+                            }
+                        }
+                    }';
+
+                    $response = $this->shopifyService->makeGraphQLRequest($query);
+                    
+                    if (!empty($response['data']['products']['edges'])) {
+                        $variantId = $response['data']['products']['edges'][0]['node']['variants']['edges'][0]['node']['id'];
+                        
+                        // Update variant prices
+                        $updateResponse = $this->shopifyService->updateVariantPrices($variantId, $price, $compareAtPrice);
+                        
+                        if (isset($updateResponse['success']) && $updateResponse['success']) {
+                            Log::info("Updated SKU: {$sku} with Price: {$price} and Compare At Price: {$compareAtPrice}");
+                            $updatedCount++;
+                        } else {
+                            // Handle error case where success is not set or false
+                            $errors[] = "Failed to update SKU: {$sku} - " . ($updateResponse['message'] ?? 'Unknown error');
+                        }
+                    } else {
+                        $errors[] = "Product not found for SKU: {$sku}";
+                    }
+                } catch (\Exception $e) {
+                    $errors[] = "Error processing SKU {$sku}: " . $e->getMessage();
+                }
+            } else {
+                Log::warning("Invalid data for SKU: {$sku} - Price or Compare At Price is missing.");
+            }
+        }
+    }
+
+    return response()->json([
+        'success' => true,
+        'updated_count' => $updatedCount,
+        'errors' => array_unique($errors)
+    ]);
 }
+    // public function updatePricesFromCsv(Request $request)
+    // {
+    //     $files = $request->file('excel_files'); // Assuming multiple files can be uploaded
+    //     $updatedCount = 0;
+    //     $errors = [];
+
+    //     foreach ($files as $file) {
+    //         // Read the CSV file
+    //         $data = array_map('str_getcsv', file($file->getRealPath()));
+    //         array_shift($data); // Skip header row
+
+    //         foreach ($data as $row) {
+    //             $sku = trim($row[0]);
+    //             $price = isset($row[1]) ? trim($row[1]) : null;
+    //             $compareAtPrice = isset($row[2]) ? trim($row[2]) : null;
+    //             $weight = isset($row[3]) ? trim($row[3]) : null; // Assuming weight is in column 4
+
+    //             if (empty($price)) {
+    //                 // If price is blank, archive SKU (set published status to false)
+    //                 try {
+    //                     // Find product variant by SKU
+    //                     $query = '{
+    //                         products(first: 1, query: "sku:' . $sku . '") {
+    //                             edges {
+    //                                 node {
+    //                                     id
+    //                                     variants(first: 1) {
+    //                                         edges {
+    //                                             node {
+    //                                                 id
+    //                                             }
+    //                                         }
+    //                                     }
+    //                                 }
+    //                             }
+    //                         }
+    //                     }';
+
+    //                     $response = $this->shopifyService->makeGraphQLRequest($query);
+                        
+    //                     if (!empty($response['data']['products']['edges'])) {
+    //                         $productId = $response['data']['products']['edges'][0]['node']['id'];
+                            
+    //                         // Archive the product by setting its published status to false
+    //                         $mutation = 'mutation {
+    //                             productUpdate(input: {
+    //                                 id: "' . $productId . '",
+    //                                 published: false
+    //                             }) {
+    //                                 userErrors {
+    //                                     field
+    //                                     message
+    //                                 }
+    //                             }
+    //                         }';
+
+    //                         $updateResponse = $this->shopifyService->makeGraphQLRequest($mutation);
+                            
+    //                         if (empty($updateResponse['data']['productUpdate']['userErrors'])) {
+    //                             Log::info("Archived SKU: {$sku} due to blank price.");
+    //                             $updatedCount++;
+    //                         } else {
+    //                             foreach ($updateResponse['data']['productUpdate']['userErrors'] as $error) {
+    //                                 $errors[] = "Failed to archive SKU: {$sku} - " . $error['message'];
+    //                             }
+    //                         }
+    //                     } else {
+    //                         $errors[] = "Product not found for SKU: {$sku}";
+    //                     }
+    //                 } catch (\Exception $e) {
+    //                     $errors[] = "Error processing SKU {$sku}: " . $e->getMessage();
+    //                 }
+    //             } else {
+    //                 // Proceed with updating prices and weight if price is provided
+    //                 try {
+    //                     // Find product variant by SKU
+    //                     $query = '{
+    //                         products(first: 1, query: "sku:' . $sku . '") {
+    //                             edges {
+    //                                 node {
+    //                                     variants(first: 1) {
+    //                                         edges {
+    //                                             node {
+    //                                                 id
+    //                                             }
+    //                                         }
+    //                                     }
+    //                                 }
+    //                             }
+    //                         }
+    //                     }';
+
+    //                     $response = $this->shopifyService->makeGraphQLRequest($query);
+                        
+    //                     if (!empty($response['data']['products']['edges'])) {
+    //                         $variantId = $response['data']['products']['edges'][0]['node']['variants']['edges'][0]['node']['id'];
+
+    //                         // Update variant prices and weight
+    //                         $updateResponse = $this->shopifyService->updateVariantPricesAndWeight(
+    //                             $variantId,
+    //                             (float)$price,
+    //                             (float)$compareAtPrice,
+    //                             (float)$weight // Pass weight to the service method
+    //                         );
+                            
+    //                         if ($updateResponse['success']) {
+    //                             Log::info("Updated SKU: {$sku} with Price: {$price}, Compare At Price: {$compareAtPrice}, Weight: {$weight}");
+    //                             $updatedCount++;
+    //                         } else {
+    //                             $errors[] = "Failed to update SKU: {$sku} - " . ($updateResponse['message'] ?? 'Unknown error');
+    //                         }
+    //                     } else {
+    //                         $errors[] = "Product not found for SKU: {$sku}";
+    //                     }
+    //                 } catch (\Exception $e) {
+    //                     $errors[] = "Error processing SKU {$sku}: " . $e->getMessage();
+    //                 }
+    //             }
+    //         }
+    //     }
+
+    //     return response()->json([
+    //         'success' => true,
+    //         'updated_count' => $updatedCount,
+    //         'errors' => array_unique($errors), // Return unique error messages
+    //     ]);
+    // }
+}
+
+
+
+
 
 

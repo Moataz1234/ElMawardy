@@ -5,14 +5,20 @@ namespace App\Services;
 use App\Models\GoldItem;
 use App\Models\GoldItemSold;
 use App\Models\Shop;
-use Illuminate\Http\Request;
 use App\Http\Requests\UpdateGoldItemRequest;
+use App\Models\DeletedItemHistory;
+use App\Models\ItemRequest;
+use App\Models\User;
+use App\Notifications\ItemRequestNotification;
+use App\Services\SortAndFilterService;
+use Illuminate\Support\Facades\Auth;
+use Illuminate\Support\Facades\DB;
+
+use Illuminate\Support\Facades\Log;
 
 use Illuminate\Support\Facades\Storage;
-use Illuminate\Support\Facades\Auth;
+use Illuminate\Http\Request;
 
-use App\Services\SortAndFilterService;
-// use App\Services\PriceCalculator;
 
 class Admin_GoldItemService
 {
@@ -58,17 +64,73 @@ class Admin_GoldItemService
     }
     
     
-
-    public function bulkDelete(array $ids)
+    public function bulkDelete(array $ids, $reason = null)
     {
-        return GoldItem::whereIn('id', $ids)->delete();
+        try {
+            return DB::transaction(function () use ($ids, $reason) {
+                $items = GoldItem::whereIn('id', $ids)->get();
+                
+                if ($items->isEmpty()) {
+                    throw new \Exception('No items found to delete');
+                }
+                
+                // Delete related transfer requests first
+                DB::table('transfer_requests')->whereIn('gold_item_id', $ids)->delete();
+                
+                // Create history records
+                foreach ($items as $item) {
+                    DeletedItemHistory::create([
+                        'item_id' => $item->id,
+                        'deleted_by' => Auth::user()->shop_name,
+                        'serial_number' => $item->serial_number,
+                        'shop_name' => $item->shop_name,
+                        'kind' => $item->kind,
+                        'model' => $item->model,
+                        'gold_color' => $item->gold_color,
+                        'metal_purity' => $item->metal_purity,
+                        'weight' => $item->weight,
+                        'deletion_reason' => $reason,
+                        'deleted_at' => now()
+                    ]);
+                }
+                
+                // Then delete the items
+                return GoldItem::whereIn('id', $ids)->delete();
+            });
+        } catch (\Exception $e) {
+            Log::error('Bulk deletion failed: ' . $e->getMessage());
+            throw $e;
+        }
     }
-
     public function bulkRequest(array $ids)
     {
-        // Implement your request logic here
-        return GoldItem::whereIn('id', $ids)
-            ->update(['status' => 'requested']);
+        // Get all selected items
+        $items = GoldItem::whereIn('id', $ids)->get();
+        
+        // Group items by shop for efficient processing
+        $itemsByShop = $items->groupBy('shop_name');
+        
+        foreach ($itemsByShop as $shopName => $shopItems) {
+            // Create request record for each item
+            foreach ($shopItems as $item) {
+                ItemRequest::create([
+                    'item_id' => $item->id,
+                    'admin_id' => Auth::id(),
+                    'shop_name' => $shopName,
+                    'status' => 'pending'
+                ]);
+            }
+            
+            // Notify shop users
+            $shopUsers = User::where('shop_name', $shopName)->get();
+            foreach ($shopUsers as $user) {
+                $user->notify(new ItemRequestNotification($shopItems, Auth::user()));
+            }
+        }
+        
+        // Update items status
+        GoldItem::whereIn('id', $ids)->update(['status' => 'requested']);
+        return true;
     }
     // public function updateGoldItem($id, array $validatedData, $file = null)
     // {
@@ -101,8 +163,7 @@ class Admin_GoldItemService
     }
     public function getGoldItems( $request)
 { 
-    // $query = GoldItem::with('shop');
-    $query = GoldItem::query();
+    $query = GoldItem::with(['shop', 'modelCategory']);
 
     // Apply search filter
     if ($search = $request->input('search')) {
@@ -127,8 +188,8 @@ class Admin_GoldItemService
             $q->whereIn('category', $category);
         });
     }
-    if ($kind = $request->input('shop_name')) {
-        $query->whereIn('shop_name', $kind);
+    if ($shopName  = $request->input('shop_name')) {
+        $query->whereIn('shop_name', $shopName);
     }
     $sortableFields = ['serial_number', 'model', 'kind', 'quantity', 'created_at'];
     $sortField = in_array($request->input('sort'), $sortableFields) ? $request->input('sort') : 'serial_number';

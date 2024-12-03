@@ -14,23 +14,12 @@
                   value="{{ request('search') }}" placeholder="Model Name">
            <button type="submit">Search</button>
        </form>
-       {{-- </div> --}}
     </nav>
-    {{-- <nav class="second-section">
-
-    <div class="second-section-item search-container">
-        <form action="{{ url()->current() }}" method="GET">
-            <input type="text" name="search" class="search-input" placeholder="Model Name" value="{{ request('search') }}">
-            <button type="submit">Search</button>
-        </form>
-    </div>
-   
-  
-</nav> --}}
+    
 
 <div class="container">
     <div class="filter-search">
-        <form method="GET" action="{{ url()->current() }}">
+        <form method="GET" action="{{ url()->current() }}" id="filterForm">
             <div class="radio-group">
                 <h3>Sort By</h3>
                 <div class="page-2">

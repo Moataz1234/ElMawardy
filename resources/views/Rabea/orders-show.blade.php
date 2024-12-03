@@ -1,13 +1,15 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-    @include('rabea.dashboard')
+    @include('components.navbar')
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Order Details</title>
     <link href="{{ asset('css/app.css') }}" rel="stylesheet">
     <link href="{{ asset('css/style.css') }}" rel="stylesheet">
     <link href="{{ asset('css/order-details.css') }}" rel="stylesheet">
+    <link href="{{ asset('css/navbar.css') }}" rel="stylesheet">
+
     <style>
         /* Container for order details and items, displayed side by side */
         .order-wrapper {
@@ -123,8 +125,8 @@
 
     <!-- Action Buttons -->
     <div class="card-footer" style="margin-top: 20px;">
-        <a href="{{ route('orders.rabea.index') }}" class="btn btn-primary">Back to Orders</a>
-        <a href="{{ route('orders.rabea.edit', $order->id) }}" class="btn btn-primary">Edit</a>
+        {{-- <a href="{{ route('orders.rabea.index') }}" class="btn btn-primary">Back to Orders</a> --}}
+        <a  href="{{ route('orders.rabea.edit', $order->id) }}" >Edit</a>
     </div>
 </div>
 </body>

@@ -24,8 +24,6 @@
             <div class="product-image" style="background-image: url('{{ asset( $catalogItem->link)  }} ');" alt="Image" ></div>
             <div class="button-container">
                 <span class="product-name">Model name:{{ $catalogItem->model }}
-                    <br>
-                    (category ({{ $catalogItem->modelCategory->category ?? 'No Category' }}))</span>
                 <button class="show-details" data-image="{{ asset($catalogItem->link) }}"
                     data-title="{{ $catalogItem->model }}" 
                     data-weight="{{$catalogItem->weight}}"

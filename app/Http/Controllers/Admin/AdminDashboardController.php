@@ -1,6 +1,7 @@
 <?php
-namespace App\Http\Controllers;
+namespace App\Http\Controllers\Admin;
 
+use App\Http\Controllers\Controller;
 use App\Services\ShopWeightAnalysisService;
 use App\Services\PopularModelsService;
 use Illuminate\View\View;
@@ -8,8 +9,9 @@ use App\Models\GoldItemSold;
 use Illuminate\Http\Request;
 // use App\Http\Requests\GoldItemRequest;
 use App\Http\Requests\UpdateGoldItemRequest;
-
+use App\Models\DeletedItemHistory;
 use App\Services\Admin_GoldItemService;
+use Illuminate\Support\Facades\Log;
 
 class AdminDashboardController extends Controller
 {
@@ -75,20 +77,34 @@ public function bulkAction(Request $request)
     $action = $request->input('action');
     $selectedItems = $request->input('selected_items');
 
-    switch ($action) {
-        case 'delete':
-            $this->goldItemService->bulkDelete($selectedItems);
-            $message = 'Selected items deleted successfully';
-            break;
-        case 'request':
-            $this->goldItemService->bulkRequest($selectedItems);
-            $message = 'Selected items requested successfully';
-            break;
-        default:
-            return redirect()->back()->with('error', 'Invalid action');
-    }
+    try {
+        switch ($action) {
+            case 'delete':
+                Log::info('Creating deletion history record', [
+                    'item_id' => $request->id,
+                    'serial_number' => $request->serial_number
+                ]);
+                $reason = $request->input('deletion_reason');
+                $this->goldItemService->bulkDelete($selectedItems, $reason);
+                $message = 'Selected items deleted successfully';
+                break;
+            case 'request':
+                $this->goldItemService->bulkRequest($selectedItems);
+                $message = 'Selected items requested successfully';
+                break;
+            default:
+                return redirect()->back()->with('error', 'Invalid action');
+        }
 
-    return redirect()->back()->with('success', $message);
+        return redirect()->back()->with('success', $message);
+    }catch (\Exception $e) {
+        Log::error('Bulk action failed', [
+            'action' => $action,
+            'items' => $selectedItems,
+            'error' => $e->getMessage()
+        ]);
+        return redirect()->back()->with('error', 'An error occurred: ' . $e->getMessage());
+    }
 }
     public function dashboard(): View
     {
@@ -106,6 +122,14 @@ public function bulkAction(Request $request)
             'totalWeightSoldByYearAndShop' => $totalWeightSoldByYearAndShop,
             'totalWeightInventory' => $totalWeightInventory
         ]);
+    }
+    public function deletedItems()
+    {
+        $deletedItems = DeletedItemHistory::with('deletedBy')
+            ->latest('deleted_at')
+            ->paginate(20);
+            
+        return view('admin.deleted-items-history', compact('deletedItems'));
     }
   
 }

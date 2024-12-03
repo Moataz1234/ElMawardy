@@ -1,11 +1,3 @@
-     /* body{
-            direction: r
-        } */
-     
-     .filter-search {
-         height: 800px;
-     }
-     
      .search-container {
          display: flex;
          width: 45%;

@@ -5,9 +5,9 @@ use App\Http\Controllers\{
     HomeController, ProfileController, NewItemController,
     Gold\GoldItemController, Gold\GoldItemSoldController,
     Gold\GoldPoundController, ShopsController, OrderController,
-    ShopifyProductController, GoldReportController, RabiaController,
+    Admin\ShopifyProductController, GoldReportController, RabiaController,
     Auth\AsgardeoAuthController, OuterController, GoldCatalogController,
-    ExcelImportController, GoldPriceController, AdminDashboardController
+    ExcelImportController, GoldPriceController, Admin\AdminDashboardController,Admin\WarehouseController,NotificationController
 };
 
 // Test SMTP Route
@@ -49,13 +49,27 @@ Route::middleware('auth')->group(function () {
     })->name('dashboard');
 });
 Route::get('/gold-items', action: [GoldItemController::class, 'index'])->name('gold-items.index');
+// Route::post('/admin/inventory/bulk-action', [AdminDashboardController::class, 'bulkAction'])->name('bulk-action');
 
 // Admin Routes
 Route::middleware(['auth', 'admin'])->group(function () {
+    Route::get('/warehouse', [WarehouseController::class, 'index'])->name('admin.warehouse.index');
+    Route::post('/warehouse', [WarehouseController::class, 'store'])->name('admin.warehouse.store');
+    Route::post('/warehouse/{id}/assign', [WarehouseController::class, 'assignToShop'])
+        ->name('admin.warehouse.assign');
+
+
     Route::get('/admin/inventory', [AdminDashboardController::class, 'index'])->name('admin.inventory');
     // Route::get('/admin/inventory/{id}/edit', [AdminDashboardController::class, 'edit'])->name('gold-items.edit');
     // Route::put('/admin/inventory/{id}', [AdminDashboardController::class, 'update'])->name('gold-items.update');
     Route::post('/admin/inventory/bulk-action', [AdminDashboardController::class, 'bulkAction'])->name('bulk-action');
+    Route::get('/deleted-items-history', [AdminDashboardController::class, 'deletedItems'])
+    ->name('deleted-items.history');
+
+    Route::get('/notifications', [NotificationController::class, 'index'])->name('notifications.index');
+    Route::post('/notifications/{id}/mark-as-read', [NotificationController::class, 'markAsRead'])
+        ->name('notifications.mark-as-read');
+
     Route::get('/admin/new-dashboard', [AdminDashboardController::class, 'dashboard'])->name('admin.dashboard');
     Route::get('/admin/sold-items', [AdminDashboardController::class, 'Sold'])->name('admin.sold-items');
     Route::get('/daily-report', [GoldReportController::class, 'generateDailyReport'])->name('daily.report');
@@ -77,10 +91,17 @@ Route::middleware(['auth', 'admin'])->group(function () {
     Route::get('/shopify-products/abandoned-checkouts', [ShopifyProductController::class, 'AbandonedCheckouts_index'])->name('abandoned_checkouts_shopify');
     Route::get('/shopify-products/edit/{product_id}', [ShopifyProductController::class, 'showEditImageForm'])->name('shopify.products.showEditImageForm');
     Route::post('/shopify-products/edit/{product_id}', [ShopifyProductController::class, 'editProduct'])->name('shopify.products.editProduct');
+    Route::post('/update-prices', [ShopifyProductController::class, 'updatePricesFromCsv']);
 });
 
 // Shop Routes
 Route::middleware(['auth', 'user'])->group(function () {
+    Route::get('/shop/requests', [ShopsController::class, 'showAdminRequests'])
+    ->name('shop.requests.index');
+Route::patch('/shop/requests/{itemRequest}', [ShopsController::class, 'updateAdminRequests'])
+    ->name('shop.requests.update');
+
+
     Route::get('/dashboard', [ShopsController::class, 'showShopItems'])->name('dashboard');
     Route::get('/gold-catalog', [GoldCatalogController::class, 'ThreeView'])->name('gold-catalog');
     Route::get('/dashboard/{id}/edit', [ShopsController::class, 'edit'])->name('shop-items.edit');
@@ -107,7 +128,7 @@ Route::middleware(['auth', 'user'])->group(function () {
 
 // Rabea Routes
 Route::middleware(['auth', 'rabea'])->group(function () {
-    Route::get('/', [RabiaController::class, 'indexForRabea'])->name('orders.rabea.index');
+    Route::get('/orders/rabea', [RabiaController::class, 'indexForRabea'])->name('orders.rabea.index');
     Route::get('/search', [RabiaController::class, 'search'])->name('orders.search');
     Route::post('/update-status/{id}', [RabiaController::class, 'updateStatus'])->name('orders.updateStatus');
     Route::post('/orders/update-status-bulk', [RabiaController::class, 'updateStatusBulk'])->name('orders.updateStatus.bulk');

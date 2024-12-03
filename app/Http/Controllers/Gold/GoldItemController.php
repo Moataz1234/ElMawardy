@@ -86,9 +86,4 @@ class GoldItemController extends Controller
     // }
 
 
-    public function analyzeWeights()
-    {
-        $analysisData = $this->goldItemService->getWeightAnalysis();
-        return view('admin.Gold.WeightAnalysis', $analysisData);
-    }
 }

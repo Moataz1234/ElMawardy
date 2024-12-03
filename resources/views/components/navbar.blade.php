@@ -52,6 +52,14 @@
             </li>
             <li class="navbar-item"><a href="{{ route('gold-catalog') }}" class="navbar-link">Catalog</a></li>
             <li class="navbar-item"><a href="{{ route('transfer.requests') }}" class="navbar-link">Transfer Requests</a></li>
+            <a href="{{ route('shop.requests.index') }}" class="nav-link">
+                Item Requests
+                @if(Auth::user()->unreadNotifications->count() > 0)
+                    <span class="badge badge-danger">
+                        {{ Auth::user()->unreadNotifications->count() }}
+                    </span>
+                @endif
+            </a>
         @endif
         <div class="dropdown">
             <button class="navbar-link dropdown-toggle">Profile</button>

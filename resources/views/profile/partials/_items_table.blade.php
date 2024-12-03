@@ -94,8 +94,8 @@
     </table>
     
     <div class="button-container">
-        <button id="sellItemsButton" class="image-button">Sell</button> 
-        <button id="transferItemsButton" class="image-button">Transfer</button>
+        <button id="sellItemsButton" class="request_btn">Sell</button> 
+        <button id="transferItemsButton" class="delete_btn">Transfer</button>
         {{-- <button type="submit" class="outer-btn">Outer</button> --}}
 
     </div>

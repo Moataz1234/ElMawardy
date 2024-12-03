@@ -1,43 +1,19 @@
-<!-- resources/views/orders/completed_orders.blade.php -->
-<!DOCTYPE html>
-<html lang="en">
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Completed Orders</title>
-    <link href="{{ asset('css/app.css') }}" rel="stylesheet">
-</head>
-<body>
-    <div class="container">
-        <h2>Completed Orders</h2>
 
-        @if (session('success'))
-            <div class="alert alert-success">{{ session('success') }}</div>
-        @endif
+@extends('layouts.orders_table')
 
-        <table class="table">
-            <thead>
-                <tr>
-                    <th>Shop Number</th>
-                    <th>Order Number</th>
-                    <th>Customer Name</th>
-                    <th>Order Details</th>
-                    <th>Completion Date</th>
-                </tr>
-            </thead>
-            <tbody>
-                @foreach ($completedOrders as $order)
-                    <tr>
-                        <td>{{ $order->shop_id }}</td>
-                        <td>{{ $order->order_number }}</td>
-                        <td>{{ $order->customer_name }}</td>
-                        <td>{{ $order->order_details }}</td>
-                        <td>{{ $order->updated_at->format('d/m/Y') }}</td>
+@section('title', 'Customer Orders')
 
-                    </tr>
-                @endforeach
-            </tbody>
-        </table>
+@section('content')
+<div class="main-container">
+    <div class="sidebar">
+
+    @include('sidebars.rabea-sidebar')
     </div>
-</body>
-</html>
+    <div class="main-content">
+        @include('profile.partials.Rabea.completed_table', ['orders' => $orders])
+    </div>
+    </div>
+@endsection
+
+@section('scripts')
+@endsection

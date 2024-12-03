@@ -33,6 +33,7 @@ body {
 
 .container {
     margin-top: 20px;
+    
 }
 
 
@@ -173,4 +174,19 @@ h2 {
 
 .order_details {
     text-align: center;
+}
+
+@media print {
+    body * {
+        visibility: hidden; /* Hide everything */
+    }
+    .printable, .printable * {
+        visibility: visible; /* Show only the date and table */
+    }
+    .printable {
+        position: absolute;
+        top: 0;
+        left: 0;
+        width: 100%;
+    }
 }
