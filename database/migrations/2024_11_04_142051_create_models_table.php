@@ -14,7 +14,17 @@ return new class extends Migration
         Schema::create('models', function (Blueprint $table) {
             $table->id();
             $table->string('model')->unique();
-            $table->string('category');
+            $table->string('SKU')->unique();
+            $table->string('scanned_image')->nullable();
+            $table->string('website_image')->nullable();
+            $table->string('category')->nullable();
+            $table->string('source')->nullable();
+            $table->date('first_production')->nullable();
+            $table->string('semi_or_no')->nullable();
+            $table->decimal('average_of_stones', 10, 2)->nullable();
+            // $table->string('to_print')->default('');
+
+            $table->timestamps();
         
             // Define the foreign key constraint
    // Optional: cascade delete if a category is deleted
