@@ -49,6 +49,8 @@ Route::middleware('auth')->group(function () {
     })->name('dashboard');
 });
 Route::get('/gold-items', action: [GoldItemController::class, 'index'])->name('gold-items.index');
+Route::get('/update_prices', [AdminDashboardController::class, 'UPDATE_PRICES'])->name('admin.dashboard');
+
 // Route::post('/admin/inventory/bulk-action', [AdminDashboardController::class, 'bulkAction'])->name('bulk-action');
 
 // Admin Routes
@@ -58,7 +60,7 @@ Route::middleware(['auth', 'admin'])->group(function () {
     Route::post('/warehouse/{id}/assign', [WarehouseController::class, 'assignToShop'])
         ->name('admin.warehouse.assign');
 
-
+        Route::get('/admin/new-dashboard', [AdminDashboardController::class, 'dashboard'])->name('admin.dashboard');
     Route::get('/admin/inventory', [AdminDashboardController::class, 'index'])->name('admin.inventory');
     // Route::get('/admin/inventory/{id}/edit', [AdminDashboardController::class, 'edit'])->name('gold-items.edit');
     // Route::put('/admin/inventory/{id}', [AdminDashboardController::class, 'update'])->name('gold-items.update');
