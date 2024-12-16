@@ -6,28 +6,47 @@ use Illuminate\Support\Facades\Schema;
 
 class CreateShopsTable extends Migration
 {
+    public function up()
+    {
+        Schema::create('gold_items', function (Blueprint $table) {
+            $table->id();
+            $table->string('model');
+            $table->string('serial_number')->unique();
+            $table->string('kind')->nullable();
+            $table->string('shop_name')->nullable();
+            $table->string('shop_id')->nullable();
+            $table->decimal('weight', 10, 2)->nullable();
+            $table->string('gold_color')->nullable();
+            $table->string('metal_type')->nullable();
+            $table->string('metal_purity')->nullable();
+            $table->integer('quantity')->default(1);
+            $table->string('stones')->nullable();
+            $table->boolean('talab')->nullable();
+            $table->string('status')->default('available');
+            $table->date('rest_since')->nullable();
+            $table->timestamps();
+
+            $table->foreign('model')
+            ->references('model')
+            ->on('models')
+            ->onDelete('cascade');
+      
+        });
+    }
+    
+
+    /**
+     * Reverse the migrations.
+     */
+    public function down(): void
+    {
+        Schema::dropIfExists('gold_items');
+    }
+
     /**
      * Run the migrations.
      *
      * @return void
      */
-    public function up()
-    {
-        Schema::create('shops', function (Blueprint $table) {
-            $table->id();
-            $table->string('name');
-            $table->string('address')->nullable();
-            $table->timestamps();
-        });
-    }
-
-    /**
-     * Reverse the migrations.
-     *
-     * @return void
-     */
-    public function down()
-    {
-        Schema::dropIfExists('shops');
-    }
+   
 }

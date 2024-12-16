@@ -30,7 +30,7 @@
                 <th>Gold Color</th>
                 <th>Weight</th>
                 <th>Category</th>
-                <th>Price</th>
+                {{-- <th>Price</th> --}}
             </tr>
         </thead>
         <tbody id="table-body">   
@@ -56,14 +56,14 @@
                         </span>
                     @endif
                 </td>
-                    <td>
-                        @if($item->link)
-                            <img
-                             src="{{ asset($item->link) }}" alt="Image" width="50">
-                        @else
-                            No Image
-                        @endif
-                    </td>
+                <td>
+                    @if($item->modelCategory && $item->modelCategory->scanned_image)
+                        <img src="{{ asset( $item->modelCategory->scanned_image) }}" alt="Scanned Image" width="50">
+                    @else
+                        No Image
+                    @endif
+                </td>
+                   
                     <td>{{ $item->serial_number }}</td>
                     <td>{{ $item->shop->name }}</td>
                     <td>{{ $item->kind }}</td>
@@ -71,7 +71,7 @@
                     <td>{{ $item->gold_color }}</td>
                     <td>{{ $item->weight }}</td>
                     <td>{{ $item->modelCategory->category ?? 'No Category' }}</td>
-                    <td>{{ $item->calculated_price }}</td>
+                    {{-- <td>{{ $item->calculated_price }}</td> --}}
 {{-- 
                     <td>
                         @include('Shops.Gold.outerForm')

@@ -21,7 +21,7 @@
     </head>
 <body>
     <div class="layout-container">
-        @include('profile.partials.Rabea.navigation')
+        {{-- @include('profile.partials.Rabea.navigation') --}}
         @yield('content')
     </div>
 

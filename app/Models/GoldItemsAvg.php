@@ -8,6 +8,7 @@ use Illuminate\Database\Eloquent\Model;
 class GoldItemsAvg extends Model
 {
     use HasFactory;
+    protected $table = 'gold_items_avg';  // Or whatever your actual table name is
 
     protected $fillable = [
         'model', 'stones_weight'

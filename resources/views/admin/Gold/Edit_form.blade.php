@@ -61,7 +61,7 @@
 
             <label for="rest_since">Rest Since:</label>
             <input type="date" name="rest_since" id="rest_since" value="{{ $goldItem->rest_since }}"  ><br>
-
+{{-- 
             <label for="source">Source:</label>
             <input type="text" name="source" id="source" value="{{ $goldItem->source }}"  ><br>
 
@@ -78,7 +78,7 @@
             <input type="number" name="average_of_stones" step="0.01" id="average_of_stones" value="{{ $goldItem->average_of_stones }}" ><br>
 
             <label for="net_weight">Net Weight:</label>
-            <input type="number" name="net_weight" step="0.01" id="net_weight" value="{{ $goldItem->net_weight }}" ><br>
+            <input type="number" name="net_weight" step="0.01" id="net_weight" value="{{ $goldItem->net_weight }}" ><br> --}}
             <button type="submit">Updata Item</button>
 
         </form>

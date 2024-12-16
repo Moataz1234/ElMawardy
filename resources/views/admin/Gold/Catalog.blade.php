@@ -17,13 +17,18 @@
     <title>Document</title>
 </head>
 <body>
-
 <div class="product-grid">
     @foreach($goldItems as $catalogItem)
         <div class="product-card">
-            <div class="product-image" style="background-image: url('{{ asset( $catalogItem->link)  }} ');" alt="Image" ></div>
-            <div class="button-container">
-                <span class="product-name">Model name:{{ $catalogItem->model }}
+            <div class="product-image" 
+            style="background-image: url('{{ 
+                $catalogItem->modelCategory && $catalogItem->modelCategory->scanned_image 
+                ? asset($catalogItem->modelCategory->scanned_image) 
+                : asset('path/to/default/image.jpg') 
+            }}');" alt="Image">
+       </div>
+                <span class="product-name">Model name:{{ $catalogItem->model }}</span>
+
                 <button class="show-details" data-image="{{ asset($catalogItem->link) }}"
                     data-title="{{ $catalogItem->model }}" 
                     data-weight="{{$catalogItem->weight}}"
@@ -32,16 +37,15 @@
                     data-kind="{{$catalogItem->kind}}">
                     Details</button>
                 {{-- <button class="btn print-btn">Print Certificate</button> --}}
-            </div>
         </div>
     @endforeach
 </div>
    {{-- {{ $catalogItems->links('pagination::bootstrap-4') }} --}}
-   {{-- @include('components.pagination') --}}
+   @include('components.pagination')
 
    <div class="full-screen-image">
                 
-    <img id="full-screen-img" src="" alt="Full Screen Image">
+    <img id="full-screen-img" src=" " alt="Full Screen Image">
     <p id="image-details"></p>
     <button class="closeBtn" id="close-full-screen">Close</button>
 </div>

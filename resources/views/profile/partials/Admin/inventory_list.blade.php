@@ -44,7 +44,14 @@
             @foreach ($goldItems as $item)
                 <tr>
                     <td><input type="checkbox" name="selected_items[]" value="{{ $item->id }}" /></td>
-                    <td><img src="{{ asset($item->link) }}" alt="Image" width="50" class="img-thumbnail"></td>
+                    <td>   @if($item->modelCategory)
+                        @if($item->modelCategory->scanned_image)
+                            <img src="{{ asset( $item->modelCategory->scanned_image) }}" alt="Scanned Image" width="50">
+                        @endif
+                    @else
+                        No matching model found
+                    @endif
+                    </td>
                     <td>{{ $item->serial_number }}</td>
                     <td>{{ $item->shop_name ?? 'Admin' }}</td>
                     <td>{{ $item->kind }}</td>

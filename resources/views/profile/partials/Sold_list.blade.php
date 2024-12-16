@@ -42,12 +42,13 @@
                         <input type="checkbox" class="select-item" data-id="{{ $item->id }}">
                     </td>
                     <td>
-                        @if($item->link)
-                            <img src="{{ asset($item->link) }}" alt="Image" width="50">
+                        @if($item->modelCategory && $item->modelCategory->scanned_image)
+                            <img src="{{ asset( $item->modelCategory->scanned_image) }}" alt="Scanned Image" width="50">
                         @else
                             No Image
                         @endif
                     </td>
+                       
                     <td>{{ $item->serial_number }}</td>
                     <td>{{ $item->shop_name }}</td>
                     <td>{{ $item->kind }}</td>

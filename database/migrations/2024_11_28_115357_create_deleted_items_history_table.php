@@ -25,6 +25,12 @@ return new class extends Migration
             $table->text('deletion_reason')->nullable();
             $table->timestamp('deleted_at');
             $table->timestamps();
+
+            $table->foreign('model')
+            ->references('model')
+            ->on('models')
+            ->onDelete('cascade');
+      
         });
     }
 

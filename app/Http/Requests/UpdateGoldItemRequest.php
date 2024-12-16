@@ -27,12 +27,6 @@ class UpdateGoldItemRequest extends FormRequest
             'quantity' => 'required|integer',
             'weight' => 'required|numeric',
             'rest_since' => 'date|nullable',
-            'source' => 'required|string',
-            'to_print' => 'boolean',
-            'price' => 'required|numeric',
-            'semi_or_no' => 'string|nullable',
-            'average_of_stones' => 'required|numeric',
-            'net_weight' => 'required|numeric'
-        ];
+            ];
     }
 }

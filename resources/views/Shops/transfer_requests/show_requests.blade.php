@@ -95,8 +95,9 @@
 </head>
 <body >
     {{-- <div class="body-requests"> --}}
+      <h1 ><center>Requests</center></h1>
+
     <div class="container">
-          <h1>Requests</h1>
      
     @foreach($transferRequests as $request)
     <div class="request-details">

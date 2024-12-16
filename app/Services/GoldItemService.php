@@ -67,7 +67,7 @@ class GoldItemService
     private function buildItemsQuery(Request $request): Builder
     {
         return GoldItem::where('shop_name', Auth::user()->shop_name)
-            ->with(['modelCategory.categoryPrice']);
+            ->with(['modelCategory.categoryPrice','modelCategory']);
     }
 
     private function getPrices(): array

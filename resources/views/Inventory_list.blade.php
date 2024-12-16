@@ -56,8 +56,13 @@
         <tbody>
             @foreach ($goldItems as $item)
                 <tr>
-                    <td><img src="{{ asset($item->link) }}" alt="Image" width="50" class="img-thumbnail"></td>
-                    <td>{{ $item->serial_number }}</td>
+                    <td>
+                        @if($item->modelCategory && $item->modelCategory->scanned_image)
+                            <img src="{{ asset( $item->modelCategory->scanned_image) }}" alt="Scanned Image" width="50">
+                        @else
+                            No Image
+                        @endif
+                    </td>                    <td>{{ $item->serial_number }}</td>
                     <td>{{ $item->shop->name }}</td>
                     <td>{{ $item->kind }}</td>
                     <td>{{ $item->model }}</td>

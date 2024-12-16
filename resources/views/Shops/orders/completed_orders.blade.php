@@ -2,7 +2,7 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-    @include('admin.rabea.dashboard')
+    @include('sidebars.rabea-sidebar')
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Customer Orders</title>
@@ -33,12 +33,11 @@
             <tbody>
                 @foreach ($completedOrders as $order)
                     <tr>
-                        <td>{{ $order->order_id }}</td>
+                        <td>{{ $order->shop_id }}</td>
                         <td>{{ $order->order_number }}</td>
                         <td>{{ $order->customer_name }}</td>
                         <td>{{ $order->order_details }}</td>
                         <td>{{ $order->updated_at->format('d/m/Y') }}</td>
-
                     </tr>
                 @endforeach
             </tbody>

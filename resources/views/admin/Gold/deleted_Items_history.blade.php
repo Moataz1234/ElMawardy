@@ -1,4 +1,4 @@
-@extends('layouts.table')
+@extends('layouts.models_table')
 
 @section('content')
     @include('profile.partials.admin.deleted_history')

@@ -1,9 +1,14 @@
+<link href="{{ asset('css/navbar.css') }}" rel="stylesheet">
+
 <nav class="navbar">
     <ul class="navbar-list">
         @if(auth()->user()->usertype === 'admin')
         <li class="navbar-item"><a href="{{ route('admin.dashboard') }}" class="navbar-link">Dashboard</a></li>
+        <li class="navbar-item"><a href="{{ route('models') }}" class="navbar-link">Models</a></li>
         <li class="navbar-item"><a href="{{ route('gold-items.create') }}" class="navbar-link">Add New Item</a></li>
         <li  class="navbar-item"><a href="{{ route('admin.inventory') }}" class="navbar-link">Gold Inventory</a></li>
+        <li  class="navbar-item"><a href="{{ route('deleted-items.history') }}" class="navbar-link">Deleted Items</a></li>
+
         {{-- <li class="navbar-item dropdown">
             <a href="#" class="navbar-link dropdown-toggle">Inventory</a>
             <ul class="dropdown-menu">
@@ -45,22 +50,27 @@
             <li class="navbar-item"><a href="{{ route('orders.create') }}" class="navbar-link">Custom Order</a></li>
             <li class="navbar-item dropdown">
                 <a href="#" class="navbar-link dropdown-toggle">Orders</a>
-                <ul class="dropdown-menu">
-                    <li><a href="{{ route('orders.index') }}" class="dropdown-item">Orders List</a></li>
-                    <li><a href="{{ route('orders.history') }}" class="dropdown-item">Orders History</a></li>
-                </ul>
+                <div class="dropdown-menu">
+                    <a href="{{ route('orders.index') }}" class="dropdown-item">Orders List</a>
+                    <a href="{{ route('orders.history') }}" class="dropdown-item">Orders History</a>
+                </div>
             </li>
             <li class="navbar-item"><a href="{{ route('gold-catalog') }}" class="navbar-link">Catalog</a></li>
-            <li class="navbar-item"><a href="{{ route('transfer.requests') }}" class="navbar-link">Transfer Requests</a></li>
-            <a href="{{ route('shop.requests.index') }}" class="nav-link">
-                Item Requests
-                @if(Auth::user()->unreadNotifications->count() > 0)
-                    <span class="badge badge-danger">
-                        {{ Auth::user()->unreadNotifications->count() }}
-                    </span>
-                @endif
-            </a>
-        @endif
+            <li class="navbar-item dropdown">
+                <a href="#" class="navbar-link dropdown-toggle">Requests</a>
+                <div class="dropdown-menu">
+                    <a class="dropdown-item" href="{{ route('transfer.requests') }}" class="navbar-link">Transfer Requests</a>
+                    <a class="dropdown-item" href="{{ route('shop.requests.index') }}" class="navbar-link">
+                        Item Requests
+                        @if(Auth::user()->unreadNotifications->count() > 0)
+                            <span class="badge badge-danger">
+                                {{ Auth::user()->unreadNotifications->count() }}
+                            </span>
+                        @endif
+                    </a>
+                @endif                </div>
+            </li>
+           
         <div class="dropdown">
             <button class="navbar-link dropdown-toggle">Profile</button>
             <div class="dropdown-menu">

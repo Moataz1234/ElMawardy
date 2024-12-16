@@ -6,6 +6,7 @@ use App\Services\ShopWeightAnalysisService;
 use App\Services\PopularModelsService;
 use Illuminate\View\View;
 use App\Models\GoldItemSold;
+use App\Models\Models;
 use Illuminate\Http\Request;
 // use App\Http\Requests\GoldItemRequest;
 use App\Http\Requests\UpdateGoldItemRequest;
@@ -48,6 +49,14 @@ class AdminDashboardController extends Controller
             'goldItems' => $goldItems,
         ]);
     }
+    public function models_index(Request $request)
+    {
+        $goldItems = $this->goldItemService->getGoldItems($request);
+        $models = Models::with(['goldItems', 'goldItemsAvg'])->get();
+
+        return view('admin.Gold.models', compact('models','goldItems'));
+    }
+    
     public function Sold(Request $request)
     {
         $goldItems = $this->goldItemService->getGoldItemsSold($request);
@@ -123,13 +132,14 @@ public function bulkAction(Request $request)
             'totalWeightInventory' => $totalWeightInventory
         ]);
     }
-    public function deletedItems()
+    public function deletedItems(Request $request)
     {
-        $deletedItems = DeletedItemHistory::with('deletedBy')
-            ->latest('deleted_at')
-            ->paginate(20);
+        $deletedItems = DeletedItemHistory::all();
             
-        return view('admin.deleted-items-history', compact('deletedItems'));
+        return view('admin.Gold.deleted_items_history', compact('deletedItems'));
+    }
+    public function update_prices(){
+        return view('shopify.update_price');
     }
   
 }

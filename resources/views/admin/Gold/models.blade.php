@@ -1,23 +1,38 @@
+@extends('layouts.models_table')
+
+@section('content')
+    @include('profile.partials.admin.models')
+@endsection
+
+@push('modals')
+    @include('profile.partials._image_modal')
+@endpush
+
+@push('scripts')
+
+<script src="{{ asset('js/modal.js') }}"></script>
+<script src="{{ asset('js/checkbox-selection.js') }}"></script>
+@endpush
+{{-- 
 <!DOCTYPE html>
 <html lang="en">
 <head>
+    
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Test View</title>
-    <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/css/bootstrap.min.css">
 </head>
 <body>
     <div class="container mt-5">
-        <h1>Data from Models, Gold Items, and Gold Items Avg</h1>
         <table class="table table-bordered">
             <thead>
                 <tr>
                     <th>Model</th>
                     <th>SKU</th>
                     <th>Category</th>
-                    <th>Gold Item Serial Number</th>
-                    <th>Gold Item Weight</th>
-                    <th>Average Stones Weight</th>
+                    <th> Serial Number</th>
+                    <th> Weight</th>
+                    <th>Avg Weight</th>
                 </tr>
             </thead>
             <tbody>
@@ -37,4 +52,4 @@
         </table>
     </div>
 </body>
-</html>
+</html> --}}

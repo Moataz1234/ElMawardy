@@ -19,7 +19,7 @@ class update_Gold_path extends Command
     public function handle()
     {
         // Update image paths using raw SQL query
-        DB::statement("UPDATE gold_items SET link = CONCAT('storage/Gold_catalog/', model, '.jpg' )");
+        DB::statement("UPDATE models SET scanned_image = CONCAT('storage/Gold_catalog/', model, '.jpg' )");
 
         $this->info('Image paths updated successfully.');
     }

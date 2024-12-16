@@ -55,12 +55,11 @@ body {
 }
 
 .product-name {
-    position: absolute;
+    /* position: absolute; */
     color: rgb(0, 0, 0);
     font-size: 15px;
     font-weight: bold;
     border-radius: 5px;
-    margin-right: 250px;
 }
 
 .product-grid {
@@ -75,6 +74,17 @@ body {
     margin: 20px 0;
     /* Add vertical margin */
     width: 100%;
+    /* Ensure the container takes the full width */
+}
+.show-details {
+    display: flex;
+    /* Use flexbox for layout */
+    justify-content: center;
+    /* Align buttons to the right */
+    margin: 20px 0;
+    /* Add vertical margin */
+    margin-left: 100px;
+
     /* Ensure the container takes the full width */
 }
 

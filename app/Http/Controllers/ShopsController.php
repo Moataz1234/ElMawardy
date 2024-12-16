@@ -172,7 +172,7 @@ class ShopsController extends Controller
         
         session()->flash('cleared_items', $itemIds);
         
-        return redirect()->route('gold-items.index')
+        return redirect()->route('dashboard')
             ->with('success', 'Transfer requests sent successfully. Items will be transferred after acceptance.');
     } catch (\Exception $e) {
         return redirect()->back()

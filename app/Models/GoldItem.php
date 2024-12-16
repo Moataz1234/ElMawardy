@@ -9,10 +9,8 @@ class GoldItem extends Model
 {
     use HasFactory;
     protected $fillable = [
-        'link', 'serial_number', 'shop_name', 'shop_id', 'kind', 'model', 'talab', 
-        'gold_color', 'stones', 'metal_type', 'metal_purity', 'quantity', 
-        'weight', 'rest_since', 'source', 'to_print', 'price', 'semi_or_no', 
-        'average_of_stones', 'net_weight', 'website'
+        'model', 'serial_number', 'shop_name', 'shop_id', 
+        'weight', 'gold_color', 'metal_type', 'metal_purity', 'quantity'
     ];
     public function shop()
     {
@@ -34,5 +32,10 @@ class GoldItem extends Model
     public function modelCategory()
     {
         return $this->belongsTo(Models::class, 'model', 'model');
+    }
+
+    public function modelDetails()
+    {
+        return $this->hasOne(GoldItemDetail::class, 'model', 'model');
     }
 }

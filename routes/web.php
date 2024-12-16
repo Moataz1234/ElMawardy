@@ -63,6 +63,7 @@ Route::middleware(['auth', 'admin'])->group(function () {
     Route::post('/warehouse', [WarehouseController::class, 'store'])->name('admin.warehouse.store');
     Route::post('/warehouse/{id}/assign', [WarehouseController::class, 'assignToShop'])
         ->name('admin.warehouse.assign');
+    Route::get('/models', [AdminDashboardController::class, 'models_index'])->name('models');
 
         Route::get('/admin/new-dashboard', [AdminDashboardController::class, 'dashboard'])->name('admin.dashboard');
     Route::get('/admin/inventory', [AdminDashboardController::class, 'index'])->name('admin.inventory');
@@ -124,6 +125,8 @@ Route::patch('/shop/requests/{itemRequest}', [ShopsController::class, 'updateAdm
     Route::get('/bulk-transfer', [ShopsController::class, 'showBulkTransferForm'])->name('gold-items.bulk-transfer-form');
     Route::post('/bulk-transfer', [ShopsController::class, 'bulkTransfer'])->name('gold-items.bulk-transfer');
     Route::get('/orders', [OrderController::class, 'index'])->name('orders.index');
+    Route::get('/orders/create', [OrderController::class, 'create'])->name('orders.create');
+    Route::post('/orders/store', [OrderController::class, 'store'])->name('orders.store');
     Route::get('/orders/history', [OrderController::class, 'showCompletedOrders'])->name('orders.history');
     Route::post('/shop-items/bulk-sell', [ShopsController::class, 'BulkSell'])->name('shop-items.bulkSell');
     Route::get('/shop-items/bulk-sell-form', [ShopsController::class, 'showBulkSellForm'])->name('shop-items.bulkSellForm');
@@ -151,8 +154,6 @@ Route::put('/orders/rabea/{id}', [RabiaController::class, 'update'])->name('orde
 Route::middleware('auth')->group(function () {
     Route::get('/gold-items-sold', [GoldItemSoldController::class, 'index'])->name('gold-items.sold');
     Route::get('/gold-pounds', [GoldPoundController::class, 'index'])->name('gold-pounds.index');
-    Route::get('/orders/create', [OrderController::class, 'create'])->name('orders.create');
-    Route::post('/orders/store', [OrderController::class, 'store'])->name('orders.store');
 });
 
 require __DIR__.'/auth.php';

@@ -31,6 +31,11 @@ return new class extends Migration
             $table->unsignedBigInteger('customer_id')->nullable(); // Add customer_id column
             $table->foreign('customer_id')->references('id')->on('customers')->onDelete('cascade'); // Define foreign key relationship  
             $table->timestamps();
+
+            $table->foreign('model')
+            ->references('model')
+            ->on('models')
+            ->onDelete('cascade');
         });
     }
 

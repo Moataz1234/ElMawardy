@@ -10,19 +10,20 @@ return new class extends Migration
      * Run the migrations.
      */
     public function up()
-{
-    Schema::table('gold_items', function (Blueprint $table) {
-        $table->string('status')->default('available');
-    });
-}
+    {
+        Schema::create('category_prices', function (Blueprint $table) {
+            $table->id();
+            $table->string('category')->unique();
+            $table->decimal('price', 10, 2);
+            $table->timestamps();
+        });
+    }
 
     /**
      * Reverse the migrations.
      */
     public function down(): void
     {
-        Schema::table('gold_items', function (Blueprint $table) {
-            //
-        });
+        Schema::dropIfExists('category_prices');
     }
 };
