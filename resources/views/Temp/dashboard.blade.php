@@ -10,7 +10,7 @@
 </head>
 <body>
     
-    @include('components.navbar')
+    {{-- @include('components.navbar') --}}
     {{-- @include('temp.searchbar') --}}
     @include('temp.sidebar')
 
