@@ -81,7 +81,7 @@ class Admin_GoldItemService
                 foreach ($items as $item) {
                     DeletedItemHistory::create([
                         'item_id' => $item->id,
-                        'deleted_by' => Auth::user()->shop_name,
+                        'deleted_by' => Auth::user()->name,
                         'serial_number' => $item->serial_number,
                         'shop_name' => $item->shop_name,
                         'kind' => $item->kind,

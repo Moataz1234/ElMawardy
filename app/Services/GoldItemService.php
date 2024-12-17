@@ -11,6 +11,7 @@ use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Pagination\LengthAwarePaginator;
 use Illuminate\Database\Eloquent\Collection;
 use App\Services\SortAndFilterService;
+use Illuminate\Support\Facades\DB;
 
 class GoldItemService
 {
@@ -26,37 +27,52 @@ class GoldItemService
     }
 
 
-        public function getShopItems(Request $request): array
-        {
-            $query = $this->buildItemsQuery($request);
-            $prices = $this->getPrices();
-
-            // $goldItems = $query->paginate(20);
-            $allowedFilters = [
-                'search',
-                'metal_purity',
-                'gold_color',
-                'kind',
-            ];
+    public function getShopItems(Request $request): array
+    {
+        $query = $this->buildItemsQuery($request);
+        $prices = $this->getPrices();
     
-            $goldItems = $this->sortAndFilterService->getFilteredAndSortedResults(
-                $query,
-                $request,
-                $allowedFilters
-            );
-            $gold_color = $query->distinct('gold_color')->pluck('gold_color')->toArray();
-            $kind = $query->distinct('kind')->pluck('kind')->toArray();
-        
-            return [
-                'goldItems' => $goldItems,
-                'latestPrices' => $prices['latest'],
-                'latestGoldPrice' => $prices['goldPrice'],
-                'totalPages' => $goldItems->lastPage() ,
-                'gold_color' => $gold_color,
-                'kind' => $kind,
-            ];
-        }
-
+        $allowedFilters = [
+            'search',
+            'metal_purity',
+            'gold_color',
+            'kind',
+        ];
+    
+        $goldItems = $this->sortAndFilterService->getFilteredAndSortedResults(
+            $query,
+            $request,
+            $allowedFilters
+        );
+        $gold_color = $query->distinct('gold_color')->pluck('gold_color')->toArray();
+        $kind = $query->distinct('kind')->pluck('kind')->toArray();
+    
+        // Fetch shops with the same model directly from gold_items table
+        $modelShops = DB::table('gold_items')
+            ->select('model', 'shop_name', 'weight')
+            ->where('model', '!=', '')
+            ->whereNotNull('model')
+            ->get()
+            ->groupBy('model')
+            ->map(function ($items) {
+                return $items->map(function ($item) {
+                    return [
+                        'shop_name' => $item->shop_name,
+                        'weight' => $item->weight
+                    ];
+                });
+            });
+    
+        return [
+            'goldItems' => $goldItems,
+            'latestPrices' => $prices['latest'],
+            'latestGoldPrice' => $prices['goldPrice'],
+            'totalPages' => $goldItems->lastPage(),
+            'gold_color' => $gold_color,
+            'kind' => $kind,
+            'modelShops' => $modelShops,
+        ];
+    }
     public function getEditFormData(string $id): array
     {
         return [

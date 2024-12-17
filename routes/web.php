@@ -109,6 +109,8 @@ Route::patch('/shop/requests/{itemRequest}', [ShopsController::class, 'updateAdm
     ->name('shop.requests.update');
 
 
+    Route::get('/gold-items/same-model', [ShopsController::class, 'getItemsByModel']);
+
     Route::get('/dashboard', [ShopsController::class, 'showShopItems'])->name('dashboard');
     Route::get('/gold-catalog', [GoldCatalogController::class, 'ThreeView'])->name('gold-catalog');
     Route::get('/dashboard/{id}/edit', [ShopsController::class, 'edit'])->name('shop-items.edit');

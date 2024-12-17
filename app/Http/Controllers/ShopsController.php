@@ -239,4 +239,23 @@ return redirect()->back()->with('success', 'Request status updated successfully'
     return redirect()->back()->with('error', 'Failed to process request: ' . $e->getMessage());
 }
 }
+public function getItemsByModel(Request $request)
+{
+    $model = $request->input('model');
+
+    // Fetch items with the same model, excluding the current shop
+    $items = \App\Models\GoldItem::with('shop')
+        ->where('model', $model)
+        ->whereHas('shop') // Ensure the item belongs to a shop
+        ->get()
+        ->map(function ($item) {
+            return [
+                'serial_number' => $item->serial_number,
+                'shop_name' => $item->shop->name,
+                'weight' => $item->weight,
+            ];
+        });
+
+    return response()->json(['items' => $items]);
+}
 }

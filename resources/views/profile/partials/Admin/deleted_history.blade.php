@@ -18,7 +18,7 @@
                     <td>{{ $item->serial_number }}</td>
                     <td>{{ $item->model }}</td>
                     <td>{{ $item->shop_name }}</td>
-                    <td>{{ $item->deletedBy }}</td>
+                    <td>{{ $item->deleted_by }}</td>
                     <td>{{ $item->deletion_reason ?? 'Not specified' }}</td>
                     <td>{{ $item->deleted_at }}</td>
                 </tr>
