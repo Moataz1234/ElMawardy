@@ -3,6 +3,7 @@ use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Route;
 use App\Http\Controllers\TestController;
 use App\Http\Controllers\HelloController;
+use App\Http\Controllers\ModelsController;
 use App\Http\Controllers\{
     HomeController, ProfileController, NewItemController,
     Gold\GoldItemController, Gold\GoldItemSoldController,
@@ -63,7 +64,7 @@ Route::middleware(['auth', 'admin'])->group(function () {
     Route::post('/warehouse', [WarehouseController::class, 'store'])->name('admin.warehouse.store');
     Route::post('/warehouse/{id}/assign', [WarehouseController::class, 'assignToShop'])
         ->name('admin.warehouse.assign');
-    Route::get('/models', [AdminDashboardController::class, 'models_index'])->name('models');
+    Route::resource('models', ModelsController::class);
 
         Route::get('/admin/new-dashboard', [AdminDashboardController::class, 'dashboard'])->name('admin.dashboard');
     Route::get('/admin/inventory', [AdminDashboardController::class, 'index'])->name('admin.inventory');
