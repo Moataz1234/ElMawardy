@@ -4,7 +4,7 @@
     <ul class="navbar-list">
         @if(auth()->user()->usertype === 'admin')
         <li class="navbar-item"><a href="{{ route('admin.dashboard') }}" class="navbar-link">Dashboard</a></li>
-        <li class="navbar-item"><a href="{{ route('models') }}" class="navbar-link">Models</a></li>
+        <li class="navbar-item"><a href="{{ route('models.index') }}" class="navbar-link">Models</a></li>
         <li class="navbar-item"><a href="{{ route('gold-items.create') }}" class="navbar-link">Add New Item</a></li>
         <li  class="navbar-item"><a href="{{ route('admin.inventory') }}" class="navbar-link">Gold Inventory</a></li>
         <li  class="navbar-item"><a href="{{ route('deleted-items.history') }}" class="navbar-link">Deleted Items</a></li>
