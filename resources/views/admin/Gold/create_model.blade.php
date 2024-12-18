@@ -1,7 +1,7 @@
 @extends('layouts.models_table')
 
 @section('content')
-    <form action="{{ route('models.store') }}" method="POST">
+    <form action="{{ route('models.store') }}" method="POST" class="custom-form">
         @csrf
         <div>
             <label for="model">Model Name:</label>

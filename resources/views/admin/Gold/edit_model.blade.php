@@ -1,7 +1,7 @@
 @extends('layouts.models_table')
 
 @section('content')
-    <form action="{{ route('models.update', $model) }}" method="POST">
+    <form action="{{ route('models.update', $model) }}" method="POST" class="custom-form">
         @csrf
         @method('PUT')
         <div>

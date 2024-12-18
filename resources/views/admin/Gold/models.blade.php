@@ -2,12 +2,12 @@
 
 @section('content')
     <div class="sidebar">
-        <form method="GET" action="{{ route('models.index') }}">
-            <input type="text" name="search" placeholder="Search by model name" value="{{ request('search') }}">
-            <button type="submit">Search</button>
+        <form method="GET" action="{{ route('models.index') }}" class="sidebar-form">
+            <input type="text" name="search" placeholder="Search by model name" value="{{ request('search') }}" class="sidebar-input">
+            <button type="submit" class="sidebar-button">Search</button>
         </form>
-        <form method="GET" action="{{ route('models.index') }}">
-            <select name="sort">
+        <form method="GET" action="{{ route('models.index') }}" class="sidebar-form">
+            <select name="sort" class="sidebar-select">
                 <option value="model">Model</option>
                 <option value="SKU">SKU</option>
                 <option value="category">Category</option>
@@ -16,11 +16,11 @@
                 <option value="semi_or_no">Semi or No</option>
                 <option value="average_of_stones">Average of Stones</option>
             </select>
-            <select name="direction">
+            <select name="direction" class="sidebar-select">
                 <option value="asc">Ascending</option>
                 <option value="desc">Descending</option>
             </select>
-            <button type="submit">Sort</button>
+            <button type="submit" class="sidebar-button">Sort</button>
         </form>
     </div>
 
