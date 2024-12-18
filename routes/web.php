@@ -2,6 +2,7 @@
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Route;
 use App\Http\Controllers\TestController;
+use App\Http\Controllers\HelloController;
 use App\Http\Controllers\{
     HomeController, ProfileController, NewItemController,
     Gold\GoldItemController, Gold\GoldItemSoldController,
@@ -28,8 +29,7 @@ Route::get('/test-smtp', function() {
     }
 });
 
-// Test Route
-Route::get('/test', [TestController::class, 'index'])->name('test.index');
+Route::get('/hello', [HelloController::class, 'hello'])->name('hello');
 
 // Public Routes
 Route::middleware('auth')->group(function () {
