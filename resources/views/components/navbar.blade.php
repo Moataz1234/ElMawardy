@@ -21,10 +21,10 @@
         <li class="navbar-item"><a href="{{ route('admin.sold-items') }}" class="navbar-link">Sold Items</a></li>
         <li class="navbar-item dropdown">
             <a href="#" class="navbar-link dropdown-toggle">Shopify</a>
-            <ul class="dropdown-menu">
-                <li><a href="{{ route('shopify.products') }}" class="dropdown-item">Products</a></li>
-                <li><a href="{{ route('orders_shopify') }}" class="dropdown-item">Orders</a></li>
-            </ul>
+            <div class="dropdown-menu">
+                <a href="{{ route('shopify.products') }}" class="dropdown-item">Products</a>
+                <a href="{{ route('orders_shopify') }}" class="dropdown-item">Orders</a>
+            </div>
         </li>
         <li class="navbar-item"><a href="{{ route('admin.dashboard') }}" class="navbar-link">Reports</a></li>
         @endif
