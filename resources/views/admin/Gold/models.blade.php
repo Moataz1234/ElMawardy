@@ -1,7 +1,8 @@
 @extends('layouts.models_table')
 
 @section('content')
-    <div class="sidebar">
+<div class="layout-container">
+    <div class="sidebar" style="width: 20%; float: left; padding: 10px; box-shadow: 0 0 10px rgba(0,0,0,0.1);">
         <form method="GET" action="{{ route('models.index') }}" class="sidebar-form">
             <input type="text" name="search" placeholder="Search by model name" value="{{ request('search') }}" class="sidebar-input">
             <button type="submit" class="sidebar-button">Search</button>
@@ -24,7 +25,8 @@
         </form>
     </div>
 
-    <table class="table table-bordered">
+    <div style="width: 75%; float: right; padding: 10px;">
+        <table class="table table-bordered">
         <thead>
             <tr>
                 <th>Model</th>
