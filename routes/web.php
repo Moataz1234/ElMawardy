@@ -62,7 +62,14 @@ Route::middleware(['auth', 'admin'])->group(function () {
     Route::post('/warehouse', [WarehouseController::class, 'store'])->name('admin.warehouse.store');
     Route::post('/warehouse/{id}/assign', [WarehouseController::class, 'assignToShop'])
         ->name('admin.warehouse.assign');
-    Route::resource('models', ModelsController::class);
+    Route::resource('models', ModelsController::class)->names([
+        'index' => 'models.index',
+        'create' => 'models.create',
+        'store' => 'models.store',
+        'edit' => 'models.edit',
+        'update' => 'models.update',
+        'destroy' => 'models.destroy',
+    ]);
 
         Route::get('/admin/new-dashboard', [AdminDashboardController::class, 'dashboard'])->name('admin.dashboard');
     Route::get('/admin/inventory', [AdminDashboardController::class, 'index'])->name('admin.inventory');
