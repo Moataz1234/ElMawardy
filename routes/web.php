@@ -30,8 +30,6 @@ Route::get('/test-smtp', function() {
     }
 });
 
-Route::get('/hello', [HelloController::class, 'hello'])->name('hello');
-
 // Public Routes
 Route::middleware('auth')->group(function () {
     Route::get('/dashboard', function () {
