@@ -22,10 +22,10 @@
                     @endforeach
                 </select>
             </div>
-            <div class="form-group">
+            {{-- <div class="form-group">
                 <label for="link">Upload Image:</label>
                 <input type="file" name="link" id="link" accept="image/*">
-            </div>
+            </div> --}}
             <div class="form-group">
                 <label for="kind">Kind:</label>
                 <input type="text" name="kind" id="kind" required>
@@ -36,28 +36,28 @@
             </div>
             <div class="form-group">
                 <label for="gold_color">Gold Color:</label>
-                <input type="text" name="gold_color" id="gold_color" required>
+                <input type="text" name="gold_color" id="gold_color" value="yellow" required>
             </div>
             <div class="form-group">
                 <label for="metal_type">Metal Type:</label>
-                <input type="text" name="metal_type" id="metal_type" required>
+                <input type="text" name="metal_type" id="metal_type" value="Gold" required>
             </div>
             <div class="form-group">
                 <label for="metal_purity">Metal Purity:</label>
-                <input type="text" name="metal_purity" id="metal_purity" required>
+                <input type="text" name="metal_purity" id="metal_purity" value="18k" required>
             </div>
             <div class="form-group">
                 <label for="quantity">Quantity:</label>
-                <input type="number" name="quantity" id="quantity" required>
+                <input type="number" name="quantity" id="quantity" value="1" required>
             </div>
             <div class="form-group">
                 <label for="weight">Weight:</label>
                 <input type="number" step="0.01" name="weight" id="weight" required>
             </div>
-            <div class="form-group">
+            {{-- <div class="form-group">
                 <label for="source">Source:</label>
                 <input type="text" name="source" id="source" required>
-            </div>
+            </div> --}}
         </div>
         <button type="submit">Create Gold Item</button>
     </form>

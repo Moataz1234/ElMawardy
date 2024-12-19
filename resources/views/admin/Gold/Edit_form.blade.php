@@ -7,18 +7,10 @@
     <title>Edit Gold Item</title>
     <link href="{{ asset('css/app.css') }}" rel="stylesheet">
     <link href="{{ url('css/style.css') }}" rel="stylesheet">
+
 </head>
 <body>
-    @if ($errors->any())
-    <div class="alert alert-danger">
-        <ul>
-            @foreach ($errors->all() as $error)
-                <li>{{ $error }}</li>
-            @endforeach
-        </ul>
-    </div>
-@endif
-    <div class="item-details">
+    {{-- <div class="item-details"> --}}
         <form class="custom-form" action="{{ route('gold-items.update', $goldItem->id) }}" method="POST" enctype="multipart/form-data">
             @csrf
             @method('PUT')
@@ -83,7 +75,6 @@
 
         </form>
 
-    </div>
 
     </div>
 </body>
