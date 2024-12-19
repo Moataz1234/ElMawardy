@@ -25,14 +25,14 @@
     }
 
     .custom-form {
-        background-color: #504db4;
+        /* background-color: #504db4; */
         padding: 20px;
         border-radius: 10px;
         color: #000000;
         max-width: 800px;
         margin: auto;
         direction: rtl;
-
+        
     }
 
     .form-row {
@@ -66,7 +66,8 @@
         border: none;
         border-radius: 5px;
         margin-top: 10px;
-        margin-right: 330px;
+        margin-left: 330px;
+        width: 100%;
     }
 
 </style>

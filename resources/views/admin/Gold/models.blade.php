@@ -1,12 +1,13 @@
 @extends('layouts.models_table')
 
 @section('content')
-    <div class="sidebar">
-        <form method="GET" action="{{ route('models.index') }}" class="sidebar-form">
+    <div style="display: flex;flex-wrap:wrap" class="sidebar">
+        <form  method="GET" action="{{ route('models.index') }}" class="search-form">
             <input type="text" name="search" placeholder="Search by model name" value="{{ request('search') }}" class="sidebar-input">
             <button type="submit" class="sidebar-button">Search</button>
+
         </form>
-        <a href="{{ route('models.create') }}">Add New Model</a>
+        <a class="reset-button" style="padding: 10px" href="{{ route('models.create') }}">Add New Model</a>
 
     </div>
 

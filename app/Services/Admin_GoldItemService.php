@@ -47,8 +47,8 @@ class Admin_GoldItemService
             'metal_purity' => $validatedData['metal_purity'],
             'quantity' => $validatedData['quantity'],
             'weight' => $validatedData['weight'],
-            'source' => $validatedData['source'],
-            'link' => $imagePath,
+            // 'source' => $validatedData['source'],
+            // 'link' => $imagePath,
         ]);
     }
     public function findGoldItem($id)

@@ -1,11 +1,3 @@
-.custom-form {
-    max-width: 600px;
-    margin: 0 auto;
-    padding: 20px;
-    background-color: #f9f9f9;
-    border-radius: 8px;
-    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
-}
 
 .form-grid {
     display: grid;
@@ -18,41 +10,53 @@
     flex-direction: column;
 }
 
+.custom-form {
+    display: block;
+    margin: 20px auto;
+    padding: 20px;
+    background-color: #8d8b8b;
+    border-radius: 8px;
+    max-width: 600px;
+    box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
+}
+
 .custom-form label {
+    display: block;
     margin-bottom: 5px;
     font-weight: bold;
+    color: #333;
 }
 
 .custom-form input[type="text"],
 .custom-form input[type="number"],
-.custom-form select,
-.custom-form input[type="file"] {
+.custom-form input[type="date"],
+.custom-form input[type="email"],
+.custom-form input[type="file"] 
+ {
     width: 100%;
-    padding: 10px;
+    padding: 8px;
     margin-bottom: 10px;
     border: 1px solid #ccc;
     border-radius: 4px;
     box-sizing: border-box;
-    transition: border-color 0.3s;
 }
-
-.custom-form input:focus {
-    border-color: #4CAF50;
+input[list] {
+    width: 80%;
+    padding: 8px;
+    border: 1px solid #ccc;
+    border-radius: 4px;
 }
-
-.custom-form button {
-    width: 100%;
-    padding: 12px;
+.custom-form button[type="submit"] {
     background-color: #4CAF50;
     color: white;
+    padding: 10px 20px;
     border: none;
     border-radius: 4px;
     cursor: pointer;
     font-size: 16px;
-    transition: background-color 0.3s;
 }
 
-.custom-form button:hover {
+.custom-form button[type="submit"]:hover {
     background-color: #45a049;
 }
 

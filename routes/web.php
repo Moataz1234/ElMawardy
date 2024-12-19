@@ -53,7 +53,11 @@ Route::middleware('auth')->group(function () {
 });
 Route::get('/gold-items', action: [GoldItemController::class, 'index'])->name('gold-items.index');
 Route::get('/update_prices', [AdminDashboardController::class, 'UPDATE_PRICES'])->name('admin.dashboard');
-
+Route::get('/gold-items/create', [GoldItemController::class, 'create'])->name('gold-items.create');
+Route::post('/gold-items/store', [GoldItemController::class, 'store'])->name('gold-items.store');
+Route::get('/gold-items/{id}/edit', [GoldItemController::class, 'edit'])->name('gold-items.edit');
+Route::put('/gold-items/{id}', [AdminDashboardController::class, 'update'])->name('gold-items.update');
+Route::put('/gold-items-sold/{id}', [GoldItemSoldController::class, 'update'])->name('gold-items-sold.update');
 // Route::post('/admin/inventory/bulk-action', [AdminDashboardController::class, 'bulkAction'])->name('bulk-action');
 
 // Admin Routes
@@ -62,6 +66,7 @@ Route::middleware(['auth', 'admin'])->group(function () {
     Route::post('/warehouse', [WarehouseController::class, 'store'])->name('admin.warehouse.store');
     Route::post('/warehouse/{id}/assign', [WarehouseController::class, 'assignToShop'])
         ->name('admin.warehouse.assign');
+   
     Route::resource('models', ModelsController::class)->names([
         'index' => 'models.index',
         'create' => 'models.create',
@@ -71,7 +76,7 @@ Route::middleware(['auth', 'admin'])->group(function () {
         'destroy' => 'models.destroy',
     ]);
 
-        Route::get('/admin/new-dashboard', [AdminDashboardController::class, 'dashboard'])->name('admin.dashboard');
+    Route::get('/admin/new-dashboard', [AdminDashboardController::class, 'dashboard'])->name('admin.dashboard');
     Route::get('/admin/inventory', [AdminDashboardController::class, 'index'])->name('admin.inventory');
     // Route::get('/admin/inventory/{id}/edit', [AdminDashboardController::class, 'edit'])->name('gold-items.edit');
     // Route::put('/admin/inventory/{id}', [AdminDashboardController::class, 'update'])->name('gold-items.update');
@@ -90,11 +95,7 @@ Route::middleware(['auth', 'admin'])->group(function () {
     Route::post('/send-report-email', [GoldReportController::class, 'generateDailyReport'])->name('send.report.email');
     Route::get('/new-item/create', [NewItemController::class, 'create'])->name('new-item.create');
     Route::post('/new-item/store', [NewItemController::class, 'store'])->name('new-item.store');
-    Route::get('/gold-items/create', [GoldItemController::class, 'create'])->name('gold-items.create');
-    Route::post('/gold-items/store', [GoldItemController::class, 'store'])->name('gold-items.store');
-    Route::get('/gold-items/{id}/edit', [GoldItemController::class, 'edit'])->name('gold-items.edit');
-    Route::put('/gold-items/{id}', [AdminDashboardController::class, 'update'])->name('gold-items.update');
-    Route::put('/gold-items-sold/{id}', [GoldItemSoldController::class, 'update'])->name('gold-items-sold.update');
+
     Route::get('/transfer-requests/history', [ShopsController::class, 'viewTransferRequestHistory'])->name('transfer.requests.history');
     Route::get('/shopify-products', [ShopifyProductController::class, 'index'])->name('shopify.products');
     Route::get('/shopify-products/orders', [ShopifyProductController::class, 'Order_index'])->name('orders_shopify');

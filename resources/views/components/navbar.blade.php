@@ -1,4 +1,5 @@
 <link href="{{ asset('css/navbar.css') }}" rel="stylesheet">
+<link href="{{ asset('css/form.css') }}" rel="stylesheet">
 
 <nav class="navbar">
     <ul class="navbar-list">
@@ -34,6 +35,8 @@
         <li class="navbar-item"><a href="{{ route('orders.rabea.index') }}" class="navbar-link">الاوردرات</a></li>
         <li class="navbar-item"><a href="{{ route('orders.rabea.to_print') }}" class="navbar-link">الورشة</a></li>
         <li class="navbar-item"><a href="{{ route('orders.completed') }}" class="navbar-link">الاوردرات التي تم تسليمها</a></li>
+        <li class="navbar-item"><a href="{{ route('gold-items.create') }}" class="navbar-link">اضافة قطعة</a></li>
+
             @endif
 
         {{-- Third user-specific navigation items --}}

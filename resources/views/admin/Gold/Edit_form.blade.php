@@ -1,7 +1,7 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-    @include('dashboard')
+    @include('components.navbar')
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Edit Gold Item</title>
@@ -15,6 +15,7 @@
             @csrf
             @method('PUT')
 
+            
             <label for="serial_number">Serial Number:</label>
             <input type="text" name="serial_number" id="serial_number" value="{{ $goldItem->serial_number }}"  ><br>
 

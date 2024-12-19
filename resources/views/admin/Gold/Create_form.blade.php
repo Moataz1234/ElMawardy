@@ -27,24 +27,49 @@
                 <input type="file" name="link" id="link" accept="image/*">
             </div> --}}
             <div class="form-group">
-                <label for="kind">Kind:</label>
-                <input type="text" name="kind" id="kind" required>
+                <label for="kind">Gold Color:</label>
+                <select name="kind" id="kind" required>
+                    @foreach($kinds as $kind)
+                        <option value="{{ $kind }}">{{ $kind }}</option>
+                    @endforeach
+                </select>
             </div>
+            
             <div class="form-group">
                 <label for="model">Model:</label>
-                <input type="text" name="model" id="model" required>
+                <input list="models" name="model" id="model" required>
+                <datalist id="models">
+                    @foreach($models as $model)
+                        <option value="{{ $model->model }}"></option>
+                    @endforeach
+                </datalist>
             </div>
+            
             <div class="form-group">
                 <label for="gold_color">Gold Color:</label>
-                <input type="text" name="gold_color" id="gold_color" value="yellow" required>
+                <select name="gold_color" id="gold_color" required>
+                    @foreach($goldColors as $color)
+                        <option value="{{ $color }}">{{ $color }}</option>
+                    @endforeach
+                </select>
             </div>
+            
             <div class="form-group">
                 <label for="metal_type">Metal Type:</label>
-                <input type="text" name="metal_type" id="metal_type" value="Gold" required>
+                <select name="metal_type" id="metal_type" required>
+                    @foreach($metalTypes as $type)
+                        <option value="{{ $type }}">{{ $type }}</option>
+                    @endforeach
+                </select>
             </div>
+            
             <div class="form-group">
                 <label for="metal_purity">Metal Purity:</label>
-                <input type="text" name="metal_purity" id="metal_purity" value="18k" required>
+                <select name="metal_purity" id="metal_purity" required>
+                    @foreach($metalPurities as $purity)
+                        <option value="{{ $purity }}">{{ $purity }}</option>
+                    @endforeach
+                </select>
             </div>
             <div class="form-group">
                 <label for="quantity">Quantity:</label>

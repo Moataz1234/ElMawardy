@@ -18,8 +18,8 @@ class GoldItemRequest extends FormRequest
             'metal_purity' => 'required|string',
             'quantity' => 'required|integer',
             'weight' => 'required|numeric',
-            'source' => 'required|string',
-            'link' => 'nullable|file|image'
+            // 'source' => 'required|string',
+            // 'link' => 'nullable|file|image'
         ];
     }
 

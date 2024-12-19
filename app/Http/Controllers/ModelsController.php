@@ -44,8 +44,19 @@ class ModelsController extends Controller
         ]);
 
         // Generate SKU from model number
+        preg_match('/^(\d+)-(\d+)(?:-(\w+))?$/', $request->model, $matches);
+
+    if (count($matches) >= 3) {
+        $prefix = $matches[1]; // e.g., 1
+        $mainPart = $matches[2]; // e.g., 0003
+        $suffix = $matches[3] ?? ''; // e.g., A or B (optional)
+        $sku = 'G' . $prefix . $mainPart . $suffix; // Combine parts
+    } else {
+        // Default SKU in case of invalid format
         $sku = 'G' . str_pad(substr($request->model, -4), 4, '0', STR_PAD_LEFT);
-        $validatedData['SKU'] = $sku;
+    }
+
+    $validatedData['SKU'] = $sku;
 
         // Handle scanned image upload
         if ($request->hasFile('scanned_image')) {
@@ -75,16 +86,27 @@ class ModelsController extends Controller
             'model' => 'required|string|max:255|unique:models,model,' . $model->id,
             'category' => 'string|max:255|nullable',
             'source' => 'string|max:255|nullable',
-            'first_production' => 'date|nullable',
-            'semi_or_no' => 'string|max:255|nullable',
-            'average_of_stones' => 'numeric|nullable',
+            // 'first_production' => 'date|nullable',
+            // 'semi_or_no' => 'string|max:255|nullable',
+            // 'average_of_stones' => 'numeric|nullable',
             'scanned_image' => 'image|mimes:jpeg,png,jpg,gif|max:2048|nullable',
             'website_image' => 'image|mimes:jpeg,png,jpg,gif|max:2048|nullable',
         ]);
 
-        // Generate SKU from model number
-        $sku = 'G' . str_pad(substr($request->model, -4), 4, '0', STR_PAD_LEFT);
+        preg_match('/^(\d+)-(\d+)(?:-(\w+))?$/', $request->model, $matches);
+
+        if (count($matches) >= 3) {
+            $prefix = $matches[1]; // e.g., 1
+            $mainPart = $matches[2]; // e.g., 0003
+            $suffix = $matches[3] ?? ''; // e.g., A or B (optional)
+            $sku = 'G' . $prefix . $mainPart . $suffix; // Combine parts
+        } else {
+            // Default SKU in case of invalid format
+            $sku = 'G' . str_pad(substr($request->model, -4), 4, '0', STR_PAD_LEFT);
+        }
+    
         $validatedData['SKU'] = $sku;
+    
 
         // Handle scanned image upload
         if ($request->hasFile('scanned_image')) {
