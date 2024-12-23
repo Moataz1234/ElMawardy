@@ -20,6 +20,10 @@
 
 <style>
     /* Additional Styling for Layout */
+    *{
+        margin: 0;
+        padding: 0;
+    }
     body {
         font-family: Arial, sans-serif;
     }
@@ -30,7 +34,7 @@
         border-radius: 10px;
         color: #000000;
         max-width: 800px;
-        margin: auto;
+        margin-top: 20px;
         direction: rtl;
         
     }
@@ -66,10 +70,14 @@
         border: none;
         border-radius: 5px;
         margin-top: 10px;
-        margin-left: 330px;
-        width: 100%;
+        /* width: 100%; */
     }
+    .container_buttons{
+        display: flex;
+        flex-direction: column;
 
+
+    }
 </style>
 </head>
 <body>
@@ -191,12 +199,13 @@
             <button type="button" class="remove-item">Remove Item</button>
         </div>
     </div>
-
+<div class="container_buttons">
     <button type="button" id="add-item" class="btn-custom">Add Item</button>
 
     <div class="form-group">
         <button style="margin: 20px 300px" type="submit" class="btn btn-primary">Submit Order</button>
     </div>
+</div>
 </form>
 <script src="{{ asset('js/order_details.js') }}"></script>
 </body>

@@ -9,6 +9,8 @@
 <body>
     @include('components.navbar')
     @include('sidebars.rabea-sidebar')
+    @include('profile.partials.Rabea.navigation')
+
     {{-- @include('searchbars.rabea-searchbar') --}}
 
     {{-- <form method="GET" action="{{ route('gold-items.index') }}">
