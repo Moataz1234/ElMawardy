@@ -147,4 +147,33 @@ class ModelsController extends Controller
 
         return redirect()->route('models.index')->with('success', 'Model deleted successfully.');
     }
+    public function getModelDetails(Request $request)
+    {
+        $model = $request->input('model');
+
+        // First get the model details including the scanned image
+        $modelDetails = \App\Models\Models::where('model', $model)->first();
+    
+        // Fetch items with the same model, excluding the current shop
+        $items = \App\Models\GoldItem::with('shop')
+            ->where('model', $model)
+            ->whereHas('shop')
+            ->get()
+            ->map(function ($item) {
+                return [
+                    'serial_number' => $item->serial_number,
+                    'shop_name' => $item->shop->name,
+                    'weight' => $item->weight,
+                ];
+            });
+    
+        return response()->json([
+            'items' => $items,
+            'modelDetails' => $modelDetails ? [
+                'scanned_image' => $modelDetails->scanned_image,
+                // 'model' => $modelDetails->model,
+                // 'SKU' => $modelDetails->SKU,
+            ] : null
+        ]);
+    }
 }

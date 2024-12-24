@@ -10,16 +10,16 @@ class GoldItemRequest extends FormRequest
    public function rules()
     {
         return [
-            'shop_id' => 'required|integer',
             'kind' => 'required|string',
             'model' => 'required|string',
-            'gold_color' => 'required|string',
             'metal_type' => 'required|string',
             'metal_purity' => 'required|string',
             'quantity' => 'required|integer',
-            'weight' => 'required|numeric',
-            // 'source' => 'required|string',
-            // 'link' => 'nullable|file|image'
+            'talab' => 'nullable|boolean',
+            'shops' => 'required|array|min:1', // At least one shop is required
+            'shops.*.shop_id' => 'required|integer|exists:shops,id',
+            'shops.*.gold_color' => 'required|string',
+            'shops.*.weight' => 'required|numeric|min:0.01',
         ];
     }
 

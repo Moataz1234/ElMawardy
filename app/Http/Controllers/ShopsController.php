@@ -50,14 +50,13 @@ class ShopsController extends Controller
         $this->outerService = $outerService;
         $this->saleService = $saleService;
         $this->warehouseService = $warehouseService;
-
     }
 
     public function showShopItems(Request $request)
     {
 
         $items = $this->goldItemService->getShopItems($request);
-          
+
         return view('shops.Gold.index', $items);
     }
 
@@ -125,7 +124,7 @@ class ShopsController extends Controller
     public function toggleReturn($serialNumber)
     {
         $result = $this->outerService->toggleOuterStatus($serialNumber);
-        
+
         if ($result['redirect']) {
             return view('Shops.Gold.outerform', ['serial_number' => $serialNumber]);
         }
@@ -147,13 +146,13 @@ class ShopsController extends Controller
         return redirect()->route('gold-items.shop')
             ->with('success', 'Selected items sold successfully');
     }
-    
+
     public function showBulkTransferForm(Request $request)
     {
-        $itemIds = is_array($request->input('ids')) 
-            ? $request->input('ids') 
+        $itemIds = is_array($request->input('ids'))
+            ? $request->input('ids')
             : explode(',', $request->input('ids'));
-        
+
         $data = $this->transferService->getBulkTransferFormData($itemIds);
         // $goldItems = $this->goldItemService->getShopItems($request);
 
@@ -161,101 +160,101 @@ class ShopsController extends Controller
             return redirect()->back()
                 ->with('error', 'No valid items available for transfer. Some items might already be in transfer process.');
         }
-        
+
         return view('shops.transfer_requests.transfer_form', $data);
     }
     public function bulkTransfer(TransferRequest $request)
-{
-    try {
-        $itemIds = $request->input('item_ids');
-        $this->transferService->bulkTransfer($itemIds, $request->shop_name);
-        
-        session()->flash('cleared_items', $itemIds);
-        
-        return redirect()->route('dashboard')
-            ->with('success', 'Transfer requests sent successfully. Items will be transferred after acceptance.');
-    } catch (\Exception $e) {
-        return redirect()->back()
-            ->with('error', 'Failed to create transfer requests: ' . $e->getMessage());
-    }
-}
+    {
+        try {
+            $itemIds = $request->input('item_ids');
+            $this->transferService->bulkTransfer($itemIds, $request->shop_name);
 
-public function showAdminRequests()
-{
-    $requests = ItemRequest::where('shop_name', Auth::user()->shop_name)
-        ->with(['item', 'admin'])
-        ->latest()
-        ->paginate(10);
-        
-    return view('shops.admin_requests', compact('requests'));
-}
-public function updateAdminRequests(Request $request, ItemRequest $itemRequest)
-{
-    $validated = $request->validate([
-        'status' => 'required|in:accepted,rejected'
-    ]);
-    
-    try {
-        DB::transaction(function () use ($validated, $itemRequest) {
-            $itemRequest->update(['status' => $validated['status']]);
-            
-            if ($validated['status'] === 'accepted') {
-                $goldItem = $itemRequest->item;
-                
-                $goldItem->update([
-                    'shop_name' => 'admin',
-                    'status' => 'accepted'
-                ]);
-                
-        // Create warehouse record
-        Warehouse::create([
-            'link' => $goldItem->link,
-            'serial_number' => $goldItem->serial_number,
-            'shop_name' => 'admin',
-            'shop_id' => $goldItem->shop_id,
-            'kind' => $goldItem->kind,
-            'model' => $goldItem->model,
-            'talab' => $goldItem->talab,
-            'gold_color' => $goldItem->gold_color,
-            'stones' => $goldItem->stones,
-            'metal_type' => $goldItem->metal_type,
-            'metal_purity' => $goldItem->metal_purity,
-            'quantity' => $goldItem->quantity,
-            'weight' => $goldItem->weight,
-            'rest_since' => $goldItem->rest_since,
-            'source' => $goldItem->source,
-            'to_print' => $goldItem->to_print,
-            'price' => $goldItem->price,
-            'semi_or_no' => $goldItem->semi_or_no,
-            'average_of_stones' => $goldItem->average_of_stones,
-            'net_weight' => $goldItem->net_weight,
-            'website' => $goldItem->website
+            session()->flash('cleared_items', $itemIds);
+
+            return redirect()->route('dashboard')
+                ->with('success', 'Transfer requests sent successfully. Items will be transferred after acceptance.');
+        } catch (\Exception $e) {
+            return redirect()->back()
+                ->with('error', 'Failed to create transfer requests: ' . $e->getMessage());
+        }
+    }
+
+    public function showAdminRequests()
+    {
+        $requests = ItemRequest::where('shop_name', Auth::user()->shop_name)
+            ->with(['item', 'admin'])
+            ->latest()
+            ->paginate(10);
+
+        return view('shops.admin_requests', compact('requests'));
+    }
+    public function updateAdminRequests(Request $request, ItemRequest $itemRequest)
+    {
+        $validated = $request->validate([
+            'status' => 'required|in:accepted,rejected'
         ]);
+
+        try {
+            DB::transaction(function () use ($validated, $itemRequest) {
+                $itemRequest->update(['status' => $validated['status']]);
+
+                if ($validated['status'] === 'accepted') {
+                    $goldItem = $itemRequest->item;
+
+                    $goldItem->update([
+                        'shop_name' => 'admin',
+                        'status' => 'accepted'
+                    ]);
+
+                    // Create warehouse record
+                    Warehouse::create([
+                        'link' => $goldItem->link,
+                        'serial_number' => $goldItem->serial_number,
+                        'shop_name' => 'admin',
+                        'shop_id' => $goldItem->shop_id,
+                        'kind' => $goldItem->kind,
+                        'model' => $goldItem->model,
+                        'talab' => $goldItem->talab,
+                        'gold_color' => $goldItem->gold_color,
+                        'stones' => $goldItem->stones,
+                        'metal_type' => $goldItem->metal_type,
+                        'metal_purity' => $goldItem->metal_purity,
+                        'quantity' => $goldItem->quantity,
+                        'weight' => $goldItem->weight,
+                        'rest_since' => $goldItem->rest_since,
+                        'source' => $goldItem->source,
+                        'to_print' => $goldItem->to_print,
+                        'price' => $goldItem->price,
+                        'semi_or_no' => $goldItem->semi_or_no,
+                        'average_of_stones' => $goldItem->average_of_stones,
+                        'net_weight' => $goldItem->net_weight,
+                        'website' => $goldItem->website
+                    ]);
+                }
+            });
+
+            return redirect()->back()->with('success', 'Request status updated successfully');
+        } catch (\Exception $e) {
+            return redirect()->back()->with('error', 'Failed to process request: ' . $e->getMessage());
+        }
     }
-});
+    public function getItemsByModel(Request $request)
+    {
+        $model = $request->input('model');
 
-return redirect()->back()->with('success', 'Request status updated successfully');
-} catch (\Exception $e) {
-    return redirect()->back()->with('error', 'Failed to process request: ' . $e->getMessage());
-}
-}
-public function getItemsByModel(Request $request)
-{
-    $model = $request->input('model');
+        // Fetch items with the same model, excluding the current shop
+        $items = \App\Models\GoldItem::with('shop')
+            ->where('model', $model)
+            ->whereHas('shop') // Ensure the item belongs to a shop
+            ->get()
+            ->map(function ($item) {
+                return [
+                    'serial_number' => $item->serial_number,
+                    'shop_name' => $item->shop->name,
+                    'weight' => $item->weight,
+                ];
+            });
 
-    // Fetch items with the same model, excluding the current shop
-    $items = \App\Models\GoldItem::with('shop')
-        ->where('model', $model)
-        ->whereHas('shop') // Ensure the item belongs to a shop
-        ->get()
-        ->map(function ($item) {
-            return [
-                'serial_number' => $item->serial_number,
-                'shop_name' => $item->shop->name,
-                'weight' => $item->weight,
-            ];
-        });
-
-    return response()->json(['items' => $items]);
-}
+        return response()->json(['items' => $items]);
+    }
 }

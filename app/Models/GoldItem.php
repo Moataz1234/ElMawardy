@@ -9,8 +9,8 @@ class GoldItem extends Model
 {
     use HasFactory;
     protected $fillable = [
-        'model', 'serial_number', 'shop_name', 'shop_id', 
-        'weight', 'gold_color', 'metal_type', 'metal_purity', 'quantity'
+        'model', 'serial_number', 'shop_name', 'shop_id', 'kind',
+        'weight', 'gold_color', 'metal_type', 'metal_purity', 'quantity','talab'
     ];
     public function shop()
     {

@@ -40,7 +40,7 @@ class GoldItemController extends Controller
             $metalTypes = GoldItem::select('metal_type')->distinct()->pluck('metal_type');
             $metalPurities = GoldItem::select('metal_purity')->distinct()->pluck('metal_purity');
             $kinds = GoldItem::select('kind')->distinct()->pluck('kind');
-
+        
           
 
             return view('admin.Gold.Create_form', compact('shops', 'models', 'goldColors', 'metalTypes', 'metalPurities', 'kinds'));
@@ -50,27 +50,38 @@ class GoldItemController extends Controller
     public function store(GoldItemRequest $request)
     {
         try {
-            Log::info('Store Method Called', ['request_data' => $request->all()]);
-
             // Validate the request data
             $validated = $request->validated();
-            Log::info('Validated Data', ['validated_data' => $validated]);
 
-            // Uncomment if image upload is used later
-            // $imagePath = $request->hasFile('link') ? $request->file('link')->store('uploads/gold_items', 'public') : null;
+            // Loop through the dynamic shop data
+            foreach ($request->shops as $shopData) {
+                // Fetch the last item to calculate the next serial number
+                $lastItem = GoldItem::orderByRaw('CAST(SUBSTRING(serial_number, 3) AS UNSIGNED) DESC')->first();
+                $nextSerialNumber = $this->goldItemService->generateNextSerialNumber($lastItem);
+    
+                // Create a new gold item record for each shop
+                GoldItem::create([
+                    'serial_number' => $nextSerialNumber,
+                    'shop_id' => $shopData['shop_id'],
+                    'shop_name' => Shop::find($shopData['shop_id'])->name,
+                    'kind' => $validated['kind'],
+                    'model' => $validated['model'],
+                    'gold_color' => $shopData['gold_color'],
+                    'metal_type' => $validated['metal_type'],
+                    'metal_purity' => $validated['metal_purity'],
+                    'quantity' => $validated['quantity'],
+                    'weight' => $shopData['weight'],
+                    'talab' => $validated['talab'],                ]);
 
-            $this->goldItemService->createGoldItem($validated);
-
-            Log::info('Gold Item Created Successfully');
-
-            return redirect()->route('gold-items')->with('success', 'Gold item added successfully.');
+            }
+            // Redirect with success message
+            return redirect()->route('gold-items.create')->with('success', 'Gold items added successfully.');
         } catch (\Exception $e) {
+            // Log the error and redirect back with an error message
             Log::error('Error in Store Method', ['error' => $e->getMessage()]);
-            return redirect()->back()->withInput()->with('error', 'An error occurred while adding the gold item.');
+            return redirect()->back()->withInput()->with('error', 'An error occurred while adding the gold items.');
         }
     }
-
-
     public function edit(string $id)
     {
         $goldItem = GoldItem::findOrFail($id);

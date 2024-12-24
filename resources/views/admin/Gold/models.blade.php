@@ -18,9 +18,9 @@
                 <th>SKU</th>
                 <th>Scanned Image</th>
                 <th>Website Image</th>
-                {{-- <th>Category</th> --}}
+                <th>Stars</th>
                 <th>Source</th>
-                {{-- <th>First Production</th> --}}
+                <th>First Production</th>
                 {{-- <th>Semi or No</th> --}}
                 {{-- <th>Average of Stones</th> --}}
                 <th>Actions</th>
@@ -41,9 +41,9 @@
                         <img src="{{ asset('storage/' . $model->website_image) }}" alt="Website Image" style="max-width: 100px; max-height: 100px;">
                     @endif
                 </td> 
-                {{-- <td>{{ $model->category }}</td> --}}
+                <td>{{ $model->category }}</td>
                 <td>{{ $model->source }}</td>
-                {{-- <td>{{ $model->first_production }}</td> --}}
+                <td>{{ $model->first_production }}</td>
                 {{-- <td>{{ $model->semi_or_no }}</td> --}}
                 {{-- <td>{{ $model->average_of_stones }}</td>  --}}
                 <td>

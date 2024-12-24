@@ -1,5 +1,5 @@
 <link href="{{ asset('css/navbar.css') }}" rel="stylesheet">
-<link href="{{ asset('css/form.css') }}" rel="stylesheet">
+{{-- <link href="{{ asset('css/form.css') }}" rel="stylesheet"> --}}
 
 <nav class="navbar">
     <ul class="navbar-list">

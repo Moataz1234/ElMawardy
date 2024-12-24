@@ -76,6 +76,9 @@ Route::middleware(['auth', 'admin'])->group(function () {
         'destroy' => 'models.destroy',
     ]);
 
+    Route::get('/gold-items/model-details', [ModelsController::class, 'getModelDetails']);
+
+
     Route::get('/admin/new-dashboard', [AdminDashboardController::class, 'dashboard'])->name('admin.dashboard');
     Route::get('/admin/inventory', [AdminDashboardController::class, 'index'])->name('admin.inventory');
     // Route::get('/admin/inventory/{id}/edit', [AdminDashboardController::class, 'edit'])->name('gold-items.edit');
@@ -115,8 +118,8 @@ Route::middleware(['auth', 'user'])->group(function () {
 Route::patch('/shop/requests/{itemRequest}', [ShopsController::class, 'updateAdminRequests'])
     ->name('shop.requests.update');
 
-
     Route::get('/gold-items/same-model', [ShopsController::class, 'getItemsByModel']);
+
 
     Route::get('/dashboard', [ShopsController::class, 'showShopItems'])->name('dashboard');
     Route::get('/gold-catalog', [GoldCatalogController::class, 'ThreeView'])->name('gold-catalog');

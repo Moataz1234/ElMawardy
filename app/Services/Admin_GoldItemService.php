@@ -30,27 +30,27 @@ class Admin_GoldItemService
         $this->sortAndFilterService = $sortAndFilterService;
 
     }
-    public function createGoldItem(array $validatedData, string $imagePath = null)
-    {
-        // Automatically generate the next serial number
-        $lastItem = GoldItem::orderByRaw('CAST(SUBSTRING(serial_number, 3) AS UNSIGNED) DESC')->first();
-        $nextSerialNumber = $this->generateNextSerialNumber($lastItem);
+    // public function createGoldItem(array $validatedData, string $imagePath = null)
+    // {
+    //     // Automatically generate the next serial number
+    //     $lastItem = GoldItem::orderByRaw('CAST(SUBSTRING(serial_number, 3) AS UNSIGNED) DESC')->first();
+    //     $nextSerialNumber = $this->generateNextSerialNumber($lastItem);
 
-        GoldItem::create([
-            'serial_number' => $nextSerialNumber,
-            'shop_id' => $validatedData['shop_id'],
-            'shop_name' => Shop::find($validatedData['shop_id'])->name,
-            'kind' => $validatedData['kind'],
-            'model' => $validatedData['model'],
-            'gold_color' => $validatedData['gold_color'],
-            'metal_type' => $validatedData['metal_type'],
-            'metal_purity' => $validatedData['metal_purity'],
-            'quantity' => $validatedData['quantity'],
-            'weight' => $validatedData['weight'],
-            // 'source' => $validatedData['source'],
-            // 'link' => $imagePath,
-        ]);
-    }
+    //     GoldItem::create([
+    //         'serial_number' => $nextSerialNumber,
+    //         'shop_id' => $validatedData['shop_id'],
+    //         'shop_name' => Shop::find($validatedData['shop_id'])->name,
+    //         'kind' => $validatedData['kind'],
+    //         'model' => $validatedData['model'],
+    //         'gold_color' => $validatedData['gold_color'],
+    //         'metal_type' => $validatedData['metal_type'],
+    //         'metal_purity' => $validatedData['metal_purity'],
+    //         'quantity' => $validatedData['quantity'],
+    //         'weight' => $validatedData['weight'],
+    //         // 'source' => $validatedData['source'],
+    //         // 'link' => $imagePath,
+    //     ]);
+    // }
     public function findGoldItem($id)
     {
         return GoldItem::findOrFail($id);
@@ -151,7 +151,7 @@ class Admin_GoldItemService
     //     $goldItem->update($validatedData);
     // }
 
-    private function generateNextSerialNumber($lastItem)
+    public function generateNextSerialNumber($lastItem)
     {
         if ($lastItem) {
             preg_match('/(\d+)$/', $lastItem->serial_number, $matches);
@@ -201,29 +201,6 @@ class Admin_GoldItemService
                  ->appends($request->all());
 }
 
-//     $query = GoldItem::query();
-//     $allowedFilters = [
-//     'search',
-//     'metal_purity',
-//     'gold_color',
-//     'kind',
-// ];
-
-// $goldItems = $this->sortAndFilterService->getFilteredAndSortedResults(
-//     $query,
-//     $request,
-//     $allowedFilters
-// );
-// $gold_color = $query->distinct('gold_color')->pluck('gold_color')->toArray();
-// $kind = $query->distinct('kind')->pluck('kind')->toArray();
-
-// return [
-//     'goldItems' => $goldItems,
-//     'totalPages' => $goldItems->lastPage() ,
-//     'gold_color' => $gold_color,
-//     'kind' => $kind,
-// ];
-  
     public function getGoldItemsSold($request)
     {
         $query = GoldItemSold::query();
