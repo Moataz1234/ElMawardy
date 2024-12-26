@@ -15,8 +15,8 @@ class GoldItemRequest extends FormRequest
             'metal_type' => 'required|string',
             'metal_purity' => 'required|string',
             'quantity' => 'required|integer',
-            'talab' => 'nullable|boolean',
             'shops' => 'required|array|min:1', // At least one shop is required
+            'shops.*.talab' => 'nullable|boolean',
             'shops.*.shop_id' => 'required|integer|exists:shops,id',
             'shops.*.gold_color' => 'required|string',
             'shops.*.weight' => 'required|numeric|min:0.01',

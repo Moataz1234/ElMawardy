@@ -9,21 +9,7 @@
      <link href="{{ asset('css/style.css') }}" rel="stylesheet">
      <link href="{{ asset('css/navbar.css') }}" rel="stylesheet">
      <link href="{{ asset('css/create_form.css') }}" rel="stylesheet">
-     <style>
-
-        /* .table-container {
-    margin-top: 20px;
-    overflow-x: auto;
-} */
-/* 
-.model-info {
-    margin-bottom: 15px;
-}
-
-.model-info p {
-    margin: 5px 0;
-} */
-</style>
+     {{-- <link href="{{ asset('css/checkbox.css') }}" rel="stylesheet"> --}}
  </head>
  <body>
     <div class="parent">
@@ -31,7 +17,6 @@
         @csrf
         <!-- Fixed fields -->
         <div class="dynamic-field">
-   
         <div style="width: 40%" class="form-group">
             <label for="model">Model:</label>
             <input  list="models" name="model" id="model" required>
@@ -41,16 +26,20 @@
                 @endforeach
             </datalist>
         </div>
-        <div  class="form-group">
+        <div style="width: 40%" class="form-group">
+            <label for="kind">Kind:</label>
+            <input type="text"  name="kind" id="kind" readonly required>
+        </div>
+    </div>
+        {{-- <div  class="form-group">
             <label for="kind">Kind:</label>
             <select style="width:250px" name="kind" id="kind" required>
                 @foreach($kinds as $kind)
                     <option value="{{ $kind }}">{{ $kind }}</option>
                 @endforeach
             </select>
-        </div>
+        </div> --}}
     
-        </div>
         <div class="dynamic-field">
         <div class="form-group">
             <label for="metal_type">Metal Type:</label>
@@ -74,11 +63,7 @@
             <label for="quantity">Quantity:</label>
             <input type="number" name="quantity" id="quantity" value="1" required>
         </div>
-        <div style="width: 40%" >
-            <label for="talab">Talab:</label>
-            <input type="hidden" name="talab" value="0">
-            <input type="checkbox" name="talab" id="talab" value="1">        
-        </div>
+     
         </div>
         <!-- Dynamic fields section -->
         <div id="dynamic-fields-container">
@@ -104,6 +89,14 @@
                     <label for="weight">Weight:</label>
                     <input type="number" step="0.01" name="shops[0][weight]" required>
                     </div>
+                    <div class="form-group">
+                        <label for="talab">Talab:</label>
+                        <input type="hidden" name="shops[0][talab]" value="0">
+                        <input type="checkbox" class="checkboxInput" id="checkboxInput" name="shops[0][talab]" value="1">
+                        <label for="checkboxInput" class="toggleSwitch"></label>
+                        
+                    </div>
+                      
                 {{-- </div> --}}
 
                 {{-- <button type="button" class="remove-field-btn">Remove</button> --}}
@@ -139,31 +132,117 @@
             </tbody>
         </table>
     </div>
+
     </div>
     </div>
-{{-- <div class="modal " id="modelDetailsModal" tabindex="-1" role="dialog" aria-labelledby="modelDetailsModalLabel" aria-hidden="true">
-        <div style="background-color: #babfc5;margin:10px 250px" class="modal-content">
-            <div class="modal-header">
-                <h5 class="modal-title" id="modelDetailsModalLabel" >Items with Same Model</h5>
-            </div>
-            <div class="modal-body" id="modal-body-content">
-                Loading...
-            </div>
-            <div class="modal-footer">
-                <button type="button" class="btn btn-secondary" data-dismiss="modal">Close</button>
-            </div>
-        </div>
     </div>
-</div>
-</div> --}}
+
     <script>
-        document.addEventListener('DOMContentLoaded', function () {
+  document.addEventListener('DOMContentLoaded', function () {
+    const modelInput = document.getElementById('model');
+    const kindInput = document.getElementById('kind');
     const addFieldBtn = document.getElementById('add-field-btn');
     const dynamicFieldsContainer = document.getElementById('dynamic-fields-container');
+    const tableBody = document.querySelector('#shop-data-table tbody');
+    const modelImageDiv = document.getElementById('model-image');
+
+    function determineKind(modelValue) {
+        if (!modelValue) return '';
+        const firstChar = modelValue.split('-')[0];
+        const kindMapping = {
+            '1': 'Pendant',
+            '7': 'Ring'
+        };
+        return kindMapping[firstChar] || '';
+    }
+
+    function debounce(func, wait) {
+        let timeout;
+        return function executedFunction(...args) {
+            const later = () => {
+                clearTimeout(timeout);
+                func(...args);
+            };
+            clearTimeout(timeout);
+            timeout = setTimeout(later, wait);
+        };
+    }
+
+    function fetchItems(modelValue) {
+        if (!modelValue) {
+            tableBody.innerHTML = '';
+            modelImageDiv.innerHTML = '';
+            return;
+        }
+
+        modelImageDiv.innerHTML = '<p>Loading...</p>';
+        tableBody.innerHTML = '<tr><td colspan="2">Loading...</td></tr>';
+
+        fetch(`/gold-items/model-details?model=${encodeURIComponent(modelValue)}`, {
+            method: 'GET',
+            headers: {
+                'Accept': 'application/json',
+                'X-Requested-With': 'XMLHttpRequest'
+            }
+        })
+        .then(response => response.json())
+        .then(data => {
+            tableBody.innerHTML = '';
+            modelImageDiv.innerHTML = '';
+
+            if (data.modelDetails && data.modelDetails.scanned_image) {
+                const imageElement = document.createElement('img');
+                imageElement.src = `/${data.modelDetails.scanned_image}`;
+                imageElement.alt = `Model ${data.modelDetails.model}`;
+                imageElement.className = 'model-scanned-image';
+                
+                const modelInfo = document.createElement('div');
+                modelInfo.className = 'model-info';
+                
+                modelImageDiv.appendChild(modelInfo);
+                modelImageDiv.appendChild(imageElement);
+            } else {
+                modelImageDiv.innerHTML = '<p>No image available for this model</p>';
+            }
+
+            if (data.items.length === 0) {
+                const row = document.createElement('tr');
+                row.innerHTML = '<td colspan="3">No items found</td>';
+                tableBody.appendChild(row);
+                return;
+            }
+
+            data.items.forEach(item => {
+                const row = document.createElement('tr');
+                row.innerHTML = `
+                    <td>${item.shop_name}</td>
+                    <td>${item.weight}</td>
+                    <td>${item.serial_number}</td>
+                `;
+                tableBody.appendChild(row);
+            });
+        })
+        .catch(error => {
+            console.error('Error:', error);
+            tableBody.innerHTML = '<tr><td colspan="3">Error fetching data</td></tr>';
+            modelImageDiv.innerHTML = '<p>Error loading model details</p>';
+        });
+    }
+
+    // Event Listeners
+    modelInput.addEventListener('input', function(e) {
+        const modelValue = e.target.value;
+        kindInput.value = determineKind(modelValue);
+        debounce(fetchItems, 300)(modelValue);
+    });
+
+    modelInput.addEventListener('change', function(e) {
+        const modelValue = e.target.value;
+        kindInput.value = determineKind(modelValue);
+    });
 
     addFieldBtn.addEventListener('click', function () {
         const index = dynamicFieldsContainer.children.length;
-
         const fieldHTML = `
             <div class="dynamic-field">
                 <div class="form-group">
@@ -186,9 +265,15 @@
                     <label for="weight">Weight:</label>
                     <input type="number" step="0.01" name="shops[${index}][weight]" required>
                 </div>
+                <div>
+                      <label for="talab_${index}">Talab:</label>
+        <input type="hidden" name="shops[${index}][talab]" value="0">
+        <input type="checkbox" class="checkboxInput" id="talab_${index}" name="shops[${index}][talab]" value="1">
+        <label for="talab_${index}" class="toggleSwitch"></label>
+        </div>
             </div>
-                            <button type="button" class="remove-field-btn">Remove</button>
-
+            
+            <button type="button" class="remove-field-btn">Remove</button>
         `;
 
         const newField = document.createElement('div');
@@ -199,98 +284,6 @@
             newField.remove();
         });
     });
-    const modelInput = document.getElementById('model');
-    const tableBody = document.querySelector('#shop-data-table tbody');
-    const modelImageDiv = document.getElementById('model-image');
-
-    // Debounce function to limit API calls
-    function debounce(func, wait) {
-        let timeout;
-        return function executedFunction(...args) {
-            const later = () => {
-                clearTimeout(timeout);
-                func(...args);
-            };
-            clearTimeout(timeout);
-            timeout = setTimeout(later, wait);
-        };
-    }
-
-    // Function to fetch and display items and image
-    function fetchItems(modelValue) {
-        if (!modelValue) {
-            tableBody.innerHTML = '';
-            modelImageDiv.innerHTML = '';
-            return;
-        }
-
-        // Show loading state
-        modelImageDiv.innerHTML = '<p>Loading...</p>';
-        tableBody.innerHTML = '<tr><td colspan="2">Loading...</td></tr>';
-
-        fetch(`/gold-items/model-details?model=${encodeURIComponent(modelValue)}`, {
-            method: 'GET',
-            headers: {
-                'Accept': 'application/json',
-                'X-Requested-With': 'XMLHttpRequest'
-            }
-        })
-        .then(response => response.json())
-        .then(data => {
-            // Clear existing rows
-            tableBody.innerHTML = '';
-            modelImageDiv.innerHTML = '';
-
-            // Handle model details and image
-            if (data.modelDetails && data.modelDetails.scanned_image) {
-                const imageElement = document.createElement('img');
-                imageElement.src = `/${data.modelDetails.scanned_image}`;
-                imageElement.alt = `Model ${data.modelDetails.model}`;
-                imageElement.className = 'model-scanned-image';
-                
-                const modelInfo = document.createElement('div');
-                modelInfo.className = 'model-info';
-                // modelInfo.innerHTML = `
-                //     <p><strong>Model:</strong> ${data.modelDetails.model}</p>
-                //     <p><strong>SKU:</strong> ${data.modelDetails.SKU || 'N/A'}</p>
-                // `;
-                
-                modelImageDiv.appendChild(modelInfo);
-                modelImageDiv.appendChild(imageElement);
-            } else {
-                modelImageDiv.innerHTML = '<p>No image available for this model</p>';
-            }
-
-            // Handle items table
-            if (data.items.length === 0) {
-                const row = document.createElement('tr');
-                row.innerHTML = '<td colspan="2">No items found</td>';
-                tableBody.appendChild(row);
-                return;
-            }
-
-            // Add new rows
-            data.items.forEach(item => {
-                const row = document.createElement('tr');
-                row.innerHTML = `
-                    <td>${item.shop_name}</td>
-                    <td>${item.weight}</td>
-                    <td>${item.serial_number}</td>
-                `;
-                tableBody.appendChild(row);
-            });
-        })
-        .catch(error => {
-            console.error('Error:', error);
-            tableBody.innerHTML = '<tr><td colspan="2">Error fetching data</td></tr>';
-            modelImageDiv.innerHTML = '<p>Error loading model details</p>';
-        });
-    }
-
-    // Add event listener with debounce
-    modelInput.addEventListener('input', debounce((e) => {
-        fetchItems(e.target.value);
-    }, 300));
 });
 </script>
  </body>

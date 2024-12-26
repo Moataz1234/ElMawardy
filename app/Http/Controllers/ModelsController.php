@@ -3,6 +3,7 @@
 namespace App\Http\Controllers;
 
 use App\Models\Models;
+use App\Models\GoldItem;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Storage;
 
@@ -152,10 +153,10 @@ class ModelsController extends Controller
         $model = $request->input('model');
 
         // First get the model details including the scanned image
-        $modelDetails = \App\Models\Models::where('model', $model)->first();
+        $modelDetails = Models::where('model', $model)->first();
     
         // Fetch items with the same model, excluding the current shop
-        $items = \App\Models\GoldItem::with('shop')
+        $items = GoldItem::with('shop')
             ->where('model', $model)
             ->whereHas('shop')
             ->get()

@@ -243,7 +243,7 @@ class ShopsController extends Controller
         $model = $request->input('model');
 
         // Fetch items with the same model, excluding the current shop
-        $items = \App\Models\GoldItem::with('shop')
+        $items = GoldItem::with('shop')
             ->where('model', $model)
             ->whereHas('shop') // Ensure the item belongs to a shop
             ->get()

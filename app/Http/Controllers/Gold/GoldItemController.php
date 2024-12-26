@@ -71,7 +71,8 @@ class GoldItemController extends Controller
                     'metal_purity' => $validated['metal_purity'],
                     'quantity' => $validated['quantity'],
                     'weight' => $shopData['weight'],
-                    'talab' => $validated['talab'],                ]);
+                    'talab' => $shopData['talab'] ?? 0, // Handle the talab field
+                ]);
 
             }
             // Redirect with success message
