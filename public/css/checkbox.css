@@ -35,5 +35,5 @@
 
 /* Change the background color when checked */
 .checkboxInput:checked + .toggleSwitch {
-    background-color: rgb(148, 118, 255);
+    background-color: rgb(118, 139, 255);
 }

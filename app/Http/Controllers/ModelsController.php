@@ -165,6 +165,7 @@ class ModelsController extends Controller
                     'serial_number' => $item->serial_number,
                     'shop_name' => $item->shop->name,
                     'weight' => $item->weight,
+                    'gold_color'=>$item->gold_color
                 ];
             });
     

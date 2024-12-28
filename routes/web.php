@@ -10,7 +10,7 @@ use App\Http\Controllers\{
     Gold\GoldPoundController, ShopsController, OrderController,
     Admin\ShopifyProductController, GoldReportController, RabiaController,
     Auth\AsgardeoAuthController, OuterController, GoldCatalogController,
-    ExcelImportController, GoldPriceController, Admin\AdminDashboardController,Admin\WarehouseController,NotificationController
+    ExcelImportController, GoldPriceController, Admin\AdminDashboardController,Admin\WarehouseController,NotificationController,BarcodeController
 };
 
 // Test SMTP Route
@@ -77,7 +77,8 @@ Route::middleware(['auth', 'admin'])->group(function () {
     ]);
 
     Route::get('/gold-items/model-details', [ModelsController::class, 'getModelDetails']);
-
+    Route::get('/barcode', [BarcodeController::class, 'index'])->name('barcode.view');
+    Route::get('/barcode/export', [BarcodeController::class, 'export'])->name('barcode.export');
 
     Route::get('/admin/new-dashboard', [AdminDashboardController::class, 'dashboard'])->name('admin.dashboard');
     Route::get('/admin/inventory', [AdminDashboardController::class, 'index'])->name('admin.inventory');

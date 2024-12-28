@@ -10,6 +10,7 @@
      <link href="{{ asset('css/navbar.css') }}" rel="stylesheet">
      <link href="{{ asset('css/create_form.css') }}" rel="stylesheet">
      {{-- <link href="{{ asset('css/checkbox.css') }}" rel="stylesheet"> --}}
+     {{-- <link href="{{ asset('css/input.css') }}" rel="stylesheet"> --}}
  </head>
  <body>
     <div class="parent">
@@ -125,6 +126,7 @@
                     <th>Shop Name</th>
                     <th>Weight</th>
                     <th>Serial Number</th>
+                    <th>Gold Color</th>
                 </tr>
             </thead>
             <tbody>
@@ -218,6 +220,7 @@
                     <td>${item.shop_name}</td>
                     <td>${item.weight}</td>
                     <td>${item.serial_number}</td>
+                    <td>${item.gold_color}</td>
                 `;
                 tableBody.appendChild(row);
             });
