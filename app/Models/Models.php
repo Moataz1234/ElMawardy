@@ -11,7 +11,7 @@ class Models extends BaseModel
 
     protected $fillable = [
         'model', 'SKU', 'scanned_image', 'website_image', 
-        'category', 'source', 'first_production', 
+        'stars', 'source', 'first_production', 
         'semi_or_no', 'average_of_stones'
     ];
 

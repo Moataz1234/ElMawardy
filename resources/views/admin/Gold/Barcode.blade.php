@@ -2,7 +2,11 @@
 <html>
 <head>
     <title>Barcode View</title>
+
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.1.3/dist/css/bootstrap.min.css" rel="stylesheet">
+    {{-- <link rel="stylesheet" href="{{ asset('CSS/first_page.css') }}"> --}}
+    @include('components.navbar')
+    
     <style>
         .barcode-row {
             page-break-inside: avoid;
@@ -15,26 +19,28 @@
     </style>
 </head>
 <body>
-    <div class="container-fluid">
-        <div class="row mb-3 no-print">
-            <div class="col-md-4">
-                <select class="form-select" id="shop-filter">
-                    <option value="">All Shops</option>
-                    @foreach($shops as $shop)
-                        <option value="{{ $shop->id }}" {{ request('shop_id') == $shop->id ? 'selected' : '' }}>
-                            {{ $shop->name }}
-                        </option>
-                    @endforeach
-                </select>
-            </div>
-            <div class="col-md-4">
-                <form id="exportForm" action="{{ route('barcode.export') }}" method="GET">
-                    <input type="hidden" name="shop_id" id="export-shop-id" value="">
-                    <button type="submit" class="btn btn-success" id="export-excel">Export to Excel</button>
-                </form>
-            </div>
+    <div class="row mb-3 no-print">
+        <div class="col-md-3">
+            <select class="form-select" id="shop-filter">
+                <option value="">All Shops</option>
+                @foreach($shops as $shop)
+                    <option value="{{ $shop->id }}" {{ request('shop_id') == $shop->id ? 'selected' : '' }}>
+                        {{ $shop->name }}
+                    </option>
+                @endforeach
+            </select>
         </div>
-
+        <div class="col-md-3">
+            <input type="date" id="date-filter" class="form-control" value="{{ request('date') }}">
+        </div>
+        <div class="col-md-3">
+            <form id="exportForm" action="{{ route('barcode.export') }}" method="GET">
+                <input type="hidden" name="shop_id" id="export-shop-id" value="">
+                <input type="hidden" name="date" id="export-date" value="">
+                <button type="submit" class="btn btn-success">Export to Excel</button>
+            </form>
+        </div>
+    </div>
         <div id="barcode-content">
             @foreach($goldItems->chunk(2) as $chunk)
                 <div class="row barcode-row mb-4">
@@ -68,17 +74,20 @@
     <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
     <script>
         $(document).ready(function() {
-            // Shop filter functionality
-            $('#shop-filter').change(function() {
-                const shopId = $(this).val();
-                window.location.href = '{{ route("barcode.view") }}?shop_id=' + shopId;
-            });
-
-            // Export to Excel functionality
-            $('#export-excel').click(function(e) {
+            $('#shop-filter, #date-filter').change(function() {
                 const shopId = $('#shop-filter').val();
-                $('#export-shop-id').val(shopId);
-                $('#exportForm').submit();
+                const date = $('#date-filter').val();
+    
+                const queryParams = new URLSearchParams();
+                if (shopId) queryParams.append('shop_id', shopId);
+                if (date) queryParams.append('date', date);
+    
+                window.location.href = '{{ route("barcode.view") }}?' + queryParams.toString();
+            });
+    
+            $('#exportForm').submit(function() {
+                $('#export-shop-id').val($('#shop-filter').val());
+                $('#export-date').val($('#date-filter').val());
             });
         });
     </script>
