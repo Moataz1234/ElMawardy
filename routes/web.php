@@ -1,20 +1,35 @@
 <?php
+
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Route;
 use App\Http\Controllers\TestController;
 use App\Http\Controllers\HelloController;
 use App\Http\Controllers\ModelsController;
 use App\Http\Controllers\{
-    HomeController, ProfileController, NewItemController,
-    Gold\GoldItemController, Gold\GoldItemSoldController,
-    Gold\GoldPoundController, ShopsController, OrderController,
-    Admin\ShopifyProductController, GoldReportController, RabiaController,
-    Auth\AsgardeoAuthController, OuterController, GoldCatalogController,
-    ExcelImportController, GoldPriceController, Admin\AdminDashboardController,Admin\WarehouseController,NotificationController,BarcodeController
+    HomeController,
+    ProfileController,
+    NewItemController,
+    Gold\GoldItemController,
+    Gold\GoldItemSoldController,
+    Gold\GoldPoundController,
+    ShopsController,
+    OrderController,
+    Admin\ShopifyProductController,
+    GoldReportController,
+    RabiaController,
+    Auth\AsgardeoAuthController,
+    OuterController,
+    GoldCatalogController,
+    ExcelImportController,
+    GoldPriceController,
+    Admin\AdminDashboardController,
+    Admin\WarehouseController,
+    NotificationController,
+    BarcodeController
 };
 
 // Test SMTP Route
-Route::get('/test-smtp', function() {
+Route::get('/test-smtp', function () {
     try {
         $transport = new \Symfony\Component\Mailer\Transport\Smtp\EsmtpTransport(
             'smtp.bizmail.yahoo.com',
@@ -53,20 +68,21 @@ Route::middleware('auth')->group(function () {
 });
 Route::get('/gold-items', action: [GoldItemController::class, 'index'])->name('gold-items.index');
 Route::get('/update_prices', [AdminDashboardController::class, 'UPDATE_PRICES'])->name('admin.dashboard');
-Route::get('/gold-items/create', [GoldItemController::class, 'create'])->name('gold-items.create');
-Route::post('/gold-items/store', [GoldItemController::class, 'store'])->name('gold-items.store');
-Route::get('/gold-items/{id}/edit', [GoldItemController::class, 'edit'])->name('gold-items.edit');
-Route::put('/gold-items/{id}', [AdminDashboardController::class, 'update'])->name('gold-items.update');
-Route::put('/gold-items-sold/{id}', [GoldItemSoldController::class, 'update'])->name('gold-items-sold.update');
+
 // Route::post('/admin/inventory/bulk-action', [AdminDashboardController::class, 'bulkAction'])->name('bulk-action');
 
 // Admin Routes
 Route::middleware(['auth', 'admin'])->group(function () {
+    Route::get('/gold-items/create', [GoldItemController::class, 'create'])->name('gold-items.create');
+    Route::post('/gold-items/store', [GoldItemController::class, 'store'])->name('gold-items.store');
+    Route::get('/gold-items/{id}/edit', [GoldItemController::class, 'edit'])->name('gold-items.edit');
+    Route::put('/gold-items/{id}', [AdminDashboardController::class, 'update'])->name('gold-items.update');
+    Route::put('/gold-items-sold/{id}', [GoldItemSoldController::class, 'update'])->name('gold-items-sold.update');
     Route::get('/warehouse', [WarehouseController::class, 'index'])->name('admin.warehouse.index');
     Route::post('/warehouse', [WarehouseController::class, 'store'])->name('admin.warehouse.store');
     Route::post('/warehouse/{id}/assign', [WarehouseController::class, 'assignToShop'])
         ->name('admin.warehouse.assign');
-   
+
     Route::resource('models', ModelsController::class)->names([
         'index' => 'models.index',
         'create' => 'models.create',
@@ -86,7 +102,7 @@ Route::middleware(['auth', 'admin'])->group(function () {
     // Route::put('/admin/inventory/{id}', [AdminDashboardController::class, 'update'])->name('gold-items.update');
     Route::post('/admin/inventory/bulk-action', [AdminDashboardController::class, 'bulkAction'])->name('bulk-action');
     Route::get('/deleted-items-history', [AdminDashboardController::class, 'deletedItems'])
-    ->name('deleted-items.history');
+        ->name('deleted-items.history');
 
     Route::get('/notifications', [NotificationController::class, 'index'])->name('notifications.index');
     Route::post('/notifications/{id}/mark-as-read', [NotificationController::class, 'markAsRead'])
@@ -105,7 +121,7 @@ Route::middleware(['auth', 'admin'])->group(function () {
     Route::get('/shopify-products/orders', [ShopifyProductController::class, 'Order_index'])->name('orders_shopify');
     Route::post('/shopify/orders/{id}/fulfill', [ShopifyProductController::class, 'fulfillOrder'])->name('fulfill_order');
     Route::post('/shopify/orders/{id}/paid', [ShopifyProductController::class, 'markAsPaid'])->name('mark_as_paid');
-    Route::get('/orders/{orderId}/pdf', [ShopifyProductController::class,'generatePDF'])->name('order.pdf');
+    Route::get('/orders/{orderId}/pdf', [ShopifyProductController::class, 'generatePDF'])->name('order.pdf');
     Route::get('/shopify-products/abandoned-checkouts', [ShopifyProductController::class, 'AbandonedCheckouts_index'])->name('abandoned_checkouts_shopify');
     Route::get('/shopify-products/edit/{product_id}', [ShopifyProductController::class, 'showEditImageForm'])->name('shopify.products.showEditImageForm');
     Route::post('/shopify-products/edit/{product_id}', [ShopifyProductController::class, 'editProduct'])->name('shopify.products.editProduct');
@@ -115,9 +131,9 @@ Route::middleware(['auth', 'admin'])->group(function () {
 // Shop Routes
 Route::middleware(['auth', 'user'])->group(function () {
     Route::get('/shop/requests', [ShopsController::class, 'showAdminRequests'])
-    ->name('shop.requests.index');
-Route::patch('/shop/requests/{itemRequest}', [ShopsController::class, 'updateAdminRequests'])
-    ->name('shop.requests.update');
+        ->name('shop.requests.index');
+    Route::patch('/shop/requests/{itemRequest}', [ShopsController::class, 'updateAdminRequests'])
+        ->name('shop.requests.update');
 
     Route::get('/gold-items/same-model', [ShopsController::class, 'getItemsByModel']);
 
@@ -160,6 +176,11 @@ Route::middleware(['auth', 'rabea'])->group(function () {
     Route::get('/orders/toPrint', [RabiaController::class, 'toPrint'])->name('orders.rabea.to_print');
     Route::get('/orders/completed', [RabiaController::class, 'completed'])->name('orders.completed');
 });
+Route::get('/gold-items/create', [GoldItemController::class, 'create'])->name('gold-items.create');
+Route::post('/gold-items/store', [GoldItemController::class, 'store'])->name('gold-items.store');
+Route::get('/gold-items/{id}/edit', [GoldItemController::class, 'edit'])->name('gold-items.edit');
+Route::put('/gold-items/{id}', [AdminDashboardController::class, 'update'])->name('gold-items.update');
+Route::put('/gold-items-sold/{id}', [GoldItemSoldController::class, 'update'])->name('gold-items-sold.update');
 Route::get('/orders/rabea/{id}/edit', [RabiaController::class, 'edit'])->name('orders.rabea.edit');
 Route::put('/orders/rabea/{id}', [RabiaController::class, 'update'])->name('orders.update');
 
@@ -169,4 +190,4 @@ Route::middleware('auth')->group(function () {
     Route::get('/gold-pounds', [GoldPoundController::class, 'index'])->name('gold-pounds.index');
 });
 
-require __DIR__.'/auth.php';
+require __DIR__ . '/auth.php';

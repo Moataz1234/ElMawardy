@@ -9,6 +9,7 @@ use PhpOffice\PhpSpreadsheet\Spreadsheet;
 use PhpOffice\PhpSpreadsheet\Writer\Xlsx;
 use Illuminate\Support\Str;
 use Illuminate\Support\Facades\Log;
+use Carbon\Carbon;
 
 class BarcodeController extends Controller
 {
@@ -26,7 +27,11 @@ class BarcodeController extends Controller
             $query->whereDate('created_at', $request->date);
         } elseif ($request->filled('start_date') && $request->filled('end_date')) {
             $query->whereBetween('created_at', [$request->start_date, $request->end_date]);
+        } else {
+            // Default to today's date if no other filters are applied
+            $query->whereDate('created_at', Carbon::today());
         }
+    
     
         $goldItems = $query->get();
         $shops = Shop::all();
@@ -41,23 +46,28 @@ class BarcodeController extends Controller
         $sheet = $spreadsheet->getActiveSheet();
     
         // Set headers for two items side by side (8 columns total)
+        
         $headers = [
             'A1' => 'Serial Number',
             'B1' => 'Shop',
             'C1' => 'Model',
             'D1' => 'Weight',
-            'E1' => 'Serial Number',
-            'F1' => 'Shop',
-            'G1' => 'Model',
-            'H1' => 'Weight',
+            'E1' => 'Source', // New header
+            'F1' => 'Stars',  // New header
+            'G1' => 'Serial Number',
+            'H1' => 'Shop',
+            'I1' => 'Model',
+            'J1' => 'Weight',
+            'K1' => 'Source', // New header
+            'L1' => 'Stars',  // New header
         ];
-    
+        
         foreach ($headers as $cell => $value) {
             $sheet->setCellValue($cell, $value);
         }
     
         // Style the header row
-        $sheet->getStyle('A1:H1')->getFont()->setBold(true);
+        $sheet->getStyle('A1:L1')->getFont()->setBold(true);
     
         // Get data filtered by shop and date
         $query = GoldItem::query();
@@ -75,37 +85,54 @@ class BarcodeController extends Controller
     
         $goldItems = $query->get();
     
-        // Add data rows - two items per row
-        $row = 2; // Start from the second row (first is for headers)
-        $columnOffset = 0; // Keeps track of columns (0 for A-D, 4 for E-H)
-        foreach ($goldItems as $index => $item) {
-            if ($index % 2 == 0) {
-                // Start a new row after every two items
-                $columnOffset = 0;
-            } else {
-                // Offset for the second item in the same row
-                $columnOffset = 4;
-            }
+// Add data rows - two different items per row
+$row = 2; // Start from the second row (first is for headers)
+for ($i = 0; $i < count($goldItems); $i += 2) {
+    // First item in the row
+    $item1 = $goldItems[$i];
     
-            $sheet->setCellValue('A' . $row, $item->serial_number);
-            $sheet->setCellValue('B' . $row, $item->shop_name ?? 'Admin');
-            $sheet->setCellValue('C' . $row, $item->model);
-            $sheet->setCellValue('D' . $row, $item->weight);
-            
-            // For the second item in the same row:
-            $sheet->setCellValue('E' . $row, $item->serial_number);
-            $sheet->setCellValue('F' . $row, $item->shop_name ?? 'Admin');
-            $sheet->setCellValue('G' . $row, $item->model);
-            $sheet->setCellValue('H' . $row, $item->weight);
+    // Set values for the first item
+    $sheet->setCellValue('A' . $row, $item1->serial_number);
+    $sheet->setCellValue('B' . $row, $item1->shop_name ?? 'Admin');
+    $sheet->setCellValue('C' . $row, $item1->model);
+    $sheet->setCellValue('D' . $row, $item1->weight);
     
-            if ($index % 2 == 1) {
-                // Increment row only after two items
-                $row++;
-            }
-        }
-    
+    // New fields for first item
+    $sheet->setCellValue('E' . $row, optional($item1->modelCategory)->source);
+    $sheet->setCellValue('F' . $row, optional($item1->modelCategory)->stars);
+
+    // Check if there is a second item to add in this row
+    if (isset($goldItems[$i + 1])) {
+        $item2 = $goldItems[$i + 1];
+
+        // Set values for the second item
+        $sheet->setCellValue('G' . $row, $item2->serial_number);
+        $sheet->setCellValue('H' . $row, $item2->shop_name ?? 'Admin');
+        $sheet->setCellValue('I' . $row, $item2->model);
+        $sheet->setCellValue('J' . $row, $item2->weight);
+        
+        // New fields for second item
+        $sheet->setCellValue('K' . $row, optional($item2->modelCategory)->source);
+        $sheet->setCellValue('L' . $row, optional($item2->modelCategory)->stars);
+    } else {
+        // If no second item exists, leave cells empty or handle as needed
+        $sheet->setCellValue('G' . $row, '');
+        $sheet->setCellValue('H' . $row, '');
+        $sheet->setCellValue('I' . $row, '');
+        $sheet->setCellValue('J' . $row, '');
+        // New fields for second item remain empty as well
+        $sheet->setCellValue('K' . $row, '');
+        $sheet->setCellValue('L' . $row, '');
+    }
+
+    // Move to the next row after processing two items
+    if ($i % 2 == 0) {
+        // Increment row only after processing two items
+        $row++;
+    }
+}
         // Auto-size columns
-        foreach (range('A', 'H') as $col) {
+        foreach (range('A', 'L') as $col) {
             $sheet->getColumnDimension($col)->setAutoSize(true);
         }
     

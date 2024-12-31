@@ -32,7 +32,7 @@
                 {{-- <th>Category</th>
                 <th>Sold Price</th> --}}
                 <th>Sold Date</th>
-                <th>Actions</th>
+                {{-- <th>Actions</th> --}}
             </tr>
         </thead>
         <tbody id="table-body">   
@@ -58,13 +58,12 @@
                     {{-- <td>{{ $item->modelCategory->category ?? 'No Category' }}</td> --}}
                     {{-- <td>{{ $item->price }}</td> --}}
                     <td>{{ $item->sold_date }}</td>
-                    <td>
-                        {{-- <a href="{{ route('gold-items-sold.edit', $item->id) }}" class="btn btn-primary">Edit</a> --}}
+                    {{-- <td>
                         <form action="{{ route('gold-items-sold.markAsRest', $item->id) }}" method="POST" style="display:inline;">
                             @csrf
                             <button type="submit" class="btn btn-warning">Return to Stock</button>
                         </form>
-                    </td>
+                    </td> --}}
                 </tr>
             @endforeach
         </tbody>

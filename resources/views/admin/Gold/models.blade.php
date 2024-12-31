@@ -33,7 +33,7 @@
                 <td>{{ $model->SKU }}</td>
                 <td>
                     @if($model->scanned_image)
-                        <img src="{{ asset('/' . $model->scanned_image) }}" alt="Scanned Image" style="max-width: 100px; max-height: 100px;">
+                        <img src="{{ asset('storage/' . $model->scanned_image) }}" alt="Scanned Image" style="max-width: 100px; max-height: 100px;">
                     @endif
                 </td>
                  <td>

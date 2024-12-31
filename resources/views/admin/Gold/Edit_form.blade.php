@@ -7,6 +7,7 @@
     <title>Edit Gold Item</title>
     <link href="{{ asset('css/app.css') }}" rel="stylesheet">
     <link href="{{ url('css/style.css') }}" rel="stylesheet">
+    <link href="{{ url('css/form.css') }}" rel="stylesheet">
 
 </head>
 <body>
@@ -17,7 +18,7 @@
 
             
             <label for="serial_number">Serial Number:</label>
-            <input type="text" name="serial_number" id="serial_number" value="{{ $goldItem->serial_number }}"  ><br>
+            <input type="text" name="serial_number" id="serial_number" value="{{ $goldItem->serial_number }}"  readonly><br>
 
             <label for="shop_name">Shop Name:</label>
             <input type="text" name="shop_name" id="shop_name" value="{{ $goldItem->shop_name }}"  ><br>
@@ -26,7 +27,7 @@
             <input type="number" name="shop_id" id="shop_id" value="{{ $goldItem->shop_id }}"  ><br>
 
             <label for="kind">Kind:</label>
-            <input type="text" name="kind" id="kind" value="{{ $goldItem->kind }}"  ><br>
+            <input type="text" name="kind" id="kind" value="{{ $goldItem->kind }}" readonly ><br>
 
             <label for="model">Model:</label>
             <input type="text" name="model" id="model" value="{{ $goldItem->model }}"  ><br>

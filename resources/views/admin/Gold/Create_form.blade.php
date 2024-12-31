@@ -194,7 +194,7 @@
 
             if (data.modelDetails && data.modelDetails.scanned_image) {
                 const imageElement = document.createElement('img');
-                imageElement.src = `/${data.modelDetails.scanned_image}`;
+                imageElement.src = `/storage/${data.modelDetails.scanned_image}`;
                 imageElement.alt = `Model ${data.modelDetails.model}`;
                 imageElement.className = 'model-scanned-image';
                 

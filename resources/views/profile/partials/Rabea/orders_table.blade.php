@@ -1,4 +1,6 @@
 {{-- <div class="spreadsheet"> --}}
+    @include('profile.partials.Rabea.navigation')
+   
     <table class="table">
         <thead>
             <tr>

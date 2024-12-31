@@ -35,7 +35,7 @@ class ModelsController extends Controller
     {
         $validatedData = $request->validate([
             'model' => 'required|string|max:255|unique:models,model',
-            'category' => 'string|max:255|nullable',
+            'stars' => 'string|max:255|nullable',
             'source' => 'string|max:255|nullable',
             'first_production' => 'date|nullable',
             'semi_or_no' => 'string|max:255|nullable',
@@ -85,7 +85,7 @@ class ModelsController extends Controller
     {
         $validatedData = $request->validate([
             'model' => 'required|string|max:255|unique:models,model,' . $model->id,
-            'category' => 'string|max:255|nullable',
+            'stars' => 'string|max:255|nullable',
             'source' => 'string|max:255|nullable',
             // 'first_production' => 'date|nullable',
             // 'semi_or_no' => 'string|max:255|nullable',
@@ -111,10 +111,9 @@ class ModelsController extends Controller
 
         // Handle scanned image upload
         if ($request->hasFile('scanned_image')) {
-            // Delete old image if exists
-            if ($model->scanned_image) {
-                Storage::disk('public')->delete($model->scanned_image);
-            }
+            // if ($model->scanned_image) {
+            //     Storage::disk('public')->delete($model->scanned_image);
+            // }
             $scannedImagePath = $request->file('scanned_image')->store('models/scanned', 'public');
             $validatedData['scanned_image'] = $scannedImagePath;
         }
@@ -122,9 +121,10 @@ class ModelsController extends Controller
         // Handle website image upload
         if ($request->hasFile('website_image')) {
             // Delete old image if exists
-            if ($model->website_image) {
-                Storage::disk('public')->delete($model->website_image);
-            }
+            
+            // if ($model->website_image) {
+            //     Storage::disk('public')->delete($model->website_image);
+            // }
             $websiteImagePath = $request->file('website_image')->store('models/website', 'public');
             $validatedData['website_image'] = $websiteImagePath;
         }

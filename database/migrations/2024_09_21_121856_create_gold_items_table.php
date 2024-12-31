@@ -17,7 +17,7 @@ return new class extends Migration
             $table->string('SKU')->unique();
             $table->string('scanned_image')->nullable();
             $table->string('website_image')->nullable();
-            $table->string('category')->nullable();
+            $table->string('stars')->nullable();
             $table->string('source')->nullable();
             $table->string('first_production')->nullable();
             $table->string('semi_or_no')->nullable();

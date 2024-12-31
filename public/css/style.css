@@ -7,7 +7,7 @@ h2 {
 .new-item-body {
     background-color: #a38080;
     /* Background color for the entire form */
-    font-family: Arial, sans-serif;
+    /* font-family: Arial, sans-serif; */
     color: white;
 }
 
@@ -149,20 +149,9 @@ th {
     color: #333;
 }
 
-
-/* tbody tr:nth-child(even) {
-    background-color: #f9f9f9;
-} */
-
 tbody tr {
     background-color: #fff;
 }
-
-
-/* 
-tbody tr:hover {
-    background-color: #f1f1f1;
-} */
 
 td {
     color: #555;

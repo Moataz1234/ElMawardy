@@ -13,20 +13,14 @@
 <link href="{{ asset('css/app.css') }}" rel="stylesheet">
 {{-- <link href="{{ asset('css/pagination.css') }}" rel="stylesheet"> --}}
 {{-- <link href="{{ asset('css/first_page.css') }}" rel="stylesheet"> --}}
-<link href="{{ asset('css/order-details.css') }}" rel="stylesheet">
 <link href="{{ asset('css/navbar.css') }}" rel="stylesheet">
+
+<link href="{{ asset('css/order-details.css') }}" rel="stylesheet">
 <link href="{{ asset('css/style.css') }}" rel="stylesheet">
+<link href="{{ asset('css/form.css') }}" rel="stylesheet">
 
 
 <style>
-    /* Additional Styling for Layout */
-    *{
-        margin: 0;
-        padding: 0;
-    }
-    body {
-        font-family: Arial, sans-serif;
-    }
 
     .custom-form {
         /* background-color: #504db4; */

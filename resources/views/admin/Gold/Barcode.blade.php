@@ -6,6 +6,7 @@
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.1.3/dist/css/bootstrap.min.css" rel="stylesheet">
     {{-- <link rel="stylesheet" href="{{ asset('CSS/first_page.css') }}"> --}}
     @include('components.navbar')
+    {{-- <link rel="stylesheet" href="{{ asset('CSS/navbar.css') }}"> --}}
     
     <style>
         .barcode-row {
@@ -41,35 +42,44 @@
             </form>
         </div>
     </div>
-        <div id="barcode-content">
-            @foreach($goldItems->chunk(2) as $chunk)
-                <div class="row barcode-row mb-4">
-                    @foreach($chunk as $item)
-                        <div class="col-6">
-                            <table class="table table-bordered">
-                                <tr>
-                                    <th>Serial Number</th>
-                                    <td>{{ $item->serial_number }}</td>
-                                </tr>
-                                <tr>
-                                    <th>Shop</th>
-                                    <td>{{ $item->shop_name ?? 'Admin' }}</td>
-                                </tr>
-                                <tr>
-                                    <th>Model</th>
-                                    <td>{{ $item->model }}</td>
-                                </tr>
-                                <tr>
-                                    <th>Weight</th>
-                                    <td>{{ $item->weight }}</td>
-                                </tr>
-                            </table>
-                        </div>
-                    @endforeach
-                </div>
-            @endforeach
-        </div>
+    <div id="barcode-content">
+        @foreach($goldItems->chunk(2) as $chunk)
+            <div class="row barcode-row mb-4">
+                @foreach($chunk as $item)
+                    <div class="col-6">
+                        <table class="table table-bordered">
+                            <tr>
+                                <th>Serial Number</th>
+                                <td>{{ $item->serial_number }}</td>
+                            </tr>
+                            <tr>
+                                <th>Shop_ID</th>
+                                <td>{{ $item->shop_id ?? 'Admin' }}</td>
+                            </tr>
+                            <tr>
+                                <th>Model</th>
+                                <td>{{ $item->model }}</td>
+                            </tr>
+                            <tr>
+                                <th>Weight</th>
+                                <td>{{ $item->weight }}</td>
+                            </tr>
+                            <!-- New fields for source and stars -->
+                            <tr>
+                                <th>Source</th>
+                                <td>{{ optional($item->modelCategory)->source }}</td> <!-- Assuming modelCategory returns a Models instance -->
+                            </tr>
+                            <tr>
+                                <th>Stars</th>
+                                <td>{{ optional($item->modelCategory)->stars }}</td> <!-- Assuming modelCategory returns a Models instance -->
+                            </tr>
+                        </table>
+                    </div>
+                @endforeach
+            </div>
+        @endforeach
     </div>
+    
 
     <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
     <script>

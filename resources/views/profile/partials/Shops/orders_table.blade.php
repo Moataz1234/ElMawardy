@@ -38,28 +38,4 @@
     </table>
 </div>
     </div>
-    <script src="Scripts/Scripts.js"></script>
-    <script>
-       function changeBulkStatus(status) {
-    const checkboxes = document.querySelectorAll('input[type="checkbox"]:checked');
-    if (checkboxes.length === 0) {
-        alert('Please select at least one order to change its status.');
-        return;
-    }
-
-    // Collect all selected order IDs
-    const orderIds = Array.from(checkboxes).map(checkbox => {
-        return checkbox.closest('tr').dataset.orderId;
-    });
-
-    // Update the hidden form inputs
-    document.getElementById('bulk-status-input').value = status;
-    document.getElementById('selected-orders-input').value = JSON.stringify(orderIds);
-
-                // Change background color of the status cell based on selected status
-                
-    // Submit the form
-    document.getElementById('bulk-status-form').submit();
-
-}    
-</script>
+    
