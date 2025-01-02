@@ -74,6 +74,9 @@ Route::get('/update_prices', [AdminDashboardController::class, 'UPDATE_PRICES'])
 // Admin Routes
 Route::middleware(['auth', 'admin'])->group(function () {
     Route::get('/gold-items/create', [GoldItemController::class, 'create'])->name('gold-items.create');
+    Route::get('/models/check-exists/{model}', [GoldItemController::class, 'checkExists']);
+
+
     Route::post('/gold-items/store', [GoldItemController::class, 'store'])->name('gold-items.store');
     Route::get('/gold-items/{id}/edit', [GoldItemController::class, 'edit'])->name('gold-items.edit');
     Route::put('/gold-items/{id}', [AdminDashboardController::class, 'update'])->name('gold-items.update');

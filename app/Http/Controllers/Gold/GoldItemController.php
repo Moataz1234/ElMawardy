@@ -1,4 +1,5 @@
 <?php
+
 namespace App\Http\Controllers\Gold;
 
 use App\Http\Controllers\Controller;
@@ -30,21 +31,20 @@ class GoldItemController extends Controller
             'direction' => $request->input('direction', 'asc')
         ]);
     }
-    
+
     public function create()
     {
-    
-            $shops = Shop::all();
-            $models = Models::select('model')->distinct()->get(); // Fetch unique models
-            $goldColors = GoldItem::select('gold_color')->distinct()->pluck('gold_color');
-            $metalTypes = GoldItem::select('metal_type')->distinct()->pluck('metal_type');
-            $metalPurities = GoldItem::select('metal_purity')->distinct()->pluck('metal_purity');
-            $kinds = GoldItem::select('kind')->distinct()->pluck('kind');
-        
-          
 
-            return view('admin.Gold.Create_form', compact('shops', 'models', 'goldColors', 'metalTypes', 'metalPurities', 'kinds'));
-        
+        $shops = Shop::all();
+        $models = Models::select('model')->distinct()->get(); // Fetch unique models
+        $goldColors = GoldItem::select('gold_color')->distinct()->pluck('gold_color');
+        $metalTypes = GoldItem::select('metal_type')->distinct()->pluck('metal_type');
+        $metalPurities = GoldItem::select('metal_purity')->distinct()->pluck('metal_purity');
+        $kinds = GoldItem::select('kind')->distinct()->pluck('kind');
+
+
+
+        return view('admin.Gold.Create_form', compact('shops', 'models', 'goldColors', 'metalTypes', 'metalPurities', 'kinds'));
     }
 
     public function store(GoldItemRequest $request)
@@ -53,12 +53,19 @@ class GoldItemController extends Controller
             // Validate the request data
             $validated = $request->validated();
 
+            // Check if the model exists
+            $modelExists = Models::where('model', $validated['model'])->exists();
+            if (!$modelExists) {
+                return view('admin.Gold.create_model');
+
+            }
+
             // Loop through the dynamic shop data
             foreach ($request->shops as $shopData) {
                 // Fetch the last item to calculate the next serial number
                 $lastItem = GoldItem::orderByRaw('CAST(SUBSTRING(serial_number, 3) AS UNSIGNED) DESC')->first();
                 $nextSerialNumber = $this->goldItemService->generateNextSerialNumber($lastItem);
-    
+
                 // Create a new gold item record for each shop
                 GoldItem::create([
                     'serial_number' => $nextSerialNumber,
@@ -71,16 +78,16 @@ class GoldItemController extends Controller
                     'metal_purity' => $validated['metal_purity'],
                     'quantity' => $validated['quantity'],
                     'weight' => $shopData['weight'],
-                    'talab' => $shopData['talab'] ?? 0, // Handle the talab field
+                    'talab' => $shopData['talab'] ?? 0,
                 ]);
-
             }
+
             // Redirect with success message
             return redirect()->route('gold-items.create')->with('success', 'Gold items added successfully.');
         } catch (\Exception $e) {
             // Log the error and redirect back with an error message
             Log::error('Error in Store Method', ['error' => $e->getMessage()]);
-            return redirect()->back()->withInput()->with('error', 'An error occurred while adding the gold items.');
+            return response()->json(['error' => 'An error occurred while adding the gold items.'], 500);
         }
     }
     public function edit(string $id)
@@ -120,6 +127,10 @@ class GoldItemController extends Controller
 
     // return redirect()->route('gold-items.index')->with('success', 'Gold item updated successfully.');
     // }
-
+    public function checkExists($model)
+    {
+        $exists = Models::where('model', $model)->exists();
+        return response()->json(['exists' => $exists]);
+    }
 
 }

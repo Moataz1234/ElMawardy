@@ -73,7 +73,7 @@ class ModelsController extends Controller
 
         Models::create($validatedData);
 
-        return redirect()->route('models.index')->with('success', 'Model added successfully.');
+        return redirect()->route('gold-items.create')->with('success', 'Model added successfully.');
     }
 
     public function edit(Models $model)

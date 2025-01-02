@@ -13,6 +13,11 @@
      {{-- <link href="{{ asset('css/input.css') }}" rel="stylesheet"> --}}
  </head>
  <body>
+    @if(session('error'))
+    <div class="alert alert-danger">
+        {{ session('error') }}
+    </div>
+    @endif
     <div class="parent">
     <form class="create-form" action="{{ route('gold-items.store') }}" method="POST" enctype="multipart/form-data">
         @csrf
