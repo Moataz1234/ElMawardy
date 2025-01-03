@@ -115,7 +115,7 @@
                             </td>
                             <td>
                                 @if($item->modelCategory && $item->modelCategory->scanned_image)
-                                    <img src="{{ asset($item->modelCategory->scanned_image) }}" alt="Scanned Image" width="50">
+                                    <img src="{{ asset('storage/'.$item->modelCategory->scanned_image) }}" alt="Scanned Image" width="50">
                                 @else
                                     No Image
                                 @endif
