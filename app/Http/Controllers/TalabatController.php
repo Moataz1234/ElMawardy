@@ -41,32 +41,32 @@ class TalabatController extends Controller
             'semi_or_no' => 'string|max:255|nullable',
             'average_of_stones' => 'numeric|nullable',
             'scanned_image' => 'image|mimes:jpeg,png,jpg,gif|max:2048|nullable',
-            'website_image' => 'image|mimes:jpeg,png,jpg,gif|max:2048|nullable',
+            // 'website_image' => 'image|mimes:jpeg,png,jpg,gif|max:2048|nullable',
         ]);
 
         // Generate SKU from model number
         preg_match('/^(\d+)-(\d+)(?:-(\w+))?$/', $request->model, $matches);
 
-        if (count($matches) >= 3) {
-            $prefix = $matches[1];
-            $mainPart = $matches[2];
-            $suffix = $matches[3] ?? '';
-            $sku = 'G' . $prefix . $mainPart . $suffix;
-        } else {
-            $sku = 'G' . str_pad(substr($request->model, -4), 4, '0', STR_PAD_LEFT);
-        }
+        // if (count($matches) >= 3) {
+        //     $prefix = $matches[1];
+        //     $mainPart = $matches[2];
+        //     $suffix = $matches[3] ?? '';
+        //     $sku = 'G' . $prefix . $mainPart . $suffix;
+        // } else {
+        //     $sku = 'G' . str_pad(substr($request->model, -4), 4, '0', STR_PAD_LEFT);
+        // }
 
-        $validatedData['SKU'] = $sku;
+        // $validatedData['SKU'] = $sku;
 
         if ($request->hasFile('scanned_image')) {
             $scannedImagePath = $request->file('scanned_image')->store('Gold_catalog', 'public');
             $validatedData['scanned_image'] = $scannedImagePath;
         }
 
-        if ($request->hasFile('website_image')) {
-            $websiteImagePath = $request->file('website_image')->store('talabat/website', 'public');
-            $validatedData['website_image'] = $websiteImagePath;
-        }
+        // if ($request->hasFile('website_image')) {
+        //     $websiteImagePath = $request->file('website_image')->store('talabat/website', 'public');
+        //     $validatedData['website_image'] = $websiteImagePath;
+        // }
 
         Talabat::create($validatedData);
 
@@ -85,31 +85,31 @@ class TalabatController extends Controller
             'stars' => 'string|max:255|nullable',
             'source' => 'string|max:255|nullable',
             'scanned_image' => 'image|mimes:jpeg,png,jpg,gif|max:2048|nullable',
-            'website_image' => 'image|mimes:jpeg,png,jpg,gif|max:2048|nullable',
+            // 'website_image' => 'image|mimes:jpeg,png,jpg,gif|max:2048|nullable',
         ]);
 
-        preg_match('/^(\d+)-(\d+)(?:-(\w+))?$/', $request->model, $matches);
+        // preg_match('/^(\d+)-(\d+)(?:-(\w+))?$/', $request->model, $matches);
 
-        if (count($matches) >= 3) {
-            $prefix = $matches[1];
-            $mainPart = $matches[2];
-            $suffix = $matches[3] ?? '';
-            $sku = 'G' . $prefix . $mainPart . $suffix;
-        } else {
-            $sku = 'G' . str_pad(substr($request->model, -4), 4, '0', STR_PAD_LEFT);
-        }
+        // if (count($matches) >= 3) {
+        //     $prefix = $matches[1];
+        //     $mainPart = $matches[2];
+        //     $suffix = $matches[3] ?? '';
+        //     $sku = 'G' . $prefix . $mainPart . $suffix;
+        // } else {
+        //     $sku = 'G' . str_pad(substr($request->model, -4), 4, '0', STR_PAD_LEFT);
+        // }
     
-        $validatedData['SKU'] = $sku;
+        // $validatedData['SKU'] = $sku;
     
         if ($request->hasFile('scanned_image')) {
             $scannedImagePath = $request->file('scanned_image')->store('talabat/scanned', 'public');
             $validatedData['scanned_image'] = $scannedImagePath;
         }
 
-        if ($request->hasFile('website_image')) {
-            $websiteImagePath = $request->file('website_image')->store('talabat/website', 'public');
-            $validatedData['website_image'] = $websiteImagePath;
-        }
+        // if ($request->hasFile('website_image')) {
+        //     $websiteImagePath = $request->file('website_image')->store('talabat/website', 'public');
+        //     $validatedData['website_image'] = $websiteImagePath;
+        // }
 
         $talabat->update($validatedData);
 
@@ -121,9 +121,9 @@ class TalabatController extends Controller
         if ($talabat->scanned_image) {
             Storage::disk('public')->delete($talabat->scanned_image);
         }
-        if ($talabat->website_image) {
-            Storage::disk('public')->delete($talabat->website_image);
-        }
+        // if ($talabat->website_image) {
+        //     Storage::disk('public')->delete($talabat->website_image);
+        // }
 
         $talabat->delete();
 
