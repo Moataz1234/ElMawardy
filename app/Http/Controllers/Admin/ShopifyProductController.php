@@ -232,7 +232,7 @@ public function Order_index(Request $request)
         } else {
             $orders = $orders->sortByDesc($sortBy); // Descending order
         }
-        $perPage = 15; // Define how many orders you want per page
+        $perPage = 25; // Define how many orders you want per page
         $currentPage = Paginator::resolveCurrentPage();
         $currentPageItems = $orders->slice(($currentPage - 1) * $perPage, $perPage)->values();
         

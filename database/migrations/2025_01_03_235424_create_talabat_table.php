@@ -1,3 +1,5 @@
+
+
 <?php
 
 use Illuminate\Database\Migrations\Migration;
@@ -9,24 +11,26 @@ return new class extends Migration
     /**
      * Run the migrations.
      */
-    public function up(): void
+    public function up()
     {
-        Schema::create('talabat', function (Blueprint $table) {
+        Schema::create('gold_prices', function (Blueprint $table) {
             $table->id();
-            $table->string('model')->unique();
-            $table->string('scanned_image')->nullable();
-            $table->string('stars')->nullable();
-            $table->string('source')->nullable();
-            $table->string('semi_or_no')->nullable();
-            $table->decimal('average_of_stones', 10, 2)->nullable();
+            $table->decimal('gold_buy', 10, 2)->nullable();
+            $table->decimal('gold_sell', 10, 2)->nullable();
+            $table->float('percent')->nullable();
+            $table->decimal('dollar_price', 10, 2)->nullable();
+            $table->decimal('gold_with_work', 10, 2)->nullable();
+            $table->decimal('gold_in_diamond', 10, 2)->nullable();
+            $table->decimal('shoghl_agnaby', 10, 2)->nullable();
             $table->timestamps();
         });
     }
+
     /**
      * Reverse the migrations.
      */
     public function down(): void
     {
-        Schema::dropIfExists('talabat');
+        Schema::dropIfExists('gold_prices');
     }
 };

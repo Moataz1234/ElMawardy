@@ -4,49 +4,29 @@ use Illuminate\Database\Migrations\Migration;
 use Illuminate\Database\Schema\Blueprint;
 use Illuminate\Support\Facades\Schema;
 
-class CreateShopsTable extends Migration
+return new class extends Migration
 {
-    public function up()
+    /**
+     * Run the migrations.
+     */
+    public function up(): void
     {
-        Schema::create('gold_items', function (Blueprint $table) {
+        Schema::create('talabat', function (Blueprint $table) {
             $table->id();
-            $table->string('model');
-            $table->string('serial_number')->unique();
-            $table->string('kind')->nullable();
-            $table->string('shop_name')->nullable();
-            $table->string('shop_id')->nullable();
-            $table->decimal('weight', 10, 2)->nullable();
-            $table->string('gold_color')->nullable();
-            $table->string('metal_type')->nullable();
-            $table->string('metal_purity')->nullable();
-            $table->integer('quantity')->default(1);
-            $table->string('stones')->nullable();
-            $table->boolean('talab')->nullable();
-            $table->string('status')->default('available');
-            $table->date('rest_since')->nullable();
+            $table->string('model')->unique();
+            $table->string('scanned_image')->nullable();
+            $table->string('stars')->nullable();
+            $table->string('source')->nullable();
+            $table->string('semi_or_no')->nullable();
+            $table->decimal('average_of_stones', 10, 2)->nullable();
             $table->timestamps();
-
-            $table->foreign('model')
-            ->references('model')
-            ->on('models')
-            ->onDelete('cascade');
-      
         });
     }
-    
-
     /**
      * Reverse the migrations.
      */
     public function down(): void
     {
-        Schema::dropIfExists('gold_items');
+        Schema::dropIfExists('talabat');
     }
-
-    /**
-     * Run the migrations.
-     *
-     * @return void
-     */
-   
-}
+};

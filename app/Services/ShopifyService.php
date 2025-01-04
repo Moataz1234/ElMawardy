@@ -321,7 +321,7 @@ public function getOrders($tab = 'unfulfilled')
 {
     $query = [
         'status' => $tab == 'archived' ? 'closed' : 'open', // Retrieve 'closed' orders for archived or 'open' for active/unfulfilled orders
-        'limit' => 15 // Adjust the limit as necessary
+        'limit' => 50 // Adjust the limit as necessary
     ];
 
     $response = $this->client->get('orders.json', [
@@ -378,7 +378,7 @@ public function getAbandonedCheckouts()
 {
     $query = [
         'status' => 'open', // Fetch open abandoned checkouts
-        'limit' => 15       // You can adjust the limit as necessary
+        'limit' => 35       // You can adjust the limit as necessary
     ];
 
     $response = $this->client->get('checkouts.json', [
