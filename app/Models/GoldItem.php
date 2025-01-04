@@ -29,9 +29,9 @@ class GoldItem extends Model
     {
         return $this->hasMany(Outer::class, 'gold_serial_number', 'serial_number');
     }
-    public function modelCategory()
+    public function talabatCategory()
     {
-        return $this->belongsTo(Models::class, 'model', 'model');
+        return $this->belongsTo(Talabat::class, 'model', 'model');
     }
 
     public function modelDetails()
