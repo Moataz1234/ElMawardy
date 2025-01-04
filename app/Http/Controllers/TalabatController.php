@@ -37,7 +37,7 @@ class TalabatController extends Controller
             'model' => 'required|string|max:255|unique:talabat,model',
             'stars' => 'string|max:255|nullable',
             'source' => 'string|max:255|nullable',
-            'first_production' => 'date|nullable',
+            // 'first_production' => 'date|nullable',
             'semi_or_no' => 'string|max:255|nullable',
             'average_of_stones' => 'numeric|nullable',
             'scanned_image' => 'image|mimes:jpeg,png,jpg,gif|max:2048|nullable',
@@ -45,7 +45,7 @@ class TalabatController extends Controller
         ]);
 
         // Generate SKU from model number
-        preg_match('/^(\d+)-(\d+)(?:-(\w+))?$/', $request->model, $matches);
+        // preg_match('/^(\d+)-(\d+)(?:-(\w+))?$/', $request->model, $matches);
 
         // if (count($matches) >= 3) {
         //     $prefix = $matches[1];
@@ -59,7 +59,7 @@ class TalabatController extends Controller
         // $validatedData['SKU'] = $sku;
 
         if ($request->hasFile('scanned_image')) {
-            $scannedImagePath = $request->file('scanned_image')->store('Gold_catalog', 'public');
+            $scannedImagePath = $request->file('scanned_image')->store('talabat/scanned', 'public');
             $validatedData['scanned_image'] = $scannedImagePath;
         }
 
@@ -70,7 +70,7 @@ class TalabatController extends Controller
 
         Talabat::create($validatedData);
 
-        return redirect()->route('gold-items.create')->with('success', 'Talabat added successfully.');
+        return redirect()->route('talabat.index')->with('success', 'Talabat added successfully.');
     }
 
     public function edit(Talabat $talabat)
@@ -155,81 +155,5 @@ class TalabatController extends Controller
                 'scanned_image' => $talabatDetails->scanned_image,
             ] : null
         ]);
-    }
-}
-<?php
-
-namespace App\Http\Controllers;
-
-use App\Models\Talabat;
-use App\Models\GoldItem;
-use Illuminate\Http\Request;
-use Illuminate\Support\Facades\Log;
-use App\Models\Shop;
-
-class TalabatController extends Controller
-{
-    public function create()
-    {
-        $shops = Shop::all();
-        $talabat = Talabat::select('model')->distinct()->get();
-        $goldColors = GoldItem::select('gold_color')->distinct()->pluck('gold_color');
-        $metalTypes = GoldItem::select('metal_type')->distinct()->pluck('metal_type');
-        $metalPurities = GoldItem::select('metal_purity')->distinct()->pluck('metal_purity');
-
-        return view('admin.Gold.Create_form_talabat', compact('shops', 'talabat', 'goldColors', 'metalTypes', 'metalPurities'));
-    }
-
-    public function store(Request $request)
-    {
-        try {
-            $validated = $request->validate([
-                'model' => 'required|string|max:255',
-                'kind' => 'required|string|max:255',
-                'metal_type' => 'required|string|max:255',
-                'metal_purity' => 'required|string|max:255',
-                'quantity' => 'required|integer|min:1',
-                'shops.*.shop_id' => 'required|integer|exists:shops,id',
-                'shops.*.gold_color' => 'required|string|max:255',
-                'shops.*.weight' => 'required|numeric|min:0',
-                'shops.*.talab' => 'boolean',
-            ]);
-
-            foreach ($request->shops as $shopData) {
-                $lastItem = GoldItem::orderByRaw('CAST(SUBSTRING(serial_number, 3) AS UNSIGNED) DESC')->first();
-                $nextSerialNumber = $this->generateNextSerialNumber($lastItem);
-
-                GoldItem::create([
-                    'serial_number' => $nextSerialNumber,
-                    'shop_id' => $shopData['shop_id'],
-                    'shop_name' => Shop::find($shopData['shop_id'])->name,
-                    'kind' => $validated['kind'],
-                    'model' => $validated['model'],
-                    'gold_color' => $shopData['gold_color'],
-                    'metal_type' => $validated['metal_type'],
-                    'metal_purity' => $validated['metal_purity'],
-                    'quantity' => $validated['quantity'],
-                    'weight' => $shopData['weight'],
-                    'talab' => $shopData['talab'] ?? 0,
-                ]);
-            }
-
-            return redirect()->route('talabat.create')->with('success', 'Talabat items added successfully.');
-        } catch (\Exception $e) {
-            Log::error('Error in Talabat Store Method', ['error' => $e->getMessage()]);
-            return response()->json(['error' => 'An error occurred while adding the talabat items.'], 500);
-        }
-    }
-
-    private function generateNextSerialNumber($lastItem)
-    {
-        if ($lastItem) {
-            $lastSerialNumber = (int) substr($lastItem->serial_number, 2);
-            $nextSerialNumber = 'SN' . str_pad($lastSerialNumber + 1, 5, '0', STR_PAD_LEFT);
-        } else {
-            $nextSerialNumber = 'SN00001';
-        }
-
-        return $nextSerialNumber;
     }
 }

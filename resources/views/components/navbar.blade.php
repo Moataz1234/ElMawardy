@@ -6,7 +6,15 @@
         @if(auth()->user()->usertype === 'admin')
         <li class="navbar-item"><a href="{{ route('admin.dashboard') }}" class="navbar-link">Dashboard</a></li>
         <li class="navbar-item"><a href="{{ route('models.index') }}" class="navbar-link">Models</a></li>
-        <li class="navbar-item"><a href="{{ route('gold-items.create') }}" class="navbar-link">Add New Item</a></li>
+        <li class="navbar-item"><a href="{{ route('talabat.index') }}" class="navbar-link">Talabat</a></li>
+        <li class="navbar-item dropdown">
+            <a href="#" class="navbar-link dropdown-toggle">Add</a>
+            <div class="dropdown-menu">
+                <a href="{{ route('gold-items.create') }}" class="dropdown-item">NewItem</a>
+                <a href="{{ route('gold-items_T.create') }}" class="dropdown-item">NewItem_Talabat</a>
+            </div>
+        </li>
+        {{-- <li class="navbar-item"><a href="{{ route('gold-items.create') }}" class="navbar-link">Add New Item</a></li> --}}
         <li class="navbar-item"><a href="{{ route('barcode.view') }}" class="navbar-link">Barcode</a></li>
         <li  class="navbar-item"><a href="{{ route('admin.inventory') }}" class="navbar-link">Gold Inventory</a></li>
         {{-- <li  class="navbar-item"><a href="{{ route('deleted-items.history') }}" class="navbar-link">Deleted Items</a></li> --}}

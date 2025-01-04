@@ -25,10 +25,7 @@ return new class extends Migration
             // $table->string('to_print')->default('');
 
             $table->timestamps();
-        
         });
-
-     
     }
 
     /**
@@ -37,5 +34,5 @@ return new class extends Migration
     public function down(): void
     {
         Schema::dropIfExists('models');
-        }
+    }
 };

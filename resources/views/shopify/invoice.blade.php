@@ -6,7 +6,6 @@
     <style>
         body {
             font-family: DejaVu Sans, sans-serif;
-            direction: ltr;
         }
         .invoice-box {
             max-width: 800px;
@@ -27,26 +26,16 @@
             margin: 5px 0;
             font-size: 20px;
         }
-        .company-info {
+        .company-info, .addresses, .billing-shipping {
             margin-bottom: 20px;
         }
-        .addresses {
-            margin-bottom: 30px;
-        }
-        .billing-shipping {
-            width: 100%;
-            margin-bottom: 20px;
-        }
-        .billing-shipping td {
-            width: 50%;
-            vertical-align: top;
-        }
-        .items-table {
+        .items-table, .totals-table {
             width: 100%;
             border-collapse: collapse;
-            margin-bottom: 20px;
+            margin-top: 20px;
         }
-        .items-table th, .items-table td {
+        .items-table th, .items-table td,
+        .totals-table td {
             border: 1px solid #ddd;
             padding: 8px;
             text-align: left;
@@ -54,30 +43,23 @@
         .items-table th {
             background-color: #f8f8f8;
         }
-        .totals-table {
-            width: 100%;
-            border-collapse: collapse;
-            margin-top: 20px;
-        }
-        .totals-table td {
-            padding: 5px;
-        }
-        .totals-table .label {
-            text-align: right;
-            font-weight: bold;
-        }
         .arabic {
             direction: rtl;
             text-align: right;
-            font-family: DejaVu Sans, sans-serif;
+        }
+        .english {
+            direction: ltr;
+            text-align: left;
         }
     </style>
+    
 </head>
 <body>
     <div class="invoice-box">
         <div class="header">
-            <h1>{{ $company['name'] }}</h1>
+            <h1 class="{{ isArabic($company['name']) ? 'arabic' : 'english' }}">{{ $company['name'] }}</h1>
             <h2 >فاتورة</h2>
+            
         </div>
 
         <div class="company-info">
@@ -152,5 +134,10 @@
             </tr>
         </table>
     </div>
+    @php
+function isArabic($text) {
+    return preg_match('/[\x{0600}-\x{06FF}]/u', $text);
+}
+@endphp
 </body>
 </html>

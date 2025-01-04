@@ -120,8 +120,8 @@
     @if ($hasNextPage)
         <a href="{{ route('shopify.products', ['cursor' => $nextCursor]) }}" class="btn btn-primary">Next Page</a>
     @endif
-    <form action="{{ route('shopify.updatePrices') }}" method="POST">
-        @csrf
+    {{-- <form action="{{ route('shopify.updatePrices') }}" method="POST">
+        @csrf --}}
         {{-- @foreach($products as $product)
             <div>
                 <label for="price_{{ $product['node']['variants']['edges'][0]['node']['id'] }}">
@@ -136,8 +136,8 @@
                 >
             </div>
         @endforeach --}}
-        <button type="submit">Update Prices</button>
-    </form>
+        {{-- <button type="submit">Update Prices</button> --}}
+    {{-- </form> --}}
     
     <script>
         document.addEventListener('DOMContentLoaded', function() {

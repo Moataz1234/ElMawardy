@@ -154,7 +154,7 @@ document.querySelector('#pageInput').addEventListener('change', function(e) {
         e.target.value = currentPage;
     }
 });
-document.querySelector('#totalPages').textContent = {{ $models->lastPage() }};
+document.querySelector('#totalPages').textContent = {{ $talabat->lastPage() }};
 function goToPage(direction) {
     const currentPage = parseInt(document.querySelector('#pageInput').value);
     const totalPages = parseInt(document.querySelector('#totalPages').textContent);

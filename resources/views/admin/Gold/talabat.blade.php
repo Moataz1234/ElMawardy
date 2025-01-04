@@ -18,7 +18,7 @@
                 <th>Scanned Image</th>
                 <th>Stars</th>
                 <th>Source</th>
-                <th>First Production</th>
+                {{-- <th>First Production</th> --}}
                 <th>Actions</th>
             </tr>
         </thead>
@@ -33,7 +33,7 @@
                 </td>
                 <td>{{ $talabatItem->stars }}</td>
                 <td>{{ $talabatItem->source }}</td>
-                <td>{{ $talabatItem->first_production }}</td>
+                {{-- <td>{{ $talabatItem->first_production }}</td> --}}
                 <td>
                     <a  class="navbar-link" style="color:blue" href="{{ route('talabat.edit', $talabatItem) }}">Edit</a>
                 </td>
@@ -45,7 +45,7 @@
 
 @push('modals')
     @include('profile.partials._image_modal')
-    @include('components.models_pagination')
+    @include('components.talabat_pagination')
 @endpush
 
 @push('scripts')

@@ -17,15 +17,11 @@ return new class extends Migration
             $table->string('scanned_image')->nullable();
             $table->string('stars')->nullable();
             $table->string('source')->nullable();
-            $table->string('first_production')->nullable();
             $table->string('semi_or_no')->nullable();
             $table->decimal('average_of_stones', 10, 2)->nullable();
-
             $table->timestamps();
-        
         });
     }
-
     /**
      * Reverse the migrations.
      */

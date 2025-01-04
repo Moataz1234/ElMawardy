@@ -2,9 +2,8 @@
 
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Route;
-use App\Http\Controllers\TestController;
-use App\Http\Controllers\ModelsController;
 use App\Http\Controllers\{
+    TestController,
     HomeController,
     ProfileController,
     NewItemController,
@@ -25,6 +24,8 @@ use App\Http\Controllers\{
     Admin\WarehouseController,
     NotificationController,
     BarcodeController,
+    ModelsController,
+    NewItemTalabatController,
     TalabatController
 };
 
@@ -74,6 +75,8 @@ Route::get('/update_prices', [AdminDashboardController::class, 'UPDATE_PRICES'])
 // Admin Routes
 Route::middleware(['auth', 'admin'])->group(function () {
     Route::get('/gold-items/create', [GoldItemController::class, 'create'])->name('gold-items.create');
+    Route::get('/gold-items/talabat/create', [NewItemTalabatController::class, 'create'])->name('gold-items_T.create');
+    Route::post('/gold-items/talabat/store', [NewItemTalabatController::class, 'store'])->name('gold-items_T.store');
     Route::get('/models/check-exists/{model}', [GoldItemController::class, 'checkExists']);
 
 
@@ -86,6 +89,14 @@ Route::middleware(['auth', 'admin'])->group(function () {
     Route::post('/warehouse/{id}/assign', [WarehouseController::class, 'assignToShop'])
         ->name('admin.warehouse.assign');
 
+    Route::resource('models', ModelsController::class)->names([
+        'index' => 'models.index',
+        'create' => 'models.create',
+        'store' => 'models.store',
+        'edit' => 'models.edit',
+        'update' => 'models.update',
+        'destroy' => 'models.destroy',
+    ]);
     Route::resource('talabat', TalabatController::class)->names([
         'index' => 'talabat.index',
         'create' => 'talabat.create',
@@ -95,7 +106,10 @@ Route::middleware(['auth', 'admin'])->group(function () {
         'destroy' => 'talabat.destroy',
     ]);
 
-    Route::get('/talabat/details', [TalabatController::class, 'getTalabatDetails'])->name('talabat.details');
+    Route::get('/talabat/model-details', [TalabatController::class, 'getTalabatDetails']);
+
+    Route::get('/gold-items/model-details', [ModelsController::class, 'getModelDetails']);
+
     Route::get('/barcode', [BarcodeController::class, 'index'])->name('barcode.view');
     Route::get('/barcode/export', [BarcodeController::class, 'export'])->name('barcode.export');
 

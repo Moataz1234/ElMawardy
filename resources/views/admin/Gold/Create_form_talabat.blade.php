@@ -13,13 +13,14 @@
 </head>
 
 <body>
+    <h1 style="text-align: center">Talabat</h1>
     @if (session('error'))
         <div class="alert alert-danger">
             {{ session('error') }}
         </div>
     @endif
     <div class="parent">
-        <form class="create-form" action="{{ route('talabat.store') }}" method="POST" enctype="multipart/form-data">
+        <form class="create-form" action="{{ route('gold-items_T.store') }}" method="POST" enctype="multipart/form-data">
             @csrf
             <div class="dynamic-field">
                 <div style="width: 40%" class="form-group">
