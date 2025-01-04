@@ -37,6 +37,7 @@ class GoldItemController extends Controller
 
         $shops = Shop::all();
         $models = Models::select('model')->distinct()->get(); // Fetch unique models
+        $talabat = Talabat::select('model')->distinct()->get(); // Fetch unique talabat models
         $goldColors = GoldItem::select('gold_color')->distinct()->pluck('gold_color');
         $metalTypes = GoldItem::select('metal_type')->distinct()->pluck('metal_type');
         $metalPurities = GoldItem::select('metal_purity')->distinct()->pluck('metal_purity');
@@ -44,7 +45,7 @@ class GoldItemController extends Controller
 
 
 
-        return view('admin.Gold.Create_form', compact('shops', 'models', 'goldColors', 'metalTypes', 'metalPurities', 'kinds'));
+        return view('admin.Gold.Create_form', compact('shops', 'models', 'talabat', 'goldColors', 'metalTypes', 'metalPurities', 'kinds'));
     }
 
     public function store(GoldItemRequest $request)
