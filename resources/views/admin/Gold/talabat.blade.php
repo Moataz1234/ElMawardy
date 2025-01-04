@@ -15,9 +15,9 @@
         <thead>
             <tr>
                 <th>Model</th>
-                <th>SKU</th>
+                {{-- <th>SKU</th> --}}
                 <th>Scanned Image</th>
-                <th>Website Image</th>
+                {{-- <th>Website Image</th> --}}
                 <th>Stars</th>
                 <th>Source</th>
                 <th>First Production</th>
@@ -28,17 +28,17 @@
             @foreach($talabat as $talabatItem)
             <tr>
                 <td>{{ $talabatItem->model }}</td>
-                <td>{{ $talabatItem->SKU }}</td>
+                {{-- <td>{{ $talabatItem->SKU }}</td> --}}
                 <td>
                     @if($talabatItem->scanned_image)
                         <img src="{{ asset('storage/' . $talabatItem->scanned_image) }}" alt="Scanned Image" style="max-width: 100px; max-height: 100px;">
                     @endif
                 </td>
-                 <td>
+                 {{-- <td>
                     @if($talabatItem->website_image)
                         <img src="{{ asset('storage/' . $talabatItem->website_image) }}" alt="Website Image" style="max-width: 100px; max-height: 100px;">
                     @endif
-                </td> 
+                </td>  --}}
                 <td>{{ $talabatItem->category }}</td>
                 <td>{{ $talabatItem->source }}</td>
                 <td>{{ $talabatItem->first_production }}</td>

@@ -24,7 +24,8 @@ use App\Http\Controllers\{
     Admin\AdminDashboardController,
     Admin\WarehouseController,
     NotificationController,
-    BarcodeController
+    BarcodeController,
+    TalabatController
 };
 
 // Test SMTP Route
