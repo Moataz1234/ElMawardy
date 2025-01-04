@@ -34,6 +34,10 @@
                             <option value="{{ $model->model }}"></option>
                         @endforeach
                     </datalist>
+                    <div>
+                        <input type="checkbox" id="talabatCheckbox" name="is_talabat">
+                        <label for="talabatCheckbox">Talabat</label>
+                    </div>
                 </div>
                 <div style="width: 40%" class="form-group">
                     <label for="kind">Kind:</label>

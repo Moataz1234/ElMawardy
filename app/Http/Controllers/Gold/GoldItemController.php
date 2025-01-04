@@ -67,19 +67,26 @@ class GoldItemController extends Controller
                 $nextSerialNumber = $this->goldItemService->generateNextSerialNumber($lastItem);
 
                 // Create a new gold item record for each shop
-                GoldItem::create([
+                $goldItemData = [
                     'serial_number' => $nextSerialNumber,
                     'shop_id' => $shopData['shop_id'],
                     'shop_name' => Shop::find($shopData['shop_id'])->name,
                     'kind' => $validated['kind'],
-                    'model' => $validated['model'],
                     'gold_color' => $shopData['gold_color'],
                     'metal_type' => $validated['metal_type'],
                     'metal_purity' => $validated['metal_purity'],
                     'quantity' => $validated['quantity'],
                     'weight' => $shopData['weight'],
                     'talab' => $shopData['talab'] ?? 0,
-                ]);
+                ];
+
+                if ($request->has('is_talabat')) {
+                    $goldItemData['talabat'] = $validated['model'];
+                } else {
+                    $goldItemData['model'] = $validated['model'];
+                }
+
+                GoldItem::create($goldItemData);
             }
 
             // Redirect with success message

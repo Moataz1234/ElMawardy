@@ -31,7 +31,7 @@ class GoldItem extends Model
     }
     public function talabatCategory()
     {
-        return $this->belongsTo(Talabat::class, 'model', 'model');
+        return $this->belongsTo(Talabat::class, 'talabat', 'model');
     }
 
     public function modelCategory()
