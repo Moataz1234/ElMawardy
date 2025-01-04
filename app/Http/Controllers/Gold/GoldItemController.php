@@ -82,8 +82,10 @@ class GoldItemController extends Controller
 
                 if ($request->has('is_talabat')) {
                     $goldItemData['talabat'] = $validated['model'];
+                    $goldItemData['model'] = null;
                 } else {
                     $goldItemData['model'] = $validated['model'];
+                    $goldItemData['talabat'] = null;
                 }
 
                 GoldItem::create($goldItemData);
