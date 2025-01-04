@@ -95,7 +95,7 @@ Route::middleware(['auth', 'admin'])->group(function () {
         'destroy' => 'talabat.destroy',
     ]);
 
-    Route::get('/gold-items/talabat-details', [TalabatController::class, 'getTalabatDetails']);
+    Route::get('/talabat/details', [TalabatController::class, 'getTalabatDetails'])->name('talabat.details');
     Route::get('/barcode', [BarcodeController::class, 'index'])->name('barcode.view');
     Route::get('/barcode/export', [BarcodeController::class, 'export'])->name('barcode.export');
 

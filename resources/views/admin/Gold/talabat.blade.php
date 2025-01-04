@@ -3,7 +3,7 @@
 @section('content')
     <div style="display: flex;flex-wrap:wrap" class="sidebar">
         <form  method="GET" action="{{ route('talabat.index') }}" class="search-form">
-            <input type="text" name="search" placeholder="Search by model name" value="{{ request('search') }}" class="sidebar-input">
+            <input type="text" name="search" placeholder="Search by talabat name" value="{{ request('search') }}" class="sidebar-input">
             <button type="submit" class="sidebar-button">Search</button>
 
         </form>
@@ -15,9 +15,7 @@
         <thead>
             <tr>
                 <th>Model</th>
-                {{-- <th>SKU</th> --}}
                 <th>Scanned Image</th>
-                {{-- <th>Website Image</th> --}}
                 <th>Stars</th>
                 <th>Source</th>
                 <th>First Production</th>
@@ -28,18 +26,12 @@
             @foreach($talabat as $talabatItem)
             <tr>
                 <td>{{ $talabatItem->model }}</td>
-                {{-- <td>{{ $talabatItem->SKU }}</td> --}}
                 <td>
                     @if($talabatItem->scanned_image)
                         <img src="{{ asset('storage/' . $talabatItem->scanned_image) }}" alt="Scanned Image" style="max-width: 100px; max-height: 100px;">
                     @endif
                 </td>
-                 {{-- <td>
-                    @if($talabatItem->website_image)
-                        <img src="{{ asset('storage/' . $talabatItem->website_image) }}" alt="Website Image" style="max-width: 100px; max-height: 100px;">
-                    @endif
-                </td>  --}}
-                <td>{{ $talabatItem->category }}</td>
+                <td>{{ $talabatItem->stars }}</td>
                 <td>{{ $talabatItem->source }}</td>
                 <td>{{ $talabatItem->first_production }}</td>
                 <td>
