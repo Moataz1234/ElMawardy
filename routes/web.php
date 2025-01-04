@@ -85,16 +85,16 @@ Route::middleware(['auth', 'admin'])->group(function () {
     Route::post('/warehouse/{id}/assign', [WarehouseController::class, 'assignToShop'])
         ->name('admin.warehouse.assign');
 
-    Route::resource('models', ModelsController::class)->names([
-        'index' => 'models.index',
-        'create' => 'models.create',
-        'store' => 'models.store',
-        'edit' => 'models.edit',
-        'update' => 'models.update',
-        'destroy' => 'models.destroy',
+    Route::resource('talabat', TalabatController::class)->names([
+        'index' => 'talabat.index',
+        'create' => 'talabat.create',
+        'store' => 'talabat.store',
+        'edit' => 'talabat.edit',
+        'update' => 'talabat.update',
+        'destroy' => 'talabat.destroy',
     ]);
 
-    Route::get('/gold-items/model-details', [ModelsController::class, 'getModelDetails']);
+    Route::get('/gold-items/talabat-details', [TalabatController::class, 'getTalabatDetails']);
     Route::get('/barcode', [BarcodeController::class, 'index'])->name('barcode.view');
     Route::get('/barcode/export', [BarcodeController::class, 'export'])->name('barcode.export');
 
