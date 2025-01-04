@@ -3,7 +3,6 @@
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Route;
 use App\Http\Controllers\TestController;
-use App\Http\Controllers\HelloController;
 use App\Http\Controllers\ModelsController;
 use App\Http\Controllers\{
     HomeController,
