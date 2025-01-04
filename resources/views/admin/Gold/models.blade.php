@@ -29,7 +29,7 @@
         <tbody>
             @foreach($models as $model)
             <tr>
-                <td>{{ $model->model }}</td>
+                <td>{{ $model->model ?? $model->talabat }}</td>
                 <td>{{ $model->SKU }}</td>
                 <td>
                     @if($model->scanned_image)
