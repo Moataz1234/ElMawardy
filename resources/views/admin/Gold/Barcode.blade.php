@@ -67,7 +67,7 @@
                             <!-- New fields for source and stars -->
                             <tr>
                                 <th>Source</th>
-                                <td>{{ optional($item->modelCategory)->source }}</td> <!-- Assuming modelCategory returns a Models instance -->
+                                <td>{{ $item->modified_source }}</td>
                             </tr>
                             <tr>
                                 <th>Stars</th>

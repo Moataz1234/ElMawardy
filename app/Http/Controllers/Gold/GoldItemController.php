@@ -10,6 +10,7 @@ use Illuminate\Support\Facades\Log;
 use App\Models\GoldItem;
 use App\Models\Shop;
 use App\Models\Models;
+use App\Models\Talabat;
 
 class GoldItemController extends Controller
 {
@@ -36,38 +37,37 @@ class GoldItemController extends Controller
     {
 
         $shops = Shop::all();
-        $models = Models::select('model')->distinct()->get(); // Fetch unique models
-        $talabat = Talabat::select('model')->distinct()->get(); // Fetch unique talabat models
+        $models = Models::select('model')->get(); // Get all models
+        // $talabat = Talabat::select('model')->get(); // Get all talabat models
         $goldColors = GoldItem::select('gold_color')->distinct()->pluck('gold_color');
         $metalTypes = GoldItem::select('metal_type')->distinct()->pluck('metal_type');
         $metalPurities = GoldItem::select('metal_purity')->distinct()->pluck('metal_purity');
         $kinds = GoldItem::select('kind')->distinct()->pluck('kind');
-
-
-
-        return view('admin.Gold.Create_form', compact('shops', 'models', 'talabat', 'goldColors', 'metalTypes', 'metalPurities', 'kinds'));
+    
+        return view('admin.Gold.Create_form', compact(
+            'shops', 
+            'models', 
+            // 'talabat', 
+            'goldColors', 
+            'metalTypes', 
+            'metalPurities', 
+            'kinds'
+        ));
     }
-
     public function store(GoldItemRequest $request)
     {
         try {
+            Log::info('Starting store process', ['request_data' => $request->all()]);
+
             // Validate the request data
             $validated = $request->validated();
 
-            // Check if the model exists
-            $modelExists = Models::where('model', $validated['model'])->exists();
-            if (!$modelExists) {
-                return view('admin.Gold.create_model');
-
-            }
-
-            // Loop through the dynamic shop data
             foreach ($request->shops as $shopData) {
-                // Fetch the last item to calculate the next serial number
+                // Generate serial number
                 $lastItem = GoldItem::orderByRaw('CAST(SUBSTRING(serial_number, 3) AS UNSIGNED) DESC')->first();
                 $nextSerialNumber = $this->goldItemService->generateNextSerialNumber($lastItem);
 
-                // Create a new gold item record for each shop
+                // Prepare gold item data
                 $goldItemData = [
                     'serial_number' => $nextSerialNumber,
                     'shop_id' => $shopData['shop_id'],
@@ -78,26 +78,40 @@ class GoldItemController extends Controller
                     'metal_purity' => $validated['metal_purity'],
                     'quantity' => $validated['quantity'],
                     'weight' => $shopData['weight'],
-                    'talab' => $shopData['talab'] ?? 0,
+                    'talab' => isset($shopData['talab']) ? $shopData['talab'] : false
                 ];
 
+                // Set model or talabat based on checkbox
                 if ($request->has('is_talabat')) {
                     $goldItemData['talabat'] = $validated['model'];
                     $goldItemData['model'] = null;
+                    Log::info('Setting talabat model', ['talabat' => $validated['model']]);
                 } else {
                     $goldItemData['model'] = $validated['model'];
                     $goldItemData['talabat'] = null;
+                    Log::info('Setting regular model', ['model' => $validated['model']]);
                 }
 
-                GoldItem::create($goldItemData);
+                Log::info('Creating gold item with data', ['data' => $goldItemData]);
+
+                // Create the item
+                $item = GoldItem::create($goldItemData);
+                Log::info('Gold item created successfully', ['item_id' => $item->id]);
             }
 
-            // Redirect with success message
-            return redirect()->route('gold-items.create')->with('success', 'Gold items added successfully.');
+            return redirect()
+                ->route('gold-items.create')
+                ->with('success', 'Gold items added successfully.');
         } catch (\Exception $e) {
-            // Log the error and redirect back with an error message
-            Log::error('Error in Store Method', ['error' => $e->getMessage()]);
-            return response()->json(['error' => 'An error occurred while adding the gold items.'], 500);
+            Log::error('Error in Store Method', [
+                'error' => $e->getMessage(),
+                'trace' => $e->getTraceAsString()
+            ]);
+
+            return redirect()
+                ->back()
+                ->with('error', 'An error occurred while adding the gold items: ' . $e->getMessage())
+                ->withInput();
         }
     }
     public function edit(string $id)
@@ -108,39 +122,9 @@ class GoldItemController extends Controller
         return view('admin.Gold.Edit_form', compact('goldItem', 'shops'));
     }
 
-    // public function update(Request $request, string $id)
-    // {
-    // $validated = $request->validate([
-    //     'link' => 'nullable|file|image',
-    //     'serial_number' => 'nullable|string',
-    //     'shop_name' => 'nullable|string',
-    //     'shop_id' => 'nullable|integer',
-    //     'kind' => 'nullable|string',
-    //     'model' => 'nullable|string',
-    //     'talab' => 'nullable|string',
-    //     'gold_color' => 'nullable|string',
-    //     'stones' => 'nullable|string',
-    //     'metal_type' => 'nullable|string',
-    //     'metal_purity' => 'nullable|string',
-    //     'quantity' => 'nullable|integer',
-    //     'weight' => 'nullable|numeric',
-    //     'rest_since' => 'nullable|date',
-    //     'source' => 'nullable|string',
-    //     'to_print' => 'nullable|boolean',
-    //     'price' => 'nullable|numeric',
-    //     'semi_or_no' => 'nullable|string',
-    //     'average_of_stones' => 'nullable|numeric',
-    //     'net_weight' => 'nullable|numeric',
-    // ]);
-
-    // $this->goldItemService->updateGoldItem($id, $validated, $request->file('link'));
-
-    // return redirect()->route('gold-items.index')->with('success', 'Gold item updated successfully.');
-    // }
     public function checkExists($model)
     {
         $exists = Models::where('model', $model)->exists();
         return response()->json(['exists' => $exists]);
     }
-
 }

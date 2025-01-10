@@ -1,14 +1,49 @@
 @extends('layouts.models_table')
 
 @section('content')
-    <div style="display: flex;flex-wrap:wrap" class="sidebar">
-        <form  method="GET" action="{{ route('models.index') }}" class="search-form">
-            <input type="text" name="search" placeholder="Search by model name" value="{{ request('search') }}" class="sidebar-input">
-            <button type="submit" class="sidebar-button">Search</button>
+    <style>
+        .tabs {
+            display: flex;
+            margin-bottom: 20px;
+        }
 
+        .tab {
+            padding: 10px 20px;
+            margin-right: 10px;
+            text-decoration: none;
+            color: #000;
+            border: 1px solid #ccc;
+            border-radius: 5px;
+        }
+
+        .tab.active {
+            background-color: #007bff;
+            color: #fff;
+            border-color: #007bff;
+        }
+    </style>
+  
+    <div style="display: flex;flex-wrap:wrap" class="sidebar">
+        <form method="GET" action="{{ route('models.index') }}" class="search-form">
+            <input type="text" name="search" placeholder="Search by model name" value="{{ request('search') }}"
+                class="sidebar-input">
+                
+        <input type="hidden" name="tab" value="{{ request('tab') }}">
+            <button type="submit" class="sidebar-button">Search</button>
         </form>
         <a class="reset-button" style="padding: 10px" href="{{ route('models.create') }}">Add New Model</a>
+    </div>
 
+    <!-- Tabs -->
+    <div class="tabs">
+        <a href="{{ route('models.index', ['tab' => 'all', 'search' => request('search')]) }}"
+            class="tab {{ request('tab') !== 'talabat' ? 'active' : '' }}">
+            All Models
+        </a>
+        <a href="{{ route('models.index', ['tab' => 'talabat', 'search' => request('search')]) }}"
+            class="tab {{ request('tab') === 'talabat' ? 'active' : '' }}">
+            Talabat
+        </a>
     </div>
 
     <table class="table table-bordered">
@@ -21,40 +56,33 @@
                 <th>Stars</th>
                 <th>Source</th>
                 <th>First Production</th>
-                {{-- <th>Semi or No</th> --}}
-                {{-- <th>Average of Stones</th> --}}
                 <th>Actions</th>
             </tr>
         </thead>
         <tbody>
-            @foreach($models as $model)
-            <tr>
-                <td>{{ $model->model ?? $model->talabat }}</td>
-                <td>{{ $model->SKU }}</td>
-                <td>
-                    @if($model->scanned_image)
-                        <img src="{{ asset('storage/' . $model->scanned_image) }}" alt="Scanned Image" style="max-width: 100px; max-height: 100px;">
-                    @endif
-                </td>
-                 <td>
-                    @if($model->website_image)
-                        <img src="{{ asset('storage/' . $model->website_image) }}" alt="Website Image" style="max-width: 100px; max-height: 100px;">
-                    @endif
-                </td> 
-                <td>{{ $model->category }}</td>
-                <td>{{ $model->source }}</td>
-                <td>{{ $model->first_production }}</td>
-                {{-- <td>{{ $model->semi_or_no }}</td> --}}
-                {{-- <td>{{ $model->average_of_stones }}</td>  --}}
-                <td>
-                    <a  class="navbar-link" style="color:blue" href="{{ route('models.edit', $model) }}">Edit</a>
-                    {{-- <form action="{{ route('models.destroy', $model) }}" method="POST" style="display:inline;">
-                        @csrf
-                        @method('DELETE')
-                        <button type="submit">Delete</button>
-                    </form> --}}
-                </td>
-            </tr>
+            @foreach ($models as $model)
+                <tr>
+                    <td>{{ $model->model ?? $model->talabat }}</td>
+                    <td>{{ $model->SKU }}</td>
+                    <td>
+                        @if ($model->scanned_image)
+                            <img src="{{ asset('storage/' . $model->scanned_image) }}" alt="Scanned Image"
+                                style="max-width: 100px; max-height: 100px;">
+                        @endif
+                    </td>
+                    <td>
+                        @if ($model->website_image)
+                            <img src="{{ asset('storage/' . $model->website_image) }}" alt="Website Image"
+                                style="max-width: 100px; max-height: 100px;">
+                        @endif
+                    </td>
+                    <td>{{ $model->stars }}</td>
+                    <td>{{ $model->source }}</td>
+                    <td>{{ $model->first_production }}</td>
+                    <td>
+                        <a class="navbar-link" style="color:blue" href="{{ route('models.edit', $model) }}">Edit</a>
+                    </td>
+                </tr>
             @endforeach
         </tbody>
     </table>

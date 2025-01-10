@@ -1,5 +1,6 @@
 <!DOCTYPE html>
 <html lang="en">
+
 <head>
     <meta charset="UTF-8">
     <title>Gold Inventory</title>
@@ -9,11 +10,11 @@
             opacity: 0.5;
             cursor: not-allowed;
         }
-        
+
         tr.pending-transfer {
             background-color: #f8f9fa;
         }
-        
+
         .pending-badge {
             background-color: #ffc107;
             padding: 2px 6px;
@@ -32,135 +33,148 @@
         .modal-body ul {
             padding-left: 20px;
         }
-        .modal tbody{
+
+        .modal tbody {
             background-color: rgb(214, 195, 195);
-            
+
         }
-        .modal td{
+
+        .modal td {
             color: #000;
         }
+
         @media (max-width: 768px) {
-        table th, table td {
-            font-size: 12px; /* Smaller text for table cells */
-            white-space: nowrap; /* Prevent text wrapping */
-        }
 
-        .table-responsive {
-            overflow-x: auto; /* Ensure table scrolls horizontally */
-            -webkit-overflow-scrolling: touch; /* Smooth scrolling for iOS */
-        }
+            table th,
+            table td {
+                font-size: 12px;
+                /* Smaller text for table cells */
+                white-space: nowrap;
+                /* Prevent text wrapping */
+            }
 
-        /* Center align pending badges on small screens */
-        .pending-badge {
-            display: block;
-            text-align: center;
-            margin: 5px 0;
-        }
+            .table-responsive {
+                overflow-x: auto;
+                /* Ensure table scrolls horizontally */
+                -webkit-overflow-scrolling: touch;
+                /* Smooth scrolling for iOS */
+            }
 
-        /* Customize modal for small screens */
-        .modal-content {
-            margin: 10px; /* Add margin around modal */
-        }
+            /* Center align pending badges on small screens */
+            .pending-badge {
+                display: block;
+                text-align: center;
+                margin: 5px 0;
+            }
 
-        .modal-body table {
-            font-size: 12px; /* Smaller table font size in modals */
-        }
-        body {
-            transform: scale(0.8); /* Shrink to 80% for smaller screens */
-            transform-origin: top;
-        }
-    
-    }
+            /* Customize modal for small screens */
+            .modal-content {
+                margin: 10px;
+                /* Add margin around modal */
+            }
 
+            .modal-body table {
+                font-size: 12px;
+                /* Smaller table font size in modals */
+            }
+
+            body {
+                transform: scale(0.8);
+                /* Shrink to 80% for smaller screens */
+                transform-origin: top;
+            }
+
+        }
     </style>
 </head>
+
 <body>
     <div class="container-fluid">
         <div class="spreadsheet">
             <div class="table-responsive">
 
-            <table class="table table-striped table-hover">
-                <thead>
-                    <tr>
-                        <th>Select</th>
-                        <th>Image</th>
-                        <th>Serial Number</th>
-                        <th>Shop Name</th>
-                        <th>Kind</th>
-                        <th>Model</th>
-                        <th>Gold Color</th>
-                        <th>Weight</th>
-                        <th>Category</th>
-                    </tr>
-                </thead>
-                <tbody id="table-body">   
-                    @foreach ($goldItems as $item)
-                        @php
-                            $isOuter = \App\Models\Outer::where('gold_serial_number', $item->serial_number)
-                                                      ->where('is_returned', false)
-                                                      ->exists();
-                            $isPending = \App\Models\TransferRequest::where('gold_item_id', $item->id)
-                                ->where('status', 'pending')
-                                ->exists();
-                        @endphp
-                        <tr style="{{ $isOuter ? 'background-color: yellow;' : '' }}">
-                            <td>
-                                @if(!$isPending)
-                                    <input type="checkbox" class="select-item" data-id="{{ $item->id }}">
-                                @else
-                                    <span class="pending-badge">
-                                        Pending Transfer to {{ $item->transferRequests->where('status', 'pending')->first()->to_shop_name }}
-                                    </span>
-                                @endif
-                            </td>
-                            <td>
-                                @if($item->modelCategory && $item->modelCategory->scanned_image)
-                                    <img src="{{ asset('storage/'.$item->modelCategory->scanned_image) }}" alt="Scanned Image" width="50">
-                                @else
-                                    No Image
-                                @endif
-                            </td>
-                            <td>{{ $item->serial_number }}</td>
-                            <td>{{ $item->shop->name }}</td>
-                            <td>{{ $item->kind }}</td>
-                            <td>
-                                <a href="#" class="model-link" data-model="{{ $item->model }}">
-                                    {{ $item->model }}
-                                </a>
-                            </td>
-                            <td>{{ $item->gold_color }}</td>
-                            <td>{{ $item->weight }}</td>
-                            <td>{{ $item->modelCategory->category ?? 'No Category' }}</td>
+                <table class="table table-striped table-hover">
+                    <thead>
+                        <tr>
+                            <th>Select</th>
+                            <th>Image</th>
+                            <th>Serial Number</th>
+                            <th>Shop Name</th>
+                            <th>Kind</th>
+                            <th>Model</th>
+                            <th>Gold Color</th>
+                            <th>Weight</th>
+                            <th>Category</th>
                         </tr>
-                    @endforeach
-                </tbody>
-            </table>
-            
-            <div class="button-container">
-                <button id="sellItemsButton" class="btn btn-primary">Sell</button> 
-                <button id="transferItemsButton" class="btn btn-danger">Transfer</button>
-            </div>
-        </div>
-        </div>
-        <!-- Model Details Modal -->
-        <div class="modal " id="modelDetailsModal" tabindex="-1" role="dialog" aria-labelledby="modelDetailsModalLabel" aria-hidden="true">
-            {{-- <div class="modal-dialog modal-lg" role="document"> --}}
-                <div style="background-color: #babfc5;margin:10px 250px" class="modal-content">
-                    <div class="modal-header">
-                        <h5 class="modal-title" id="modelDetailsModalLabel" >Items with Same Model</h5>
-                        {{-- <button type="button" class="close" data-dismiss="modal" aria-label="Close">
-                            <span aria-hidden="true">&times;</span>
-                        </button> --}}
-                    </div>
-                    <div class="modal-body" id="modal-body-content">
-                        Loading...
-                    </div>
-                    <div class="modal-footer">
-                        <button type="button" class="btn btn-secondary" data-dismiss="modal">Close</button>
-                    </div>
+                    </thead>
+                    <tbody id="table-body">
+                        @foreach ($goldItems as $item)
+                            @php
+                                $isOuter = \App\Models\Outer::where('gold_serial_number', $item->serial_number)
+                                    ->where('is_returned', false)
+                                    ->exists();
+                                $isPending = \App\Models\TransferRequest::where('gold_item_id', $item->id)
+                                    ->where('status', 'pending')
+                                    ->exists();
+                            @endphp
+                            <tr style="{{ $isOuter ? 'background-color: yellow;' : '' }}">
+                                <td>
+                                    @if (!$isPending)
+                                        <input type="checkbox" class="select-item" data-id="{{ $item->id }}">
+                                    @else
+                                        <span class="pending-badge">
+                                            Pending Transfer to
+                                            {{ $item->transferRequests->where('status', 'pending')->first()->to_shop_name }}
+                                        </span>
+                                    @endif
+                                </td>
+                                <td>
+                                    @if ($item->modelCategory && $item->modelCategory->scanned_image)
+                                        <img src="{{ asset('storage/' . $item->modelCategory->scanned_image) }}"
+                                            alt="Scanned Image" width="50">
+                                    @else
+                                        No Image
+                                    @endif
+                                </td>
+                                <td>{{ $item->serial_number }}</td>
+                                <td>{{ $item->shop->name }}</td>
+                                <td>{{ $item->kind }}</td>
+                                <td>
+                                    <a href="#" class="model-link" data-model="{{ $item->model }}">
+                                        {{ $item->model }}
+                                    </a>
+                                </td>
+                                <td>{{ $item->gold_color }}</td>
+                                <td>{{ $item->weight }}</td>
+                                <td>{{ $item->modelCategory->category ?? 'No Category' }}</td>
+                            </tr>
+                        @endforeach
+                    </tbody>
+                </table>
+
+                <div class="button-container">
+                    <button id="sellItemsButton" class="btn btn-primary">Sell</button>
+                    <button id="transferItemsButton" class="btn btn-danger">Transfer</button>
                 </div>
             </div>
         </div>
+        <!-- Model Details Modal -->
+        <div class="modal " id="modelDetailsModal" tabindex="-1" role="dialog"
+            aria-labelledby="modelDetailsModalLabel" aria-hidden="true">
+            {{-- <div class="modal-dialog modal-lg" role="document"> --}}
+            <div style="background-color: #babfc5;margin:10px 250px" class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title" id="modelDetailsModalLabel">Items with Same Model</h5>
+                </div>
+                <div class="modal-body" id="modal-body-content">
+                    Loading...
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary" data-dismiss="modal">Close</button>
+                </div>
+            </div>
+        </div>
+    </div>
     </div>
 
     <!-- Required JavaScript -->
@@ -173,17 +187,19 @@
             const modelLinks = document.querySelectorAll('.model-link');
 
             modelLinks.forEach(link => {
-                link.addEventListener('click', function (e) {
+                link.addEventListener('click', function(e) {
                     e.preventDefault();
 
                     const modelName = this.dataset.model;
 
                     // Update modal title
-                    document.getElementById('modelDetailsModalLabel').innerText = `Items with Model: ${modelName}`;
+                    document.getElementById('modelDetailsModalLabel').innerText =
+                        `Items with Model: ${modelName}`;
 
                     // Show "Loading..." while fetching data
                     const modalBody = document.getElementById('modal-body-content');
-                    modalBody.innerHTML = '<div class="text-center"><div class="spinner-border" role="status"><span class="sr-only">Loading...</span></div></div>';
+                    modalBody.innerHTML =
+                        '<div class="text-center"><div class="spinner-border" role="status"><span class="sr-only">Loading...</span></div></div>';
 
                     // Fetch items via AJAX
                     fetch(`/gold-items/same-model?model=${encodeURIComponent(modelName)}`)
@@ -218,12 +234,14 @@
                                 `;
                                 modalBody.innerHTML = htmlContent;
                             } else {
-                                modalBody.innerHTML = '<div class="alert alert-info">No other items found with this model.</div>';
+                                modalBody.innerHTML =
+                                    '<div class="alert alert-info">No other items found with this model.</div>';
                             }
                         })
                         .catch(error => {
                             console.error('Error:', error);
-                            modalBody.innerHTML = '<div class="alert alert-danger">An error occurred while fetching data.</div>';
+                            modalBody.innerHTML =
+                                '<div class="alert alert-danger">An error occurred while fetching data.</div>';
                         });
 
                     // Show the modal
@@ -231,10 +249,10 @@
                 });
             });
 
-            @if(isset($cleared_items))
+            @if (isset($cleared_items))
                 const clearedData = @json($cleared_items);
                 const currentTime = Math.floor(Date.now() / 1000);
-                
+
                 // Only clear if the data is recent (within last 5 seconds)
                 if (currentTime - clearedData.timestamp < 5) {
                     clearedData.items.forEach(itemId => {
@@ -244,10 +262,11 @@
                         }
                     });
                 }
-                
+
                 localStorage.removeItem('selectedItems');
             @endif
         });
     </script>
 </body>
+
 </html>

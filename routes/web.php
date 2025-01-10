@@ -19,6 +19,9 @@ use App\Http\Controllers\{
     OuterController,
     GoldCatalogController,
     ExcelImportController,
+    Excel\ImportGoldItems,
+    Excel\ImportSoldItems,
+    Excel\ImportModels,
     GoldPriceController,
     Admin\AdminDashboardController,
     Admin\WarehouseController,
@@ -67,8 +70,14 @@ Route::middleware('auth')->group(function () {
         }
     })->name('dashboard');
 });
+// import excels
+Route::get('/excel', [ImportGoldItems::class, 'showForm']);
+Route::post('/import-excel', [ImportGoldItems::class, 'import'])->name('import.excel');
+Route::post('/import-excel-sold', [ImportSoldItems::class, 'import'])->name('import.excel-sold');
+Route::post('/import-excel-models', [ImportModels::class, 'import'])->name('import.excel-models');
 Route::get('/gold-items', action: [GoldItemController::class, 'index'])->name('gold-items.index');
 Route::get('/update_prices', [AdminDashboardController::class, 'UPDATE_PRICES'])->name('admin.dashboard');
+Route::get('/gold-items/same-model', [ShopsController::class, 'getItemsByModel']);
 
 // Route::post('/admin/inventory/bulk-action', [AdminDashboardController::class, 'bulkAction'])->name('bulk-action');
 
@@ -152,7 +161,6 @@ Route::middleware(['auth', 'user'])->group(function () {
     Route::patch('/shop/requests/{itemRequest}', [ShopsController::class, 'updateAdminRequests'])
         ->name('shop.requests.update');
 
-    Route::get('/gold-items/same-model', [ShopsController::class, 'getItemsByModel']);
 
 
     Route::get('/dashboard', [ShopsController::class, 'showShopItems'])->name('dashboard');

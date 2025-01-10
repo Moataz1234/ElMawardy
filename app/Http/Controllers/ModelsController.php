@@ -4,27 +4,37 @@ namespace App\Http\Controllers;
 
 use App\Models\Models;
 use App\Models\GoldItem;
+use App\Models\Talabat;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Storage;
 
 class ModelsController extends Controller
 {
     public function index(Request $request)
-    {
-        $query = Models::query();
-    
-        if ($request->has('search')) {
-            $query->where('model', 'like', '%' . $request->search . '%');
-        }
-    
-        if ($request->has('sort')) {
-            $query->orderBy($request->sort, $request->get('direction', 'asc'));
-        }
-    
-        $models = $query->paginate(20); // Change from get() to paginate(20)
-    
-        return view('admin.Gold.models', compact('models'));
+{
+    $query = Models::query();
+
+    // Apply search filter if the 'search' parameter is present
+    if ($request->has('search')) {
+        $query->where('model', 'like', '%' . $request->search . '%');
     }
+
+    // Apply sorting if the 'sort' parameter is present
+    if ($request->has('sort')) {
+        $query->orderBy($request->sort, $request->get('direction', 'asc'));
+    }
+
+    // Check if the 'talabat' tab is active
+    if ($request->has('tab') && $request->tab === 'talabat') {
+        $query->where('model', 'like', '%T%'); // Show only models with 'T' in their names
+    } else {
+        $query->where('model', 'not like', '%T%'); // Exclude models with 'T' in their names
+    }
+
+    $models = $query->paginate(20);
+
+    return view('admin.Gold.models', compact('models'));
+}
 
     public function create()
     {
@@ -149,33 +159,30 @@ class ModelsController extends Controller
         return redirect()->route('models.index')->with('success', 'Model deleted successfully.');
     }
     public function getModelDetails(Request $request)
-    {
-        $model = $request->input('model');
+{
+    $model = $request->input('model');
+    $isTalabat = $request->boolean('is_talabat');
 
-        // First get the model details including the scanned image
-        $modelDetails = Models::where('model', $model)->first();
-    
-        // Fetch items with the same model, excluding the current shop
-        $items = GoldItem::with('shop')
-            ->where('model', $model)
-            ->whereHas('shop')
-            ->get()
-            ->map(function ($item) {
-                return [
-                    'serial_number' => $item->serial_number,
-                    'shop_name' => $item->shop->name,
-                    'weight' => $item->weight,
-                    'gold_color'=>$item->gold_color
-                ];
-            });
-    
+    try {
+        $items = GoldItem::where($isTalabat ? 'talabat' : 'model', $model)->get();
+
+        if ($isTalabat) {
+            $talabatDetails = Talabat::where('model', $model)->first();
+            return response()->json([
+                'talabatDetails' => $talabatDetails,
+                'items' => $items
+            ]);
+        } else {
+            $modelDetails = Models::where('model', $model)->first();
+            return response()->json([
+                'modelDetails' => $modelDetails,
+                'items' => $items
+            ]);
+        }
+    } catch (\Exception $e) {
         return response()->json([
-            'items' => $items,
-            'modelDetails' => $modelDetails ? [
-                'scanned_image' => $modelDetails->scanned_image,
-                // 'model' => $modelDetails->model,
-                // 'SKU' => $modelDetails->SKU,
-            ] : null
-        ]);
+            'error' => 'Error fetching model details: ' . $e->getMessage()
+        ], 500);
     }
+}
 }

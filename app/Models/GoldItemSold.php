@@ -11,10 +11,10 @@ class GoldItemSold extends Model
 
     // Specify the table name if it doesn't follow Laravel's naming convention
     protected $table = 'gold_items_sold';
-
+    
     // Define the fillable fields
     protected $fillable = [
-        'link',
+        // 'link',
         'serial_number',
         'shop_name',
         'shop_id',
@@ -28,12 +28,12 @@ class GoldItemSold extends Model
         'quantity',
         'weight',
         'add_date',
-        'source',
-        'to_print',
+        // 'source',
+        // 'to_print',
         'price',
-        'semi_or_no',
-        'average_of_stones',
-        'net_weight',
+        // 'semi_or_no',
+        // 'average_of_stones',
+        // 'net_weight',
         'sold_date',
     ];
 

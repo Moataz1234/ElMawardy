@@ -11,16 +11,16 @@ return new class extends Migration
      */
     public function up(): void
     {
-        Schema::create('talabat', function (Blueprint $table) {
-            $table->id();
-            $table->string('model')->unique();
-            $table->string('scanned_image')->nullable();
-            $table->string('stars')->nullable();
-            $table->string('source')->nullable();
-            $table->string('semi_or_no')->nullable();
-            $table->decimal('average_of_stones', 10, 2)->nullable();
-            $table->timestamps();
-        });
+        // Schema::create('talabat', function (Blueprint $table) {
+        //     $table->id();
+        //     $table->string('model')->unique();
+        //     $table->string('scanned_image')->nullable();
+        //     $table->string('stars')->nullable();
+        //     $table->string('source')->nullable();
+        //     $table->string('semi_or_no')->nullable();
+        //     $table->decimal('average_of_stones', 10, 2)->nullable();
+        //     $table->timestamps();
+        // });
     }
     /**
      * Reverse the migrations.

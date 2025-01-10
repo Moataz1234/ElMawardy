@@ -9,16 +9,30 @@ class GoldItem extends Model
 {
     use HasFactory;
     protected $fillable = [
-        'model', 'serial_number', 'shop_name', 'shop_id', 'kind',
-        'weight', 'gold_color', 'metal_type', 'metal_purity', 'quantity','talab'
+        'model',
+        'serial_number',
+        'kind',
+        'shop_name',
+        'shop_id',
+        'weight',
+        'gold_color',
+        'metal_type',
+        'metal_purity',
+        'quantity',
+        'stones',
+        'talab',
+        'status',
+        'rest_since',
+        'created_at',
+        'updated_at',
     ];
     public function shop()
     {
         return $this->belongsTo(Shop::class);
     }
     public function user()
-{
-    return $this->belongsTo(User::class, 'shop_name', 'name');
+    {
+        return $this->belongsTo(User::class, 'shop_name', 'name');
     }
 
     public function transferRequests()

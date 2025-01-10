@@ -1,3 +1,4 @@
+
 <?php
 
 use Illuminate\Database\Migrations\Migration;
@@ -9,33 +10,18 @@ return new class extends Migration
     /**
      * Run the migrations.
      */
-    public function up(): void
+    public function up()
     {
-        Schema::create('gold_items_sold', function (Blueprint $table) {
+        Schema::create('gold_prices', function (Blueprint $table) {
             $table->id();
-            $table->string('serial_number')->nullable();
-            $table->string('model')->nullable();
-            $table->string('shop_name')->nullable();
-            $table->unsignedBigInteger('shop_id')->nullable();
-            $table->string('kind')->nullable();
-            $table->float('weight')->nullable();
-            $table->string('gold_color')->nullable();
-            $table->string('metal_type')->nullable();
-            $table->string('metal_purity')->nullable();
-            $table->integer('quantity')->nullable();
-            $table->date('add_date')->nullable();
-            $table->decimal('price', 10, 2)->nullable();
-            $table->date('sold_date')->nullable();
-            $table->string('stones')->nullable();
-            $table->boolean('talab')->nullable();
-            $table->unsignedBigInteger('customer_id')->nullable(); // Add customer_id column
-            $table->foreign('customer_id')->references('id')->on('customers')->onDelete('cascade'); // Define foreign key relationship  
+            $table->decimal('gold_buy', 10, 2)->nullable();
+            $table->decimal('gold_sell', 10, 2)->nullable();
+            $table->float('percent')->nullable();
+            $table->decimal('dollar_price', 10, 2)->nullable();
+            $table->decimal('gold_with_work', 10, 2)->nullable();
+            $table->decimal('gold_in_diamond', 10, 2)->nullable();
+            $table->decimal('shoghl_agnaby', 10, 2)->nullable();
             $table->timestamps();
-
-            $table->foreign('model')
-            ->references('model')
-            ->on('models')
-            ->onDelete('cascade');
         });
     }
 
@@ -44,9 +30,6 @@ return new class extends Migration
      */
     public function down(): void
     {
-         Schema::table('gold_items_sold', function (Blueprint $table) {
-            $table->dropForeign(['customer_id']); // Drop foreign key constraint
-        });
-        Schema::dropIfExists('gold_items_sold');
+        Schema::dropIfExists('gold_prices');
     }
 };

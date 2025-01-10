@@ -11,7 +11,7 @@ return new class extends Migration
         Schema::create('gold_items', function (Blueprint $table) {
             $table->id();
             $table->string('model')->nullable();
-            $table->string('talabat')->nullable();
+            // $table->string('talabat')->nullable();
             $table->string('serial_number')->unique();
             $table->string('kind')->nullable();
             $table->string('shop_name')->nullable();
@@ -32,7 +32,7 @@ return new class extends Migration
             ->on('models')
             ->onDelete('cascade');
             
-            $table->foreign('talabat')->references('model')->on('talabat')->onDelete('cascade');
+            // $table->foreign('talabat')->references('model')->on('talabat')->onDelete('cascade');
       
         });
     }

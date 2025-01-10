@@ -10,7 +10,7 @@
     <link href="{{ asset('css/style.css') }}" rel="stylesheet">
     <link href="{{ asset('css/navbar.css') }}" rel="stylesheet">
     <link href="{{ asset('css/create_form.css') }}" rel="stylesheet">
-    {{-- <link href="{{ asset('css/checkbox.css') }}" rel="stylesheet"> --}}
+    <link href="{{ asset('css/checkbox.css') }}" rel="stylesheet">
     {{-- <link href="{{ asset('css/input.css') }}" rel="stylesheet"> --}}
 </head>
 
@@ -34,31 +34,12 @@
                             <option value="{{ $model->model }}"></option>
                         @endforeach
                     </datalist>
-                    <datalist id="talabatModels" style="display: none;">
-                        @foreach ($talabat as $item)
-                            <option value="{{ $item->model }}"></option>
-                        @endforeach
-                    </datalist>
-                    <div>
-                        <input type="checkbox" id="talabatCheckbox" name="is_talabat">
-                        <label for="talabatCheckbox">Talabat</label>
-                    </div>
                 </div>
                 <div style="width: 40%" class="form-group">
                     <label for="kind">Kind:</label>
                     <input type="text" name="kind" id="kind" readonly required>
                 </div>
             </div>
-            <script>
-                document.getElementById('talabatCheckbox').addEventListener('change', function() {
-                    const modelInput = document.getElementById('model');
-                    if (this.checked) {
-                        modelInput.setAttribute('list', 'talabatModels');
-                    } else {
-                        modelInput.setAttribute('list', 'models');
-                    }
-                });
-            </script>
             {{-- <div  class="form-group">
             <label for="kind">Kind:</label>
             <select style="width:250px" name="kind" id="kind" required>

@@ -6,13 +6,35 @@
     <title>Import Excel</title>
 </head>
 <body>
-    <h2>Upload Excel File</h2>
-    <form action="{{ route('excel.import') }}" method="POST" enctype="multipart/form-data">
+    {{-- @if(session('skipped_rows'))
+    <div class="alert alert-warning">
+        <h4>Skipped Rows (Duplicates)</h4>
+        <ul>
+            @foreach(session('skipped_rows') as $row)
+                <li>Row {{ $row['row'] }}: Serial Number {{ $row['serial_number'] }} - {{ $row['reason'] }}</li>
+            @endforeach
+        </ul>
+    </div>
+@endif --}}
+    <h2>Upload Excel File Gold items</h2>
+    <form action="{{ route('import.excel') }}" method="POST" enctype="multipart/form-data">
         @csrf
-        <label for="file">Choose Excel File:</label>
-        <input type="file" name="file" id="file" accept=".xlsx, .xls, .csv" required>
-        <button type="submit">Upload</button>
+        <input type="file" name="file" required>
+        <button type="submit">Import Gold Items Data</button>
     </form>
+    <h2>Upload Excel File Gold items sold</h2>
+    <form action="{{ route('import.excel-sold') }}" method="POST" enctype="multipart/form-data">
+        @csrf
+        <input type="file" name="file" required>
+        <button type="submit">Import Sold Items Data</button>
+    </form>
+    <h2>Upload Excel File Models</h2>
+    <form action="{{ route('import.excel-models') }}" method="POST" enctype="multipart/form-data">
+        @csrf
+        <input type="file" name="file" required>
+        <button type="submit">Import Models Data</button>
+    </form>
+    <h2>Download Daily Report </h2>
     <div class="print-section">
         <a href="{{ route('daily.report.pdf') }}" class="btn btn-primary">Download PDF Report</a>
     </div></body>
