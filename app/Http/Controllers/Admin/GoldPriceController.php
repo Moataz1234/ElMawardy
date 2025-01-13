@@ -1,7 +1,9 @@
 <?php
 // app/Http/Controllers/GoldPriceController.php
+namespace App\Http\Controllers\Admin;
 
-namespace App\Http\Controllers;
+
+use App\Http\Controllers\Controller;
 
 use Illuminate\Http\Request;
 use App\Models\GoldPrice;
@@ -14,7 +16,7 @@ class GoldPriceController extends Controller
         // Retrieve the latest gold prices
         $latestGoldPrice = GoldPrice::latest()->first();
 
-        return view('update-prices', compact('latestGoldPrice'));
+        return view('admin/update-prices', compact('latestGoldPrice'));
     }
 
     // Update the gold prices

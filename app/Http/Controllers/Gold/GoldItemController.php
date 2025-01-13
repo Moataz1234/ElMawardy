@@ -7,6 +7,7 @@ use Illuminate\Http\Request;
 use App\Http\Requests\GoldItemRequest;
 use App\Services\Admin_GoldItemService;
 use Illuminate\Support\Facades\Log;
+use Illuminate\Support\Facades\DB;
 use App\Models\GoldItem;
 use App\Models\Shop;
 use App\Models\Models;
@@ -43,19 +44,20 @@ class GoldItemController extends Controller
         $metalTypes = GoldItem::select('metal_type')->distinct()->pluck('metal_type');
         $metalPurities = GoldItem::select('metal_purity')->distinct()->pluck('metal_purity');
         $kinds = GoldItem::select('kind')->distinct()->pluck('kind');
-    
-        return view('admin.Gold.Create_form', compact(
-            'shops', 
-            'models', 
+
+        return view('admin.Gold.items.Create_form', compact(
+            'shops',
+            'models',
             // 'talabat', 
-            'goldColors', 
-            'metalTypes', 
-            'metalPurities', 
+            'goldColors',
+            'metalTypes',
+            'metalPurities',
             'kinds'
         ));
     }
     public function store(GoldItemRequest $request)
     {
+
         try {
             Log::info('Starting store process', ['request_data' => $request->all()]);
 
@@ -70,6 +72,7 @@ class GoldItemController extends Controller
                 // Prepare gold item data
                 $goldItemData = [
                     'serial_number' => $nextSerialNumber,
+                    'model' => $validated['model'],
                     'shop_id' => $shopData['shop_id'],
                     'shop_name' => Shop::find($shopData['shop_id'])->name,
                     'kind' => $validated['kind'],
@@ -81,19 +84,8 @@ class GoldItemController extends Controller
                     'talab' => isset($shopData['talab']) ? $shopData['talab'] : false
                 ];
 
-                // Set model or talabat based on checkbox
-                if ($request->has('is_talabat')) {
-                    $goldItemData['talabat'] = $validated['model'];
-                    $goldItemData['model'] = null;
-                    Log::info('Setting talabat model', ['talabat' => $validated['model']]);
-                } else {
-                    $goldItemData['model'] = $validated['model'];
-                    $goldItemData['talabat'] = null;
-                    Log::info('Setting regular model', ['model' => $validated['model']]);
-                }
-
-                Log::info('Creating gold item with data', ['data' => $goldItemData]);
-
+                // Debugging: Check the data being passed to create()
+                Log::info('Gold item data before creation', ['data' => $goldItemData]);
                 // Create the item
                 $item = GoldItem::create($goldItemData);
                 Log::info('Gold item created successfully', ['item_id' => $item->id]);
@@ -119,7 +111,7 @@ class GoldItemController extends Controller
         $goldItem = GoldItem::findOrFail($id);
         $shops = Shop::all();
 
-        return view('admin.Gold.Edit_form', compact('goldItem', 'shops'));
+        return view('admin.Gold.Items.Edit_form', compact('goldItem', 'shops'));
     }
 
     public function checkExists($model)

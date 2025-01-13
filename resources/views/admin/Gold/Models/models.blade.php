@@ -50,12 +50,13 @@
         <thead>
             <tr>
                 <th>Model</th>
-                <th>SKU</th>
-                <th>Scanned Image</th>
-                <th>Website Image</th>
+                {{-- <th>SKU</th> --}}
+                <th>Images</th>
+                {{-- <th>Website Image</th> --}}
                 <th>Stars</th>
                 <th>Source</th>
                 <th>First Production</th>
+                <th>Avg_Of_Stones</th>
                 <th>Actions</th>
             </tr>
         </thead>
@@ -63,25 +64,28 @@
             @foreach ($models as $model)
                 <tr>
                     <td>{{ $model->model ?? $model->talabat }}</td>
-                    <td>{{ $model->SKU }}</td>
+                    {{-- <td>{{ $model->SKU }}</td> --}}
                     <td>
                         @if ($model->scanned_image)
                             <img src="{{ asset('storage/' . $model->scanned_image) }}" alt="Scanned Image"
                                 style="max-width: 100px; max-height: 100px;">
                         @endif
                     </td>
-                    <td>
+                    {{-- <td>
                         @if ($model->website_image)
                             <img src="{{ asset('storage/' . $model->website_image) }}" alt="Website Image"
                                 style="max-width: 100px; max-height: 100px;">
                         @endif
-                    </td>
+                    </td> --}}
                     <td>{{ $model->stars }}</td>
                     <td>{{ $model->source }}</td>
                     <td>{{ $model->first_production }}</td>
+                    <td>{{ $model->average_of_stones }}</td>
+
                     <td>
                         <a class="navbar-link" style="color:blue" href="{{ route('models.edit', $model) }}">Edit</a>
                     </td>
+
                 </tr>
             @endforeach
         </tbody>

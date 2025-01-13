@@ -11,34 +11,36 @@ use Illuminate\Support\Facades\Storage;
 class ModelsController extends Controller
 {
     public function index(Request $request)
-{
-    $query = Models::query();
-
-    // Apply search filter if the 'search' parameter is present
-    if ($request->has('search')) {
-        $query->where('model', 'like', '%' . $request->search . '%');
-    }
-
-    // Apply sorting if the 'sort' parameter is present
-    if ($request->has('sort')) {
-        $query->orderBy($request->sort, $request->get('direction', 'asc'));
-    }
-
-    // Check if the 'talabat' tab is active
-    if ($request->has('tab') && $request->tab === 'talabat') {
-        $query->where('model', 'like', '%T%'); // Show only models with 'T' in their names
-    } else {
-        $query->where('model', 'not like', '%T%'); // Exclude models with 'T' in their names
-    }
-
-    $models = $query->paginate(20);
-
-    return view('admin.Gold.models', compact('models'));
-}
-
-    public function create()
     {
-        return view('admin.Gold.create_model');
+        $query = Models::query();
+
+        // Apply search filter if the 'search' parameter is present
+        if ($request->has('search')) {
+            $query->where('model', 'like', '%' . $request->search . '%');
+        }
+
+        // Apply sorting if the 'sort' parameter is present
+        if ($request->has('sort')) {
+            $query->orderBy($request->sort, $request->get('direction', 'asc'));
+        }
+
+        // Check if the 'talabat' tab is active
+        if ($request->has('tab') && $request->tab === 'talabat') {
+            $query->where('model', 'like', '%T%'); // Show only models with 'T' in their names
+        } else {
+            $query->where('model', 'not like', '%T%'); // Exclude models with 'T' in their names
+        }
+
+        $models = $query->paginate(20);
+
+        return view('admin.Gold.Models.models', compact('models'));
+    }
+
+    public function create(Request  $request)
+    {
+        $model = $request->query('model');
+
+        return view('admin.Gold.Models.create_model',['model' => $model]);
     }
 
     public function store(Request $request)
@@ -57,17 +59,17 @@ class ModelsController extends Controller
         // Generate SKU from model number
         preg_match('/^(\d+)-(\d+)(?:-(\w+))?$/', $request->model, $matches);
 
-    if (count($matches) >= 3) {
-        $prefix = $matches[1]; // e.g., 1
-        $mainPart = $matches[2]; // e.g., 0003
-        $suffix = $matches[3] ?? ''; // e.g., A or B (optional)
-        $sku = 'G' . $prefix . $mainPart . $suffix; // Combine parts
-    } else {
-        // Default SKU in case of invalid format
-        $sku = 'G' . str_pad(substr($request->model, -4), 4, '0', STR_PAD_LEFT);
-    }
+        if (count($matches) >= 3) {
+            $prefix = $matches[1]; // e.g., 1
+            $mainPart = $matches[2]; // e.g., 0003
+            $suffix = $matches[3] ?? ''; // e.g., A or B (optional)
+            $sku = 'G' . $prefix . $mainPart . $suffix; // Combine parts
+        } else {
+            // Default SKU in case of invalid format
+            $sku = 'G' . str_pad(substr($request->model, -4), 4, '0', STR_PAD_LEFT);
+        }
 
-    $validatedData['SKU'] = $sku;
+        $validatedData['SKU'] = $sku;
 
         // Handle scanned image upload
         if ($request->hasFile('scanned_image')) {
@@ -88,7 +90,7 @@ class ModelsController extends Controller
 
     public function edit(Models $model)
     {
-        return view('admin.Gold.edit_model', compact('model'));
+        return view('admin.Gold.Models.edit_model', compact('model'));
     }
 
     public function update(Request $request, Models $model)
@@ -115,9 +117,9 @@ class ModelsController extends Controller
             // Default SKU in case of invalid format
             $sku = 'G' . str_pad(substr($request->model, -4), 4, '0', STR_PAD_LEFT);
         }
-    
+
         $validatedData['SKU'] = $sku;
-    
+
 
         // Handle scanned image upload
         if ($request->hasFile('scanned_image')) {
@@ -131,7 +133,7 @@ class ModelsController extends Controller
         // Handle website image upload
         if ($request->hasFile('website_image')) {
             // Delete old image if exists
-            
+
             // if ($model->website_image) {
             //     Storage::disk('public')->delete($model->website_image);
             // }
@@ -159,30 +161,61 @@ class ModelsController extends Controller
         return redirect()->route('models.index')->with('success', 'Model deleted successfully.');
     }
     public function getModelDetails(Request $request)
-{
-    $model = $request->input('model');
-    $isTalabat = $request->boolean('is_talabat');
+    {
+        $model = $request->input('model');
+        $isTalabat = $request->boolean('is_talabat');
 
-    try {
-        $items = GoldItem::where($isTalabat ? 'talabat' : 'model', $model)->get();
+        try {
+            $items = GoldItem::where($isTalabat ? 'talabat' : 'model', $model)->get();
 
-        if ($isTalabat) {
-            $talabatDetails = Talabat::where('model', $model)->first();
+            if ($isTalabat) {
+                $talabatDetails = Talabat::where('model', $model)->first();
+                return response()->json([
+                    'talabatDetails' => $talabatDetails,
+                    'items' => $items
+                ]);
+            } else {
+                $modelDetails = Models::where('model', $model)->first();
+                return response()->json([
+                    'modelDetails' => $modelDetails,
+                    'items' => $items
+                ]);
+            }
+        } catch (\Exception $e) {
             return response()->json([
-                'talabatDetails' => $talabatDetails,
-                'items' => $items
-            ]);
-        } else {
-            $modelDetails = Models::where('model', $model)->first();
-            return response()->json([
-                'modelDetails' => $modelDetails,
-                'items' => $items
-            ]);
+                'error' => 'Error fetching model details: ' . $e->getMessage()
+            ], 500);
         }
-    } catch (\Exception $e) {
-        return response()->json([
-            'error' => 'Error fetching model details: ' . $e->getMessage()
-        ], 500);
     }
+    public function generateModel(Request $request)
+{
+    $prefix = $request->query('prefix');
+    $isTalabat = $request->query('talabat') === 'true'; // Ensure boolean value
+
+    // Query to find the last model number based on the prefix
+    $query = Models::where('model', 'like', $prefix . '-%');
+
+    // Apply Talabat condition
+    if ($isTalabat) {
+        $query->where('model', 'like', '%T'); // Include "T" for Talabat
+    } else {
+        $query->where('model', 'not like', '%T'); // Exclude "T" for non-Talabat
+    }
+
+    $lastModel = $query->orderBy('model', 'desc')->first();
+
+    if ($lastModel) {
+        return response()->json(['model' => $lastModel->model]);
+    }
+
+    return response()->json(['model' => null]);
+}
+public function checkModelExists(Request $request)
+{
+    $model = $request->query('model');
+
+    $exists = Models::where('model', $model)->exists();
+
+    return response()->json(['exists' => $exists]);
 }
 }

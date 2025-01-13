@@ -110,21 +110,21 @@ class ImportGoldItems extends Controller
             if (empty(array_filter($rowData))) {
                 continue;
             }
-            $rest_since = $this->parseDate($rowData[12]); // Column N in Excel
+            $rest_since = $this->parseDate($rowData[13]); // Column N in Excel
 
             $records[] = [
-                'model' => $rowData[4],
-                'serial_number' => $rowData[0],
-                'kind' => $rowData[3],
-                'shop_name' => $rowData[1],
-                'shop_id' => $rowData[2],
-                'weight' => $rowData[11],
-                'gold_color' => $rowData[6],
-                'metal_type' => $rowData[8],
-                'metal_purity' => $rowData[9],
-                'quantity' => $rowData[10],
-                'stones' => $rowData[7],
-                'talab' => $rowData[5] === 'YES',
+                'model' => $rowData[5], //F
+                'serial_number' => $rowData[1],//B
+                'kind' => $rowData[4], //E
+                'shop_name' => $rowData[2], //C
+                'shop_id' => $rowData[3],//D
+                'weight' => $rowData[12], //M
+                'gold_color' => $rowData[7],
+                'metal_type' => $rowData[9],
+                'metal_purity' => $rowData[10],
+                'quantity' => $rowData[11],
+                'stones' => $rowData[8],
+                'talab' => $rowData[6] === 'YES',
                 'status' => 'available',
                 'rest_since' => $rest_since,
                 'created_at' => Carbon::now(),

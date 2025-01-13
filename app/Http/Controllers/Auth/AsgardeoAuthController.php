@@ -8,6 +8,7 @@ use App\Models\User;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Str;
 use Illuminate\Support\Facades\Log;
+use Exception;
 
 class AsgardeoAuthController extends Controller
 {
@@ -128,5 +129,55 @@ class AsgardeoAuthController extends Controller
         ])->get('https://api.asgardeo.io/t/elmawardyjewelry/oauth2/userinfo');
 
         return $response->json();
+    }
+    public function logout(Request $request)
+    {
+        try {
+            // Get the logout URL from environment
+            $asgardeoLogoutUrl = env('ASGARDEO_LOGOUT_URL', 
+                'https://api.asgardeo.io/t/elmawardyjewelry/oidc/logout');
+            
+            // Get the post-logout redirect URI
+            $postLogoutRedirectUri = env('APP_URL', 'http://localhost:8000/login');
+            
+            // Log the logout attempt
+            Log::info('User logout initiated', [
+                'user_id' => Auth::id(),
+                'email' => optional(Auth::user())->email
+            ]);
+
+            // Perform Laravel logout
+            Auth::logout();
+            
+            // Clear and invalidate the session
+            $request->session()->invalidate();
+            $request->session()->regenerateToken();
+
+            // Build the Asgardeo logout URL with redirect
+            $logoutUrl = $asgardeoLogoutUrl . '?' . http_build_query([
+                'post_logout_redirect_uri' => $postLogoutRedirectUri,
+                'client_id' => env('ASGARDEO_CLIENT_ID')
+            ]);
+
+            Log::info('Redirecting to Asgardeo logout', [
+                'logout_url' => $logoutUrl
+            ]);
+
+            return redirect($logoutUrl);
+
+        } catch (Exception $e) {
+            Log::error('Logout failed', [
+                'error' => $e->getMessage(),
+                'trace' => $e->getTraceAsString()
+            ]);
+
+            // If logout fails, at least logout locally
+            Auth::logout();
+            $request->session()->invalidate();
+            $request->session()->regenerateToken();
+
+            return redirect('/login')
+                ->withErrors('Logout failed: ' . $e->getMessage());
+        }
     }
 }

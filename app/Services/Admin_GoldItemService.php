@@ -151,15 +151,27 @@ class Admin_GoldItemService
     //     $goldItem->update($validatedData);
     // }
 
-    public function generateNextSerialNumber($lastItem)
+    public function generateNextSerialNumber()
     {
+        // Fetch the last item with the highest serial number
+        $lastItem = GoldItem::orderBy('serial_number', 'desc')->first();
+    
         if ($lastItem) {
-            preg_match('/(\d+)$/', $lastItem->serial_number, $matches);
-            $lastNumber = $matches ? (int)$matches[0] : 0;
-            return 'G-' . str_pad($lastNumber + 1, 6, '0', STR_PAD_LEFT);
+            // Extract the numeric part of the serial number
+            $lastNumber = (int) substr($lastItem->serial_number, 2); // Assumes format "G-XXXXXX"
+            $nextNumber = $lastNumber + 1;
+        } else {
+            // If no items exist, start from 1
+            $nextNumber = 1;
         }
-
-        return 'G-000001';
+    
+        // Format the next serial number
+        $nextSerialNumber = 'G-' . str_pad($nextNumber, 6, '0', STR_PAD_LEFT);
+    
+        // Log the generated serial number for debugging
+        Log::info('Generated serial number', ['serial_number' => $nextSerialNumber]);
+    
+        return $nextSerialNumber;
     }
     public function getGoldItems( $request)
 { 
