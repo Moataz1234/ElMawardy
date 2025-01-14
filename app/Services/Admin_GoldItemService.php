@@ -237,8 +237,8 @@ class Admin_GoldItemService
                     'updated_at' => now()
                 ]);
 
-                // Update original item status
-                $item->update(['status' => 'in_workshop']);
+                // Delete the original item after transferring to workshop
+                $item->delete();
             }
         });
     }
