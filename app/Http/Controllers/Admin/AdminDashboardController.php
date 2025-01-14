@@ -199,5 +199,22 @@ public function bulkAction(Request $request)
     public function update_prices(){
         return view('shopify.update_price');
     }
+
+    public function createWorkshopRequests(Request $request)
+    {
+        $request->validate([
+            'items' => 'required|array',
+            'reason' => 'required|string',
+            'transfer_all_models' => 'required|boolean'
+        ]);
+
+        $items = $request->input('items');
+        $reason = $request->input('reason');
+        $transferAllModels = $request->input('transfer_all_models');
+
+        $this->goldItemService->createWorkshopRequests($items, $reason, $transferAllModels);
+
+        return response()->json(['success' => true]);
+    }
   
 }
