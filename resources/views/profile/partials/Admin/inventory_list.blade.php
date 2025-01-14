@@ -131,18 +131,41 @@
                         };
                     });
 
+                    // First ask if they want to transfer just selected items or all items with same models
                     Swal.fire({
-                        title: 'Confirm Transfer',
-                        html: `
-                            <p>Are you sure you want to transfer these items to workshop?</p>
-                            <ul style="text-align: left;">${mappedItems.map(item => 
-                                `<li>${item.serial} - ${item.model}</li>`
-                            ).join('')}</ul>
-                            <div class="form-group">
-                                <label>Reason for transfer:</label>
-                                <textarea id="transfer-reason" class="form-control"></textarea>
-                            </div>
-                        `,
+                        title: 'Transfer Options',
+                        text: 'Do you want to transfer just the selected items or all items with the same models?',
+                        showDenyButton: true,
+                        showCancelButton: true,
+                        confirmButtonText: 'Selected Items',
+                        denyButtonText: 'All Items with Same Models',
+                        cancelButtonText: 'Cancel'
+                    }).then((firstResult) => {
+                        if (firstResult.isDismissed) {
+                            return; // User clicked cancel
+                        }
+
+                        const transferAllModels = firstResult.isDenied;
+                        const modelsToTransfer = transferAllModels 
+                            ? [...new Set(mappedItems.map(item => item.model))]
+                            : null;
+
+                        // Now ask for the reason
+                        Swal.fire({
+                            title: 'Confirm Transfer',
+                            html: `
+                                <p>You are about to transfer ${transferAllModels ? 'ALL ITEMS' : 'SELECTED ITEMS'}</p>
+                                ${transferAllModels 
+                                    ? `<p>Models to transfer: ${modelsToTransfer.join(', ')}</p>`
+                                    : `<ul style="text-align: left;">${mappedItems.map(item => 
+                                        `<li>${item.serial} - ${item.model}</li>`
+                                    ).join('')}</ul>`
+                                }
+                                <div class="form-group">
+                                    <label>Reason for transfer:</label>
+                                    <textarea id="transfer-reason" class="form-control"></textarea>
+                                </div>
+                            `,
                         icon: 'warning',
                         showCancelButton: true,
                         confirmButtonColor: '#3085d6',
@@ -156,6 +179,13 @@
                             reasonInput.name = 'transfer_reason';
                             reasonInput.value = reason;
                             document.getElementById('bulkActionForm').appendChild(reasonInput);
+
+                            // Add transfer mode input
+                            const transferModeInput = document.createElement('input');
+                            transferModeInput.type = 'hidden';
+                            transferModeInput.name = 'transfer_all_models';
+                            transferModeInput.value = transferAllModels;
+                            document.getElementById('bulkActionForm').appendChild(transferModeInput);
                             
                             // Set the action value to workshop
                             document.querySelector('input[name="action"]').value = 'workshop';

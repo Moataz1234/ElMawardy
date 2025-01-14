@@ -106,8 +106,11 @@ public function bulkAction(Request $request)
                 break;
             case 'workshop':
                 $reason = $request->input('transfer_reason');
-                $this->goldItemService->bulkTransferToWorkshop($selectedItems, $reason);
-                $message = 'Selected items transferred to workshop successfully';
+                $transferAllModels = $request->input('transfer_all_models') === 'true';
+                $this->goldItemService->bulkTransferToWorkshop($selectedItems, $reason, $transferAllModels);
+                $message = $transferAllModels 
+                    ? 'All items with matching models transferred to workshop successfully'
+                    : 'Selected items transferred to workshop successfully';
                 break;
             default:
                 return redirect()->back()->with('error', 'Invalid action');

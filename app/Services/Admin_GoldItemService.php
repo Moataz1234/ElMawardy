@@ -213,11 +213,19 @@ class Admin_GoldItemService
                  ->appends($request->all());
 }
 
-    public function bulkTransferToWorkshop(array $ids, $reason = null)
+    public function bulkTransferToWorkshop(array $ids, $reason = null, $transferAllModels = false)
     {
-        DB::transaction(function () use ($ids, $reason) {
-            $items = GoldItem::whereIn('id', $ids)->get();
+        DB::transaction(function () use ($ids, $reason, $transferAllModels) {
             $user = auth()->user();
+            
+            // Get either the selected items or all items with matching models
+            $items = $transferAllModels 
+                ? GoldItem::whereIn('model', function($query) use ($ids) {
+                    $query->select('model')
+                        ->from('gold_items')
+                        ->whereIn('id', $ids);
+                })->get()
+                : GoldItem::whereIn('id', $ids)->get();
             
             foreach ($items as $item) {
                 // Create workshop record
