@@ -6,6 +6,7 @@ use App\Services\ShopWeightAnalysisService;
 use App\Services\PopularModelsService;
 use Illuminate\View\View;
 use App\Models\GoldItemSold;
+use App\Models\GoldItem;
 use App\Models\Models;
 use Illuminate\Http\Request;
 // use App\Http\Requests\GoldItemRequest;
@@ -13,6 +14,8 @@ use App\Http\Requests\UpdateGoldItemRequest;
 use App\Models\DeletedItemHistory;
 use App\Services\Admin_GoldItemService;
 use Illuminate\Support\Facades\Log;
+use Illuminate\Support\Facades\DB;
+
 
 class AdminDashboardController extends Controller
 {
