@@ -107,20 +107,20 @@
     <script src="https://cdn.jsdelivr.net/npm/@popperjs/core@2.5.3/dist/umd/popper.min.js"></script>
     <script src="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/js/bootstrap.min.js"></script>
     <script>
-        document.addEventListener('DOMContentLoaded', function() {
+        document.addEventListener('DOMContentLoaded', function () {
             // Workshop transfer button handler
-            document.addEventListener('click', function(e) {
+            document.addEventListener('click', function (e) {
                 if (e.target.classList.contains('workshop_btn')) {
                     e.preventDefault();
-                    
+    
                     const selectedItems = Array.from(document.querySelectorAll(
                         'input[name="selected_items[]"]:checked'));
-                    
+    
                     if (selectedItems.length === 0) {
                         Swal.fire('Error', 'Please select items to transfer', 'error');
                         return;
                     }
-
+    
                     const mappedItems = selectedItems.map(checkbox => {
                         const row = checkbox.closest('tr');
                         return {
@@ -129,7 +129,7 @@
                             model: row.querySelector('td:nth-child(6)').textContent
                         };
                     });
-
+    
                     // First ask if they want to transfer just selected items or all items with same models
                     Swal.fire({
                         title: 'Transfer Options',
@@ -143,20 +143,20 @@
                         if (firstResult.isDismissed) {
                             return; // User clicked cancel
                         }
-
+    
                         const transferAllModels = firstResult.isDenied;
-                        const modelsToTransfer = transferAllModels 
+                        const modelsToTransfer = transferAllModels
                             ? [...new Set(mappedItems.map(item => item.model))]
                             : null;
-
+    
                         // Now ask for the reason
                         Swal.fire({
                             title: 'Confirm Transfer',
                             html: `
                                 <p>You are about to transfer ${transferAllModels ? 'ALL ITEMS' : 'SELECTED ITEMS'}</p>
-                                ${transferAllModels 
+                                ${transferAllModels
                                     ? `<p>Models to transfer: ${modelsToTransfer.join(', ')}</p>`
-                                    : `<ul style="text-align: left; max-height: 200px; overflow-y: auto;">${mappedItems.map(item => 
+                                    : `<ul style="text-align: left; max-height: 200px; overflow-y: auto;">${mappedItems.map(item =>
                                         `<li>${item.serial} - ${item.model}</li>`
                                     ).join('')}</ul>`
                                 }
@@ -176,85 +176,83 @@
                                     Swal.showValidationMessage('Please enter a reason for transfer');
                                     return false;
                                 }
-                                return true;
+                                return reason;
                             }
                         }).then((result) => {
                             if (result.isConfirmed) {
-                                const reason = document.getElementById('transfer-reason').value;
+                                const reason = result.value;
                                 const reasonInput = document.createElement('input');
                                 reasonInput.type = 'hidden';
                                 reasonInput.name = 'transfer_reason';
                                 reasonInput.value = reason;
                                 document.getElementById('bulkActionForm').appendChild(reasonInput);
-
+    
                                 // Add transfer mode input
                                 const transferModeInput = document.createElement('input');
                                 transferModeInput.type = 'hidden';
                                 transferModeInput.name = 'transfer_all_models';
                                 transferModeInput.value = transferAllModels;
                                 document.getElementById('bulkActionForm').appendChild(transferModeInput);
-                                
+    
                                 // Set the action value to workshop
                                 document.querySelector('input[name="action"]').value = 'workshop';
-                                
-                                // Submit the form with workshop action
-                                const form = document.getElementById('bulkActionForm');
-                                form.action = "{{ route('bulk-action') }}";
-                                document.querySelector('input[name="action"]').value = 'workshop';
-                                form.submit();
+    
+                                // Submit the form
+                                document.getElementById('bulkActionForm').submit();
                             }
                         });
                     });
-                });
-            }
+                }
+            });
+    
+            // Model links handler
             const modelLinks = document.querySelectorAll('.model-link');
-
             modelLinks.forEach(link => {
-                link.addEventListener('click', function(e) {
+                link.addEventListener('click', function (e) {
                     e.preventDefault();
-
+    
                     const modelName = this.dataset.model;
-
+    
                     // Update modal title
                     document.getElementById('modelDetailsModalLabel').innerText =
                         `Items with Model: ${modelName}`;
-
+    
                     // Show "Loading..." while fetching data
                     const modalBody = document.getElementById('modal-body-content');
                     modalBody.innerHTML =
                         '<div class="text-center"><div class="spinner-border" role="status"><span class="sr-only">Loading...</span></div></div>';
-
+    
                     // Fetch items via AJAX
                     fetch(`/gold-items/same-model?model=${encodeURIComponent(modelName)}`)
                         .then(response => response.json())
                         .then(data => {
                             if (data.items.length > 0) {
                                 let htmlContent = `
-                                <div class="table-responsive">
-                                    <table class="table table-striped">
-                                        <thead>
-                                            <tr>
-                                                <th>Shop Name</th>
-                                                <th>Weight</th>
-                                                <th>Serial Number</th>
-                                            </tr>
-                                        </thead>
-                                        <tbody>
-                            `;
+                                    <div class="table-responsive">
+                                        <table class="table table-striped">
+                                            <thead>
+                                                <tr>
+                                                    <th>Shop Name</th>
+                                                    <th>Weight</th>
+                                                    <th>Serial Number</th>
+                                                </tr>
+                                            </thead>
+                                            <tbody>
+                                `;
                                 data.items.forEach(item => {
                                     htmlContent += `
-                                    <tr>
-                                        <td>${item.shop_name}</td>
-                                        <td>${item.weight}g</td>
-                                        <td>${item.serial_number}</td>
-                                    </tr>
-                                `;
+                                        <tr>
+                                            <td>${item.shop_name}</td>
+                                            <td>${item.weight}g</td>
+                                            <td>${item.serial_number}</td>
+                                        </tr>
+                                    `;
                                 });
                                 htmlContent += `
-                                        </tbody>
-                                    </table>
-                                </div>
-                            `;
+                                            </tbody>
+                                        </table>
+                                    </div>
+                                `;
                                 modalBody.innerHTML = htmlContent;
                             } else {
                                 modalBody.innerHTML =
@@ -266,84 +264,68 @@
                             modalBody.innerHTML =
                                 '<div class="alert alert-danger">An error occurred while fetching data.</div>';
                         });
-
+    
                     // Show the modal
                     $('#modelDetailsModal').modal('show');
                 });
             });
-        });
-    </script>
-    <script>
-        document.addEventListener('DOMContentLoaded', function() {
+    
+            // Delete button handler
             const deleteForm = document.getElementById('bulkActionForm');
-            const deleteBtn = deleteForm.querySelector('.delete_btn');
-
-            console.log('DOM Content Loaded');
-            console.log('Delete form found:', deleteForm);
-            console.log('Delete button found:', deleteBtn);
-
-            if (!deleteForm) {
-                console.error('Delete form not found');
-                return;
-            }
-            if (!deleteBtn) {
-                console.error('Delete button not found!');
-                return;
-            }
-
-            deleteBtn.addEventListener('click', function(e) {
-                e.preventDefault();
-                console.log('Delete button clicked');
-
-                const selectedItems = Array.from(deleteForm.querySelectorAll(
-                    'input[name="selected_items[]"]:checked'));
-                console.log('Selected items count:', selectedItems.length);
-
-                if (selectedItems.length === 0) {
-                    Swal.fire('Error', 'Please select items to delete', 'error');
-                    return;
-                }
-
-                const mappedItems = selectedItems.map(checkbox => {
-                    const row = checkbox.closest('tr');
-                    return {
-                        id: checkbox.value,
-                        serial: row.querySelector('td:nth-child(3)').textContent,
-                        model: row.querySelector('td:nth-child(6)').textContent
-                    };
-                });
-
-                Swal.fire({
-                    title: 'Confirm Deletion',
-                    html: `
-                <p>Are you sure you want to delete these items?</p>
-                <ul style="text-align: left;">${mappedItems.map(item => 
-                    `<li>${item.serial} - ${item.model}</li>`
-                ).join('')}</ul>
-                <div class="form-group">
-                    <label>Reason for deletion:</label>
-                    <textarea id="deletion-reason" class="form-control"></textarea>
-                </div>
-            `,
-                    icon: 'warning',
-                    showCancelButton: true,
-                    confirmButtonColor: '#d33',
-                    cancelButtonColor: '#3085d6',
-                    confirmButtonText: 'Yes, delete them!'
-                }).then((result) => {
-                    if (result.isConfirmed) {
-                        const reason = document.getElementById('deletion-reason').value;
-                        const reasonInput = document.createElement('input');
-                        reasonInput.type = 'hidden';
-                        reasonInput.name = 'deletion_reason';
-                        reasonInput.value = reason;
-                        deleteForm.appendChild(reasonInput);
-
-                        console.log('Submitting delete form...');
-                        deleteForm.submit();
+            const deleteBtn = deleteForm?.querySelector('.delete_btn');
+    
+            if (deleteForm && deleteBtn) {
+                deleteBtn.addEventListener('click', function (e) {
+                    e.preventDefault();
+    
+                    const selectedItems = Array.from(deleteForm.querySelectorAll(
+                        'input[name="selected_items[]"]:checked'));
+    
+                    if (selectedItems.length === 0) {
+                        Swal.fire('Error', 'Please select items to delete', 'error');
+                        return;
                     }
+    
+                    const mappedItems = selectedItems.map(checkbox => {
+                        const row = checkbox.closest('tr');
+                        return {
+                            id: checkbox.value,
+                            serial: row.querySelector('td:nth-child(3)').textContent,
+                            model: row.querySelector('td:nth-child(6)').textContent
+                        };
+                    });
+    
+                    Swal.fire({
+                        title: 'Confirm Deletion',
+                        html: `
+                            <p>Are you sure you want to delete these items?</p>
+                            <ul style="text-align: left;">${mappedItems.map(item =>
+                                `<li>${item.serial} - ${item.model}</li>`
+                            ).join('')}</ul>
+                            <div class="form-group">
+                                <label>Reason for deletion:</label>
+                                <textarea id="deletion-reason" class="form-control"></textarea>
+                            </div>
+                        `,
+                        icon: 'warning',
+                        showCancelButton: true,
+                        confirmButtonColor: '#d33',
+                        cancelButtonColor: '#3085d6',
+                        confirmButtonText: 'Yes, delete them!'
+                    }).then((result) => {
+                        if (result.isConfirmed) {
+                            const reason = document.getElementById('deletion-reason').value;
+                            const reasonInput = document.createElement('input');
+                            reasonInput.type = 'hidden';
+                            reasonInput.name = 'deletion_reason';
+                            reasonInput.value = reason;
+                            deleteForm.appendChild(reasonInput);
+    
+                            deleteForm.submit();
+                        }
+                    });
                 });
-            });
+            }
         });
     </script>
 </body>
