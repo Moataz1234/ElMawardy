@@ -213,6 +213,36 @@ class Admin_GoldItemService
                  ->appends($request->all());
 }
 
+    public function bulkTransferToWorkshop(array $ids, $reason = null)
+    {
+        DB::transaction(function () use ($ids, $reason) {
+            $items = GoldItem::whereIn('id', $ids)->get();
+            $user = auth()->user();
+            
+            foreach ($items as $item) {
+                // Create workshop record
+                DB::table('workshop_items')->insert([
+                    'item_id' => $item->id,
+                    'transferred_by' => $user->name,
+                    'serial_number' => $item->serial_number,
+                    'shop_name' => $item->shop_name,
+                    'kind' => $item->kind,
+                    'model' => $item->model,
+                    'gold_color' => $item->gold_color,
+                    'metal_purity' => $item->metal_purity,
+                    'weight' => $item->weight,
+                    'transfer_reason' => $reason,
+                    'transferred_at' => now(),
+                    'created_at' => now(),
+                    'updated_at' => now()
+                ]);
+
+                // Update original item status
+                $item->update(['status' => 'in_workshop']);
+            }
+        });
+    }
+
     public function getGoldItemsSold($request)
     {
         $query = GoldItemSold::query();

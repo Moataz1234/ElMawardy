@@ -104,6 +104,11 @@ public function bulkAction(Request $request)
                 $this->goldItemService->bulkRequest($selectedItems);
                 $message = 'Selected items requested successfully';
                 break;
+            case 'workshop':
+                $reason = $request->input('transfer_reason');
+                $this->goldItemService->bulkTransferToWorkshop($selectedItems, $reason);
+                $message = 'Selected items transferred to workshop successfully';
+                break;
             default:
                 return redirect()->back()->with('error', 'Invalid action');
         }
