@@ -14,7 +14,11 @@ return new class extends Migration
             // $table->string('talabat')->nullable();
             $table->string('serial_number')->unique();
             $table->string('kind')->nullable()->index();
-            $table->string('shop_name')->nullable();
+            $table->string('shop_name')->nullable()->index();
+            $table->foreign('shop_name')
+                ->references('shop_name')
+                ->on('users')
+                ->onDelete('cascade');
             $table->string('shop_id')->nullable();
             $table->decimal('weight', 10, 2)->nullable();
             $table->string('gold_color')->nullable();
