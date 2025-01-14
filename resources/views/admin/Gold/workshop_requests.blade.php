@@ -1,59 +1,137 @@
-@extends('layouts.admin')
-
-@section('content')
-<div class="container-fluid" style="margin-left: 200px;">
-    <h1 class="h3 mb-2 text-gray-800 text-center">Workshop Transfer Requests</h1>
+<head>
+    @include('components.navbar')
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Pending Workshop Transfer Requests</title>
+    <style>
+       body {
+          font-family: 'Roboto', sans-serif;
+          background-color: #ffffff;
+        }
     
-    <div class="card shadow mb-4">
-        <div class="card-header py-3">
-            <h6 class="m-0 font-weight-bold text-primary text-center">Pending Workshop Transfers</h6>
-        </div>
-        <div class="card-body">
-            <div class="table-responsive">
-                <table class="table table-bordered mx-auto" id="dataTable" width="80%" cellspacing="0">
-                    <thead>
-                        <tr>
-                            <th class="text-center">Serial Number</th>
-                            <th class="text-center">Shop Name</th>
-                            <th class="text-center">Requested By</th>
-                            <th class="text-center">Reason</th>
-                            <th class="text-center">Status</th>
-                            <th class="text-center">Actions</th>
-                        </tr>
-                    </thead>
-                    <tbody>
-                        @foreach ($requests as $request)
-                        <tr>
-                            <td class="text-center">{{ $request->serial_number }}</td>
-                            <td class="text-center">{{ $request->shop_name }}</td>
-                            <td class="text-center">{{ $request->requested_by }}</td>
-                            <td class="text-center">{{ $request->reason }}</td>
-                            <td class="text-center">
-                                <span class="badge badge-{{ $request->status === 'pending' ? 'warning' : ($request->status === 'approved' ? 'success' : 'danger') }}">
-                                    {{ ucfirst($request->status) }}
-                                </span>
-                            </td>
-                            <td class="text-center">
-                                @if($request->status === 'pending')
-                                <form method="POST" action="{{ route('workshop.requests.handle', $request->id) }}" class="d-inline">
-                                    @csrf
-                                    <input type="hidden" name="status" value="approved">
-                                    <button type="submit" class="btn btn-success btn-sm">Approve</button>
-                                </form>
-                                <form method="POST" action="{{ route('workshop.requests.handle', $request->id) }}" class="d-inline">
-                                    @csrf
-                                    <input type="hidden" name="status" value="rejected">
-                                    <button type="submit" class="btn btn-danger btn-sm">Reject</button>
-                                </form>
-                                @endif
-                            </td>
-                        </tr>
-                        @endforeach
-                    </tbody>
-                </table>
+        .container {
+          padding: 20px;
+          margin-left: 300px;
+        }
+    
+        .requests-list {
+          background-color: #FFFFFF;
+          padding: 20px;
+          border-radius: 0 0 8px 8px;
+          box-shadow: 0px 0px 8px rgba(0,0,0,0.1);
+        }
+    
+        .request-card {
+          background-color: #002855;
+          color: #FFFFFF;
+          padding: 15px;
+          border-radius: 8px;
+          margin-bottom: 15px;
+          display: flex;
+          justify-content: space-between;
+          align-items: center;
+        }
+    
+        .request-info {
+          flex-grow: 1;
+        }
+    
+        .request-id {
+          font-weight: 700;
+          font-size: 18px;
+          margin: 0 0 8px;
+        }
+    
+        .request-details {
+          background-color: #D8D8D8;
+          padding: 5px 10px;
+          border-radius: 5px;
+          display: inline-block;
+          color: #333;
+          font-size: 14px;
+          font-weight: 600;
+        }
+    
+        .request-buttons {
+          display: flex;
+          gap: 10px;
+        }
+    
+        .btn-reject {
+          background-color: #D32F2F;
+          color: #FFFFFF;
+          padding: 8px 15px;
+          border: none;
+          border-radius: 5px;
+          font-weight: 600;
+          cursor: pointer;
+          font-size: 14px;
+        }
+    
+        .btn-accept {
+          background-color: #4CAF50;
+          color: #FFFFFF;
+          padding: 8px 15px;
+          border: none;
+          border-radius: 5px;
+          font-weight: 600;
+          cursor: pointer;
+          font-size: 14px;
+          text-decoration: none;
+        }
+    
+        .btn-accept:hover {
+          background-color: #388E3C;
+        }
+    </style>
+</head>
+<body>
+    <h1><center>Workshop Transfer Requests</center></h1>
+
+    <div class="container">
+        @foreach($requests as $request)
+        <div class="request-details">
+            <div class="request-card">
+                <div class="request-info">
+                    <p class="request-id">{{ $request->serial_number }}</p>
+                    
+                    <div class="request-details">
+                        <p><strong>Shop:</strong> {{ $request->shop_name }}</p>
+                    </div>
+                    <div class="request-details">
+                        <p><strong>Requested By:</strong> {{ $request->requested_by }}</p>
+                    </div>
+                    <div class="request-details">
+                        <p><strong>Reason:</strong> {{ $request->reason }}</p>
+                    </div>
+                    <div class="request-details">
+                        <p><strong>Status:</strong> 
+                            <span style="color: {{ $request->status === 'pending' ? '#FFA500' : ($request->status === 'approved' ? '#4CAF50' : '#D32F2F') }}">
+                                {{ ucfirst($request->status) }}
+                            </span>
+                        </p>
+                    </div>
+                    
+                    @if($request->status == 'pending')
+                        <div class="request-buttons">
+                            <form method="POST" action="{{ route('workshop.requests.handle', $request->id) }}">
+                                @csrf
+                                <input type="hidden" name="status" value="approved">
+                                <button type="submit" class="btn-accept">Approve</button>
+                            </form>
+                            <form method="POST" action="{{ route('workshop.requests.handle', $request->id) }}">
+                                @csrf
+                                <input type="hidden" name="status" value="rejected">
+                                <button type="submit" class="btn-reject">Reject</button>
+                            </form>
+                        </div>
+                    @endif
+                </div>
             </div>
-            {{ $requests->links() }}
+            <hr>
         </div>
+        @endforeach
     </div>
-</div>
-@endsection
+    {{ $requests->links() }}
+</body>
+</html>
