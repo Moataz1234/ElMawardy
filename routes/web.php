@@ -164,6 +164,8 @@ Route::middleware(['auth'])->group(function () {
         Route::post('/admin/inventory/bulk-action', [AdminDashboardController::class, 'bulkAction'])->name('bulk-action');
         Route::get('/deleted-items-history', [AdminDashboardController::class, 'deletedItems'])
             ->name('deleted-items.history');
+        Route::get('/workshop-items', [AdminDashboardController::class, 'workshopItems'])
+            ->name('workshop.items');
         Route::get('/notifications', [NotificationController::class, 'index'])->name('notifications.index');
         Route::post('/notifications/{id}/mark-as-read', [NotificationController::class, 'markAsRead'])
             ->name('notifications.mark-as-read');

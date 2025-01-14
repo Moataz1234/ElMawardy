@@ -159,6 +159,15 @@ public function bulkAction(Request $request)
             
         return view('admin.Gold.deleted_items_history', compact('deletedItems'));
     }
+
+    public function workshopItems(Request $request)
+    {
+        $workshopItems = DB::table('workshop_items')
+            ->orderBy('transferred_at', 'desc')
+            ->paginate(20);
+            
+        return view('admin.Gold.workshop_items', compact('workshopItems'));
+    }
     public function update_prices(){
         return view('shopify.update_price');
     }
