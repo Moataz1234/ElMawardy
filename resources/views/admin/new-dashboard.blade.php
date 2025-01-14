@@ -8,63 +8,6 @@
     <link href="{{ asset('css/app.css') }}" rel="stylesheet">
     <link href="{{ asset('css/dashboard.css') }}" rel="stylesheet">
     <link href="{{ asset('css/navbar.css') }}" rel="stylesheet">
-    <style>
-        .dashboard-grid {
-            display: grid;
-            grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
-            gap: 2rem;
-            padding: 2rem;
-        }
-        .dashboard-card {
-            background: white;
-            border-radius: 12px;
-            padding: 1.5rem;
-            box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
-            transition: transform 0.2s;
-        }
-        .dashboard-card:hover {
-            transform: translateY(-5px);
-        }
-        .card-header {
-            border-bottom: 1px solid #e5e7eb;
-            padding-bottom: 1rem;
-            margin-bottom: 1.5rem;
-        }
-        .card-header h3 {
-            font-size: 1.25rem;
-            font-weight: 600;
-            color: #1f2937;
-        }
-        .metric-value {
-            font-size: 2rem;
-            font-weight: 700;
-            color: #1f2937;
-            margin: 1rem 0;
-        }
-        .metric-label {
-            color: #6b7280;
-            font-size: 0.875rem;
-        }
-        .chart-container {
-            height: 300px;
-            margin-top: 1.5rem;
-        }
-        .list-item {
-            display: flex;
-            justify-content: space-between;
-            padding: 0.75rem 0;
-            border-bottom: 1px solid #e5e7eb;
-        }
-        .list-item:last-child {
-            border-bottom: none;
-        }
-        .badge {
-            background: #f3f4f6;
-            padding: 0.25rem 0.75rem;
-            border-radius: 9999px;
-            font-size: 0.875rem;
-        }
-    </style>
 </head>
 <body class="bg-gray-50">
     <div class="dashboard-grid">
