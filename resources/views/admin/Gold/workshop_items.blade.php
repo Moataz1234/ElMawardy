@@ -32,7 +32,7 @@
                             <td>{{ $item->model }}</td>
                             <td>{{ $item->weight }}g</td>
                             <td>{{ $item->transferred_by }}</td>
-                            <td>{{ $item->transferred_at->format('Y-m-d H:i') }}</td>
+                            <td>{{ \Carbon\Carbon::parse($item->transferred_at)->format('Y-m-d H:i') }}</td>
                             <td>{{ $item->transfer_reason }}</td>
                         </tr>
                         @endforeach
