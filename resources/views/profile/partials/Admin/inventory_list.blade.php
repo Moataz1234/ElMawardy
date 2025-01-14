@@ -157,42 +157,51 @@
                                 <p>You are about to transfer ${transferAllModels ? 'ALL ITEMS' : 'SELECTED ITEMS'}</p>
                                 ${transferAllModels 
                                     ? `<p>Models to transfer: ${modelsToTransfer.join(', ')}</p>`
-                                    : `<ul style="text-align: left;">${mappedItems.map(item => 
+                                    : `<ul style="text-align: left; max-height: 200px; overflow-y: auto;">${mappedItems.map(item => 
                                         `<li>${item.serial} - ${item.model}</li>`
                                     ).join('')}</ul>`
                                 }
                                 <div class="form-group">
                                     <label>Reason for transfer:</label>
-                                    <textarea id="transfer-reason" class="form-control"></textarea>
+                                    <textarea id="transfer-reason" class="form-control" required></textarea>
                                 </div>
                             `,
-                        icon: 'warning',
-                        showCancelButton: true,
-                        confirmButtonColor: '#3085d6',
-                        cancelButtonColor: '#d33',
-                        confirmButtonText: 'Yes, transfer them!'
-                    }).then((result) => {
-                        if (result.isConfirmed) {
-                            const reason = document.getElementById('transfer-reason').value;
-                            const reasonInput = document.createElement('input');
-                            reasonInput.type = 'hidden';
-                            reasonInput.name = 'transfer_reason';
-                            reasonInput.value = reason;
-                            document.getElementById('bulkActionForm').appendChild(reasonInput);
+                            icon: 'warning',
+                            showCancelButton: true,
+                            confirmButtonColor: '#3085d6',
+                            cancelButtonColor: '#d33',
+                            confirmButtonText: 'Yes, transfer them!',
+                            preConfirm: () => {
+                                const reason = document.getElementById('transfer-reason').value;
+                                if (!reason || reason.trim() === '') {
+                                    Swal.showValidationMessage('Please enter a reason for transfer');
+                                    return false;
+                                }
+                                return true;
+                            }
+                        }).then((result) => {
+                            if (result.isConfirmed) {
+                                const reason = document.getElementById('transfer-reason').value;
+                                const reasonInput = document.createElement('input');
+                                reasonInput.type = 'hidden';
+                                reasonInput.name = 'transfer_reason';
+                                reasonInput.value = reason;
+                                document.getElementById('bulkActionForm').appendChild(reasonInput);
 
-                            // Add transfer mode input
-                            const transferModeInput = document.createElement('input');
-                            transferModeInput.type = 'hidden';
-                            transferModeInput.name = 'transfer_all_models';
-                            transferModeInput.value = transferAllModels;
-                            document.getElementById('bulkActionForm').appendChild(transferModeInput);
-                            
-                            // Set the action value to workshop
-                            document.querySelector('input[name="action"]').value = 'workshop';
-                            
-                            // Submit the form
-                            document.getElementById('bulkActionForm').submit();
-                        }
+                                // Add transfer mode input
+                                const transferModeInput = document.createElement('input');
+                                transferModeInput.type = 'hidden';
+                                transferModeInput.name = 'transfer_all_models';
+                                transferModeInput.value = transferAllModels;
+                                document.getElementById('bulkActionForm').appendChild(transferModeInput);
+                                
+                                // Set the action value to workshop
+                                document.querySelector('input[name="action"]').value = 'workshop';
+                                
+                                // Submit the form
+                                document.getElementById('bulkActionForm').submit();
+                            }
+                        });
                     });
                 });
             }
