@@ -219,12 +219,15 @@ class Admin_GoldItemService
             $user = auth()->user();
             
             foreach ($items as $itemData) {
-                $item = GoldItem::find($itemData['id']);
+                // Ensure we have the required data
+                if (!isset($itemData['id']) || !isset($itemData['serial_number']) || !isset($itemData['shop_name'])) {
+                    continue;
+                }
                 
                 DB::table('workshop_transfer_requests')->insert([
-                    'item_id' => $item->id,
-                    'shop_name' => $item->shop_name,
-                    'serial_number' => $item->serial_number,
+                    'item_id' => $itemData['id'],
+                    'shop_name' => $itemData['shop_name'],
+                    'serial_number' => $itemData['serial_number'],
                     'reason' => $reason,
                     'requested_by' => $user->name,
                     'created_at' => now(),

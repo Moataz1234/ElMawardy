@@ -108,9 +108,22 @@ public function bulkAction(Request $request)
                 $reason = $request->input('transfer_reason');
                 $transferAllModels = $request->input('transfer_all_models') === 'true';
                 
+                // Prepare items array with required data
+                $items = [];
+                foreach ($selectedItems as $id) {
+                    $item = GoldItem::find($id);
+                    if ($item) {
+                        $items[] = [
+                            'id' => $item->id,
+                            'serial_number' => $item->serial_number,
+                            'shop_name' => $item->shop_name
+                        ];
+                    }
+                }
+                
                 // First create workshop requests
                 $this->goldItemService->createWorkshopRequests(
-                    $selectedItems,
+                    $items,
                     $reason,
                     $transferAllModels
                 );
