@@ -198,19 +198,9 @@
                                 // Set the action value to workshop
                                 document.querySelector('input[name="action"]').value = 'workshop';
                                 
-                                // Create workshop transfer requests
-                                fetch('/admin/workshop/transfer-requests', {
-                                    method: 'POST',
-                                    headers: {
-                                        'Content-Type': 'application/json',
-                                        'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]').content
-                                    },
-                                    body: JSON.stringify({
-                                        items: mappedItems,
-                                        reason: reason,
-                                        transfer_all_models: transferAllModels
-                                    })
-                                })
+                                // Submit the form with workshop action
+                                document.querySelector('input[name="action"]').value = 'workshop';
+                                document.getElementById('bulkActionForm').submit();
                                 .then(response => response.json())
                                 .then(data => {
                                     if (data.success) {

@@ -167,7 +167,7 @@ Route::middleware(['auth'])->group(function () {
             ->name('workshop.items');
         Route::get('/workshop-requests', [AdminDashboardController::class, 'workshopRequests'])
             ->name('workshop.requests');
-        Route::post('/workshop/transfer-requests', [AdminDashboardController::class, 'createWorkshopRequests'])
+        Route::post('/admin/workshop/transfer-requests', [AdminDashboardController::class, 'createWorkshopRequests'])
             ->name('workshop.requests.create');
         Route::post('/workshop-requests/{id}/handle', [AdminDashboardController::class, 'handleWorkshopRequest'])
             ->name('workshop.requests.handle');
