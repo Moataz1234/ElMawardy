@@ -213,6 +213,27 @@ class Admin_GoldItemService
                  ->appends($request->all());
 }
 
+    public function createWorkshopRequests(array $items, $reason, $transferAllModels = false)
+    {
+        DB::transaction(function () use ($items, $reason, $transferAllModels) {
+            $user = auth()->user();
+            
+            foreach ($items as $itemData) {
+                $item = GoldItem::find($itemData['id']);
+                
+                DB::table('workshop_transfer_requests')->insert([
+                    'item_id' => $item->id,
+                    'shop_name' => $item->shop_name,
+                    'serial_number' => $item->serial_number,
+                    'reason' => $reason,
+                    'requested_by' => $user->name,
+                    'created_at' => now(),
+                    'updated_at' => now()
+                ]);
+            }
+        });
+    }
+
     public function bulkTransferToWorkshop(array $ids, $reason = null, $transferAllModels = false)
     {
         DB::transaction(function () use ($ids, $reason, $transferAllModels) {

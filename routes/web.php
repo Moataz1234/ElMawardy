@@ -165,6 +165,12 @@ Route::middleware(['auth'])->group(function () {
             ->name('deleted-items.history');
         Route::get('/workshop-items', [AdminDashboardController::class, 'workshopItems'])
             ->name('workshop.items');
+        Route::get('/workshop-requests', [AdminDashboardController::class, 'workshopRequests'])
+            ->name('workshop.requests');
+        Route::post('/workshop/transfer-requests', [AdminDashboardController::class, 'createWorkshopRequests'])
+            ->name('workshop.requests.create');
+        Route::post('/workshop-requests/{id}/handle', [AdminDashboardController::class, 'handleWorkshopRequest'])
+            ->name('workshop.requests.handle');
         Route::get('/notifications', [NotificationController::class, 'index'])->name('notifications.index');
         Route::post('/notifications/{id}/mark-as-read', [NotificationController::class, 'markAsRead'])
             ->name('notifications.mark-as-read');

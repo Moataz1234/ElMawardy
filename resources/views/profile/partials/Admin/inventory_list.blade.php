@@ -198,8 +198,34 @@
                                 // Set the action value to workshop
                                 document.querySelector('input[name="action"]').value = 'workshop';
                                 
-                                // Submit the form
-                                document.getElementById('bulkActionForm').submit();
+                                // Create workshop transfer requests
+                                fetch('/admin/workshop/transfer-requests', {
+                                    method: 'POST',
+                                    headers: {
+                                        'Content-Type': 'application/json',
+                                        'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]').content
+                                    },
+                                    body: JSON.stringify({
+                                        items: mappedItems,
+                                        reason: reason,
+                                        transfer_all_models: transferAllModels
+                                    })
+                                })
+                                .then(response => response.json())
+                                .then(data => {
+                                    if (data.success) {
+                                        Swal.fire('Success', 'Workshop transfer requests created successfully', 'success')
+                                            .then(() => {
+                                                window.location.reload();
+                                            });
+                                    } else {
+                                        Swal.fire('Error', data.message, 'error');
+                                    }
+                                })
+                                .catch(error => {
+                                    console.error('Error:', error);
+                                    Swal.fire('Error', 'An error occurred while creating requests', 'error');
+                                });
                             }
                         });
                     });

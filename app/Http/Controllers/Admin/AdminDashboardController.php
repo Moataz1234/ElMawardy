@@ -171,6 +171,31 @@ public function bulkAction(Request $request)
             
         return view('admin.Gold.workshop_items', compact('workshopItems'));
     }
+
+    public function workshopRequests(Request $request)
+    {
+        $requests = DB::table('workshop_transfer_requests')
+            ->orderBy('created_at', 'desc')
+            ->paginate(20);
+            
+        return view('admin.Gold.workshop_requests', compact('requests'));
+    }
+
+    public function handleWorkshopRequest(Request $request, $id)
+    {
+        $request->validate([
+            'status' => 'required|in:approved,rejected'
+        ]);
+
+        DB::table('workshop_transfer_requests')
+            ->where('id', $id)
+            ->update([
+                'status' => $request->status,
+                'updated_at' => now()
+            ]);
+
+        return redirect()->back()->with('success', 'Request status updated successfully');
+    }
     public function update_prices(){
         return view('shopify.update_price');
     }
