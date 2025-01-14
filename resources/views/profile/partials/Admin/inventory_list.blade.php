@@ -251,3 +251,55 @@
 </body>
 
 </html>
+<table class="table">
+    <thead>
+        <tr>
+            <th>Image</th>
+            @php
+            // Array of columns with their display names
+            $columns = [
+                'serial_number' => 'Serial Number',
+                'shop_name' => 'Shop Name',
+                'kind' => 'Kind',
+                'model' => 'Model',
+                'gold_color' => 'Gold Color',
+                'metal_purity' => 'Metal Purity',
+                'weight' => 'Weight',
+                'category' =>'Category',
+            ];
+            @endphp
+
+            @foreach ($columns as $field => $label)
+                <th>
+                    <div class="sort-container">
+                        {{ $label }}
+                        <form method="GET" action="{{ route('gold-items.index') }}" style="display:inline;">
+                            <input type="hidden" name="sort" value="{{ $field }}">
+                        </form>
+                    </div>  
+            @endforeach
+            </th>
+        </tr>
+    </thead>
+    <tbody>
+        @foreach ($goldItems as $item)
+            <tr>
+                <td>
+                    @if($item->modelCategory && $item->modelCategory->scanned_image)
+                        <img src="{{ asset( $item->modelCategory->scanned_image) }}" alt="Scanned Image" width="50">
+                    @else
+                        No Image
+                    @endif
+                </td>
+                <td>{{ $item->serial_number }}</td>
+                <td>{{ $item->shop->name }}</td>
+                <td>{{ $item->kind }}</td>
+                <td>{{ $item->model }}</td>
+                <td>{{ $item->gold_color }}</td>
+                <td>{{ $item->metal_purity }}</td>
+                <td>{{ $item->weight }}</td>
+                <td>{{ $item->modelCategory->category ?? 'No Category' }}</td>
+            </tr>
+        @endforeach 
+    </tbody>
+</table>
