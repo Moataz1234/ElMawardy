@@ -198,8 +198,10 @@
                                 document.querySelector('input[name="action"]').value = 'workshop';
                                 
                                 // Submit the form with workshop action
+                                const form = document.getElementById('bulkActionForm');
+                                form.action = "{{ route('bulk-action') }}";
                                 document.querySelector('input[name="action"]').value = 'workshop';
-                                document.getElementById('bulkActionForm').submit();
+                                form.submit();
                             }
                         });
                     });

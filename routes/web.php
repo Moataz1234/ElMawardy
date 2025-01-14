@@ -160,7 +160,9 @@ Route::middleware(['auth'])->group(function () {
         // Route::get('/talabat/model-details', [TalabatController::class, 'getTalabatDetails']);
         Route::get('/admin/new-dashboard', [AdminDashboardController::class, 'dashboard'])->name('admin.dashboard');
         Route::get('/admin/inventory', [AdminDashboardController::class, 'index'])->name('admin.inventory');
-        Route::post('/admin/inventory/bulk-action', [AdminDashboardController::class, 'bulkAction'])->name('bulk-action');
+        Route::post('/admin/inventory/bulk-action', [AdminDashboardController::class, 'bulkAction'])
+            ->name('bulk-action')
+            ->middleware('web');
         Route::get('/deleted-items-history', [AdminDashboardController::class, 'deletedItems'])
             ->name('deleted-items.history');
         Route::get('/workshop-items', [AdminDashboardController::class, 'workshopItems'])

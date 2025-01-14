@@ -107,7 +107,21 @@ public function bulkAction(Request $request)
             case 'workshop':
                 $reason = $request->input('transfer_reason');
                 $transferAllModels = $request->input('transfer_all_models') === 'true';
-                $this->goldItemService->bulkTransferToWorkshop($selectedItems, $reason, $transferAllModels);
+                
+                // First create workshop requests
+                $this->goldItemService->createWorkshopRequests(
+                    $selectedItems,
+                    $reason,
+                    $transferAllModels
+                );
+                
+                // Then perform the actual transfer
+                $this->goldItemService->bulkTransferToWorkshop(
+                    $selectedItems,
+                    $reason,
+                    $transferAllModels
+                );
+                
                 $message = $transferAllModels 
                     ? 'All items with matching models transferred to workshop successfully'
                     : 'Selected items transferred to workshop successfully';
