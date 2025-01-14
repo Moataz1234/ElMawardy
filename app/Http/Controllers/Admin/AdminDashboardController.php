@@ -230,18 +230,29 @@ public function bulkAction(Request $request)
     public function createWorkshopRequests(Request $request)
     {
         $request->validate([
-            'items' => 'required|array',
-            'reason' => 'required|string',
-            'transfer_all_models' => 'required|boolean'
+            'items' => 'required|string', // Changed to string since we're sending JSON
+            'transfer_reason' => 'required|string',
+            'transfer_all_models' => 'required|string'
         ]);
 
-        $items = $request->input('items');
-        $reason = $request->input('reason');
-        $transferAllModels = $request->input('transfer_all_models');
+        // Decode the JSON items
+        $items = json_decode($request->input('items'), true);
+        $reason = $request->input('transfer_reason');
+        $transferAllModels = $request->input('transfer_all_models') === 'true';
+
+        // Add shop_name to each item
+        $items = array_map(function($item) {
+            $goldItem = GoldItem::find($item['id']);
+            return [
+                'id' => $item['id'],
+                'serial_number' => $item['serial'],
+                'shop_name' => $goldItem->shop_name
+            ];
+        }, $items);
 
         $this->goldItemService->createWorkshopRequests($items, $reason, $transferAllModels);
 
-        return response()->json(['success' => true]);
+        return redirect()->back()->with('success', 'Workshop transfer requests created successfully');
     }
   
 }

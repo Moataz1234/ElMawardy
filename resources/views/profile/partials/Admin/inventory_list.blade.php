@@ -194,9 +194,17 @@
                                 transferModeInput.value = transferAllModels;
                                 document.getElementById('bulkActionForm').appendChild(transferModeInput);
     
-                                // Set the action value to workshop
-                                document.querySelector('input[name="action"]').value = 'workshop';
-    
+                                // Create hidden input for items
+                                const itemsInput = document.createElement('input');
+                                itemsInput.type = 'hidden';
+                                itemsInput.name = 'items';
+                                itemsInput.value = JSON.stringify(mappedItems);
+                                document.getElementById('bulkActionForm').appendChild(itemsInput);
+
+                                // Set form method and action
+                                document.getElementById('bulkActionForm').method = 'POST';
+                                document.getElementById('bulkActionForm').action = "{{ route('workshop.requests.create') }}";
+
                                 // Submit the form
                                 document.getElementById('bulkActionForm').submit();
                             }
