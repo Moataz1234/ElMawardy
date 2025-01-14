@@ -115,6 +115,7 @@ Route::middleware(['auth'])->group(function () {
     Route::get('/gold-items', [GoldItemController::class, 'index'])->name('gold-items.index');
     Route::get('/update_prices', [GoldPriceController::class, 'Create'])->name('gold_prices.create');
     Route::post('/update_prices/store', [GoldPriceController::class, 'store'])->name('gold_prices.store');
+    Route::get('/gold-items/same-model', [ShopsController::class, 'getItemsByModel']);
 
 
     Route::prefix('admin')->group(function () {
@@ -131,7 +132,6 @@ Route::middleware(['auth'])->group(function () {
     Route::middleware('admin')->group(function () {
         Route::get('/generate-model', [ModelsController::class, 'generateModel']);
 
-        Route::get('/gold-items/same-model', [ShopsController::class, 'getItemsByModel']);
         Route::get('/gold-items/create', [GoldItemController::class, 'create'])->name('gold-items.create');
         Route::resource('models', ModelsController::class)->names([
             'index' => 'models.index',

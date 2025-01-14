@@ -10,7 +10,7 @@
 </head>
 <body>
     @include('dashboard')
-    @include('components.pagination')
+    {{-- @include('components.pagination') --}}
     <div class="layout-container">
         <main class="main-content">
             @yield('content')

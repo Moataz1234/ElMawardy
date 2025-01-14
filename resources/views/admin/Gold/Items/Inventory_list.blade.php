@@ -1,4 +1,4 @@
-@extends('layouts.admin')
+@extends('layouts.table')
 
 @section('content')
     @include('profile.partials.admin.inventory_list')
