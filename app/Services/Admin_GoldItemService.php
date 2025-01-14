@@ -218,21 +218,39 @@ class Admin_GoldItemService
         DB::transaction(function () use ($items, $reason, $transferAllModels) {
             $user = auth()->user();
             
-            foreach ($items as $itemData) {
-                // Ensure we have the required data
-                if (!isset($itemData['id']) || !isset($itemData['serial_number']) || !isset($itemData['shop_name'])) {
-                    continue;
+            // Group items by shop name
+            $itemsByShop = collect($items)->groupBy('shop_name');
+            
+            foreach ($itemsByShop as $shopName => $shopItems) {
+                // Find users with matching shop_name
+                $shopUsers = \App\Models\User::where('shop_name', $shopName)->get();
+                
+                foreach ($shopItems as $itemData) {
+                    // Ensure we have the required data
+                    if (!isset($itemData['id']) || !isset($itemData['serial_number']) || !isset($itemData['shop_name'])) {
+                        continue;
+                    }
+                    
+                    // Create workshop request
+                    DB::table('workshop_transfer_requests')->insert([
+                        'item_id' => $itemData['id'],
+                        'shop_name' => $itemData['shop_name'],
+                        'serial_number' => $itemData['serial_number'],
+                        'reason' => $reason,
+                        'requested_by' => $user->name,
+                        'created_at' => now(),
+                        'updated_at' => now()
+                    ]);
                 }
                 
-                DB::table('workshop_transfer_requests')->insert([
-                    'item_id' => $itemData['id'],
-                    'shop_name' => $itemData['shop_name'],
-                    'serial_number' => $itemData['serial_number'],
-                    'reason' => $reason,
-                    'requested_by' => $user->name,
-                    'created_at' => now(),
-                    'updated_at' => now()
-                ]);
+                // Notify shop users
+                foreach ($shopUsers as $shopUser) {
+                    $shopUser->notify(new \App\Notifications\WorkshopTransferRequestNotification([
+                        'items' => $shopItems,
+                        'reason' => $reason,
+                        'requested_by' => $user->name
+                    ]));
+                }
             }
         });
     }
