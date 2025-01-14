@@ -109,9 +109,8 @@
     <script>
         document.addEventListener('DOMContentLoaded', function() {
             // Workshop transfer button handler
-            const workshopBtn = document.querySelector('.workshop_btn');
-            if (workshopBtn) {
-                workshopBtn.addEventListener('click', function(e) {
+            document.addEventListener('click', function(e) {
+                if (e.target.classList.contains('workshop_btn')) {
                     e.preventDefault();
                     
                     const selectedItems = Array.from(document.querySelectorAll(
@@ -201,21 +200,6 @@
                                 // Submit the form with workshop action
                                 document.querySelector('input[name="action"]').value = 'workshop';
                                 document.getElementById('bulkActionForm').submit();
-                                .then(response => response.json())
-                                .then(data => {
-                                    if (data.success) {
-                                        Swal.fire('Success', 'Workshop transfer requests created successfully', 'success')
-                                            .then(() => {
-                                                window.location.reload();
-                                            });
-                                    } else {
-                                        Swal.fire('Error', data.message, 'error');
-                                    }
-                                })
-                                .catch(error => {
-                                    console.error('Error:', error);
-                                    Swal.fire('Error', 'An error occurred while creating requests', 'error');
-                                });
                             }
                         });
                     });
