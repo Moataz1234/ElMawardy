@@ -117,7 +117,8 @@ Route::middleware(['auth'])->group(function () {
     Route::post('/update_prices/store', [GoldPriceController::class, 'store'])->name('gold_prices.store');
     Route::get('/gold-items/same-model', [ShopsController::class, 'getItemsByModel']);
 
-
+    Route::get('/workshop-requests', [AdminDashboardController::class, 'workshopRequests'])
+        ->name('workshop.requests');
     Route::prefix('admin')->group(function () {
         Route::resource('gold_items_avg', GoldItemsAvgController::class)->names([
             'index' => 'admin.gold_items_avg.index',
@@ -167,8 +168,7 @@ Route::middleware(['auth'])->group(function () {
             ->name('deleted-items.history');
         Route::get('/workshop-items', [AdminDashboardController::class, 'workshopItems'])
             ->name('workshop.items');
-        Route::get('/workshop-requests', [AdminDashboardController::class, 'workshopRequests'])
-            ->name('workshop.requests');
+
         Route::post('/admin/workshop/transfer-requests', [AdminDashboardController::class, 'createWorkshopRequests'])
             ->name('workshop.requests.create');
         Route::post('/workshop-requests/{id}/handle', [AdminDashboardController::class, 'handleWorkshopRequest'])

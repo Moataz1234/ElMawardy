@@ -216,37 +216,45 @@ class Admin_GoldItemService
     public function createWorkshopRequests(array $items, $reason, $transferAllModels = false)
     {
         DB::transaction(function () use ($items, $reason, $transferAllModels) {
-            $user = auth()->user();
+            $user = Auth::user();
+            
+            // Get full item details
+            $itemIds = array_column($items, 'id');
+            $goldItems = GoldItem::whereIn('id', $itemIds)->get();
             
             // Group items by shop name
-            $itemsByShop = collect($items)->groupBy('shop_name');
+            $itemsByShop = $goldItems->groupBy('shop_name');
             
             foreach ($itemsByShop as $shopName => $shopItems) {
                 // Find users with matching shop_name
                 $shopUsers = \App\Models\User::where('shop_name', $shopName)->get();
                 
-                foreach ($shopItems as $itemData) {
-                    // Ensure we have the required data
-                    if (!isset($itemData['id']) || !isset($itemData['serial_number']) || !isset($itemData['shop_name'])) {
-                        continue;
-                    }
-                    
+                $notificationItems = [];
+                
+                foreach ($shopItems as $item) {
                     // Create workshop request
                     DB::table('workshop_transfer_requests')->insert([
-                        'item_id' => $itemData['id'],
-                        'shop_name' => $itemData['shop_name'],
-                        'serial_number' => $itemData['serial_number'],
+                        'item_id' => $item->id,
+                        'shop_name' => $item->shop_name,
+                        'serial_number' => $item->serial_number,
                         'reason' => $reason,
                         'requested_by' => $user->name,
                         'created_at' => now(),
                         'updated_at' => now()
                     ]);
+                    
+                    $notificationItems[] = [
+                        'id' => $item->id,
+                        'serial_number' => $item->serial_number,
+                        'model' => $item->model,
+                        'weight' => $item->weight
+                    ];
                 }
                 
                 // Notify shop users
                 foreach ($shopUsers as $shopUser) {
                     $shopUser->notify(new \App\Notifications\WorkshopTransferRequestNotification([
-                        'items' => $shopItems,
+                        'items' => $notificationItems,
                         'reason' => $reason,
                         'requested_by' => $user->name
                     ]));
@@ -258,7 +266,7 @@ class Admin_GoldItemService
     public function bulkTransferToWorkshop(array $ids, $reason = null, $transferAllModels = false)
     {
         DB::transaction(function () use ($ids, $reason, $transferAllModels) {
-            $user = auth()->user();
+            $user = Auth::user();
             
             // Get either the selected items or all items with matching models
             $items = $transferAllModels 

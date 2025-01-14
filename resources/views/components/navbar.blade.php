@@ -64,8 +64,9 @@
             <li class="navbar-item dropdown">
                 <a href="#" class="navbar-link dropdown-toggle">Requests</a>
                 <div class="dropdown-menu">
-                    <a class="dropdown-item" href="{{ route('transfer.requests') }}" class="navbar-link">Transfer
-                        Requests</a>
+                    <a class="dropdown-item" href="{{ route('transfer.requests') }}" class="navbar-link">Transfer Requests</a>
+
+                    <a class="dropdown-item" href="{{ route('workshop.requests') }}" class="navbar-link">Workshop Requests</a>
                     <a class="dropdown-item" href="{{ route('shop.requests.index') }}" class="navbar-link">
                         Item Requests
                         @if (Auth::user()->unreadNotifications->count() > 0)
