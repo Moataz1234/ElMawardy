@@ -30,9 +30,8 @@ use App\Http\Controllers\{
     Admin\GoldItemsAvgController,
     NotificationController,
     Admin\BarcodeController,
-    ModelsController,
-    // NewItemTalabatController,
-    // TalabatController
+    ModelsController
+    // NewItemTalabatController
 };
 
 // Test SMTP Route
