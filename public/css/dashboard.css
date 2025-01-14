@@ -1,20 +1,38 @@
+:root {
+    --primary-color: #4f46e5;
+    --secondary-color: #1e293b;
+    --accent-color: #f59e0b;
+    --success-color: #10b981;
+    --info-color: #3b82f6;
+    --warning-color: #f97316;
+    --danger-color: #ef4444;
+    --text-color: #1e293b;
+    --text-light: #64748b;
+    --bg-color: #f8fafc;
+    --card-bg: #ffffff;
+}
+
 .dashboard-grid {
     display: grid;
     grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
     gap: 2rem;
     padding: 2rem;
+    background-color: var(--bg-color);
+    min-height: 100vh;
 }
 
 .dashboard-card {
-    background: white;
+    background: var(--card-bg);
     border-radius: 12px;
     padding: 1.5rem;
-    box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
-    transition: transform 0.2s;
+    box-shadow: 0 4px 6px rgba(0, 0, 0, 0.05);
+    transition: all 0.3s ease;
+    border-left: 4px solid var(--primary-color);
 }
 
 .dashboard-card:hover {
     transform: translateY(-5px);
+    box-shadow: 0 6px 12px rgba(0, 0, 0, 0.1);
 }
 
 .card-header {
@@ -26,31 +44,40 @@
 .card-header h3 {
     font-size: 1.25rem;
     font-weight: 600;
-    color: #1f2937;
+    color: var(--primary-color);
 }
 
 .metric-value {
     font-size: 2rem;
     font-weight: 700;
-    color: #1f2937;
+    color: var(--secondary-color);
     margin: 1rem 0;
 }
 
 .metric-label {
-    color: #6b7280;
+    color: var(--text-light);
     font-size: 0.875rem;
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
 }
 
 .chart-container {
     height: 300px;
     margin-top: 1.5rem;
+    position: relative;
 }
 
 .list-item {
     display: flex;
     justify-content: space-between;
+    align-items: center;
     padding: 0.75rem 0;
     border-bottom: 1px solid #e5e7eb;
+    transition: background-color 0.2s;
+}
+
+.list-item:hover {
+    background-color: #f8fafc;
 }
 
 .list-item:last-child {
@@ -58,18 +85,48 @@
 }
 
 .badge {
-    background: #f3f4f6;
+    background: var(--primary-color);
+    color: white;
     padding: 0.25rem 0.75rem;
     border-radius: 9999px;
     font-size: 0.875rem;
+    font-weight: 500;
 }
 
 .year-section {
-    margin-bottom: 1rem;
+    margin-bottom: 1.5rem;
+    padding: 1rem;
+    background-color: #f8fafc;
+    border-radius: 8px;
 }
 
 .year-section h4 {
     font-size: 1.1rem;
     font-weight: 500;
-    color: #374151;
+    color: var(--secondary-color);
+    margin-bottom: 0.5rem;
+}
+
+/* Custom card colors */
+.dashboard-card:nth-child(1) { border-color: var(--primary-color); }
+.dashboard-card:nth-child(2) { border-color: var(--success-color); }
+.dashboard-card:nth-child(3) { border-color: var(--warning-color); }
+.dashboard-card:nth-child(4) { border-color: var(--info-color); }
+.dashboard-card:nth-child(5) { border-color: var(--danger-color); }
+.dashboard-card:nth-child(6) { border-color: var(--accent-color); }
+
+/* Responsive adjustments */
+@media (max-width: 768px) {
+    .dashboard-grid {
+        padding: 1rem;
+        gap: 1rem;
+    }
+    
+    .dashboard-card {
+        padding: 1rem;
+    }
+    
+    .metric-value {
+        font-size: 1.75rem;
+    }
 }

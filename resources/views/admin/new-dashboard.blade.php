@@ -12,7 +12,7 @@
 <body class="bg-gray-50">
     <div class="dashboard-grid">
         <!-- Total Weight Sold Card -->
-        <div class="dashboard-card">
+        <div class="dashboard-card" style="background: linear-gradient(135deg, #f8fafc, #ffffff);">
             <div class="card-header">
                 <h3>Total Weight Sold by Year and Shop</h3>
             </div>
@@ -32,7 +32,7 @@
         </div>
 
         <!-- Inventory Metrics Card -->
-        <div class="dashboard-card">
+        <div class="dashboard-card" style="background: linear-gradient(135deg, #f0fdf4, #ffffff);">
             <div class="card-header">
                 <h3>Inventory Overview</h3>
             </div>
@@ -50,7 +50,7 @@
         </div>
 
         <!-- Sales Trends Card -->
-        <div class="dashboard-card">
+        <div class="dashboard-card" style="background: linear-gradient(135deg, #fff7ed, #ffffff);">
             <div class="card-header">
                 <h3>Sales Trends</h3>
             </div>
