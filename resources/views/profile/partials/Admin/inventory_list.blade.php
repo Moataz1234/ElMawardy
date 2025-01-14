@@ -83,10 +83,9 @@
             </tbody>
         </table>
         <div class="button-container">
-            <button class="delete_btn" type="button" name="action" value="delete" form="bulkActionForm">Delete
-            </button>
-            <!-- Rest of your form -->
+            <button class="delete_btn" type="button" name="action" value="delete" form="bulkActionForm">Delete</button>
             <button class="request_btn" type="submit" name="action" value="request">Request Item</button>
+            <button class="workshop_btn" type="button" name="action" value="workshop" form="bulkActionForm">Transfer to Workshop</button>
         </div>
     </form>
     <!-- Model Details Modal -->
@@ -109,6 +108,64 @@
     <script src="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/js/bootstrap.min.js"></script>
     <script>
         document.addEventListener('DOMContentLoaded', function() {
+            // Workshop transfer button handler
+            const workshopBtn = document.querySelector('.workshop_btn');
+            if (workshopBtn) {
+                workshopBtn.addEventListener('click', function(e) {
+                    e.preventDefault();
+                    
+                    const selectedItems = Array.from(document.querySelectorAll(
+                        'input[name="selected_items[]"]:checked'));
+                    
+                    if (selectedItems.length === 0) {
+                        Swal.fire('Error', 'Please select items to transfer', 'error');
+                        return;
+                    }
+
+                    const mappedItems = selectedItems.map(checkbox => {
+                        const row = checkbox.closest('tr');
+                        return {
+                            id: checkbox.value,
+                            serial: row.querySelector('td:nth-child(3)').textContent,
+                            model: row.querySelector('td:nth-child(6)').textContent
+                        };
+                    });
+
+                    Swal.fire({
+                        title: 'Confirm Transfer',
+                        html: `
+                            <p>Are you sure you want to transfer these items to workshop?</p>
+                            <ul style="text-align: left;">${mappedItems.map(item => 
+                                `<li>${item.serial} - ${item.model}</li>`
+                            ).join('')}</ul>
+                            <div class="form-group">
+                                <label>Reason for transfer:</label>
+                                <textarea id="transfer-reason" class="form-control"></textarea>
+                            </div>
+                        `,
+                        icon: 'warning',
+                        showCancelButton: true,
+                        confirmButtonColor: '#3085d6',
+                        cancelButtonColor: '#d33',
+                        confirmButtonText: 'Yes, transfer them!'
+                    }).then((result) => {
+                        if (result.isConfirmed) {
+                            const reason = document.getElementById('transfer-reason').value;
+                            const reasonInput = document.createElement('input');
+                            reasonInput.type = 'hidden';
+                            reasonInput.name = 'transfer_reason';
+                            reasonInput.value = reason;
+                            document.getElementById('bulkActionForm').appendChild(reasonInput);
+                            
+                            // Set the action value to workshop
+                            document.querySelector('input[name="action"]').value = 'workshop';
+                            
+                            // Submit the form
+                            document.getElementById('bulkActionForm').submit();
+                        }
+                    });
+                });
+            }
             const modelLinks = document.querySelectorAll('.model-link');
 
             modelLinks.forEach(link => {
