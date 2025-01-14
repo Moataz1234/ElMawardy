@@ -13,7 +13,7 @@ return new class extends Migration
             $table->string('model')->nullable();
             // $table->string('talabat')->nullable();
             $table->string('serial_number')->unique();
-            $table->string('kind')->nullable();
+            $table->string('kind')->nullable()->index();
             $table->string('shop_name')->nullable();
             $table->string('shop_id')->nullable();
             $table->decimal('weight', 10, 2)->nullable();

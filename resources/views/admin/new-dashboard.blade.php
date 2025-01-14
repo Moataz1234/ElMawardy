@@ -59,6 +59,49 @@
             </div>
         </div>
 
+        <!-- Sales by Kind Card -->
+        <div class="dashboard-card">
+            <div class="card-header">
+                <h3>Sales by Category</h3>
+            </div>
+            <div class="space-y-2">
+                @foreach($kindSalesAnalysis as $kind)
+                    <div class="list-item">
+                        <span>{{ $kind->kind }}</span>
+                        <span class="badge">{{ $kind->total_sold }} sold</span>
+                    </div>
+                @endforeach
+            </div>
+        </div>
+
+        <!-- Inventory by Kind Card -->
+        <div class="dashboard-card">
+            <div class="card-header">
+                <h3>Inventory by Category</h3>
+            </div>
+            <div class="space-y-2">
+                @foreach($kindInventory as $kind)
+                    <div class="list-item">
+                        <span>{{ $kind->kind }}</span>
+                        <div class="flex gap-4">
+                            <span class="text-sm">{{ $kind->total_items }} items</span>
+                            <span class="text-sm">{{ number_format($kind->total_weight, 2) }} g</span>
+                        </div>
+                    </div>
+                @endforeach
+            </div>
+        </div>
+
+        <!-- Sales Trends by Kind Card -->
+        <div class="dashboard-card">
+            <div class="card-header">
+                <h3>Sales Trends by Category</h3>
+            </div>
+            <div class="chart-container">
+                <canvas id="kindSalesTrendsChart"></canvas>
+            </div>
+        </div>
+
         <!-- Top Selling Items Card -->
         <div class="dashboard-card">
             <div class="card-header">
@@ -77,6 +120,52 @@
     <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
     <script>
         document.addEventListener('DOMContentLoaded', function() {
+            // Kind Sales Trends Chart
+            const kindTrendsCtx = document.getElementById('kindSalesTrendsChart').getContext('2d');
+            const kindTrendsData = {
+                labels: @json(array_keys($kindSalesTrends)),
+                datasets: Object.entries(@json($kindSalesTrends)).map(([kind, data]) => ({
+                    label: kind,
+                    data: data.map(item => item.total_sold),
+                    borderColor: `rgba(${Math.floor(Math.random() * 255)}, ${Math.floor(Math.random() * 255)}, ${Math.floor(Math.random() * 255)}, 1)`,
+                    fill: false
+                }))
+            };
+
+            new Chart(kindTrendsCtx, {
+                type: 'line',
+                data: kindTrendsData,
+                options: {
+                    responsive: true,
+                    interaction: {
+                        mode: 'index',
+                        intersect: false,
+                    },
+                    scales: {
+                        x: {
+                            display: true,
+                            title: {
+                                display: true,
+                                text: 'Time'
+                            }
+                        },
+                        y: {
+                            display: true,
+                            title: {
+                                display: true,
+                                text: 'Items Sold'
+                            },
+                            beginAtZero: true
+                        }
+                    },
+                    plugins: {
+                        title: {
+                            display: true,
+                            text: 'Sales Trends by Category'
+                        }
+                    }
+                }
+            });
             const ctx = document.getElementById('weightChart').getContext('2d');
             const data = {
                 labels: @json(array_keys($totalWeightSoldByYearAndShop)),

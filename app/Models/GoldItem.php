@@ -57,4 +57,34 @@ class GoldItem extends Model
     {
         return $this->hasOne(GoldItemDetail::class, 'model', 'model');
     }
+
+    // New methods for dashboard analysis
+    public function scopeByKind($query, $kind)
+    {
+        return $query->where('kind', $kind);
+    }
+
+    public function scopeSoldItems($query)
+    {
+        return $query->where('status', 'sold');
+    }
+
+    public function scopeMostSold($query, $limit = 5)
+    {
+        return $query->soldItems()
+            ->select('kind', DB::raw('COUNT(*) as total_sold'))
+            ->groupBy('kind')
+            ->orderByDesc('total_sold')
+            ->limit($limit);
+    }
+
+    public function scopeSalesTrendByKind($query, $kind)
+    {
+        return $query->soldItems()
+            ->byKind($kind)
+            ->selectRaw('YEAR(updated_at) as year, MONTH(updated_at) as month, COUNT(*) as total_sold')
+            ->groupBy('year', 'month')
+            ->orderBy('year')
+            ->orderBy('month');
+    }
 }

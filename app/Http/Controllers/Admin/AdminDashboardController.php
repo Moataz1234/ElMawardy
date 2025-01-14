@@ -119,17 +119,30 @@ public function bulkAction(Request $request)
     {
         $totalWeightSoldByYearAndShop = $this->shopWeightAnalysisService->getTotalWeightSoldByYearAndShop();
         $totalWeightInventory = $this->shopWeightAnalysisService->getTotalWeightInventory();
-
         $salesTrends = $this->shopWeightAnalysisService->getSalesTrends();
         $topSellingItems = $this->popularModelsService->getPopularModels();
         $inventoryTurnover = $this->shopWeightAnalysisService->getInventoryTurnover();
+
+        // New analysis data
+        $kindSalesAnalysis = GoldItem::mostSold()->get();
+        $kindInventory = GoldItem::select('kind', DB::raw('SUM(weight) as total_weight'), DB::raw('COUNT(*) as total_items'))
+            ->groupBy('kind')
+            ->get();
+
+        $kindSalesTrends = [];
+        foreach ($kindSalesAnalysis as $kind) {
+            $kindSalesTrends[$kind->kind] = GoldItem::salesTrendByKind($kind->kind)->get();
+        }
 
         return view('admin.new-dashboard', [
             'salesTrends' => $salesTrends,
             'topSellingItems' => $topSellingItems,
             'inventoryTurnover' => $inventoryTurnover,
             'totalWeightSoldByYearAndShop' => $totalWeightSoldByYearAndShop,
-            'totalWeightInventory' => $totalWeightInventory
+            'totalWeightInventory' => $totalWeightInventory,
+            'kindSalesAnalysis' => $kindSalesAnalysis,
+            'kindInventory' => $kindInventory,
+            'kindSalesTrends' => $kindSalesTrends
         ]);
     }
     public function deletedItems(Request $request)
