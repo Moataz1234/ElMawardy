@@ -213,6 +213,94 @@ class Admin_GoldItemService
                  ->appends($request->all());
 }
 
+    public function createWorkshopRequests(array $items, $reason, $transferAllModels = false)
+    {
+        DB::transaction(function () use ($items, $reason, $transferAllModels) {
+            $user = Auth::user();
+            
+            // Get full item details
+            $itemIds = array_column($items, 'id');
+            $goldItems = GoldItem::whereIn('id', $itemIds)->get();
+            
+            // Group items by shop name
+            $itemsByShop = $goldItems->groupBy('shop_name');
+            
+            foreach ($itemsByShop as $shopName => $shopItems) {
+                // Find users with matching shop_name
+                $shopUsers = \App\Models\User::where('shop_name', $shopName)->get();
+                
+                $notificationItems = [];
+                
+                foreach ($shopItems as $item) {
+                    // Create workshop request
+                    DB::table('workshop_transfer_requests')->insert([
+                        'item_id' => $item->id,
+                        'shop_name' => $item->shop_name,
+                        'serial_number' => $item->serial_number,
+                        'reason' => $reason,
+                        'requested_by' => $user->name,
+                        'created_at' => now(),
+                        'updated_at' => now()
+                    ]);
+                    
+                    $notificationItems[] = [
+                        'id' => $item->id,
+                        'serial_number' => $item->serial_number,
+                        'model' => $item->model,
+                        'weight' => $item->weight
+                    ];
+                }
+                
+                // Notify shop users
+                foreach ($shopUsers as $shopUser) {
+                    $shopUser->notify(new \App\Notifications\WorkshopTransferRequestNotification([
+                        'items' => $notificationItems,
+                        'reason' => $reason,
+                        'requested_by' => $user->name
+                    ]));
+                }
+            }
+        });
+    }
+
+    public function bulkTransferToWorkshop(array $ids, $reason = null, $transferAllModels = false)
+    {
+        DB::transaction(function () use ($ids, $reason, $transferAllModels) {
+            $user = Auth::user();
+            
+            // Get either the selected items or all items with matching models
+            $items = $transferAllModels 
+                ? GoldItem::whereIn('model', function($query) use ($ids) {
+                    $query->select('model')
+                        ->from('gold_items')
+                        ->whereIn('id', $ids);
+                })->get()
+                : GoldItem::whereIn('id', $ids)->get();
+            
+            foreach ($items as $item) {
+                // Create workshop record
+                DB::table('workshop_items')->insert([
+                    'item_id' => $item->id,
+                    'transferred_by' => $user->name,
+                    'serial_number' => $item->serial_number,
+                    'shop_name' => $item->shop_name,
+                    'kind' => $item->kind,
+                    'model' => $item->model,
+                    'gold_color' => $item->gold_color,
+                    'metal_purity' => $item->metal_purity,
+                    'weight' => $item->weight,
+                    'transfer_reason' => $reason,
+                    'transferred_at' => now(),
+                    'created_at' => now(),
+                    'updated_at' => now()
+                ]);
+
+                // Delete the original item after transferring to workshop
+                $item->delete();
+            }
+        });
+    }
+
     public function getGoldItemsSold($request)
     {
         $query = GoldItemSold::query();

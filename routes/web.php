@@ -30,9 +30,8 @@ use App\Http\Controllers\{
     Admin\GoldItemsAvgController,
     NotificationController,
     Admin\BarcodeController,
-    ModelsController,
-    // NewItemTalabatController,
-    // TalabatController
+    ModelsController
+    // NewItemTalabatController
 };
 
 // Test SMTP Route
@@ -116,8 +115,10 @@ Route::middleware(['auth'])->group(function () {
     Route::get('/gold-items', [GoldItemController::class, 'index'])->name('gold-items.index');
     Route::get('/update_prices', [GoldPriceController::class, 'Create'])->name('gold_prices.create');
     Route::post('/update_prices/store', [GoldPriceController::class, 'store'])->name('gold_prices.store');
+    Route::get('/gold-items/same-model', [ShopsController::class, 'getItemsByModel']);
 
-
+    Route::get('/workshop-requests', [AdminDashboardController::class, 'workshopRequests'])
+        ->name('workshop.requests');
     Route::prefix('admin')->group(function () {
         Route::resource('gold_items_avg', GoldItemsAvgController::class)->names([
             'index' => 'admin.gold_items_avg.index',
@@ -132,7 +133,6 @@ Route::middleware(['auth'])->group(function () {
     Route::middleware('admin')->group(function () {
         Route::get('/generate-model', [ModelsController::class, 'generateModel']);
 
-        Route::get('/gold-items/same-model', [ShopsController::class, 'getItemsByModel']);
         Route::get('/gold-items/create', [GoldItemController::class, 'create'])->name('gold-items.create');
         Route::resource('models', ModelsController::class)->names([
             'index' => 'models.index',
@@ -161,9 +161,18 @@ Route::middleware(['auth'])->group(function () {
         // Route::get('/talabat/model-details', [TalabatController::class, 'getTalabatDetails']);
         Route::get('/admin/new-dashboard', [AdminDashboardController::class, 'dashboard'])->name('admin.dashboard');
         Route::get('/admin/inventory', [AdminDashboardController::class, 'index'])->name('admin.inventory');
-        Route::post('/admin/inventory/bulk-action', [AdminDashboardController::class, 'bulkAction'])->name('bulk-action');
+        Route::post('/admin/inventory/bulk-action', [AdminDashboardController::class, 'bulkAction'])
+            ->name('bulk-action')
+            ->middleware('web');
         Route::get('/deleted-items-history', [AdminDashboardController::class, 'deletedItems'])
             ->name('deleted-items.history');
+        Route::get('/workshop-items', [AdminDashboardController::class, 'workshopItems'])
+            ->name('workshop.items');
+
+        Route::post('/admin/workshop/transfer-requests', [AdminDashboardController::class, 'createWorkshopRequests'])
+            ->name('workshop.requests.create');
+        Route::post('/workshop-requests/{id}/handle', [AdminDashboardController::class, 'handleWorkshopRequest'])
+            ->name('workshop.requests.handle');
         Route::get('/notifications', [NotificationController::class, 'index'])->name('notifications.index');
         Route::post('/notifications/{id}/mark-as-read', [NotificationController::class, 'markAsRead'])
             ->name('notifications.mark-as-read');

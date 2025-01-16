@@ -4,57 +4,168 @@
     @include('components.navbar')
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>New Dashboard</title>
+    <title>Dashboard - Gold Inventory Management</title>
     <link href="{{ asset('css/app.css') }}" rel="stylesheet">
     <link href="{{ asset('css/dashboard.css') }}" rel="stylesheet">
     <link href="{{ asset('css/navbar.css') }}" rel="stylesheet">
-
 </head>
-<body>
-    <form action="/update-prices" method="POST" enctype="multipart/form-data">
-        @csrf
-        <input type="file" name="excel_files[]" multiple required>
-        <button type="submit">Upload</button>
-    </form>
-    
-    <div class="dashboard-container">
-        <div class="card">
-            <h3>Total Weight Sold by Year and Shop</h3>
+<body class="bg-gray-50">
+    <div class="dashboard-grid">
+        <!-- Total Weight Sold Card -->
+        <div class="dashboard-card" style="background: linear-gradient(135deg, #f8fafc, #ffffff);">
+            <div class="card-header">
+                <h3>Total Weight Sold by Year and Shop</h3>
+            </div>
             @foreach($totalWeightSoldByYearAndShop as $year => $shops)
-                <div class="year-section">
-                    <h4>{{ $year }}</h4>
-                    <ul class="shop-list">
+                <div class="year-section mb-4">
+                    <h4 class="font-medium text-gray-700 mb-2">{{ $year }}</h4>
+                    <div class="space-y-2">
                         @foreach($shops as $shopName => $weight)
-                            <li><strong>{{ $shopName }}:</strong> {{ number_format($weight, 2) }} g</li>
+                            <div class="list-item">
+                                <span>{{ $shopName }}</span>
+                                <span class="font-medium">{{ number_format($weight, 2) }} g</span>
+                            </div>
                         @endforeach
-                    </ul>
+                    </div>
                 </div>
             @endforeach
         </div>
-        <div class="card">
-            <h3>Total Weight in Inventory</h3>
-            <p>{{ number_format($totalWeightInventory, 2) }} g</p>
+
+        <!-- Inventory Metrics Card -->
+        <div class="dashboard-card" style="background: linear-gradient(135deg, #f0fdf4, #ffffff);">
+            <div class="card-header">
+                <h3>Inventory Overview</h3>
+            </div>
+            <div class="metric-value">
+                {{ number_format($totalWeightInventory, 2) }} g
+            </div>
+            <div class="metric-label">Total Weight in Inventory</div>
+            
+            <div class="mt-6">
+                <div class="metric-value">
+                    {{ number_format($inventoryTurnover, 2) }}
+                </div>
+                <div class="metric-label">Inventory Turnover Ratio</div>
+            </div>
         </div>
-        <div class="card">
-            <h3>Sales Trends Over Time</h3>
-            <canvas id="salesTrendsChart"></canvas>
+
+        <!-- Sales Trends Card -->
+        <div class="dashboard-card" style="background: linear-gradient(135deg, #fff7ed, #ffffff);">
+            <div class="card-header">
+                <h3>Sales Trends</h3>
+            </div>
+            <div class="chart-container">
+                <canvas id="salesTrendsChart"></canvas>
+            </div>
         </div>
-        <div class="card">
-            <h3>Top Selling Items</h3>
-            <ul class="top-selling-list">
-                @foreach($topSellingItems as $item)
-                    <li><strong>{{ $item->model }}:</strong> {{ $item->total_quantity }} sold</li>
+
+        <!-- Sales by Kind Card -->
+        <div class="dashboard-card">
+            <div class="card-header">
+                <h3>Sales by Category</h3>
+            </div>
+            <div class="space-y-2">
+                @foreach($kindSalesAnalysis as $kind)
+                    <div class="list-item">
+                        <span>{{ $kind->kind }}</span>
+                        <span class="badge">{{ $kind->total_sold }} sold</span>
+                    </div>
                 @endforeach
-            </ul>
+            </div>
         </div>
-        <div class="card">
-            <h3>Inventory Turnover Ratio</h3>
-            <p>{{ number_format($inventoryTurnover, 2) }}</p>
+
+        <!-- Inventory by Kind Card -->
+        <div class="dashboard-card">
+            <div class="card-header">
+                <h3>Inventory by Category</h3>
+            </div>
+            <div class="space-y-2">
+                @foreach($kindInventory as $kind)
+                    <div class="list-item">
+                        <span>{{ $kind->kind }}</span>
+                        <div class="flex gap-4">
+                            <span class="text-sm">{{ $kind->total_items }} items</span>
+                            <span class="text-sm">{{ number_format($kind->total_weight, 2) }} g</span>
+                        </div>
+                    </div>
+                @endforeach
+            </div>
+        </div>
+
+        <!-- Sales Trends by Kind Card -->
+        <div class="dashboard-card">
+            <div class="card-header">
+                <h3>Sales Trends by Category</h3>
+            </div>
+            <div class="chart-container">
+                <canvas id="kindSalesTrendsChart"></canvas>
+            </div>
+        </div>
+
+        <!-- Top Selling Items Card -->
+        <div class="dashboard-card">
+            <div class="card-header">
+                <h3>Top Selling Items</h3>
+            </div>
+            <div class="space-y-2">
+                @foreach($topSellingItems as $item)
+                    <div class="list-item">
+                        <span>{{ $item->model }}</span>
+                        <span class="badge">{{ $item->total_quantity }} sold</span>
+                    </div>
+                @endforeach
+            </div>
         </div>
     </div>
     <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
     <script>
         document.addEventListener('DOMContentLoaded', function() {
+            // Kind Sales Trends Chart
+            const kindTrendsCtx = document.getElementById('kindSalesTrendsChart').getContext('2d');
+            const kindTrendsData = {
+                labels: @json(array_keys($kindSalesTrends)),
+                datasets: Object.entries(@json($kindSalesTrends)).map(([kind, data]) => ({
+                    label: kind,
+                    data: data.map(item => item.total_sold),
+                    borderColor: `rgba(${Math.floor(Math.random() * 255)}, ${Math.floor(Math.random() * 255)}, ${Math.floor(Math.random() * 255)}, 1)`,
+                    fill: false
+                }))
+            };
+
+            new Chart(kindTrendsCtx, {
+                type: 'line',
+                data: kindTrendsData,
+                options: {
+                    responsive: true,
+                    interaction: {
+                        mode: 'index',
+                        intersect: false,
+                    },
+                    scales: {
+                        x: {
+                            display: true,
+                            title: {
+                                display: true,
+                                text: 'Time'
+                            }
+                        },
+                        y: {
+                            display: true,
+                            title: {
+                                display: true,
+                                text: 'Items Sold'
+                            },
+                            beginAtZero: true
+                        }
+                    },
+                    plugins: {
+                        title: {
+                            display: true,
+                            text: 'Sales Trends by Category'
+                        }
+                    }
+                }
+            });
             const ctx = document.getElementById('weightChart').getContext('2d');
             const data = {
                 labels: @json(array_keys($totalWeightSoldByYearAndShop)),
