@@ -1,4 +1,5 @@
 <?php
+
 namespace App\Http\Controllers\Auth;
 
 use App\Http\Controllers\Controller;
@@ -12,8 +13,8 @@ use Exception;
 
 class AsgardeoAuthController extends Controller
 {
-    protected $authorizeUrl = 'https://asgardeo.io/oauth2/authorize';
-    protected $tokenUrl = 'https://asgardeo.io/oauth2/token';
+    protected $authorizeUrl;
+    protected $tokenUrl;
     protected $clientId;
     protected $clientSecret;
     protected $redirectUri;
@@ -23,22 +24,30 @@ class AsgardeoAuthController extends Controller
     {
         $this->clientId = env('ASGARDEO_CLIENT_ID');
         $this->clientSecret = env('ASGARDEO_CLIENT_SECRET');
-        $this->redirectUri = env('ASGARDEO_REDIRECT_URI');
         $this->authorizeUrl = env('ASGARDEO_AUTHORIZE_URL');
         $this->tokenUrl = env('ASGARDEO_TOKEN_URL');
+        $this->redirectUri = config('services.asgardeo.redirect'); // Use the dynamically set redirect URI
     }
 
     /**
      * Redirect the user to Asgardeo's authorization page.
      */
-    public function redirectToAsgardeo()
+    public function redirectToAsgardeo(Request $request)
     {
+        // Get the request's host (IP address)
+        $host = $request->getHost();
+    
+        // Dynamically set the redirect URI based on the host
+        $redirectUri = ($host === '192.168.10.178') 
+            ? 'http://192.168.10.178:8001/callback' 
+            : 'http://172.29.206.251:8001/callback';
+    
         $state = Str::random(40);
         session(['asgardeo_oauth_state' => $state]);
     
         $params = [
             'client_id' => $this->clientId,
-            'redirect_uri' => $this->redirectUri,
+            'redirect_uri' => $redirectUri, // Use the dynamically set redirect URI
             'response_type' => 'code',
             'scope' => implode(' ', $this->scopes),
             'state' => $state
@@ -46,6 +55,7 @@ class AsgardeoAuthController extends Controller
     
         return redirect($this->authorizeUrl . '?' . http_build_query($params));
     }
+
     /**
      * Handle the callback from Asgardeo.
      */
@@ -53,7 +63,7 @@ class AsgardeoAuthController extends Controller
     {
         $state = $request->query('state');
         $sessionState = session('asgardeo_oauth_state');
-    
+
         if (!$sessionState || $state !== $sessionState) {
             Log::error('Invalid state.');
             return redirect('/login')->withErrors('Invalid state.');
@@ -67,19 +77,15 @@ class AsgardeoAuthController extends Controller
             Log::error('Authorization code not provided.');
             return redirect('/login')->withErrors('Authorization code not provided.');
         }
-    
-     
-    
-    
+
         // Exchange authorization code for access token
         $response = Http::asForm()->post($this->tokenUrl, [
             'grant_type' => 'authorization_code',
             'client_id' => $this->clientId,
             'client_secret' => $this->clientSecret,
-            'redirect_uri' => $this->redirectUri,
+            'redirect_uri' => $this->redirectUri, // Use the dynamically set redirect URI
             'code' => $code,
         ]);
-
 
         $tokenData = $response->json();
 
@@ -90,16 +96,19 @@ class AsgardeoAuthController extends Controller
 
         // Get user info from the token
         $accessToken = $tokenData['access_token'];
-
         $userInfo = $this->getUserInfo($accessToken);
+
         Log::info('User Info Response:', $userInfo);
         Log::info('Token Data: ', $tokenData);
+
         if (!$userInfo || (!isset($userInfo['email']) && !isset($userInfo['sub']))) {
             Log::error('Failed to retrieve user info or email missing', ['userInfo' => $userInfo]);
             return redirect('/login')->withErrors('Failed to retrieve user information.');
         }
+
         $email = $userInfo['email'] ?? $userInfo['sub'] . '@example.com'; // Use 'sub' as a fallback for email
         $name = $userInfo['name'] ?? 'No Name';
+
         // Check if the user exists or create a new one
         $existingUser = User::where('email', $email)->first();
 
@@ -116,6 +125,7 @@ class AsgardeoAuthController extends Controller
             Auth::login($newUser);
         }
 
+        // Redirect to the intended URL (e.g., /dashboard)
         return redirect()->intended('/dashboard');
     }
 
@@ -130,16 +140,17 @@ class AsgardeoAuthController extends Controller
 
         return $response->json();
     }
+
     public function logout(Request $request)
     {
         try {
             // Get the logout URL from environment
             $asgardeoLogoutUrl = env('ASGARDEO_LOGOUT_URL', 
                 'https://api.asgardeo.io/t/elmawardyjewelry/oidc/logout');
-            
-            // Get the post-logout redirect URI
-            $postLogoutRedirectUri = env('APP_URL', 'http://localhost:8000/login');
-            
+
+            // Use the dynamically set app URL for post-logout redirect
+            $postLogoutRedirectUri = config('app.url') . '/login';
+
             // Log the logout attempt
             Log::info('User logout initiated', [
                 'user_id' => Auth::id(),
@@ -148,7 +159,7 @@ class AsgardeoAuthController extends Controller
 
             // Perform Laravel logout
             Auth::logout();
-            
+
             // Clear and invalidate the session
             $request->session()->invalidate();
             $request->session()->regenerateToken();
