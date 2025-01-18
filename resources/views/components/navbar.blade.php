@@ -30,7 +30,13 @@
                     <a href="{{ route('orders_shopify') }}" class="dropdown-item">Orders</a>
                 </div>
             </li>
-            <li class="navbar-item"><a href="{{ route('admin.dashboard') }}" class="navbar-link">Reports</a></li>
+            <li class="navbar-item dropdown">
+                <a href="#" class="navbar-link dropdown-toggle">Reports</a>
+                <div class="dropdown-menu">
+                    <a href="{{ route('reports.view') }}" class="dropdown-item">View Reports</a>
+                    <a href="{{ route('daily.report.pdf') }}" class="dropdown-item">Generate PDF</a>
+                </div>
+            </li>
         @endif
 
         {{-- Rabea-specific navigation items --}}

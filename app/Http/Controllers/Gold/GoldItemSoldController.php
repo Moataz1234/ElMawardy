@@ -38,6 +38,29 @@ class GoldItemSoldController extends Controller
         ]);
     }
 
+    public function viewReports(Request $request)
+    {
+        $date = $request->input('date', now()->format('Y-m-d'));
+        
+        $reportsData = [];
+        $soldItems = GoldItemSold::forDate($date)->get()->groupBy('model');
+
+        foreach ($soldItems as $model => $items) {
+            $reportsData[$model] = [
+                'total_sold' => $items->count(),
+                'total_weight' => $items->sum('weight'),
+                'total_price' => $items->sum('price'),
+                'sold_date' => $date,
+                'items' => $items
+            ];
+        }
+
+        return view('admin.reports.view', [
+            'reportsData' => $reportsData,
+            'selectedDate' => $date
+        ]);
+    }
+
     /**
      * Show the form for editing the specified sold item.
      */

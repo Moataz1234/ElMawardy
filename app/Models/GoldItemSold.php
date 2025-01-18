@@ -41,4 +41,9 @@ class GoldItemSold extends Model
     {
         return $this->hasOne(Customer::class);
     }
+
+    public function scopeForDate($query, $date)
+    {
+        return $query->whereDate('sold_date', $date);
+    }
 }
