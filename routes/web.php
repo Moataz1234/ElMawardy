@@ -179,6 +179,7 @@ Route::middleware(['auth'])->group(function () {
         Route::get('/admin/sold-items', [AdminDashboardController::class, 'Sold'])->name('admin.sold-items');
         Route::get('/daily-report', [GoldReportController::class, 'generateDailyReport'])->name('daily.report');
         Route::get('/daily-report/pdf', [GoldReportController::class, 'generateDailyReport'])->name('daily.report.pdf');
+        Route::get('/reports', [GoldItemSoldController::class, 'viewReports'])->name('reports.view');
         Route::post('/send-report-email', [GoldReportController::class, 'generateDailyReport'])->name('send.report.email');
         Route::get('/reports', [GoldItemSoldController::class, 'viewReports'])->name('reports.view');
         Route::get('/new-item/create', [NewItemController::class, 'create'])->name('new-item.create');

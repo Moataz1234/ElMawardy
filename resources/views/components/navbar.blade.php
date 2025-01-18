@@ -24,6 +24,14 @@
             <li class="navbar-item"><a href="{{ route('barcode.view') }}" class="navbar-link">Barcode</a></li>
 
             <li class="navbar-item dropdown">
+                <a href="#" class="navbar-link dropdown-toggle">Reports</a>
+                <div class="dropdown-menu">
+                    <a href="{{ route('reports.view') }}" class="dropdown-item">View Reports</a>
+                    <a href="{{ route('daily.report.pdf') }}" class="dropdown-item">Generate PDF</a>
+                </div>
+            </li>
+
+            <li class="navbar-item dropdown">
                 <a href="#" class="navbar-link dropdown-toggle">Shopify</a>
                 <div class="dropdown-menu">
                     <a href="{{ route('shopify.products') }}" class="dropdown-item">Products</a>
