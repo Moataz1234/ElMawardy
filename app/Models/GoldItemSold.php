@@ -46,9 +46,4 @@ class GoldItemSold extends Model
     {
         return $query->whereDate('sold_date', $date);
     }
-
-    public function scopeForDate($query, $date)
-    {
-        return $query->whereDate('sold_date', $date);
-    }
 }
