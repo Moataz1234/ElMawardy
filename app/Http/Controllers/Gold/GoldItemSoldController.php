@@ -5,11 +5,13 @@ namespace App\Http\Controllers\Gold;
 use App\Http\Controllers\Controller;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
-
 use App\Models\GoldItemSold;
+use App\Models\Models;
 use App\Models\Customer;
 use App\Models\GoldItem;
 use App\Services\GoldItemSoldService;
+
+use Barryvdh\DomPDF\Facade\Pdf;
 
 class GoldItemSoldController extends Controller
 {
@@ -23,7 +25,7 @@ class GoldItemSoldController extends Controller
     public function index(Request $request)
     {
         $goldItems = $this->goldItemSoldService->getGoldItemsSold($request);
-        
+
         // Get unique values for filters
         $gold_color = GoldItemSold::distinct()->pluck('gold_color')->filter();
         $kind = GoldItemSold::distinct()->pluck('kind')->filter();
@@ -37,56 +39,6 @@ class GoldItemSoldController extends Controller
             'kind' => $kind
         ]);
     }
-
-    public function viewReports(Request $request)
-    {
-        $date = $request->input('date', now()->format('Y-m-d'));
-        
-        $reportsData = [];
-        $soldItems = GoldItemSold::forDate($date)->get()->groupBy('model');
-
-        foreach ($soldItems as $model => $items) {
-            $reportsData[$model] = [
-                'total_sold' => $items->count(),
-                'total_weight' => $items->sum('weight'),
-                'total_price' => $items->sum('price'),
-                'sold_date' => $date,
-                'items' => $items
-            ];
-        }
-
-        return view('admin.reports.view', [
-            'reportsData' => $reportsData,
-            'selectedDate' => $date
-        ]);
-    }
-
-    public function viewReports(Request $request)
-    {
-        $date = $request->input('date', now()->format('Y-m-d'));
-        
-        $reportsData = [];
-        $soldItems = GoldItemSold::forDate($date)->get()->groupBy('model');
-
-        foreach ($soldItems as $model => $items) {
-            $reportsData[$model] = [
-                'total_sold' => $items->count(),
-                'total_weight' => $items->sum('weight'),
-                'total_price' => $items->sum('price'),
-                'sold_date' => $date,
-                'items' => $items
-            ];
-        }
-
-        return view('admin.reports.view', [
-            'reportsData' => $reportsData,
-            'selectedDate' => $date
-        ]);
-    }
-
-    /**
-     * Show the form for editing the specified sold item.
-     */
     public function edit(string $id)
     {
         $goldItemSold = GoldItemSold::findOrFail($id);
@@ -138,7 +90,7 @@ class GoldItemSoldController extends Controller
     /**
      * Mark the specified item as sold and transfer to the sold table.
      */
-   
+
 
     public function markAsRest(Request $request, string $id)
     {
@@ -151,5 +103,95 @@ class GoldItemSoldController extends Controller
         $goldItem->delete();
 
         return redirect()->route('gold-items.sold')->with('success', 'Gold item marked as rest successfully.');
+    }
+    
+    public function viewReports(Request $request)
+    {
+        // Get the selected date from the request or default to today
+        $date = $request->input('date', now()->format('Y-m-d'));
+    
+        // Fetch sold items for the selected date, grouped by model, and join with the Models table
+        $soldItems = GoldItemSold::whereDate('sold_date', $date)
+        ->get()
+        ->groupBy('model');
+    
+        // Calculate total items sold for the selected day
+        $totalItemsSold = GoldItemSold::whereDate('sold_date', $date)->count();
+    
+        $reportsData = [];
+    
+        foreach ($soldItems as $model => $items) {
+            $modelInfo = Models::where('model', $model)->first();
+            $reportsData[$model] = [
+                'workshop_count' => $items->where('shop_name', 'Workshop')->count(),
+                'order_date' => $date,
+                'gold_color' => $items->first()->gold_color,
+                'source' => $modelInfo ? $modelInfo->source : $items->first()->source, // Get source from Models
+                'stars' => $modelInfo ? $modelInfo->stars : $items->first()->stars, // Get source from Models
+                'image_path' => $modelInfo ? $modelInfo->scanned_image : null, // Get image from Models
+              'model' => $model,
+                'remaining' => GoldItem::where('model', $model)->count(),
+                'total_production' => GoldItem::where('model', $model)->count() + GoldItemSold::where('model', $model)->count(),
+                'total_sold' => GoldItemSold::where('model', $model)->count(),
+                'first_sale' => $items->min('sold_date'),
+                'last_sale' => $items->max('sold_date'),
+                'shop' => $items->pluck('shop_name')->unique()->implode(' / '),
+                'pieces_sold_today' => $items->count(),
+                'shops_data' => $this->getShopDistribution($model) // Helper method to get shop distribution
+            ];
+        }
+    
+        // Get static recipients from config
+        $recipients = array_merge(
+            config('reports_email.elmawardy_recipients', []),
+            config('reports_email.gmail_recipients', [])
+        );
+        
+        // Return the view for HTML display
+        if ($request->has('export') && $request->input('export') === 'pdf') {
+            $pdf = PDF::loadView('Admin.Reports.view', [
+                'reportsData' => $reportsData,
+                'selectedDate' => $date,
+                'totalItemsSold' => $totalItemsSold,
+                'recipients' => $recipients, // Pass recipients to the view
+                'isPdf' => true // Add a flag to indicate PDF export
+            ]);
+            $pdf->setPaper('A4', 'landscape');
+            return $pdf->stream('sales_report_' . $date . '.pdf');
+        }
+    
+        // Return the view for HTML display
+        return view('Admin.Reports.view', [
+            'reportsData' => $reportsData,
+            'selectedDate' => $date,
+            'totalItemsSold' => $totalItemsSold,
+            'recipients' => $recipients, // Pass recipients to the view
+            'isPdf' => false // Add a flag to indicate HTML display
+        ]);
+    }
+    /**
+     * Helper method to get shop distribution for a specific model.
+     */
+    private function getShopDistribution($model)
+    {
+        $shops = [
+            'Mohandessin Shop', 'Mall of Arabia', 'Nasr City', 'Zamalek',
+            'Mall of Egypt', 'EL Guezira Shop', 'Arkan', 'District 5', 'U Venues'
+        ];
+    
+        $shopDistribution = [];
+    
+        foreach ($shops as $shop) {
+            $shopItems = GoldItem::where('model', $model)->where('shop_name', $shop)->get();
+    
+            $shopDistribution[$shop] = [
+                'all_rests' => $shopItems->count(),
+                'white_gold' => $shopItems->where('gold_color', 'White')->count(),
+                'yellow_gold' => $shopItems->where('gold_color', 'Yellow')->count(),
+                'rose_gold' => $shopItems->where('gold_color', 'Rose')->count()
+            ];
+        }
+    
+        return $shopDistribution;
     }
 }

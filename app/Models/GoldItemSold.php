@@ -14,7 +14,6 @@ class GoldItemSold extends Model
     
     // Define the fillable fields
     protected $fillable = [
-        // 'link',
         'serial_number',
         'shop_name',
         'shop_id',
@@ -28,12 +27,7 @@ class GoldItemSold extends Model
         'quantity',
         'weight',
         'add_date',
-        // 'source',
-        // 'to_print',
         'price',
-        // 'semi_or_no',
-        // 'average_of_stones',
-        // 'net_weight',
         'sold_date',
     ];
 

@@ -1,6 +1,4 @@
-/* Base Styles */
-
-:root {
+Base Styles:root {
     --primary-color: #6A6458;
     --white: #ffffff;
     --shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
@@ -173,11 +171,12 @@ body {
 
 
 /* Report Styles */
+
 .report-card {
     margin-bottom: 2rem;
     border: 1px solid #ddd;
     border-radius: 4px;
-    box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
 }
 
 .report-header {
@@ -209,7 +208,9 @@ body {
     border-radius: 4px;
 }
 
+
 /* Print Styles */
+
 @media print {
     .report-page {
         page-break-after: always;
@@ -234,11 +235,12 @@ body {
         border-width: 3px;
     }
 }
+
 .report-card {
     margin-bottom: 2rem;
     border: 1px solid #ddd;
     border-radius: 4px;
-    box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
 }
 
 .report-header {
@@ -270,7 +272,9 @@ body {
     border-radius: 4px;
 }
 
+
 /* Print Styles */
+
 @media print {
     .report-page {
         page-break-after: always;
