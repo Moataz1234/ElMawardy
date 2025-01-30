@@ -85,7 +85,7 @@
         <div class="button-container">
             <button class="delete_btn" type="button" name="action" value="delete" form="bulkActionForm">Delete</button>
             <button class="request_btn" type="submit" name="action" value="request">Request Item</button>
-            <button class="workshop_btn" type="button" name="action" value="workshop" form="bulkActionForm"> Workshop</button>
+            <button class="workshop_btn" type="button" name="action" value="workshop" form="bulkActionForm"> Did</button>
         </div>
     </form>
     <!-- Model Details Modal -->

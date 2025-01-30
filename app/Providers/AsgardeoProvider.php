@@ -12,7 +12,10 @@ class AsgardeoProvider extends AbstractProvider implements ProviderInterface
      */
     protected function getAuthUrl($state)
     {
-        return $this->buildAuthUrlFromBase(env('ASGARDEO_AUTHORIZE_URL', 'https://asgardeo.io/oauth2/authorize'), $state);
+        return $this->buildAuthUrlFromBase(
+            config('services.asgardeo.authorize_url', 'https://asgardeo.io/oauth2/authorize'), // Use config value
+            $state
+        );
     }
 
     /**
@@ -20,7 +23,7 @@ class AsgardeoProvider extends AbstractProvider implements ProviderInterface
      */
     protected function getTokenUrl()
     {
-        return 'https://asgardeo.io/oauth2/token';
+        return config('services.asgardeo.token_url', 'https://asgardeo.io/oauth2/token'); // Use config value
     }
 
     /**
@@ -28,11 +31,14 @@ class AsgardeoProvider extends AbstractProvider implements ProviderInterface
      */
     protected function getUserByToken($token)
     {
-        $response = $this->getHttpClient()->get('https://asgardeo.io/oauth2/userinfo', [
-            'headers' => [
-                'Authorization' => 'Bearer '.$token,
-            ],
-        ]);
+        $response = $this->getHttpClient()->get(
+            config('services.asgardeo.userinfo_url', 'https://asgardeo.io/oauth2/userinfo'), // Use config value
+            [
+                'headers' => [
+                    'Authorization' => 'Bearer ' . $token,
+                ],
+            ]
+        );
 
         return json_decode($response->getBody(), true);
     }
@@ -45,9 +51,9 @@ class AsgardeoProvider extends AbstractProvider implements ProviderInterface
         return (new User)->setRaw($user)->map([
             'id' => $user['sub'],
             'nickname' => null,
-            'name' => $user['name'],
-            'email' => $user['email'],
-            'avatar' => $user['picture'],
+            'name' => $user['name'] ?? null,
+            'email' => $user['email'] ?? null,
+            'avatar' => $user['picture'] ?? null,
         ]);
     }
 
@@ -58,6 +64,7 @@ class AsgardeoProvider extends AbstractProvider implements ProviderInterface
     {
         return array_merge(parent::getTokenFields($code), [
             'grant_type' => 'authorization_code',
+            'redirect_uri' => config('services.asgardeo.redirect'), // Use dynamically set redirect URI
         ]);
     }
 }

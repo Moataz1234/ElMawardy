@@ -18,7 +18,7 @@ class DynamicBaseUrl
     {
         // Get the request's host (IP address)
         $host = $request->getHost();
-
+    
         // Set the base URL and redirect URI dynamically based on the host
         if ($host === '192.168.10.178') {
             Config::set('app.url', 'http://192.168.10.178:8001');
@@ -27,7 +27,7 @@ class DynamicBaseUrl
             Config::set('app.url', 'http://172.29.206.251:8001');
             Config::set('services.asgardeo.redirect', 'http://172.29.206.251:8001/callback');
         }
-
+    
         return $next($request);
     }
 }

@@ -5,6 +5,7 @@ namespace App\Http\Controllers\Excel;
 use App\Http\Controllers\Controller;
 use Illuminate\Http\Request;
 use PhpOffice\PhpSpreadsheet\IOFactory;
+use PhpOffice\PhpSpreadsheet\Reader\IReadFilter;
 use App\Models\GoldItemSold;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Log;
@@ -14,54 +15,105 @@ use Illuminate\Database\QueryException;
 
 class ImportSoldItems extends Controller
 {
-    protected $batchSize = 500;
-    protected $timeLimit = 600; // 10 minutes
+    protected $batchSize = 500; // Increased batch size
+    protected $timeLimit = 12000; // Increased time limit to 60 minutes
     protected $skippedRows = [];
 
     public function showForm()
     {
         return view('import');
     }
+
     public function import(Request $request)
     {
-        // Set execution time limit
         ini_set('max_execution_time', $this->timeLimit);
         set_time_limit($this->timeLimit);
-        
-        // Validate request
+
         $request->validate([
             'file' => 'required|mimes:xlsx,xls',
         ]);
 
         DB::statement('SET FOREIGN_KEY_CHECKS=0;');
-        
+
         try {
-            // Load the spreadsheet
             $file = $request->file('file');
-            $spreadsheet = IOFactory::load($file->getPathname());
+            Log::info("Starting import of file: " . $file->getClientOriginalName());
+
+            // Create reader without read filter initially
+            $reader = IOFactory::createReaderForFile($file->getPathname());
+            $reader->setReadDataOnly(true);
+
+            // Load spreadsheet without filter first to check structure
+            $spreadsheet = $reader->load($file->getPathname());
             $sheet = $spreadsheet->getActiveSheet();
-            
-            // Get total rows
-            $highestRow = $sheet->getHighestRow();
+
+            // Get the actual last column and row
+            $highestColumn = $sheet->getHighestDataColumn();
+            $highestRow = $sheet->getHighestDataRow();
+
+            Log::info("Actual worksheet details:", [
+                'name' => $sheet->getTitle(),
+                'highest_column' => $highestColumn,
+                'highest_row' => $highestRow,
+                'dimension' => $sheet->calculateWorksheetDimension()
+            ]);
+
+            // Read first few rows to debug
+            for ($row = 1; $row <= min(5, $highestRow); $row++) {
+                $rowData = $sheet->rangeToArray(
+                    'A' . $row . ':' . $highestColumn . $row,
+                    null,
+                    true,
+                    false
+                )[0];
+                Log::info("Row {$row} data:", $rowData);
+            }
+
+            // Now proceed with the chunked reading
             $totalBatches = ceil(($highestRow - 1) / $this->batchSize);
             $rowsProcessed = 0;
             $duplicatesSkipped = 0;
-            
+
+            Log::info("Starting import for {$highestRow} rows in {$totalBatches} batches.");
+
             // Process in batches
             for ($batch = 0; $batch < $totalBatches; $batch++) {
                 $startRow = ($batch * $this->batchSize) + 2; // Start from row 2 to skip header
                 $endRow = min($startRow + $this->batchSize - 1, $highestRow);
-                
+
+                Log::info("Processing batch {$batch}: rows {$startRow} to {$endRow}.");
+
                 $records = $this->processRowBatch($sheet, $startRow, $endRow);
-                
+
                 // Insert records one by one to handle duplicates
                 foreach ($records as $index => $record) {
                     try {
-                        GoldItemSold::create($record);
-                        $rowsProcessed++;
+                        // Check if the serial number exists in the database
+                        $existingRecord = GoldItemSold::where('serial_number', $record['serial_number'])->first();
+
+                        if ($existingRecord) {
+                            // Log the old weight before updating
+                            $oldWeight = $existingRecord->weight;
+                            $newWeight = $record['weight'];
+                
+                            // Update only the weight column
+                            $existingRecord->update(['weight' => $newWeight]);
+                
+                            // Log the weight update
+                            Log::info("Weight updated for serial_number: {$record['serial_number']}", [
+                                'old_weight' => $oldWeight,
+                                'new_weight' => $newWeight,
+                                'row' => $startRow + $index,
+                            ]);
+                 $rowsProcessed++;
+                        } else {
+                            // Create a new record if the serial number does not exist
+                            GoldItemSold::create($record);
+                            $rowsProcessed++;
+                        }
                     } catch (QueryException $e) {
                         // Check if it's a duplicate entry error
-                        if ($e->errorInfo[1] === 1062) {
+                        if (GoldItemSold::where('serial_number', $record['serial_number'])->exists()) {
                             $duplicatesSkipped++;
                             $this->skippedRows[] = [
                                 'row' => $startRow + $index,
@@ -74,14 +126,14 @@ class ImportSoldItems extends Controller
                         throw $e;
                     }
                 }
-                
+
                 // Free up memory
                 unset($records);
                 gc_collect_cycles();
             }
-            
+
             DB::statement('SET FOREIGN_KEY_CHECKS=1;');
-            
+
             // Prepare the response message
             $message = "Successfully imported {$rowsProcessed} records. ";
             if ($duplicatesSkipped > 0) {
@@ -89,9 +141,10 @@ class ImportSoldItems extends Controller
                 // Store skipped rows in session for display
                 session(['skipped_rows' => $this->skippedRows]);
             }
-            
+
+            Log::info("Import completed: {$message}");
+
             return redirect()->back()->with('success', $message);
-            
         } catch (\Exception $e) {
             DB::statement('SET FOREIGN_KEY_CHECKS=1;');
             Log::error('Excel import failed: ' . $e->getMessage());
@@ -101,59 +154,102 @@ class ImportSoldItems extends Controller
     protected function processRowBatch(Worksheet $sheet, int $startRow, int $endRow): array
     {
         $records = [];
-        
+
         for ($row = $startRow; $row <= $endRow; $row++) {
-            $rowData = $sheet->rangeToArray('A' . $row . ':T' . $row, null, true, false)[0];
-            
-            // Skip empty rows
-            if (empty(array_filter($rowData))) {
+            // Get the row data and log it
+            $rowData = $sheet->rangeToArray('A' . $row . ':O' . $row, null, true, false)[0];
+            Log::info("Raw row {$row} data:", $rowData);
+
+            // Get serial number cell (Column B)
+            $serialCell = $sheet->getCell('A' . $row);
+            Log::info("Serial number cell value: " . $serialCell->getValue());
+            Log::info("Serial number cell type: " . $serialCell->getDataType());
+
+            // Skip rows where serial_number (column B) is empty
+            if (empty($rowData[0])) {
+                Log::info("Skipping row {$row}: serial_number is empty. Raw value: " . var_export($rowData[0], true));
                 continue;
             }
-    
-            // Debug the raw date values
-            Log::info('Row ' . $row . ' - Raw add_date:     ' . $rowData[13] . ', Raw sold_date: ' . $rowData[19]);
-    
-            // Process add_date
-            $addDate = $this->parseDate($rowData[13]); // Column N in Excel
-            $soldDate = $this->parseDate($rowData[19]); // Column T in Excel
-    
+
+            // Process the row
             $records[] = [
-                'serial_number' => $rowData[1], // Column B in Excel
-                'model' => $rowData[5], // Column F in Excel
-                'shop_name' => $rowData[2], // Column C in Excel
-                'shop_id' => $rowData[3], // Column D in Excel
-                'kind' => $rowData[4], // Column E in Excel
-                'weight' => $rowData[12], // Column M in Excel
-                'gold_color' => $rowData[7], // Column H in Excel
-                'metal_type' => $rowData[9], // Column J in Excel
-                'metal_purity' => $rowData[10], // Column K in Excel
-                'quantity' => $rowData[11], // Column L in Excel
-                'add_date' => $addDate, // Column N in Excel
-                'price' => $rowData[15], // Column P in Excel
-                'sold_date' => $soldDate, // Column T in Excel
-                'stones' => $rowData[8], // Column I in Excel
-                'talab' => $rowData[6] === 'YES', // Column G in Excel
-                'customer_id' => null, // Set customer_id to null
+                'serial_number' => trim($rowData[0]),
+                'model' => trim($rowData[4]),
+                'shop_name' => trim($rowData[1]),
+                'shop_id' => trim($rowData[2]),
+                'kind' => trim($rowData[3]),
+                'weight' => (float)str_replace(',', '', $rowData[11]),
+                'gold_color' => trim($rowData[6]),
+                'metal_type' => trim($rowData[8]),
+                'metal_purity' => trim($rowData[9]),
+                'quantity' => (int)$rowData[10],
+                'add_date' => $this->parseDate($rowData[12]),
+                'price' => (float)str_replace(',', '', $rowData[13]),
+                'sold_date' => $this->parseDate($rowData[14]),
+                'stones' => !empty($rowData[7]) ? $rowData[7] : null,
+                'talab' => strtoupper(trim($rowData[5])) === 'YES',
+                'customer_id' => null,
                 'created_at' => Carbon::now(),
                 'updated_at' => Carbon::now(),
             ];
+
+            Log::info("Successfully processed row {$row} with serial number: {$rowData[0]}");
         }
-        
+
         return $records;
     }
     protected function parseDate($dateValue)
-{
-    // If the date is a numeric Excel serial number, convert it
-    if (is_numeric($dateValue)) {
-        return \PhpOffice\PhpSpreadsheet\Shared\Date::excelToDateTimeObject($dateValue)->format('Y-m-d');
-    }
+    {
+        if (empty($dateValue) || $dateValue === 'OLD') {
+            return null;
+        }
 
-    // If the date is already in a recognizable format, parse it
-    if (strtotime($dateValue)) {
-        return Carbon::parse($dateValue)->format('Y-m-d');
-    }
+        // Remove any extra spaces
+        $dateValue = trim($dateValue);
 
-    // If the date is invalid or empty, return null
-    return null;
+        // If the date is in dd/mm/yyyy format
+        if (preg_match('/^\d{2}\/\d{2}\/\d{4}$/', $dateValue)) {
+            return Carbon::createFromFormat('d/m/Y', $dateValue)->format('Y-m-d');
+        }
+
+        // If the date is a numeric Excel serial number
+        if (is_numeric($dateValue)) {
+            return \PhpOffice\PhpSpreadsheet\Shared\Date::excelToDateTimeObject($dateValue)->format('Y-m-d');
+        }
+
+        // If the date is in any other recognizable format
+        try {
+            return Carbon::parse($dateValue)->format('Y-m-d');
+        } catch (\Exception $e) {
+            Log::warning("Failed to parse date: {$dateValue}");
+            return null;
+        }
+    }
 }
+
+// Custom read filter for chunk reading
+class ChunkReadFilter implements IReadFilter
+{
+    private $startRow = 0;
+    private $endRow = 0;
+
+    public function setRows($startRow, $endRow)
+    {
+        $this->startRow = $startRow;
+        $this->endRow = $endRow;
+    }
+
+    public function readCell(string $columnAddress, int $row, string $worksheetName = ''): bool
+    {
+        // If no range set, read all
+        if ($this->startRow == 0 || $this->endRow == 0) {
+            return true;
+        }
+
+        // Read the row if within range
+        if ($row >= $this->startRow && $row <= $this->endRow) {
+            return true;
+        }
+        return false;
+    }
 }

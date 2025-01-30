@@ -165,6 +165,7 @@ class ShopsController extends Controller
     }
     public function bulkTransfer(TransferRequest $request)
     {
+        
         try {
             $itemIds = $request->input('item_ids');
             $this->transferService->bulkTransfer($itemIds, $request->shop_name);

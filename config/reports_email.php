@@ -13,6 +13,6 @@ return [
         'alyrnouh@gmail.com',
         'mohamedelmawardy16@gmail.com',
         'malakelmawardy97@gmail.com',
-        'moataza630@gmail.com'
+        // 'moataza630@gmail.com'
         ]
 ];

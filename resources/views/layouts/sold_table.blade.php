@@ -11,6 +11,8 @@
 </head>
 <body>
     @include('dashboard')
+    {{-- @include('sidebars.sold-sidebar') --}}
+    {{-- @include('components.navbar') --}}
     @include('components.pagination')
     <main>
         @yield('content')

@@ -167,7 +167,7 @@ body {
                     <input class="form-control" type="text" name="last_name" id="last_name" required>
                 </div>
                 <div class="form-group">
-                    <label class="form-label" for="phone_number">رقم التلفيون</label>
+                    <label class="form-label" for="phone_number">رقم التليفون</label>
                     <input class="form-control" type="number" name="phone_number" id="phone_number" required>
                 </div>
                 <div class="form-group">

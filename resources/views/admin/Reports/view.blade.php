@@ -333,17 +333,11 @@
                     <div class="header-section clearfix">
                         <div class="image-section">
                             @if (isset($data['image_path']) && $data['image_path'])
-                            <img src="{{ $isPdf ? public_path('storage/' . $data['image_path']) : asset('storage/' . $data['image_path']) }}"
-                                alt="Product Image" />
-                        @else
-                            <p>No Image Available</p>
-                        @endif
-                            {{-- @if (isset($data['image_path']) )
-                                <img src="{{ $isPdf ? public_path('storage/' . $data['image_path']) : asset('storage/' . $data['image_path']) }}"
+                                <img height="200px" style="max-height: 400px" src="{{ $isPdf ? public_path('storage/' . $data['image_path']) : asset('storage/' . $data['image_path']) }}"
                                     alt="Product Image" />
                             @else
                                 <p>No Image Available</p>
-                            @endif --}}
+                            @endif
                         </div>
                         <div class="info-section">
                             <div class="info-box">
@@ -394,7 +388,7 @@
                             </tr>
                             <tr>
                                 <td>{{ $data['first_sale'] }}</td>
-                                <td>{{ $data['last_sale'] }}</td>
+                                <td>{{ $data['last_production'] }}</td>
                                 <td>{{ $data['shop'] }}</td>
                                 <td>{{ $data['pieces_sold_today'] }}</td>
                             </tr>

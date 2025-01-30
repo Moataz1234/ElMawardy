@@ -9,6 +9,7 @@ use App\Http\Middleware\Rabea;
 use Illuminate\Support\Facades\Route;
 use App\Http\Middleware\admin;
 use App\Http\Middleware\CheckShop;
+use App\Http\Middleware\DynamicBaseUrl;
 use App\Models\GoldItemsAvg;
 use App\Observers\GoldItemsAvgObserver;
 
@@ -34,6 +35,7 @@ class AppServiceProvider extends ServiceProvider
         Route::aliasMiddleware('rabea', Rabea::class);
         Route::aliasMiddleware('user', CheckShop::class);
         Route::aliasMiddleware('admin', admin::class);
+        Route::aliasMiddleware('DynamicBaseUrl', DynamicBaseUrl::class);
         GoldItemsAvg::observe(GoldItemsAvgObserver::class);
     }
 }

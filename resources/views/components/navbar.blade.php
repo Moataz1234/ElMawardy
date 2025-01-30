@@ -1,6 +1,6 @@
 <link href="{{ asset('css/navbar.css') }}" rel="stylesheet">
 
-<nav class="navbar">
+<nav class="navbar" style="padding: 0">
     <ul class="navbar-list">
         @if (auth()->user()->usertype === 'admin')
             <li class="navbar-item"><a href="{{ route('admin.dashboard') }}" class="navbar-link">Dashboard</a></li>
@@ -14,20 +14,18 @@
             <li class="navbar-item dropdown">
                 <a href="#" class="navbar-link dropdown-toggle">Gold Inventory</a>
                 <div class="dropdown-menu">
+                    <a href="{{ route('gold-items.create') }}" class="dropdown-item">NewItem</a>
+                    <a href="{{ route('barcode.view') }}" class="dropdown-item">Barcode</a>
                     <a href="{{ route('admin.inventory') }}" class="dropdown-item">Items</a>
                     <a href="{{ route('admin.sold-items') }}" class="dropdown-item">Sold Items</a>
-                    <a href="{{ route('workshop.items') }}" class="dropdown-item">Workshop</a>
+                    <a href="{{ route('workshop.items') }}" class="dropdown-item">Did</a>
                 </div>
             </li>
-            <li class="navbar-item"><a href="{{ route('gold-items.create') }}" class="navbar-link">NewItem</a></li>
-
-            <li class="navbar-item"><a href="{{ route('barcode.view') }}" class="navbar-link">Barcode</a></li>
-
             <li class="navbar-item dropdown">
                 <a href="#" class="navbar-link dropdown-toggle">Reports</a>
                 <div class="dropdown-menu">
                     <a href="{{ route('reports.view') }}" class="dropdown-item">View Reports</a>
-                    <a href="{{ route('daily.report.pdf') }}" class="dropdown-item">Generate PDF</a>
+                    {{-- <a href="{{ route('daily.report.pdf') }}" class="dropdown-item">Generate PDF</a> --}}
                 </div>
             </li>
 
@@ -38,22 +36,38 @@
                     <a href="{{ route('orders_shopify') }}" class="dropdown-item">Orders</a>
                 </div>
             </li>
-            <li class="navbar-item dropdown">
-                <a href="#" class="navbar-link dropdown-toggle">Reports</a>
-                <div class="dropdown-menu">
-                    <a href="{{ route('reports.view') }}" class="dropdown-item">View Reports</a>
-                    <a href="{{ route('daily.report.pdf') }}" class="dropdown-item">Generate PDF</a>
-                </div>
-            </li>
         @endif
 
         {{-- Rabea-specific navigation items --}}
         @if (auth()->user()->usertype === 'rabea')
             <li class="navbar-item"><a href="{{ route('orders.rabea.index') }}" class="navbar-link">الاوردرات</a></li>
             <li class="navbar-item"><a href="{{ route('orders.rabea.to_print') }}" class="navbar-link">الورشة</a></li>
-            <li class="navbar-item"><a href="{{ route('orders.completed') }}" class="navbar-link">الاوردرات التي تم
-                    تسليمها</a></li>
-            <li class="navbar-item"><a href="{{ route('gold-items.create') }}" class="navbar-link">اضافة قطعة</a></li>
+            <li class="navbar-item"><a href="{{ route('orders.completed') }}" class="navbar-link">الاوردرات التي تم تسليمها</a></li>
+            {{-- <li class="navbar-item"><a href="{{ route('gold-items.create') }}" class="navbar-link">اضافة قطعة</a></li> --}}
+            <li class="navbar-item dropdown">
+                <a href="#" class="navbar-link dropdown-toggle">Models</a>
+                <div class="dropdown-menu">
+                    <a href="{{ route('models.index') }}" class="dropdown-item">View</a>
+                    <a href="{{ route('admin.gold_items_avg.index') }}" class="dropdown-item">avg_of_stones</a>
+                </div>
+            </li>
+            <li class="navbar-item dropdown">
+                <a href="#" class="navbar-link dropdown-toggle">Gold Inventory</a>
+                <div class="dropdown-menu">
+                    <a href="{{ route('gold-items.create') }}" class="dropdown-item">NewItem</a>
+                    <a href="{{ route('barcode.view') }}" class="dropdown-item">Barcode</a>
+                    <a href="{{ route('admin.inventory') }}" class="dropdown-item">Items</a>
+                    <a href="{{ route('admin.sold-items') }}" class="dropdown-item">Sold Items</a>
+                    <a href="{{ route('workshop.items') }}" class="dropdown-item">Did</a>
+                </div>
+            </li>
+            <li class="navbar-item dropdown">
+                <a href="#" class="navbar-link dropdown-toggle">Reports</a>
+                <div class="dropdown-menu">
+                    <a href="{{ route('reports.view') }}" class="dropdown-item">View Reports</a>
+                    {{-- <a href="{{ route('daily.report.pdf') }}" class="dropdown-item">Generate PDF</a> --}}
+                </div>
+            </li>
         @endif
         {{-- Third user-specific navigation items --}}
         @if (auth()->user()->usertype === 'user')
@@ -78,9 +92,11 @@
             <li class="navbar-item dropdown">
                 <a href="#" class="navbar-link dropdown-toggle">Requests</a>
                 <div class="dropdown-menu">
-                    <a class="dropdown-item" href="{{ route('transfer.requests') }}" class="navbar-link">Transfer Requests</a>
+                    <a class="dropdown-item" href="{{ route('transfer.requests') }}" class="navbar-link">Transfer
+                        Requests</a>
 
-                    <a class="dropdown-item" href="{{ route('workshop.requests') }}" class="navbar-link">Workshop Requests</a>
+                    <a class="dropdown-item" href="{{ route('workshop.requests') }}" class="navbar-link">Workshop
+                        Requests</a>
                     <a class="dropdown-item" href="{{ route('shop.requests.index') }}" class="navbar-link">
                         Item Requests
                         @if (Auth::user()->unreadNotifications->count() > 0)

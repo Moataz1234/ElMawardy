@@ -17,7 +17,7 @@
                         <input type="text" value="{{ Auth::user()->shop_name }}" disabled 
                                style="width: 100%;  background-color:#0D3B66 ; color:#ffffff">
                 </div>
-                
+
                 <div >
                     <label class="code-label">To Shop:</label>
                     <select name="shop_name" id="shop_name" required>
@@ -49,7 +49,6 @@
                                     {{ $item->serial_number }}
                                     <input type="hidden" name="item_ids[]" value="{{ $item->id }}">
                                 </td>
-
                                 <td>{{ $item->model }}</td>
                                 <td>{{ $item->kind }}</td>
                                 <td>{{ $item->weight }}</td>
@@ -58,12 +57,8 @@
                     </tbody>
                 </table>
             </div>
-    
             <button type="submit" class="transfer-button">Transfer Items</button>
         </form>
     </div>
-      <script>
-  
-    </script>
 </body>
 </html>

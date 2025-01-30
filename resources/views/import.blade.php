@@ -6,16 +6,7 @@
     <title>Import Excel</title>
 </head>
 <body>
-    {{-- @if(session('skipped_rows'))
-    <div class="alert alert-warning">
-        <h4>Skipped Rows (Duplicates)</h4>
-        <ul>
-            @foreach(session('skipped_rows') as $row)
-                <li>Row {{ $row['row'] }}: Serial Number {{ $row['serial_number'] }} - {{ $row['reason'] }}</li>
-            @endforeach
-        </ul>
-    </div>
-@endif --}}
+  
     <h2>Upload Excel File Gold items</h2>
     <form action="{{ route('import.excel') }}" method="POST" enctype="multipart/form-data">
         @csrf

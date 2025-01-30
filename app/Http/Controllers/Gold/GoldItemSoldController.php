@@ -10,6 +10,9 @@ use App\Models\Models;
 use App\Models\Customer;
 use App\Models\GoldItem;
 use App\Services\GoldItemSoldService;
+use Carbon\Carbon;
+use Illuminate\Support\Facades\Log;
+
 
 use Barryvdh\DomPDF\Facade\Pdf;
 
@@ -120,8 +123,76 @@ class GoldItemSoldController extends Controller
     
         $reportsData = [];
     
-        foreach ($soldItems as $model => $items) {
-            $modelInfo = Models::where('model', $model)->first();
+      
+    foreach ($soldItems as $model => $items) {
+        $modelInfo = Models::where('model', $model)->first();
+
+        // Step 1: Get all items for the model from GoldItems and GoldItemsSold
+        $inventoryItems = GoldItem::where('model', $model)
+            // ->where('talab', false)
+            // ->whereHas('modelCategory', function ($query) {
+            //     $query->where('source', 'Production');
+            // })
+            ->get();
+
+        $soldItemsForModel = GoldItemSold::where('model', $model)
+            // ->where('talab', false)
+            // ->whereHas('modelCategory', function ($query) {
+            //     $query->where('source', 'Production');
+            // })
+            ->get();
+            
+        Log::info("Model: $model - Inventory Items: " . $inventoryItems->count());
+        Log::info("Model: $model - Sold Items: " . $soldItemsForModel->count());
+        // Step 2: Find the latest date from rest_since and add_date
+        $latestInventoryDate = $inventoryItems->max('rest_since');
+        $latestSoldDate = $soldItemsForModel->max('add_date');
+
+        $latestDate = null;
+        if ($latestInventoryDate && $latestSoldDate) {
+            $latestDate = $latestInventoryDate > $latestSoldDate ? $latestInventoryDate : $latestSoldDate;
+        } elseif ($latestInventoryDate) {
+            $latestDate = $latestInventoryDate;
+        } elseif ($latestSoldDate) {
+            $latestDate = $latestSoldDate;
+        }
+        Log::info("Model: $model - Latest Date: " . ($latestDate ? $latestDate : 'No Date Found'));
+        // Step 3: Calculate the quantity for the latest date or for "old" items
+        $lastProductionQuantity = 0;
+        $oldItemsQuantity = 0;
+
+        if ($latestDate) {
+            // Calculate quantity for the latest date
+            $lastProductionQuantity += $inventoryItems
+                ->where('rest_since', $latestDate)
+                ->sum('quantity');
+
+            $lastProductionQuantity += $soldItemsForModel
+                ->where('add_date', $latestDate)
+                ->sum('quantity');
+                Log::info("Model: $model - Last Production Quantity: " . $lastProductionQuantity);
+
+        }
+
+         else {
+            // Calculate quantity for items with null dates (old items)
+            $oldItemsQuantity += $inventoryItems
+                ->whereNull('rest_since')
+                ->sum('quantity');
+
+            $oldItemsQuantity += $soldItemsForModel
+                ->whereNull('add_date')
+                ->sum('quantity');
+                Log::info("Model: $model - Old Items Quantity: " . $oldItemsQuantity);
+
+        }
+
+        // Step 4: Prepare the last production data
+        $lastProductionDisplay = $latestDate
+            ? Carbon::parse($latestDate)->format('d-m-Y') . ' (Qty: ' . $lastProductionQuantity . ')'
+            : 'Old (Qty: ' . $oldItemsQuantity . ')';
+
+    
             $reportsData[$model] = [
                 'workshop_count' => $items->where('shop_name', 'Workshop')->count(),
                 'order_date' => $date,
@@ -129,15 +200,16 @@ class GoldItemSoldController extends Controller
                 'source' => $modelInfo ? $modelInfo->source : $items->first()->source, // Get source from Models
                 'stars' => $modelInfo ? $modelInfo->stars : $items->first()->stars, // Get source from Models
                 'image_path' => $modelInfo ? $modelInfo->scanned_image : null, // Get image from Models
-              'model' => $model,
+                'model' => $model,
                 'remaining' => GoldItem::where('model', $model)->count(),
                 'total_production' => GoldItem::where('model', $model)->count() + GoldItemSold::where('model', $model)->count(),
                 'total_sold' => GoldItemSold::where('model', $model)->count(),
-                'first_sale' => $items->min('sold_date'),
+                'first_sale' =>$modelInfo ? $modelInfo->first_production : $items->first()->first_production, // Get source from Models
                 'last_sale' => $items->max('sold_date'),
                 'shop' => $items->pluck('shop_name')->unique()->implode(' / '),
                 'pieces_sold_today' => $items->count(),
-                'shops_data' => $this->getShopDistribution($model) // Helper method to get shop distribution
+                'shops_data' => $this->getShopDistribution($model), // Helper method to get shop distribution
+                'last_production' => $lastProductionDisplay, // Combined last production or old items
             ];
         }
     

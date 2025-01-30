@@ -136,7 +136,7 @@ public function updateStatusBulk(Request $request)
 
     public function requests()
     {
-        $this->authorize('viewAny', Order::class);
+        // $this->authorize('viewAny', Order::class);
         $orders = $this->orderRepository->getPendingOrders();
         
         return view('Rabea.orders-requests', compact('orders'));

@@ -29,6 +29,11 @@ class GoldItemSold extends Model
         'add_date',
         'price',
         'sold_date',
+        'customer_id',
+        'created_at',
+        'updated_at',
+
+
     ];
 
     public function customer()
@@ -39,5 +44,14 @@ class GoldItemSold extends Model
     public function scopeForDate($query, $date)
     {
         return $query->whereDate('sold_date', $date);
+    }
+    public function modelCategory()
+    {
+        return $this->belongsTo(Models::class, 'model', 'model');
+    }
+
+    public function modelDetails()
+    {
+        return $this->hasOne(GoldItemDetail::class, 'model', 'model');
     }
 }

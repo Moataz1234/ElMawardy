@@ -91,7 +91,43 @@ class GoldReportController extends Controller
 
             // Calculate total production (remaining + total sold)
             $totalProduction = $remaining + $totalSold;
+               // Calculate last production date and quantity
+        $lastProductionDate = null;
+        $lastProductionQuantity = 0;
 
+        // Get the latest production date from GoldItem (rest_since) and GoldItemSold (add_date)
+        $lastInventoryItem = GoldItem::where('model', $model)
+            ->where('talab', false)
+            ->whereHas('modelCategory', function ($query) {
+                $query->where('source', 'Production');
+            })
+            ->orderBy('rest_since', 'desc')
+            ->first();
+
+        $lastSoldItem = GoldItemSold::where('model', $model)
+            ->where('talab', false)
+            ->whereHas('modelCategory', function ($query) {
+                $query->where('source', 'Production');
+            })
+            ->orderBy('add_date', 'desc')
+            ->first();
+
+        // Determine the latest date between inventory and sold items
+        if ($lastInventoryItem && $lastSoldItem) {
+            if ($lastInventoryItem->rest_since > $lastSoldItem->add_date) {
+                $lastProductionDate = $lastInventoryItem->rest_since;
+                $lastProductionQuantity = $lastInventoryItem->quantity;
+            } else {
+                $lastProductionDate = $lastSoldItem->add_date;
+                $lastProductionQuantity = $lastSoldItem->quantity;
+            }
+        } elseif ($lastInventoryItem) {
+            $lastProductionDate = $lastInventoryItem->rest_since;
+            $lastProductionQuantity = $lastInventoryItem->quantity;
+        } elseif ($lastSoldItem) {
+            $lastProductionDate = $lastSoldItem->add_date;
+            $lastProductionQuantity = $lastSoldItem->quantity;
+        }
             $reportsData[$model] = [
 
                 'workshop_count' => $items->where('shop_name', 'Workshop')->count(),
@@ -108,9 +144,10 @@ class GoldReportController extends Controller
                 'last_sale' => $items->max('sold_date'),
                 'shop' => $shopsWithSales,
                 'pieces_sold_today' => $totalPiecesSoldToday,
-                'shops_data' => $shopDistribution
-            ];
-        }
+                'shops_data' => $shopDistribution,
+                'last_production_date' => $lastProductionDate ? Carbon::parse($lastProductionDate)->format('d-m-Y') : null,
+                'last_production_quantity' => $lastProductionQuantity
+            ];        }
 
         return $reportsData;
     }

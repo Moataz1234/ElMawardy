@@ -38,6 +38,9 @@ class GoldItemSoldService
         if ($shopName = $request->input('shop_name')) {
             $query->whereIn('shop_name', $shopName);
         }
+        if ($sold_date = $request->input('sold_date')) {
+            $query->whereIn('sold_date', $sold_date);
+        }
 
         // Define sortable fields
         $sortableFields = ['serial_number', 'model', 'kind', 'quantity', 'sold_date'];

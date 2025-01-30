@@ -20,39 +20,46 @@ class AsgardeoAuthController extends Controller
     protected $redirectUri;
     protected $scopes = ['openid', 'profile', 'email'];
 
-    public function __construct()
+    public function __construct(Request $request)
     {
         $this->clientId = env('ASGARDEO_CLIENT_ID');
         $this->clientSecret = env('ASGARDEO_CLIENT_SECRET');
         $this->authorizeUrl = env('ASGARDEO_AUTHORIZE_URL');
         $this->tokenUrl = env('ASGARDEO_TOKEN_URL');
-        $this->redirectUri = config('services.asgardeo.redirect'); // Use the dynamically set redirect URI
+        // $this->redirectUri = env('ASGARDEO_REDIRECT_URI');
+        $this->redirectUri = $request->getSchemeAndHttpHost() . '/callback'; // Most reliable
+
+        // Log::info('ASGARDEO_REDIRECT_URI_LOCAL: ' . env('ASGARDEO_REDIRECT_URI_LOCAL'));
+        // Log::info('ASGARDEO_REDIRECT_URI_VPN: ' . env('ASGARDEO_REDIRECT_URI_VPN'));
+        
+        // Detect IP or hostname and set the correct redirect URI
+        // if (request()->ip() === '192.168.10.178') {
+        //     $this->redirectUri = env('ASGARDEO_REDIRECT_URI_LOCAL');
+        // } else {
+        //     $this->redirectUri = env('ASGARDEO_REDIRECT_URI_VPN');
+        // }
+        Log::info('Redirect URI: ' . $this->redirectUri);
+
     }
+
+
 
     /**
      * Redirect the user to Asgardeo's authorization page.
      */
-    public function redirectToAsgardeo(Request $request)
+    public function redirectToAsgardeo()
     {
-        // Get the request's host (IP address)
-        $host = $request->getHost();
-    
-        // Dynamically set the redirect URI based on the host
-        $redirectUri = ($host === '192.168.10.178') 
-            ? 'http://192.168.10.178:8001/callback' 
-            : 'http://172.29.206.251:8001/callback';
-    
         $state = Str::random(40);
         session(['asgardeo_oauth_state' => $state]);
-    
+
         $params = [
             'client_id' => $this->clientId,
-            'redirect_uri' => $redirectUri, // Use the dynamically set redirect URI
+            'redirect_uri' => $this->redirectUri, // Use the dynamically set redirect URI
             'response_type' => 'code',
             'scope' => implode(' ', $this->scopes),
             'state' => $state
         ];
-    
+
         return redirect($this->authorizeUrl . '?' . http_build_query($params));
     }
 
@@ -145,8 +152,10 @@ class AsgardeoAuthController extends Controller
     {
         try {
             // Get the logout URL from environment
-            $asgardeoLogoutUrl = env('ASGARDEO_LOGOUT_URL', 
-                'https://api.asgardeo.io/t/elmawardyjewelry/oidc/logout');
+            $asgardeoLogoutUrl = env(
+                'ASGARDEO_LOGOUT_URL',
+                'https://api.asgardeo.io/t/elmawardyjewelry/oidc/logout'
+            );
 
             // Use the dynamically set app URL for post-logout redirect
             $postLogoutRedirectUri = config('app.url') . '/login';
@@ -175,7 +184,6 @@ class AsgardeoAuthController extends Controller
             ]);
 
             return redirect($logoutUrl);
-
         } catch (Exception $e) {
             Log::error('Logout failed', [
                 'error' => $e->getMessage(),
