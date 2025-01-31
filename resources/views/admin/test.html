@@ -1,0 +1,1931 @@
+I have a website laravel and I want to make when users try to sold an item it send request to the usertype admin and rabea (is there 3 admins and 3 rabea) and if any one accept it saved in requests table and saved the name of admin that accept it (I want to get only the shop_name from users table not need thier id in requests table)
+
+so I want you to help me to create the table of requests for sold items 
+
+I already make the all proccess but only want to add the requests table 
+
+now I will provide some files I made 
+
+this is sold items model 
+
+
+
+<?php
+
+
+
+namespace App\Models;
+
+
+
+
+
+
+
+use Illuminate\Database\Eloquent\Factories\HasFactory;
+
+
+
+use Illuminate\Database\Eloquent\Model;
+
+
+
+
+
+
+
+class GoldItemSold extends Model
+
+
+
+{
+
+
+
+    use HasFactory;
+
+
+
+
+
+
+
+    // Specify the table name if it doesn't follow Laravel's naming convention
+
+
+
+    protected $table = 'gold_items_sold';
+
+
+
+    
+
+
+
+    // Define the fillable fields
+
+
+
+    protected $fillable = [
+
+
+
+        'serial_number',
+
+
+
+        'shop_name',
+
+
+
+        'shop_id',
+
+
+
+        'kind',
+
+
+
+        'model',
+
+
+
+        'talab',
+
+
+
+        'gold_color',
+
+
+
+        'stones',
+
+
+
+        'metal_type',
+
+
+
+        'metal_purity',
+
+
+
+        'quantity',
+
+
+
+        'weight',
+
+
+
+        'add_date',
+
+
+
+        'price',
+
+
+
+        'sold_date',
+
+
+
+        'customer_id',
+
+
+
+        'created_at',
+
+
+
+        'updated_at',
+
+
+
+
+
+
+
+
+
+
+
+    ];
+
+
+
+
+
+
+
+    public function customer()
+
+
+
+    {
+
+
+
+        return $this->hasOne(Customer::class);
+
+
+
+    }
+
+
+
+
+
+
+
+    public function scopeForDate($query, $date)
+
+
+
+    {
+
+
+
+        return $query->whereDate('sold_date', $date);
+
+
+
+    }
+
+
+
+    public function modelCategory()
+
+
+
+    {
+
+
+
+        return $this->belongsTo(Models::class, 'model', 'model');
+
+
+
+    }
+
+
+
+
+
+
+
+    public function modelDetails()
+
+
+
+    {
+
+
+
+        return $this->hasOne(GoldItemDetail::class, 'model', 'model');
+
+
+
+    }
+
+
+
+}
+
+
+
+
+
+
+
+and this is users table
+
+
+
+<?php
+
+
+
+use Illuminate\Database\Migrations\Migration;
+
+use Illuminate\Database\Schema\Blueprint;
+
+use Illuminate\Support\Facades\Schema;
+
+
+
+return new class extends Migration
+
+{
+
+    /**
+
+     * Run the migrations.
+
+     */
+
+    public function up(): void
+
+    {
+
+        Schema::create('users', function (Blueprint $table) {
+
+            $table->id();
+
+            $table->string('name');
+
+            $table->string('email')->unique();
+
+            $table->string('usertype')->default('user');
+
+            $table->timestamp('email_verified_at')->nullable();
+
+            $table->string('password');
+
+            $table->string('shop_name')->nullable();
+
+            $table->rememberToken();
+
+            $table->timestamps();
+
+        });
+
+
+
+        Schema::create('password_reset_tokens', function (Blueprint $table) {
+
+            $table->string('email')->primary();
+
+            $table->string('token');
+
+            $table->timestamp('created_at')->nullable();
+
+        });
+
+
+
+        Schema::create('sessions', function (Blueprint $table) {
+
+            $table->string('id')->primary();
+
+            $table->foreignId('user_id')->nullable()->index();
+
+            $table->string('ip_address', 45)->nullable();
+
+            $table->text('user_agent')->nullable();
+
+            $table->longText('payload');
+
+            $table->integer('last_activity')->index();
+
+        });
+
+    }
+
+
+
+    /**
+
+     * Reverse the migrations.
+
+     */
+
+    public function down(): void
+
+    {
+
+        Schema::dropIfExists('users');
+
+        Schema::dropIfExists('password_reset_tokens');
+
+        Schema::dropIfExists('sessions');
+
+    }
+
+};
+
+
+
+and this is shopsController (that has sold functionality)
+
+
+
+<?php
+
+
+
+
+
+
+
+namespace App\Http\Controllers;
+
+
+
+
+
+
+
+use Illuminate\Http\Request;
+
+
+
+use App\Http\Requests\SellRequest;
+
+
+
+use App\Http\Requests\TransferRequest;
+
+
+
+use Illuminate\Support\Facades\Auth;
+
+
+
+use Illuminate\Support\Facades\Log;
+
+
+
+
+
+
+
+use App\Models\GoldItem;
+
+
+
+use App\Models\Shop;
+
+
+
+use App\Models\GoldItemSold;
+
+
+
+use App\Models\GoldPrice;
+
+
+
+use App\Models\Customer;
+
+
+
+use App\Models\ItemRequest;
+
+
+
+use App\Models\Outer;
+
+
+
+use App\Models\Warehouse;
+
+
+
+use App\Services\SortAndFilterService;
+
+
+
+use App\Services\TransferService;
+
+
+
+use App\Services\GoldItemService;
+
+
+
+use App\Services\SellService;
+
+
+
+use App\Services\OuterService;
+
+
+
+use App\Services\WarehouseService;
+
+
+
+use Illuminate\Support\Facades\DB;
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+use PhpOffice\PhpSpreadsheet\IOFactory;
+
+
+
+use App\Notifications\TransferRequestNotification;
+
+
+
+use Illuminate\Support\Facades\Notification;
+
+
+
+
+
+
+
+class ShopsController extends Controller
+
+
+
+{
+
+
+
+    private TransferService $transferService;
+
+
+
+    private GoldItemService $goldItemService;
+
+
+
+    private OuterService $outerService;
+
+
+
+    private SellService $saleService;
+
+
+
+    private WarehouseService $warehouseService;
+
+
+
+
+
+
+
+    public function __construct(
+
+
+
+        TransferService $transferService,
+
+
+
+        GoldItemService $goldItemService,
+
+
+
+        OuterService $outerService,
+
+
+
+        SellService $saleService,
+
+
+
+        WarehouseService $warehouseService
+
+
+
+    ) {
+
+
+
+        $this->transferService = $transferService;
+
+
+
+        $this->goldItemService = $goldItemService;
+
+
+
+        $this->outerService = $outerService;
+
+
+
+        $this->saleService = $saleService;
+
+
+
+        $this->warehouseService = $warehouseService;
+
+
+
+    }
+
+
+
+
+
+
+
+    public function showShopItems(Request $request)
+
+
+
+    {
+
+
+
+
+
+
+
+        $items = $this->goldItemService->getShopItems($request);
+
+
+
+
+
+
+
+        return view('shops.Gold.index', $items);
+
+
+
+    }
+
+
+
+
+
+
+
+    public function transferRequest(TransferRequest $request, $id)
+
+
+
+    {
+
+
+
+        Log::info('Transfer Request Data:', [
+
+
+
+            'item_id' => $id,
+
+
+
+            'to_shop' => $request->shop_name,
+
+
+
+            'from_shop' => Auth::user()->shop_name
+
+
+
+        ]);
+
+
+
+        $this->transferService->createTransfer($id, $request->shop_name);
+
+
+
+        return redirect()->back()->with('message', 'Transfer request sent to the shop.');
+
+
+
+    }
+
+
+
+
+
+
+
+    public function handleTransferRequest($id, $status)
+
+
+
+    {
+
+
+
+        $this->transferService->handleTransfer($id, $status);
+
+
+
+        return redirect()->route('transfer.requests')
+
+
+
+            ->with('message', "Transfer request has been {$status}");
+
+
+
+    }
+
+
+
+
+
+
+
+    public function viewTransferRequests()
+
+
+
+    {
+
+
+
+        $data = $this->transferService->getPendingTransfers();
+
+
+
+        return view('shops.transfer_requests.show_requests', $data);
+
+
+
+    }
+
+
+
+
+
+
+
+    public function viewTransferRequestHistory()
+
+
+
+    {
+
+
+
+        $history = $this->transferService->getTransferHistory();
+
+
+
+        return view('shops.transfer_requests.history', compact('history'));
+
+
+
+    }
+
+
+
+
+
+
+
+    // public function showTransferForm(string $id)
+
+
+
+    // {
+
+
+
+    //     $data = $this->transferService->getTransferFormData($id);
+
+
+
+    //     return view('shops.transfer_requests.transfer_form', $data);
+
+
+
+    // }
+
+
+
+
+
+
+
+    // public function transferToBranch(TransferRequest $request, string $id)
+
+
+
+    // {
+
+
+
+    //     $this->transferService->transferItem($id, $request->validated());
+
+
+
+    //     return redirect()->route('gold-items.index')
+
+
+
+    //         ->with('success', 'Gold item transferred successfully.');
+
+
+
+    // }
+
+
+
+
+
+
+
+    public function edit(string $id)
+
+
+
+    {
+
+
+
+        $data = $this->goldItemService->getEditFormData($id);
+
+
+
+        return view('Shops.Gold.sell_form', $data);
+
+
+
+    }
+
+
+
+
+
+
+
+    public function storeOuter(Request $request)
+
+
+
+    {
+
+
+
+        $this->outerService->createOuter($request->validated());
+
+
+
+        return redirect()->back()->with('status', 'Data saved successfully.');
+
+
+
+    }
+
+
+
+
+
+
+
+    public function returnOuter($serialNumber)
+
+
+
+    {
+
+
+
+        $this->outerService->markAsReturned($serialNumber);
+
+
+
+        return redirect()->back()->with('status', 'Item marked as returned.');
+
+
+
+    }
+
+
+
+
+
+
+
+    public function toggleReturn($serialNumber)
+
+
+
+    {
+
+
+
+        $result = $this->outerService->toggleOuterStatus($serialNumber);
+
+
+
+
+
+
+
+        if ($result['redirect']) {
+
+
+
+            return view('Shops.Gold.outerform', ['serial_number' => $serialNumber]);
+
+
+
+        }
+
+
+
+
+
+
+
+        return redirect()->back()->with($result['status'], $result['message']);
+
+
+
+    }
+
+
+
+
+
+
+
+    public function showBulkSellForm(Request $request)
+
+
+
+    {
+
+
+
+        $data = $this->saleService->getBulkSellFormData($request->input('ids'));
+
+
+
+        session()->flash('clear_selections', true);
+
+
+
+        return view('shops.Gold.sell_form', $data);
+
+
+
+    }
+
+
+
+
+
+
+
+    public function bulkSell(SellRequest  $request)
+
+
+
+    {
+
+
+
+        $this->saleService->processBulkSale($request->validated());
+
+
+
+        session()->flash('clear_selections', true);
+
+
+
+        return redirect()->route('gold-items.shop')
+
+
+
+            ->with('success', 'Selected items sold successfully');
+
+
+
+    }
+
+
+
+
+
+
+
+    public function showBulkTransferForm(Request $request)
+
+
+
+    {
+
+
+
+        $itemIds = is_array($request->input('ids'))
+
+
+
+            ? $request->input('ids')
+
+
+
+            : explode(',', $request->input('ids'));
+
+
+
+
+
+
+
+        $data = $this->transferService->getBulkTransferFormData($itemIds);
+
+
+
+        // $goldItems = $this->goldItemService->getShopItems($request);
+
+
+
+
+
+
+
+        if ($data['goldItems']->isEmpty()) {
+
+
+
+            return redirect()->back()
+
+
+
+                ->with('error', 'No valid items available for transfer. Some items might already be in transfer process.');
+
+
+
+        }
+
+
+
+
+
+
+
+        return view('shops.transfer_requests.transfer_form', $data);
+
+
+
+    }
+
+
+
+    public function bulkTransfer(TransferRequest $request)
+
+
+
+    {
+
+
+
+        
+
+
+
+        try {
+
+
+
+            $itemIds = $request->input('item_ids');
+
+
+
+            $this->transferService->bulkTransfer($itemIds, $request->shop_name);
+
+
+
+
+
+
+
+            session()->flash('cleared_items', $itemIds);
+
+
+
+
+
+
+
+            return redirect()->route('dashboard')
+
+
+
+                ->with('success', 'Transfer requests sent successfully. Items will be transferred after acceptance.');
+
+
+
+        } catch (\Exception $e) {
+
+
+
+            return redirect()->back()
+
+
+
+                ->with('error', 'Failed to create transfer requests: ' . $e->getMessage());
+
+
+
+        }
+
+
+
+    }
+
+
+
+
+
+
+
+    public function showAdminRequests()
+
+
+
+    {
+
+
+
+        $requests = ItemRequest::where('shop_name', Auth::user()->shop_name)
+
+
+
+            ->with(['item', 'admin'])
+
+
+
+            ->latest()
+
+
+
+            ->paginate(10);
+
+
+
+
+
+
+
+        return view('shops.admin_requests', compact('requests'));
+
+
+
+    }
+
+
+
+    public function updateAdminRequests(Request $request, ItemRequest $itemRequest)
+
+
+
+    {
+
+
+
+        $validated = $request->validate([
+
+
+
+            'status' => 'required|in:accepted,rejected'
+
+
+
+        ]);
+
+
+
+
+
+
+
+        try {
+
+
+
+            DB::transaction(function () use ($validated, $itemRequest) {
+
+
+
+                $itemRequest->update(['status' => $validated['status']]);
+
+
+
+
+
+
+
+                if ($validated['status'] === 'accepted') {
+
+
+
+                    $goldItem = $itemRequest->item;
+
+
+
+
+
+
+
+                    $goldItem->update([
+
+
+
+                        'shop_name' => 'admin',
+
+
+
+                        'status' => 'accepted'
+
+
+
+                    ]);
+
+
+
+
+
+
+
+                    // Create warehouse record
+
+
+
+                    Warehouse::create([
+
+
+
+                        'link' => $goldItem->link,
+
+
+
+                        'serial_number' => $goldItem->serial_number,
+
+
+
+                        'shop_name' => 'admin',
+
+
+
+                        'shop_id' => $goldItem->shop_id,
+
+
+
+                        'kind' => $goldItem->kind,
+
+
+
+                        'model' => $goldItem->model,
+
+
+
+                        'talab' => $goldItem->talab,
+
+
+
+                        'gold_color' => $goldItem->gold_color,
+
+
+
+                        'stones' => $goldItem->stones,
+
+
+
+                        'metal_type' => $goldItem->metal_type,
+
+
+
+                        'metal_purity' => $goldItem->metal_purity,
+
+
+
+                        'quantity' => $goldItem->quantity,
+
+
+
+                        'weight' => $goldItem->weight,
+
+
+
+                        'rest_since' => $goldItem->rest_since,
+
+
+
+                        'source' => $goldItem->source,
+
+
+
+                        'to_print' => $goldItem->to_print,
+
+
+
+                        'price' => $goldItem->price,
+
+
+
+                        'semi_or_no' => $goldItem->semi_or_no,
+
+
+
+                        'average_of_stones' => $goldItem->average_of_stones,
+
+
+
+                        'net_weight' => $goldItem->net_weight,
+
+
+
+                        'website' => $goldItem->website
+
+
+
+                    ]);
+
+
+
+                }
+
+
+
+            });
+
+
+
+
+
+
+
+            return redirect()->back()->with('success', 'Request status updated successfully');
+
+
+
+        } catch (\Exception $e) {
+
+
+
+            return redirect()->back()->with('error', 'Failed to process request: ' . $e->getMessage());
+
+
+
+        }
+
+
+
+    }
+
+
+
+    public function getItemsByModel(Request $request)
+
+
+
+    {
+
+
+
+        $model = $request->input('model');
+
+
+
+
+
+
+
+        // Fetch items with the same model, excluding the current shop
+
+
+
+        $items = GoldItem::with('shop')
+
+
+
+            ->where('model', $model)
+
+
+
+            ->whereHas('shop') // Ensure the item belongs to a shop
+
+
+
+            ->get()
+
+
+
+            ->map(function ($item) {
+
+
+
+                return [
+
+
+
+                    'serial_number' => $item->serial_number,
+
+
+
+                    'shop_name' => $item->shop->name,
+
+
+
+                    'weight' => $item->weight,
+
+
+
+                ];
+
+
+
+            });
+
+
+
+
+
+
+
+        return response()->json(['items' => $items]);
+
+
+
+    }
+
+
+
+}
+
+
+
+
+
+
+
+and this is sellservice 
+
+
+
+<?php
+
+
+
+namespace App\Services;
+
+
+
+
+
+
+
+use App\Models\Customer;
+
+
+
+use App\Models\GoldItem;
+
+
+
+use App\Models\GoldItemSold;
+
+
+
+use Illuminate\Http\Request;
+
+
+
+
+
+
+
+class SellService
+
+
+
+{
+
+
+
+public function getBulkSellFormData(string $ids): array
+
+
+
+{
+
+
+
+    return [
+
+
+
+        'goldItems' => GoldItem::whereIn('id', explode(',', $ids))->get()
+
+
+
+    ];
+
+
+
+}
+
+
+
+
+
+
+
+public function processBulkSale(array $validatedData): void
+
+
+
+    {
+
+
+
+        $customer = Customer::create([
+
+
+
+            'first_name' => $validatedData['first_name'],
+
+
+
+            'last_name' => $validatedData['last_name'],
+
+
+
+            'phone_number' => $validatedData['phone_number'],
+
+
+
+            'address' => $validatedData['address'],
+
+
+
+            'email' => $validatedData['email'],
+
+
+
+            'payment_method' => $validatedData['payment_method']
+
+
+
+        ]);
+
+
+
+
+
+
+
+        foreach ($validatedData['ids'] as $id) {
+
+
+
+            $goldItem = GoldItem::findOrFail($id);
+
+
+
+            
+
+
+
+            GoldItemSold::create([
+
+
+
+                ...$goldItem->toArray(),
+
+
+
+                'customer_id' => $customer->id,
+
+
+
+                'sold_date' => now()
+
+
+
+            ]);
+
+
+
+
+
+
+
+            $goldItem->delete();
+
+
+
+        }
+
+
+
+    }
+
+
+
+}
+
+
+
+and this is view of sell form 
+
+
+
+<body>
+
+
+
+    <div class="container">
+
+
+
+        <div class="item-details-container">
+
+
+
+            <h2 class="section-heading">تفاصيل القطعة</h2>
+
+
+
+            <form class="item-details-form" action="{{ route('shop-items.bulkSell') }}" method="POST">
+
+
+
+                @csrf
+
+
+
+                @foreach($goldItems as $item)
+
+
+
+                <div class="item-details-card">
+
+
+
+                    <h3 class="item-title">Item {{ $item->serial_number }}</h3>
+
+
+
+                    <input type="hidden" name="ids[]" value="{{ $item->id }}">
+
+
+
+                    <div class="item-detail">
+
+
+
+                        <span class="label">Shop Name:</span>
+
+
+
+                        <span class="value">{{ $item->shop_name }}</span>
+
+
+
+                    </div>
+
+
+
+                    <div class="item-detail">
+
+
+
+                        <span class="label">Shop ID:</span>
+
+
+
+                        <span class="value">{{ $item->shop_id }}</span>
+
+
+
+                    </div>
+
+
+
+                    <div class="item-detail">
+
+
+
+                        <span class="label">Kind:</span>
+
+
+
+                        <span class="value">{{ $item->kind }}</span>
+
+
+
+                    </div>
+
+
+
+                    <div class="item-detail">
+
+
+
+                        <span class="label">Model:</span>
+
+
+
+                        <span class="value">{{ $item->model }}</span>
+
+
+
+                    </div>
+
+
+
+                    <div class="item-detail">
+
+
+
+                        <span class="label">Gold Color:</span>
+
+
+
+                        <span class="value">{{ $item->gold_color }}</span>
+
+
+
+                    </div>
+
+
+
+                    <div class="item-detail">
+
+
+
+                        <span class="label">Weight:</span>
+
+
+
+                        <span class="value">{{ $item->weight }}</span>
+
+
+
+                    </div>
+
+
+
+                </div>
+
+
+
+                @endforeach
+
+
+
+        </div>
+
+
+
+
+
+
+
+        <div class="customer-details-container">
+
+
+
+            <h2 class="section-heading" style="color: rgb(171, 245, 0)">بيانات الزبون</h2>
+
+
+
+      
+
+
+
+                <div class="form-group">
+
+
+
+                    <label class="form-label" for="first_name">الاسم الاول</label>
+
+
+
+                    <input class="form-control" type="text" name="first_name" id="first_name" required>
+
+
+
+                </div>
+
+
+
+                <div class="form-group">
+
+
+
+                    <label class="form-label" for="last_name">الاسم الاخير</label>
+
+
+
+                    <input class="form-control" type="text" name="last_name" id="last_name" required>
+
+
+
+                </div>
+
+
+
+                <div class="form-group">
+
+
+
+                    <label class="form-label" for="phone_number">رقم التليفون</label>
+
+
+
+                    <input class="form-control" type="number" name="phone_number" id="phone_number" required>
+
+
+
+                </div>
+
+
+
+                <div class="form-group">
+
+
+
+                    <label class="form-label" for="address">العنوان</label>
+
+
+
+                    <input class="form-control" type="text" name="address" id="address" required>
+
+
+
+                </div>
+
+
+
+                <div class="form-group">
+
+
+
+                    <label class="form-label" for="email">Email:</label>
+
+
+
+                    <input class="form-control" type="email" name="email" id="email" required>
+
+
+
+                </div>
+
+
+
+                <div class="form-group">
+
+
+
+                    <label class="form-label" for="payment_method">طريقة الدفع</label>
+
+
+
+                    <select class="form-control" name="payment_method" id="payment_method">
+
+
+
+                        <option value="visa">Visa</option>
+
+
+
+                        <option value="value">Value</option>
+
+
+
+                        <option value="cash">Cash</option>
+
+
+
+                        <option value="instapay">Instapay</option>
+
+
+
+                    </select>
+
+
+
+                </div>
+
+
+
+                <div class="form-group">
+
+
+
+                    <label class="form-label" for="total_price">السعر</label>
+
+
+
+                    <input class="form-control" type="number" name="total_price" step="0.01" id="total_price">
+
+
+
+                </div>
+
+
+
+                <button class="form-button" type="submit">Complete Sale</button>
+
+
+
+            </form>
+
+
+
+        </div>
+
+
+
+    </div>
+
+
+
+</body>
+
+
+
+<script>
+
+
+
+    document.getElementById('price').addEventListener('input', function() {
+
+
+
+        var weight = parseFloat(document.getElementById('weight').value);
+
+
+
+        var price = parseFloat(this.value);
+
+
+
+        var totalPrice = weight * price;
+
+
+
+        document.getElementById('total_price').value = totalPrice.toFixed(2);
+
+
+
+    });
+
+
+
+</script>
+
+
+
+</html>  
+
+
+
+
+
+
+
+can you help me?
+
+step by step

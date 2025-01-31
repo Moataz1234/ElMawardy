@@ -13,59 +13,59 @@ use Illuminate\Database\Eloquent\Collection;
 
 class TransferService
 {
-    public function createTransfer(string $itemId, string $toShopName): void
-    {
-        try {
-            $goldItem = GoldItem::findOrFail($itemId);
-            $currentUserShop = Auth::user()->shop_name;
+//     public function createTransfer(string $itemId, string $toShopName): void
+//     {
+//         try {
+//             $goldItem = GoldItem::findOrFail($itemId);
+//             $currentUserShop = Auth::user()->shop_name;
     
-            TransferRequest::create([
-                'gold_item_id' => $goldItem->id,
-                'from_shop_name' => $currentUserShop,
-                'to_shop_name' => $toShopName,
-                'status' => 'pending'
-            ]);
-        } catch (\Exception $e) {
-            Log::error('Transfer Request Creation Failed:', [
-                'error' => $e->getMessage(),
-                'item_id' => $itemId,
-                'to_shop' => $toShopName
-            ]);
-            throw $e;
-        }
-    }
+//             TransferRequest::create([
+//                 'gold_item_id' => $goldItem->id,
+//                 'from_shop_name' => $currentUserShop,
+//                 'to_shop_name' => $toShopName,
+//                 'status' => 'pending'
+//             ]);
+//         } catch (\Exception $e) {
+//             Log::error('Transfer Request Creation Failed:', [
+//                 'error' => $e->getMessage(),
+//                 'item_id' => $itemId,
+//                 'to_shop' => $toShopName
+//             ]);
+//             throw $e;
+//         }
+//     }
 
 
 
-    public function handleTransfer(string $requestId, string $status): void
-{
-    try {
-        $transferRequest = TransferRequest::findOrFail($requestId);
+//     public function handleTransfer(string $requestId, string $status): void
+// {
+//     try {
+//         $transferRequest = TransferRequest::findOrFail($requestId);
         
-        if ($status === 'accepted') {
-            // Get the shop details from shops table using shop_name
-            $toShop = Shop::where('name', $transferRequest->to_shop_name)
-                         ->firstOrFail();
+//         if ($status === 'accepted') {
+//             // Get the shop details from shops table using shop_name
+//             $toShop = Shop::where('name', $transferRequest->to_shop_name)
+//                          ->firstOrFail();
 
-            // Only update the gold item's shop information when the transfer is accepted
-            $goldItem = $transferRequest->goldItem;
-            $goldItem->update([
-                'shop_name' => $toShop->name,
-                'shop_id' => $toShop->id
-            ]);
-        }
+//             // Only update the gold item's shop information when the transfer is accepted
+//             $goldItem = $transferRequest->goldItem;
+//             $goldItem->update([
+//                 'shop_name' => $toShop->name,
+//                 'shop_id' => $toShop->id
+//             ]);
+//         }
         
-        $transferRequest->update(['status' => $status]);
+//         $transferRequest->update(['status' => $status]);
 
-    } catch (\Exception $e) {
-        Log::error('Transfer handling failed:', [
-            'error' => $e->getMessage(),
-            'request_id' => $requestId,
-            'status' => $status
-        ]);
-        throw $e;
-    }
-}
+//     } catch (\Exception $e) {
+//         Log::error('Transfer handling failed:', [
+//             'error' => $e->getMessage(),
+//             'request_id' => $requestId,
+//             'status' => $status
+//         ]);
+//         throw $e;
+//     }
+// }
 
     public function getPendingTransfers(): array
     {
@@ -81,41 +81,6 @@ class TransferService
     public function getTransferHistory(): Collection
     {
         return TransferRequest::with(['goldItem', 'fromShop', 'toShop'])->get();
-    }
-
-    public function getTransferFormData(string $id): array
-    {
-        // Get all shops except the current user's shop
-        $shops = User::where('usertype', 'user')
-                    ->where('shop_name', '!=', Auth::user()->shop_name)
-                    ->pluck('shop_name', 'shop_name');
-
-        return [
-            'goldItem' => GoldItem::findOrFail($id),
-            'shops' => $shops
-        ];
-    }
-    public function transferItem(string $id, array $validated): void
-    {
-        try {
-            $goldItem = GoldItem::findOrFail($id);
-            
-            // Get the correct shop_id from shops table
-            $shop = Shop::where('shop_name', $validated['shop_name'])
-                       ->firstOrFail();
-
-            $goldItem->update([
-                'shop_name' => $shop->shop_name,
-                'shop_id' => $shop->id
-            ]);
-        } catch (\Exception $e) {
-            Log::error('Direct transfer failed:', [
-                'error' => $e->getMessage(),
-                'item_id' => $id,
-                'shop_name' => $validated['shop_name']
-            ]);
-            throw $e;
-        }
     }
 
     public function getBulkTransferFormData(array $itemIds): array
@@ -136,19 +101,52 @@ class TransferService
                           ->pluck('name', 'name')
         ];
     }
+// public function bulkTransfer(array $itemIds, string $toShopName): void
+// {
+//     try {
+//         $toShop = Shop::where('name', $toShopName)->firstOrFail();
+        
+//         // Don't update the shop_name and shop_id immediately
+//         // Only create transfer requests with pending status
+//         foreach ($itemIds as $itemId) {
+//             TransferRequest::create([
+//                 'gold_item_id' => $itemId,
+//                 'from_shop_name' => Auth::user()->shop_name,
+//                 'to_shop_name' => $toShopName,
+//                 'status' => 'pending'
+//             ]);
+//         }
+//     } catch (\Exception $e) {
+//         Log::error('Bulk transfer failed:', [
+//             'error' => $e->getMessage(),
+//             'item_ids' => $itemIds,
+//             'to_shop' => $toShopName
+//         ]);
+//         throw $e;
+//     }
+// }
 public function bulkTransfer(array $itemIds, string $toShopName): void
 {
     try {
         $toShop = Shop::where('name', $toShopName)->firstOrFail();
         
-        // Don't update the shop_name and shop_id immediately
-        // Only create transfer requests with pending status
+        Log::info('Initiating bulk transfer:', [
+            'from_shop' => Auth::user()->shop_name,
+            'to_shop' => $toShopName,
+            'item_ids' => $itemIds
+        ]);
+
         foreach ($itemIds as $itemId) {
             TransferRequest::create([
                 'gold_item_id' => $itemId,
                 'from_shop_name' => Auth::user()->shop_name,
                 'to_shop_name' => $toShopName,
                 'status' => 'pending'
+            ]);
+
+            Log::info('Transfer request created:', [
+                'item_id' => $itemId,
+                'to_shop' => $toShopName
             ]);
         }
     } catch (\Exception $e) {

@@ -15,6 +15,8 @@
     const sellRouteUrl = "{{ route('shop-items.bulkSellForm') }}";
     const transferRouteUrl = "{{ route('shop-items.bulkTransferForm') }}";
 </script>
+<script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+
 <script src="{{ asset('js/modal.js') }}"></script>
 <script src="{{ asset('js/checkbox-selection.js') }}"></script>
 @endpush

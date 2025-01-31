@@ -1,0 +1,79 @@
+.select-item:disabled {
+    opacity: 0.5;
+    cursor: not-allowed;
+}
+
+tr.pending-transfer {
+    background-color: #f8f9fa;
+}
+
+.pending-badge {
+    background-color: #ffc107;
+    padding: 2px 6px;
+    border-radius: 4px;
+    font-size: 0.8em;
+    color: #000;
+    display: inline-block;
+}
+
+.model-link {
+    color: blue;
+    text-decoration: underline;
+    cursor: pointer;
+}
+
+.modal-body ul {
+    padding-left: 20px;
+}
+
+.modal tbody {
+    background-color: rgb(214, 195, 195);
+
+}
+
+.modal td {
+    color: #000;
+}
+
+@media (max-width: 768px) {
+
+    table th,
+    table td {
+        font-size: 12px;
+        /* Smaller text for table cells */
+        white-space: nowrap;
+        /* Prevent text wrapping */
+    }
+
+    .table-responsive {
+        overflow-x: auto;
+        /* Ensure table scrolls horizontally */
+        -webkit-overflow-scrolling: touch;
+        /* Smooth scrolling for iOS */
+    }
+
+    /* Center align pending badges on small screens */
+    .pending-badge {
+        display: block;
+        text-align: center;
+        margin: 5px 0;
+    }
+
+    /* Customize modal for small screens */
+    .modal-content {
+        margin: 10px;
+        /* Add margin around modal */
+    }
+
+    .modal-body table {
+        font-size: 12px;
+        /* Smaller table font size in modals */
+    }
+
+    body {
+        transform: scale(0.8);
+        /* Shrink to 80% for smaller screens */
+        transform-origin: top;
+    }
+
+}

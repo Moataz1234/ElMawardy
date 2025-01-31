@@ -60,24 +60,6 @@ class ShopsController extends Controller
         return view('shops.Gold.index', $items);
     }
 
-    public function transferRequest(TransferRequest $request, $id)
-    {
-        Log::info('Transfer Request Data:', [
-            'item_id' => $id,
-            'to_shop' => $request->shop_name,
-            'from_shop' => Auth::user()->shop_name
-        ]);
-        $this->transferService->createTransfer($id, $request->shop_name);
-        return redirect()->back()->with('message', 'Transfer request sent to the shop.');
-    }
-
-    public function handleTransferRequest($id, $status)
-    {
-        $this->transferService->handleTransfer($id, $status);
-        return redirect()->route('transfer.requests')
-            ->with('message', "Transfer request has been {$status}");
-    }
-
     public function viewTransferRequests()
     {
         $data = $this->transferService->getPendingTransfers();
@@ -90,18 +72,6 @@ class ShopsController extends Controller
         return view('shops.transfer_requests.history', compact('history'));
     }
 
-    // public function showTransferForm(string $id)
-    // {
-    //     $data = $this->transferService->getTransferFormData($id);
-    //     return view('shops.transfer_requests.transfer_form', $data);
-    // }
-
-    // public function transferToBranch(TransferRequest $request, string $id)
-    // {
-    //     $this->transferService->transferItem($id, $request->validated());
-    //     return redirect()->route('gold-items.index')
-    //         ->with('success', 'Gold item transferred successfully.');
-    // }
 
     public function edit(string $id)
     {
@@ -133,12 +103,12 @@ class ShopsController extends Controller
     }
 
     public function showBulkSellForm(Request $request)
-    {
-        $data = $this->saleService->getBulkSellFormData($request->input('ids'));
-        session()->flash('clear_selections', true);
-        return view('shops.Gold.sell_form', $data);
-    }
-
+{
+    $itemIds = explode(',', $request->input('ids'));
+    $data = $this->saleService->getBulkSellFormData($itemIds);
+    session()->flash('clear_selections', true);
+    return view('shops.Gold.sell_form', $data);
+}
     public function bulkSell(SellRequest  $request)
     {
         $this->saleService->processBulkSale($request->validated());
@@ -149,23 +119,19 @@ class ShopsController extends Controller
 
     public function showBulkTransferForm(Request $request)
     {
-        $itemIds = is_array($request->input('ids'))
-            ? $request->input('ids')
-            : explode(',', $request->input('ids'));
-
+        $itemIds = explode(',', $request->input('ids'));
         $data = $this->transferService->getBulkTransferFormData($itemIds);
-        // $goldItems = $this->goldItemService->getShopItems($request);
-
+    
         if ($data['goldItems']->isEmpty()) {
             return redirect()->back()
                 ->with('error', 'No valid items available for transfer. Some items might already be in transfer process.');
         }
-
+    
         return view('shops.transfer_requests.transfer_form', $data);
     }
     public function bulkTransfer(TransferRequest $request)
     {
-        
+
         try {
             $itemIds = $request->input('item_ids');
             $this->transferService->bulkTransfer($itemIds, $request->shop_name);
@@ -257,5 +223,13 @@ class ShopsController extends Controller
             });
 
         return response()->json(['items' => $items]);
+    }
+    public function getItemDetails($serial_number)
+    {
+        $item = GoldItem::where('serial_number', $serial_number)->first();
+        if (!$item) {
+            $item = GoldItemSold::where('serial_number', $serial_number)->first();
+        }
+        return response()->json($item);
     }
 }

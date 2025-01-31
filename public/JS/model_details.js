@@ -1,4 +1,4 @@
-document.addEventListener('DOMContentLoaded', function() {
+document.addEventListener('DOMContentLoaded', function () {
     const modelInput = document.getElementById('model');
     const kindInput = document.getElementById('kind');
     const addFieldBtn = document.getElementById('add-field-btn');
@@ -45,12 +45,12 @@ document.addEventListener('DOMContentLoaded', function() {
         tableBody.innerHTML = '<tr><td colspan="2">Loading...</td></tr>';
 
         fetch(`/gold-items/model-details?model=${encodeURIComponent(modelValue)}`, {
-                method: 'GET',
-                headers: {
-                    'Accept': 'application/json',
-                    'X-Requested-With': 'XMLHttpRequest'
-                }
-            })
+            method: 'GET',
+            headers: {
+                'Accept': 'application/json',
+                'X-Requested-With': 'XMLHttpRequest'
+            }
+        })
             .then(response => response.json())
             .then(data => {
                 tableBody.innerHTML = '';
@@ -97,35 +97,31 @@ document.addEventListener('DOMContentLoaded', function() {
     }
 
     // Event Listeners
-    modelInput.addEventListener('input', function(e) {
+    modelInput.addEventListener('input', function (e) {
         const modelValue = e.target.value;
         kindInput.value = determineKind(modelValue);
         debounce(fetchItems, 300)(modelValue);
     });
 
-    modelInput.addEventListener('change', function(e) {
+    modelInput.addEventListener('change', function (e) {
         const modelValue = e.target.value;
         kindInput.value = determineKind(modelValue);
     });
 
-    addFieldBtn.addEventListener('click', function() {
+    addFieldBtn.addEventListener('click', function () {
         const index = dynamicFieldsContainer.children.length;
         const fieldHTML = `
     <div class="dynamic-field">
         <div class="form-group">
             <label for="shop_id">Shop:</label>
             <select name="shops[${index}][shop_id]" required>
-                @foreach ($shops as $shop)
-                    <option value="{{ $shop->id }}">{{ $shop->name }}</option>
-                @endforeach
+                ${shops.map(shop => `<option value="${shop.id}">${shop.name}</option>`).join('')}
             </select>
         </div>
         <div class="form-group">
             <label for="gold_color">Gold Color:</label>
             <select name="shops[${index}][gold_color]" required>
-                @foreach ($goldColors as $color)
-                    <option value="{{ $color }}">{{ $color }}</option>
-                @endforeach
+                ${goldColors.map(color => `<option value="${color}">${color}</option>`).join('')}
             </select>
         </div>
         <div class="form-group">
@@ -134,7 +130,7 @@ document.addEventListener('DOMContentLoaded', function() {
         </div>
         <div>
               <label for="talab_${index}">Talab:</label>
-<input type="hidden" name="shops[${index}][talab]" value="0">
+    <input type="hidden" name="shops[${index}][talab]" value="0">
 <input type="checkbox" class="checkboxInput" id="talab_${index}" name="shops[${index}][talab]" value="1">
 <label for="talab_${index}" class="toggleSwitch"></label>
 </div>
@@ -147,7 +143,7 @@ document.addEventListener('DOMContentLoaded', function() {
         newField.innerHTML = fieldHTML;
         dynamicFieldsContainer.appendChild(newField);
 
-        newField.querySelector('.remove-field-btn').addEventListener('click', function() {
+        newField.querySelector('.remove-field-btn').addEventListener('click', function () {
             newField.remove();
         });
     });

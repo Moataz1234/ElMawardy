@@ -1,3 +1,4 @@
+
 document.addEventListener('DOMContentLoaded', function() {
     // Initialize arrays for tracking selections
     let selectedIds = JSON.parse(localStorage.getItem('selectedItems')) || [];
@@ -37,20 +38,53 @@ document.addEventListener('DOMContentLoaded', function() {
     });
 
     // Handle button clicks for Sell and Transfer actions
+    // function handleButtonClick(buttonId, actionUrl) {
+    //     const button = document.getElementById(buttonId);
+    //     if (button) {
+    //         button.removeAttribute('onclick');
+    //         button.addEventListener('click', function(e) {
+    //             e.preventDefault();
+    //             if (selectedIds.length === 0) {
+    //                 alert(`Please select at least one item to ${button.innerText.toLowerCase()}.`);
+    //                 return;
+    //             }
+    //             window.location.href = `${actionUrl}?ids=${selectedIds.join(',')}`;
+    //         });
+    //     }
+    // }
     function handleButtonClick(buttonId, actionUrl) {
         const button = document.getElementById(buttonId);
         if (button) {
-            button.removeAttribute('onclick');
+            button.removeAttribute('onclick'); // Remove inline onclick if any
             button.addEventListener('click', function(e) {
                 e.preventDefault();
+
                 if (selectedIds.length === 0) {
-                    alert(`Please select at least one item to ${button.innerText.toLowerCase()}.`);
+                    Swal.fire({ // Use SweetAlert here
+                        icon: 'warning',
+                        title: 'No Items Selected',
+                        text: `Please select at least one item to ${button.innerText.toLowerCase()}.`,
+                    });
                     return;
                 }
-                window.location.href = `${actionUrl}?ids=${selectedIds.join(',')}`;
+
+                // If items are selected, proceed with the redirect
+                Swal.fire({
+                    title: 'Confirm Action',
+                    text: `Are you sure you want to ${button.innerText.toLowerCase()} these items?`,
+                    icon: 'question',
+                    showCancelButton: true,
+                    confirmButtonText: 'Yes',
+                    cancelButtonText: 'No'
+                }).then((result) => {
+                    if (result.isConfirmed) {
+                        window.location.href = `${actionUrl}?ids=${selectedIds.join(',')}`;
+                    }
+                })
             });
         }
     }
+
 
     // Sell and Transfer URLs defined in Blade template
     handleButtonClick('sellItemsButton', sellRouteUrl);

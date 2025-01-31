@@ -5,93 +5,23 @@
     <meta charset="UTF-8">
     <title>Gold Inventory</title>
     {{-- <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/css/bootstrap.min.css"> --}}
-    <style>
-        .select-item:disabled {
-            opacity: 0.5;
-            cursor: not-allowed;
-        }
-
-        tr.pending-transfer {
-            background-color: #f8f9fa;
-        }
-
-        .pending-badge {
-            background-color: #ffc107;
-            padding: 2px 6px;
-            border-radius: 4px;
-            font-size: 0.8em;
-            color: #000;
-            display: inline-block;
-        }
-
-        .model-link {
-            color: blue;
-            text-decoration: underline;
-            cursor: pointer;
-        }
-
-        .modal-body ul {
-            padding-left: 20px;
-        }
-
-        .modal tbody {
-            background-color: rgb(214, 195, 195);
-
-        }
-
-        .modal td {
-            color: #000;
-        }
-
-        @media (max-width: 768px) {
-
-            table th,
-            table td {
-                font-size: 12px;
-                /* Smaller text for table cells */
-                white-space: nowrap;
-                /* Prevent text wrapping */
-            }
-
-            .table-responsive {
-                overflow-x: auto;
-                /* Ensure table scrolls horizontally */
-                -webkit-overflow-scrolling: touch;
-                /* Smooth scrolling for iOS */
-            }
-
-            /* Center align pending badges on small screens */
-            .pending-badge {
-                display: block;
-                text-align: center;
-                margin: 5px 0;
-            }
-
-            /* Customize modal for small screens */
-            .modal-content {
-                margin: 10px;
-                /* Add margin around modal */
-            }
-
-            .modal-body table {
-                font-size: 12px;
-                /* Smaller table font size in modals */
-            }
-
-            body {
-                transform: scale(0.8);
-                /* Shrink to 80% for smaller screens */
-                transform-origin: top;
-            }
-
-        }
-    </style>
+    <link href="{{ asset('css/Gold/shops_inventory.css') }}" rel="stylesheet">
+   
 </head>
-
 <body>
     <div class="container-fluid">
         <div class="spreadsheet">
             <div class="table-responsive">
+                <!-- Forms for Sell and Transfer -->
+                <form id="sellForm" action="{{ route('shop-items.bulkSell') }}" method="POST" style="display: none;">
+                    @csrf
+                    <input type="hidden" name="ids" id="selectedIdsForSell">
+                </form>
+
+                <form id="transferForm" action="{{ route('gold-items.bulk-transfer') }}" method="POST" style="display: none;">
+                    @csrf
+                    <input type="hidden" name="ids" id="selectedIdsForTransfer">
+                </form>
 
                 <table class="table table-striped table-hover">
                     <thead>
@@ -119,13 +49,12 @@
                             @endphp
                             <tr style="{{ $isOuter ? 'background-color: yellow;' : '' }}">
                                 <td>
-                                    @if (!$isPending)
-                                        <input type="checkbox" class="select-item" data-id="{{ $item->id }}">
+                                    @if($isPending)
+                                        <span class="pending-badge">Pending Transfer</span>
+                                    @elseif($item->sale_request && $item->sale_request->status === 'pending')
+                                        <span class="pending-badge">Pending Sale Approval</span>
                                     @else
-                                        <span class="pending-badge">
-                                            Pending Transfer to
-                                            {{ $item->transferRequests->where('status', 'pending')->first()->to_shop_name }}
-                                        </span>
+                                        <input type="checkbox" class="select-item" data-id="{{ $item->id }}">
                                     @endif
                                 </td>
                                 <td>
@@ -146,7 +75,7 @@
                                 </td>
                                 <td>{{ $item->gold_color }}</td>
                                 <td>{{ $item->weight }}</td>
-                                <td>{{ $item->modelCategory->category ?? 'No Category' }}</td>
+                                <td>{{ $item->modelCategory->stars ?? 'No Category' }}</td>
                             </tr>
                         @endforeach
                     </tbody>
@@ -161,7 +90,6 @@
         <!-- Model Details Modal -->
         <div class="modal " id="modelDetailsModal" tabindex="-1" role="dialog"
             aria-labelledby="modelDetailsModalLabel" aria-hidden="true">
-            {{-- <div class="modal-dialog modal-lg" role="document"> --}}
             <div style="background-color: #babfc5;margin:10px 250px" class="modal-content">
                 <div class="modal-header">
                     <h5 class="modal-title" id="modelDetailsModalLabel">Items with Same Model</h5>
@@ -174,7 +102,6 @@
                 </div>
             </div>
         </div>
-    </div>
     </div>
 
     <!-- Required JavaScript -->
@@ -268,5 +195,4 @@
         });
     </script>
 </body>
-
 </html>

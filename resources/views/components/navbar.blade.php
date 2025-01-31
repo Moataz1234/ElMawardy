@@ -22,6 +22,17 @@
                 </div>
             </li>
             <li class="navbar-item dropdown">
+                <a href="#" class="navbar-link dropdown-toggle">Requests</a>
+                <div class="dropdown-menu">
+                    <a href="{{ route('sell-requests.index') }}" class="dropdown-item">Sold Requests</a>
+                    <a href="{{ route('sale-requests.all') }}" class="dropdown-item">All Sold Requests</a>
+                    {{-- <a href="{{ route('barcode.view') }}" class="dropdown-item">Barcode</a>
+                    <a href="{{ route('admin.inventory') }}" class="dropdown-item">Items</a>
+                    <a href="{{ route('admin.sold-items') }}" class="dropdown-item">Sold Items</a>
+                    <a href="{{ route('workshop.items') }}" class="dropdown-item">Did</a> --}}
+                </div>
+            </li>
+            <li class="navbar-item dropdown">
                 <a href="#" class="navbar-link dropdown-toggle">Reports</a>
                 <div class="dropdown-menu">
                     <a href="{{ route('reports.view') }}" class="dropdown-item">View Reports</a>

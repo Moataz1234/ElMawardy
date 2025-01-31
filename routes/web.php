@@ -30,9 +30,11 @@ use App\Http\Controllers\{
     Admin\GoldItemsAvgController,
     NotificationController,
     Admin\BarcodeController,
-    ModelsController
+    ModelsController,
+    SoldItemRequestController
     // NewItemTalabatController
 };
+use App\Models\SoldItemRequest;
 
 // Test SMTP Route
 Route::get('/test-smtp', function () {
@@ -131,6 +133,17 @@ Route::middleware(['auth'])->group(function () {
     });
     // Admin Routes
     Route::middleware('admin')->group(function () {
+        // Route::get('/sold-item-requests', [SoldItemRequestController::class, 'showSoldItemRequests'])->name('sold-item-requests.index'); // Replace YourController
+        // Route::get('/all-sold-item-requests', [SoldItemRequestController::class, 'showAllSoldItemRequests'])->name('all-sold-item-requests.index'); // Replace YourController
+        // Route::post('/sold-item-requests/{itemRequest}/accept', [SoldItemRequestController::class, 'acceptSoldItemRequest'])->name('sold-item-requests.accept');
+        // Route::post('/sold-item-requests/{itemRequest}/reject', [SoldItemRequestController::class, 'rejectSoldItemRequest'])->name('sold-item-requests.reject');
+        Route::get('/sale-requests', [SoldItemRequestController::class, 'viewSaleRequests'])->name('sell-requests.index');
+        Route::post('/sale-requests/{id}/approve', [SoldItemRequestController::class, 'approveSaleRequest'])->name('sell-requests.approve');
+        Route::post('/sale-requests/{id}/reject', [SoldItemRequestController::class, 'rejectSaleRequest'])->name('sell-requests.reject');
+        Route::get('/all-sale-requests', [SoldItemRequestController::class, 'viewAllSaleRequests'])->name('sale-requests.all');
+        Route::get('/item-details/{serial_number}', [ShopsController::class, 'getItemDetails'])->name('item.details');
+
+
         Route::get('/generate-model', [ModelsController::class, 'generateModel']);
 
         Route::get('/gold-items/create', [GoldItemController::class, 'create'])->name('gold-items.create');

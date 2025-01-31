@@ -60,5 +60,46 @@
             <button type="submit" class="transfer-button">Transfer Items</button>
         </form>
     </div>
+    <script>
+        document.addEventListener('DOMContentLoaded', function() {
+            const transferForm = document.querySelector('form[action="{{ route("gold-items.bulk-transfer") }}"]');
+    
+            transferForm.addEventListener('submit', function(event) {
+                event.preventDefault(); // Prevent the default form submission
+    
+                // Submit the form using fetch
+                fetch(transferForm.action, {
+                    method: 'POST',
+                    body: new FormData(transferForm),
+                    headers: {
+                        'X-CSRF-TOKEN': '{{ csrf_token() }}' // Add CSRF token for Laravel
+                    }
+                })
+                .then(response => {
+                    if (response.ok) {
+                        // Clear local storage after successful submission
+                        localStorage.removeItem('selectedItems');
+                        // Redirect or show a success message
+                        window.location.href = '{{ route("dashboard") }}'; // Redirect to the dashboard
+                    } else {
+                        // Handle errors
+                        Swal.fire({
+                            icon: 'error',
+                            title: 'Error',
+                            text: 'Failed to submit the form. Please try again.',
+                        });
+                    }
+                })
+                .catch(error => {
+                    console.error('Error:', error);
+                    Swal.fire({
+                        icon: 'error',
+                        title: 'Error',
+                        text: 'An error occurred while submitting the form.',
+                    });
+                });
+            });
+        });
+    </script>
 </body>
 </html>

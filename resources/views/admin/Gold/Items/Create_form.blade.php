@@ -45,9 +45,9 @@
                 <div class="form-group">
                     <label for="metal_type">Metal Type:</label>
                     <select style="width: 250px" name="metal_type" id="metal_type" required>
-                        @foreach ($metalTypes as $type)
-                            <option value="{{ $type }}">{{ $type }}</option>
-                        @endforeach
+                            <option value="Gold">Gold</option>
+                            <option value="Platinium">Platinium</option>
+                            <option value="Silver">Silver</option>
                     </select>
                 </div>
                 <div class="form-group">
@@ -146,6 +146,10 @@
                     });
             }
         }
+        </script>
+        <script>
+            const shops = @json($shops);
+            const goldColors = @json($goldColors);
         </script>
     <script src="{{ asset('js/model_details.js') }}"></script>
 </body>
