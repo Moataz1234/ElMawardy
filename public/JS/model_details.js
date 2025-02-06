@@ -127,7 +127,7 @@ document.addEventListener('DOMContentLoaded', function () {
             metal_purity: formData.get('metal_purity'),
             quantity: formData.get('quantity'),
             shops: shopsData
-        };addFieldBtn
+        };
 
         // Send the item data to the server
         fetch('/gold-items/add-to-session', {
@@ -142,18 +142,16 @@ document.addEventListener('DOMContentLoaded', function () {
         .then(data => {
             if (data.success) {
                 // Update the UI with the new item
-                data.item.shops.forEach(shop => {
-                    const row = document.createElement('tr');
-                    row.innerHTML = `
-                        <td>${data.item.model}</td>
-                        <td>${shop.shop_id}</td>
-                        <td>${shop.weight}</td>
-                        <td>${data.item.kind}</td>
-                        <td>${data.item.quantity}</td>
-                        <td><button class="remove-item" data-id="${data.item.id}">Remove</button></td>
-                    `;
-                    document.querySelector('#items-table tbody').appendChild(row);
-                });
+                const row = document.createElement('tr');
+                row.innerHTML = `
+                    <td>${data.item.model}</td>
+                    <td>${data.item.shops[0].shop_id}</td>
+                    <td>${data.item.shops[0].weight}</td>
+                    <td>${data.item.kind}</td>
+                    <td>${data.item.quantity}</td>
+                    <td><button class="remove-item" data-id="${data.item.id}">Remove</button></td>
+                `;
+                document.querySelector('#items-table tbody').appendChild(row);
                 document.getElementById('items-count').textContent = data.total_items;
                 document.getElementById('gold-item-form').reset();
             }
