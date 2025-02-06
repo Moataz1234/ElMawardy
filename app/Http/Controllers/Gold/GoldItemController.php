@@ -8,13 +8,11 @@ use App\Http\Requests\GoldItemRequest;
 use App\Services\Admin_GoldItemService;
 use Illuminate\Support\Facades\Log;
 use Illuminate\Support\Facades\File;
-use Illuminate\Support\Facades\DB;
 use App\Models\GoldItem;
 use App\Models\Shop;
 use App\Models\Models;
 use App\Models\AddRequest;
-use App\Models\Talabat;
-use Illuminate\Http\Request as HttpRequest;
+use Illuminate\Support\Facades\Auth;
 
 class GoldItemController extends Controller
 {
@@ -145,7 +143,7 @@ class GoldItemController extends Controller
                     // Create the request
                     $item = AddRequest::create($requestData);
     
-                    // Create notification file for the specific shop
+                    // Create notification for the specific shop
                     $notification = json_encode([
                         'message' => 'طلب جديد تمت إضافته',
                         'model' => $item->model,
@@ -153,7 +151,7 @@ class GoldItemController extends Controller
                         'shop_name' => $item->shop_name
                     ]);
     
-                    // Ensure the storage directory exists
+                    // Create notification file for the specific shop
                     $shopName = str_replace(' ', '_', $requestData['shop_name']);
                     $file = storage_path("app/notifications_{$shopName}.txt");
                     
