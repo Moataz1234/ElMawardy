@@ -1,7 +1,7 @@
 document.addEventListener('DOMContentLoaded', function () {
     const modelInput = document.getElementById('model');
     const kindInput = document.getElementById('kind');
-    const addItemBtn = document.getElementById('add-item-btn');
+    const addFieldBtn = document.getElementById('add-field-btn');
     const dynamicFieldsContainer = document.getElementById('dynamic-fields-container');
     const tableBody = document.querySelector('#shop-data-table tbody');
     const modelImageDiv = document.getElementById('model-image');
@@ -126,7 +126,7 @@ document.addEventListener('DOMContentLoaded', function () {
             metal_purity: formData.get('metal_purity'),
             quantity: formData.get('quantity'),
             shops: shopsData
-        };
+        };addFieldBtn
 
         // Send the item data to the server
         fetch('/gold-items/add-to-session', {

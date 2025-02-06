@@ -150,7 +150,7 @@ class GoldItemController extends Controller
    
    
                    // Create the request
-                   AddRequest::create($requestData);
+                  $item= AddRequest::create($requestData);
    
                // Create notification file for the specific shop
                $notification = json_encode([
