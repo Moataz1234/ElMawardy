@@ -149,8 +149,8 @@ class GoldItemController extends Controller
                    ];
    
    
-               // Create the request
-               $item = AddRequest::create($requestData);
+                   // Create the request
+                   AddRequest::create($requestData);
    
                // Create notification file for the specific shop
                $notification = json_encode([
@@ -177,11 +177,11 @@ class GoldItemController extends Controller
            }
            session()->forget('gold_items');
 
-        return redirect()
-            ->route('gold-items.create')
-            ->with('success', 'All items submitted successfully');
-
-    }} catch (\Exception $e) {
+           return redirect()
+               ->route('gold-items.create')
+               ->with('success', 'All items submitted successfully');
+       }
+   } catch (\Exception $e) {
         Log::error('Error submitting all items', [
             'error' => $e->getMessage(),
             'trace' => $e->getTraceAsString()

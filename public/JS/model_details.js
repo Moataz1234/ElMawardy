@@ -1,7 +1,7 @@
 document.addEventListener('DOMContentLoaded', function () {
     const modelInput = document.getElementById('model');
     const kindInput = document.getElementById('kind');
-    const addFieldBtn = document.getElementById('add-field-btn');
+    const addItemBtn = document.getElementById('add-item-btn');
     const dynamicFieldsContainer = document.getElementById('dynamic-fields-container');
     const tableBody = document.querySelector('#shop-data-table tbody');
     const modelImageDiv = document.getElementById('model-image');
@@ -108,43 +108,55 @@ document.addEventListener('DOMContentLoaded', function () {
         kindInput.value = determineKind(modelValue);
     });
 
-    addFieldBtn.addEventListener('click', function () {
-        const index = dynamicFieldsContainer.children.length;
-        const fieldHTML = `
-    <div class="dynamic-field">
-        <div class="form-group">
-            <label for="shop_id">Shop:</label>
-            <select name="shops[${index}][shop_id]" required>
-                ${shops.map(shop => `<option value="${shop.id}">${shop.name}</option>`).join('')}
-            </select>
-        </div>
-        <div class="form-group">
-            <label for="gold_color">Gold Color:</label>
-            <select name="shops[${index}][gold_color]" required>
-                ${goldColors.map(color => `<option value="${color}">${color}</option>`).join('')}
-            </select>
-        </div>
-        <div class="form-group">
-            <label for="weight">Weight:</label>
-            <input type="number" step="0.01" name="shops[${index}][weight]" required>
-        </div>
-        <div>
-              <label for="talab_${index}">Talab:</label>
-    <input type="hidden" name="shops[${index}][talab]" value="0">
-<input type="checkbox" class="checkboxInput" id="talab_${index}" name="shops[${index}][talab]" value="1">
-<label for="talab_${index}" class="toggleSwitch"></label>
-</div>
-    </div>
-    
-    <button type="button" class="remove-field-btn">Remove</button>
-`;
-
-        const newField = document.createElement('div');
-        newField.innerHTML = fieldHTML;
-        dynamicFieldsContainer.appendChild(newField);
-
-        newField.querySelector('.remove-field-btn').addEventListener('click', function () {
-            newField.remove();
+    addItemBtn.addEventListener('click', function () {
+        const formData = new FormData(document.getElementById('gold-item-form'));
+        const shopsData = Array.from(dynamicFieldsContainer.children).map((field, index) => {
+            return {
+                shop_id: formData.get(`shops[${index}][shop_id]`),
+                gold_color: formData.get(`shops[${index}][gold_color]`),
+                weight: formData.get(`shops[${index}][weight]`),
+                talab: formData.get(`shops[${index}][talab]`) || 0
+            };
         });
+
+        const itemData = {
+            model: formData.get('model'),
+            kind: formData.get('kind'),
+            metal_type: formData.get('metal_type'),
+            metal_purity: formData.get('metal_purity'),
+            quantity: formData.get('quantity'),
+            shops: shopsData
+        };
+
+        // Send the item data to the server
+        fetch('/gold-items/add-to-session', {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json',
+                'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]').getAttribute('content')
+            },
+            body: JSON.stringify(itemData)
+        })
+        .then(response => response.json())
+        .then(data => {
+            if (data.success) {
+                // Update the UI with the new item
+                data.item.shops.forEach(shop => {
+                    const row = document.createElement('tr');
+                    row.innerHTML = `
+                        <td>${data.item.model}</td>
+                        <td>${shop.shop_id}</td>
+                        <td>${shop.weight}</td>
+                        <td>${data.item.kind}</td>
+                        <td>${data.item.quantity}</td>
+                        <td><button class="remove-item" data-id="${data.item.id}">Remove</button></td>
+                    `;
+                    document.querySelector('#items-table tbody').appendChild(row);
+                });
+                document.getElementById('items-count').textContent = data.total_items;
+                document.getElementById('gold-item-form').reset();
+            }
+        })
+        .catch(error => console.error('Error:', error));
     });
 });
