@@ -97,15 +97,16 @@ document.addEventListener('DOMContentLoaded', function () {
     }
 
     // Event Listeners
-    modelInput.addEventListener('input', function (e) {
+    modelInput.addEventListener('input', debounce(function (e) {
         const modelValue = e.target.value;
         kindInput.value = determineKind(modelValue);
-        debounce(fetchItems, 300)(modelValue);
-    });
+        fetchItems(modelValue);
+    }, 300));
 
     modelInput.addEventListener('change', function (e) {
         const modelValue = e.target.value;
         kindInput.value = determineKind(modelValue);
+        fetchItems(modelValue);
     });
 
     addItemBtn.addEventListener('click', function () {

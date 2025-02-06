@@ -124,74 +124,73 @@ class GoldItemController extends Controller
     
    // In GoldItemController store method, modify the success message
 
-   public function submitAllItems()
-   {
-       $sessionItems = session()->get('gold_items', []);
-   
-       try {
-           foreach ($sessionItems as $itemData) {
-               foreach ($itemData['shops'] as $shopData) {
-                   $nextSerialNumber = $this->goldItemService->generateNextSerialNumber();
-   
-                   $requestData = [
-                       'serial_number' => $nextSerialNumber,
-                       'model' => $itemData['model'],
-                       'shop_id' => $shopData['shop_id'],
-                       'shop_name' => Shop::find($shopData['shop_id'])->name,
-                       'kind' => $itemData['kind'],
-                       'gold_color' => $shopData['gold_color'],
-                       'metal_type' => $itemData['metal_type'],
-                       'metal_purity' => $itemData['metal_purity'],
-                       'quantity' => $itemData['quantity'],
-                       'weight' => $shopData['weight'],
-                       'talab' => isset($shopData['talab']) ? $shopData['talab'] : false,
-                       'status' => 'pending'
-                   ];
-   
-   
-                   // Create the request
-                  $item= AddRequest::create($requestData);
-   
-               // Create notification file for the specific shop
-               $notification = json_encode([
-                   'message' => 'طلب جديد تمت إضافته',
-                   'model' => $item->model,
-                   'serial_number' => $item->serial_number,
-                   'shop_name' => $item->shop_name
-               ]);
-   
-               // Ensure the storage directory exists
-               $shopName = str_replace(' ', '_', $requestData['shop_name']);
-               $file = storage_path("app/notifications_{$shopName}.txt");
-               
-               // Ensure the directory exists
-               File::ensureDirectoryExists(dirname($file));
-               
-               // Write the notification
-               File::put($file, $notification);
-   
-               Log::info('Notification created for shop', [
-                   'shop_name' => $shopName,
-                   'notification' => $notification
-               ]);
-           }
-           session()->forget('gold_items');
-
-           return redirect()
-               ->route('gold-items.create')
-               ->with('success', 'All items submitted successfully');
-       }
-   } catch (\Exception $e) {
-        Log::error('Error submitting all items', [
-            'error' => $e->getMessage(),
-            'trace' => $e->getTraceAsString()
-        ]);
-
-        return redirect()
-            ->back()
-            ->with('error', 'Error submitting items: ' . $e->getMessage());
-    }   
-}
+    public function submitAllItems()
+    {
+        $sessionItems = session()->get('gold_items', []);
+    
+        try {
+            foreach ($sessionItems as $itemData) {
+                foreach ($itemData['shops'] as $shopData) {
+                    $nextSerialNumber = $this->goldItemService->generateNextSerialNumber();
+    
+                    $requestData = [
+                        'serial_number' => $nextSerialNumber,
+                        'model' => $itemData['model'],
+                        'shop_id' => $shopData['shop_id'],
+                        'shop_name' => Shop::find($shopData['shop_id'])->name,
+                        'kind' => $itemData['kind'],
+                        'gold_color' => $shopData['gold_color'],
+                        'metal_type' => $itemData['metal_type'],
+                        'metal_purity' => $itemData['metal_purity'],
+                        'quantity' => $itemData['quantity'],
+                        'weight' => $shopData['weight'],
+                        'talab' => isset($shopData['talab']) ? $shopData['talab'] : false,
+                        'status' => 'pending'
+                    ];
+    
+                    // Create the request
+                    $item = AddRequest::create($requestData);
+    
+                    // Create notification file for the specific shop
+                    $notification = json_encode([
+                        'message' => 'طلب جديد تمت إضافته',
+                        'model' => $item->model,
+                        'serial_number' => $item->serial_number,
+                        'shop_name' => $item->shop_name
+                    ]);
+    
+                    // Ensure the storage directory exists
+                    $shopName = str_replace(' ', '_', $requestData['shop_name']);
+                    $file = storage_path("app/notifications_{$shopName}.txt");
+                    
+                    // Ensure the directory exists
+                    File::ensureDirectoryExists(dirname($file));
+                    
+                    // Write the notification
+                    File::put($file, $notification);
+    
+                    Log::info('Notification created for shop', [
+                        'shop_name' => $shopName,
+                        'notification' => $notification
+                    ]);
+                }
+            }
+            session()->forget('gold_items');
+    
+            return redirect()
+                ->route('gold-items.create')
+                ->with('success', 'All items submitted successfully');
+        } catch (\Exception $e) {
+            Log::error('Error submitting all items', [
+                'error' => $e->getMessage(),
+                'trace' => $e->getTraceAsString()
+            ]);
+    
+            return redirect()
+                ->back()
+                ->with('error', 'Error submitting items: ' . $e->getMessage());
+        }
+    }
 
 
     public function edit(string $id)
