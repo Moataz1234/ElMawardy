@@ -97,19 +97,18 @@ document.addEventListener('DOMContentLoaded', function () {
     }
 
     // Event Listeners
-    modelInput.addEventListener('input', debounce(function (e) {
+    modelInput.addEventListener('input', function (e) {
         const modelValue = e.target.value;
         kindInput.value = determineKind(modelValue);
-        fetchItems(modelValue);
-    }, 300));
+        debounce(fetchItems, 300)(modelValue);
+    });
 
     modelInput.addEventListener('change', function (e) {
         const modelValue = e.target.value;
         kindInput.value = determineKind(modelValue);
-        fetchItems(modelValue);
     });
 
-    addItemBtn.addEventListener('click', function () {
+    addFieldBtn.addEventListener('click', function () {
         const formData = new FormData(document.getElementById('gold-item-form'));
         const shopsData = Array.from(dynamicFieldsContainer.children).map((field, index) => {
             return {
@@ -127,7 +126,7 @@ document.addEventListener('DOMContentLoaded', function () {
             metal_purity: formData.get('metal_purity'),
             quantity: formData.get('quantity'),
             shops: shopsData
-        };
+        };addFieldBtn
 
         // Send the item data to the server
         fetch('/gold-items/add-to-session', {
@@ -142,16 +141,18 @@ document.addEventListener('DOMContentLoaded', function () {
         .then(data => {
             if (data.success) {
                 // Update the UI with the new item
-                const row = document.createElement('tr');
-                row.innerHTML = `
-                    <td>${data.item.model}</td>
-                    <td>${data.item.shops[0].shop_id}</td>
-                    <td>${data.item.shops[0].weight}</td>
-                    <td>${data.item.kind}</td>
-                    <td>${data.item.quantity}</td>
-                    <td><button class="remove-item" data-id="${data.item.id}">Remove</button></td>
-                `;
-                document.querySelector('#items-table tbody').appendChild(row);
+                data.item.shops.forEach(shop => {
+                    const row = document.createElement('tr');
+                    row.innerHTML = `
+                        <td>${data.item.model}</td>
+                        <td>${shop.shop_id}</td>
+                        <td>${shop.weight}</td>
+                        <td>${data.item.kind}</td>
+                        <td>${data.item.quantity}</td>
+                        <td><button class="remove-item" data-id="${data.item.id}">Remove</button></td>
+                    `;
+                    document.querySelector('#items-table tbody').appendChild(row);
+                });
                 document.getElementById('items-count').textContent = data.total_items;
                 document.getElementById('gold-item-form').reset();
             }
