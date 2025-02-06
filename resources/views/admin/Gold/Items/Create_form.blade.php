@@ -197,7 +197,7 @@
                             var newRow = `
                             <tr data-id="${response.item.id}">
                                 <td>${response.item.model}</td>
-                                <td>${response.item.shops[0].id}</td>  // Add shop name
+                                <td>${response.item.shops[0].id}</td>
                                 <td>${response.item.shops[0].weight}</td>
                                 <td>${response.item.kind}</td>
                                 <td>${response.item.quantity}</td>
