@@ -13,270 +13,278 @@
     <style>
         /* Reset and base styles */
         * {
-            margin: 0;
-            padding: 0;
-            box-sizing: border-box;
-        }
+    margin: 0;
+    padding: 0;
+    box-sizing: border-box;
+}
 
-        body {
-            font-family: 'DejaVu Sans', sans-serif;
-            padding: 10px;
-        }
+body {
+    font-family: 'DejaVu Sans', sans-serif;
+    padding: 10px;
+}
 
-        /* Container styles */
-        .report-page {
-            page-break-after: always;
-            margin-bottom: 20px;
-        }
 
-        .report-page:last-child {
-            page-break-after: avoid;
-        }
+/* Container styles */
 
-        /* Header section */
-        .header-section {
-            width: 100%;
-            margin-bottom: 20px;
-            position: relative;
-        }
+.report-page {
+    page-break-after: always;
+    margin-bottom: 20px;
+    height: 10px;
+}
 
-        .image-section {
-            width: 60%;
-            float: left;
-        }
+.report-page:last-child {
+    page-break-after: avoid;
+}
 
-        .image-section img {
-            width: 300px;
-            height: auto;
-            border: 5px solid #6A6458;
-        }
 
-        .info-section {
-            width: 35%;
-            float: right;
-        }
+/* Header section */
 
-        /* Info boxes */
-        .info-box {
-            background-color: #6A6458;
-            color: white;
-            padding: 10px;
-            margin-bottom: 10px;
-            border-radius: 5px;
-            text-align: center;
-        }
+.header-section {
+    width: 100%;
+    margin-bottom: 20px;
+    position: relative;
+}
 
-        .data-text {
-            background-color: white;
-            color: #333;
-            padding: 5px;
-            margin-top: 5px;
-            font-weight: bold;
-        }
+.image-section {
+    width: 60%;
+    float: left;
+}
 
-        /* Table styles */
-        .table-section {
-            width: 100%;
-            margin-top: 20px;
-            clear: both;
-        }
+.image-section img {
+    width: 300px;
+    height: auto;
+    border: 5px solid #6A6458;
+}
 
-        table {
-            width: 100%;
-            border-collapse: collapse;
-            margin-bottom: 15px;
-        }
+.info-section {
+    width: 35%;
+    float: right;
+}
 
-        th {
-            background-color: #6A6458;
-            color: white;
-            padding: 8px;
-            text-align: center;
-            border: 1px solid #6A6458;
-        }
 
-        td {
-            padding: 5px;
-            text-align: center;
-            border: 1px solid #6A6458;
-        }
+/* Info boxes */
 
-        tr:nth-child(even) {
-            background-color: #f2f2f2;
-        }
+.info-box {
+    background-color: #6A6458;
+    color: white;
+    padding: 10px;
+    margin-bottom: 10px;
+    border-radius: 5px;
+    text-align: center;
+}
 
-        .shop-name {
-            background-color: #8c8c8c;
-            color: white;
-        }
+.data-text {
+    background-color: white;
+    color: #333;
+    padding: 5px;
+    margin-top: 5px;
+    font-weight: bold;
+}
 
-        .clearfix::after {
-            content: "";
-            clear: both;
-            display: table;
-        }
 
-        /* Filter form styles */
-        .filter-form {
-            margin-bottom: 20px;
-        }
+/* Table styles */
 
-        .filter-form input[type="date"] {
-            padding: 5px;
-            font-size: 16px;
-        }
+.table-section {
+    width: 100%;
+    margin-top: 20px;
+    clear: both;
+}
 
-        .filter-form button {
-            padding: 5px 10px;
-            font-size: 16px;
-            background-color: #6A6458;
-            color: white;
-            border: none;
-            border-radius: 5px;
-            cursor: pointer;
-        }
+table {
+    width: 100%;
+    border-collapse: collapse;
+    margin-bottom: 15px;
+}
 
-        .filter-form button:hover {
-            background-color: #5a5448;
-        }
+th {
+    background-color: #6A6458;
+    color: white;
+    padding: 8px;
+    text-align: center;
+    border: 1px solid #6A6458;
+}
 
-        .export-button {
-            padding: 5px 10px;
-            font-size: 16px;
-            background-color: #28a745;
-            color: white;
-            border: none;
-            border-radius: 5px;
-            cursor: pointer;
-            text-decoration: none;
-            display: inline-block;
-            margin-left: 10px;
-        }
+td {
+    padding: 5px;
+    text-align: center;
+    border: 1px solid #6A6458;
+}
 
-        .export-button:hover {
-            background-color: #218838;
-        }
+tr:nth-child(even) {
+    background-color: #f2f2f2;
+}
 
-        .total-items-sold {
-            position: absolute;
-            font-size: 30px;
-            font-weight: bold;
-            margin-bottom: 20px;
-            color: #c99a3c;
-            right: 200px;
-            top: 100px;
-            /* background-color: #218838; */
-        }
+.shop-name {
+    background-color: #8c8c8c;
+    color: white;
+}
 
-        @page {
-            size: A3up;
-            margin: 0;
-        }
+.clearfix::after {
+    content: "";
+    clear: both;
+    display: table;
+}
 
-        .report-container {
-            height: 1123px;
-            /* Height of A4 page in pixels (297mm) */
-            page-break-inside: avoid;
-            /* Prevent page breaks inside the container */
-            margin-bottom: 20px;
-            border: 5px solid #6A6458;
-            border-radius: 10px;
-            padding: 20px;
-            overflow: hidden;
-            /* Prevent content from overflowing */
-        }
 
-        .pdf-only {
-            display: none;
-            /* Hide by default */
-        }
+/* Filter form styles */
 
-        @media print {
-            .no-export {
-                display: none;
-                /* Hide sections not to be exported */
-            }
+.filter-form {
+    margin-bottom: 20px;
+}
 
-            .pdf-only {
-                display: block;
-                /* Show PDF-only sections */
-            }
+.filter-form input[type="date"] {
+    padding: 5px;
+    font-size: 16px;
+}
 
-            .report-container {
-                page-break-before: always;
-                /* Ensure each report starts on a new page */
-            }
+.filter-form button {
+    padding: 5px 10px;
+    font-size: 16px;
+    background-color: #6A6458;
+    color: white;
+    border: none;
+    border-radius: 5px;
+    cursor: pointer;
+}
 
-            .report-container:first-child {
-                page-break-before: avoid;
-                /* Prevent page break before the first report */
-            }
+.filter-form button:hover {
+    background-color: #5a5448;
+}
 
-        }
+.export-button {
+    padding: 5px 10px;
+    font-size: 16px;
+    background-color: #28a745;
+    color: white;
+    border: none;
+    border-radius: 5px;
+    cursor: pointer;
+    text-decoration: none;
+    display: inline-block;
+    margin-left: 10px;
+}
 
-        /* New styles for the email management dialogue */
-        .email-dialogue {
-            display: none;
-            position: fixed;
-            top: 50%;
-            left: 50%;
-            transform: translate(-50%, -50%);
-            background-color: white;
-            padding: 20px;
-            border: 1px solid #ccc;
-            box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
-            z-index: 1000;
-        }
+.export-button:hover {
+    background-color: #218838;
+}
 
-        .email-dialogue.open {
-            display: block;
-        }
+.total-items-sold {
+    position: absolute;
+    font-size: 30px;
+    font-weight: bold;
+    margin-bottom: 20px;
+    color: #c99a3c;
+    right: 200px;
+    top: 100px;
+    /* background-color: #218838; */
+}
 
-        .email-list {
-            margin-bottom: 10px;
-        }
+@page {
+    size: A4;
+    margin: 0;
+}
 
-        .email-list input {
-            margin-right: 10px;
-            margin-bottom: 5px;
-            padding: 5px;
-            width: 200px;
-        }
+.report-container {
+    height: 1000px;
+    /* Height of A4 page in pixels (297mm) */
+    page-break-inside: avoid;
+    /* Prevent page breaks inside the container */
+    margin-bottom: 20px;
+    border: 5px solid #6A6458;
+    border-radius: 10px;
+    padding: 20px;
+    overflow: hidden;
+    /* Prevent content from overflowing */
+}
 
-        .add-email-button,
-        .save-button {
-            padding: 5px 10px;
-            font-size: 16px;
-            background-color: #6A6458;
-            color: white;
-            border: none;
-            border-radius: 5px;
-            cursor: pointer;
-        }
+.pdf-only {
+    display: none;
+    /* Hide by default */
+}
 
-        .add-email-button:hover,
-        .save-button:hover {
-            background-color: #5a5448;
-        }
+@media print {
+    .no-export {
+        display: none;
+        /* Hide sections not to be exported */
+    }
+    .pdf-only {
+        display: block;
+        /* Show PDF-only sections */
+    }
+    .report-container {
+        page-break-before: always;
+        /* Ensure each report starts on a new page */
+    }
+    .report-container:first-child {
+        page-break-before: avoid;
+        /* Prevent page break before the first report */
+    }
+}
 
-        .close-button {
-            position: absolute;
-            top: 10px;
-            right: 10px;
-            background: none;
-            border: none;
-            font-size: 16px;
-            cursor: pointer;
-        }
 
-        .icon-container {
-            display: flex;
-            align-items: center;
-            gap: 10px;
-            /* Space between the export button and the email icon */
-            margin-bottom: 20px;
-        }
+/* New styles for the email management dialogue */
 
+.email-dialogue {
+    display: none;
+    position: fixed;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+    background-color: white;
+    padding: 20px;
+    border: 1px solid #ccc;
+    box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
+    z-index: 1000;
+}
+
+.email-dialogue.open {
+    display: block;
+}
+
+.email-list {
+    margin-bottom: 10px;
+}
+
+.email-list input {
+    margin-right: 10px;
+    margin-bottom: 5px;
+    padding: 5px;
+    width: 200px;
+}
+
+.add-email-button,
+.save-button {
+    padding: 5px 10px;
+    font-size: 16px;
+    background-color: #6A6458;
+    color: white;
+    border: none;
+    border-radius: 5px;
+    cursor: pointer;
+}
+
+.add-email-button:hover,
+.save-button:hover {
+    background-color: #5a5448;
+}
+
+.close-button {
+    position: absolute;
+    top: 10px;
+    right: 10px;
+    background: none;
+    border: none;
+    font-size: 16px;
+    cursor: pointer;
+}
+
+.icon-container {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    /* Space between the export button and the email icon */
+    margin-bottom: 20px;
+}
         .no-export {
             display: {{ $isPdf ? 'none' : 'block' }};
         }
@@ -340,14 +348,14 @@
                             @endif
                         </div>
                         <div class="info-section">
-                            <div class="info-box">
+                            {{-- <div class="info-box">
                                 At Workshop
                                 <div class="data-text">{{ $data['workshop_count'] }}</div>
                             </div>
                             <div class="info-box">
                                 Order Date
                                 <div class="data-text">{{ $data['order_date'] }}</div>
-                            </div>
+                            </div> --}}
                             <div class="info-box">
                                 Gold Color
                                 <div class="data-text">{{ $data['gold_color'] }}</div>

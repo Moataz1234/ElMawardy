@@ -17,19 +17,23 @@
 
 <nav class="second-section">
     <form action="{{ url()->current() }}" method="GET" class="search-form">
-       @foreach(request()->except(['search', 'page']) as $key => $value)
-           @if(is_array($value))
-               @foreach($value as $item)
-                   <input type="hidden" name="{{ $key }}[]" value="{{ $item }}">
-               @endforeach
-           @else
-               <input type="hidden" name="{{ $key }}" value="{{ $value }}">
-           @endif
-       @endforeach
-       <input type="text" name="search" class="search-input" 
-              value="{{ request('search') }}" placeholder="Model Name">
-       <button type="submit">Search</button>
-   </form>
+        @foreach(request()->except(['search', 'page', 'search_type']) as $key => $value)
+            @if(is_array($value))
+                @foreach($value as $item)
+                    <input type="hidden" name="{{ $key }}[]" value="{{ $item }}">
+                @endforeach
+            @else
+                <input type="hidden" name="{{ $key }}" value="{{ $value }}">
+            @endif
+        @endforeach
+        <select name="search_type" class="search-type-dropdown">
+            <option value="model" {{ request('search_type') == 'model' ? 'selected' : '' }}>Model</option>
+            <option value="serial_number" {{ request('search_type') == 'serial_number' ? 'selected' : '' }}>Serial Number</option>
+        </select>
+        <input type="text" name="search" class="search-input" 
+               value="{{ request('search') }}" placeholder="Search...">
+        <button type="submit">Search</button>
+    </form>
 </nav>
 <div class="container">
     <div class="filter-search">

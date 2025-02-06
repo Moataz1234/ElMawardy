@@ -27,7 +27,7 @@ class GoldItemService
     }
 
 
-    public function getShopItems(Request $request): array
+     public function getShopItems(Request $request): array
     {
         $query = $this->buildItemsQuery($request);
         $prices = $this->getPrices();
@@ -46,22 +46,6 @@ class GoldItemService
         );
         $gold_color = $query->distinct('gold_color')->pluck('gold_color')->toArray();
         $kind = $query->distinct('kind')->pluck('kind')->toArray();
-    
-        // // Fetch shops with the same model directly from gold_items table
-        // $modelShops = DB::table('gold_items')
-        //     ->select('model', 'shop_name', 'weight')
-        //     ->where('model', '!=', '')
-        //     ->whereNotNull('model')
-        //     ->get()
-        //     ->groupBy('model')
-        //     ->map(function ($items) {
-        //         return $items->map(function ($item) {
-        //             return [
-        //                 'shop_name' => $item->shop_name,
-        //                 'weight' => $item->weight
-        //             ];
-        //         });
-        //     });
     
         return [
             'goldItems' => $goldItems,

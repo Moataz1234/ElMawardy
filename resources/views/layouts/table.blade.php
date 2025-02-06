@@ -13,6 +13,7 @@
 </head>
 <body>
     @include('dashboard')
+    {{-- @include('components.navbar') --}}
     @include('components.pagination')
     <div class="layout-container">
         <main class="main-content">

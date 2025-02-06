@@ -1,5 +1,6 @@
 <link href="{{ asset('css/navbar.css') }}" rel="stylesheet">
-
+<link href="https://cdn.jsdelivr.net/npm/sweetalert2@11/dist/sweetalert2.min.css" rel="stylesheet">
+<script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
 <nav class="navbar" style="padding: 0">
     <ul class="navbar-list">
         @if (auth()->user()->usertype === 'admin')
@@ -26,6 +27,7 @@
                 <div class="dropdown-menu">
                     <a href="{{ route('sell-requests.index') }}" class="dropdown-item">Sold Requests</a>
                     <a href="{{ route('sale-requests.all') }}" class="dropdown-item">All Sold Requests</a>
+
                     {{-- <a href="{{ route('barcode.view') }}" class="dropdown-item">Barcode</a>
                     <a href="{{ route('admin.inventory') }}" class="dropdown-item">Items</a>
                     <a href="{{ route('admin.sold-items') }}" class="dropdown-item">Sold Items</a>
@@ -53,7 +55,8 @@
         @if (auth()->user()->usertype === 'rabea')
             <li class="navbar-item"><a href="{{ route('orders.rabea.index') }}" class="navbar-link">الاوردرات</a></li>
             <li class="navbar-item"><a href="{{ route('orders.rabea.to_print') }}" class="navbar-link">الورشة</a></li>
-            <li class="navbar-item"><a href="{{ route('orders.completed') }}" class="navbar-link">الاوردرات التي تم تسليمها</a></li>
+            <li class="navbar-item"><a href="{{ route('orders.completed') }}" class="navbar-link">الاوردرات التي تم
+                    تسليمها</a></li>
             {{-- <li class="navbar-item"><a href="{{ route('gold-items.create') }}" class="navbar-link">اضافة قطعة</a></li> --}}
             <li class="navbar-item dropdown">
                 <a href="#" class="navbar-link dropdown-toggle">Models</a>
@@ -108,6 +111,8 @@
 
                     <a class="dropdown-item" href="{{ route('workshop.requests') }}" class="navbar-link">Workshop
                         Requests</a>
+                    <a class="dropdown-item" href="{{ route('add-requests.index') }}" class="navbar-link">Add
+                        Requests</a>
                     <a class="dropdown-item" href="{{ route('shop.requests.index') }}" class="navbar-link">
                         Item Requests
                         @if (Auth::user()->unreadNotifications->count() > 0)
@@ -137,3 +142,63 @@
         </div>
     </ul>
 </nav>
+<script>
+    document.addEventListener('DOMContentLoaded', function() {
+        function connectSSE() {
+            const eventSource = new EventSource('{{ route('notifications.stream') }}');
+            const addRequestRoute = "{{ route('add-requests.index') }}";
+
+            eventSource.onmessage = function(event) {
+                // Check if the event data is not empty
+                if (event.data && event.data !== '{}') {
+                    try {
+                        const notification = JSON.parse(event.data);
+
+                        // Check if notification has meaningful data
+                        if (notification.model && notification.serial_number) {
+                            Swal.fire({
+                                title: 'إشعار جديد',
+                                html: `
+                            <div style="text-align: right; direction: rtl;">
+                            موديل: ${notification.model}<br>
+                            رقم تسلسلي: ${notification.serial_number}<br>
+                            المتجر: ${notification.shop_name}<br>
+                            <a href="${addRequestRoute}" 
+                            style="color: #007bff; text-decoration: none; font-weight: bold; background-color: #f8f9fa; padding: 5px 10px; border-radius: 5px; display: inline-block; margin-top: 10px;">
+                            انتقل إلى إضافة الطلبات
+                            </a>
+                            </div>
+                        `,
+                                icon: 'info',
+                                toast: true,
+                                position: 'top-end',
+                                showConfirmButton: false,
+                                timer: 10000,
+                                timerProgressBar: true
+                                customClass: {
+                                    popup: 'rtl-alert' // Optional: Add a custom class for further styling
+                                }
+
+                            });
+                        }
+                    } catch (error) {
+                        console.error('Error parsing notification:', error);
+                    }
+                }
+            };
+
+            eventSource.onerror = function(error) {
+                console.error('EventSource failed:', error);
+                eventSource.close();
+            };
+        }
+
+        // Initial connection
+        connectSSE();
+
+        // Reconnect every 3 seconds
+        setInterval(() => {
+            connectSSE();
+        }, 10000);
+    });
+</script>

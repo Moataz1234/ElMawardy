@@ -25,50 +25,76 @@ class ShopifyService
             ]
         ]);
     }
-    public function getProductById($productId)
-{
-    $query = '{
-        product(id: "' . $productId . '") {
-            id
-            title
-            description
-            vendor
-            productType
-            tags
-            media(first: 10) {
-                edges {
-                    node {
-                        mediaContentType
-                        alt
-                        ... on MediaImage {
-                            image {
-                                url
-                                altText
-                            }
-                        }
-                    }
-                }
-            }
-            variants(first: 5) {
-                edges {
-                    node {
-                        id
-                        title
-                        price
-                        sku
-                        inventoryQuantity
-                    }
-                }
-            }
+    public function updateVariant($variantGid, $price, $weight)
+    {
+        try {
+            // Extract variant ID from GID
+            $variantId = preg_replace('/^gid:\/\/shopify\/ProductVariant\//', '', $variantGid);
+    
+            // Prepare API endpoint URL for updating variant details
+            $url = "/admin/api/2024-10/variants/{$variantId}.json";
+    
+            // Prepare data for update including price and weight
+            $data = [
+                'variant' => [
+                    'id' => (int)$variantId,
+                    'price' => number_format($price, 2, '.', ''),   // Ensure the price is formatted correctly
+                    'weight' => number_format($weight, 2, '.', ''), // Ensure the weight is formatted correctly
+                    'weight_unit' => 'g'  // Specify weight unit (grams)
+                ]
+            ];
+    
+            // Make the PUT request to update variant prices and weight
+            $response = $this->client->put($url, [
+                'json' => $data
+            ]);
+    
+            // Return the response as an array (decoded JSON)
+            return json_decode($response->getBody(), true);
+        } catch (\Exception $e) {
+            // Catch any exceptions and return an error message
+            return [
+                'success' => false,
+                'message' => "Error updating variant prices and weight: " . $e->getMessage()
+            ];
         }
-    }';
-
-    $response = $this->client->post('', [
-        'body' => json_encode(['query' => $query])
-    ]);
-
-    return json_decode($response->getBody(), true);
-}
+    }
+      
+    // public function updateVariant($variantId, $price, $weight)
+    // {
+    //     // GraphQL mutation to update variant
+    //     $mutation = 'mutation productVariantUpdate($input: ProductVariantInput!) {
+    //         productVariantUpdate(input: $input) {
+    //             productVariant {
+    //                 id
+    //                 price
+    //                 weight
+    //             }
+    //         }
+    //     }';
+    
+    //     // Variables for the mutation
+    //     $variables = [
+    //         'input' => [
+    //             'id' => $variantId,  // Ensure the variant ID is correctly passed
+    //             'price' => $price,   // Update the price
+    //             'weight' => $weight, // Update the weight
+    //         ],
+    //     ];
+    
+    //     // Make the request
+    //     $response = $this->client->post('', [
+    //         'body' => json_encode(['query' => $mutation, 'variables' => $variables])
+    //     ]);
+    
+    //     // Check for errors and log the response
+    //     $data = json_decode($response->getBody(), true);
+    //     Log::info('Shopify Update Response:', ['response' => $data]);
+    
+    //     // Return updated product variant or null if no update was made
+    //     return $data['data']['productVariantUpdate']['productVariant'] ?? null;
+    // }
+    
 
 public function getProducts($cursor = null, $productId = null)
 {
@@ -350,15 +376,11 @@ public function getProductBySku($sku)
                 node {
                     id
                     title
-                    media(first: 1) {
+                    variants(first: 5) {
                         edges {
                             node {
-                                mediaContentType
-                                ... on MediaImage {
-                                    image {
-                                        url
-                                    }
-                                }
+                                id
+                                sku
                             }
                         }
                     }
@@ -367,13 +389,17 @@ public function getProductBySku($sku)
         }
     }';
 
-    $response = $this->client->post('', [
-        'body' => json_encode(['query' => $query])
-    ]);
+    $response = $this->client->post('', ['body' => json_encode(['query' => $query])]);
+    $data = json_decode($response->getBody(), true);
 
-    $result = json_decode($response->getBody(), true);
-    return $result['data']['products']['edges'][0]['node'] ?? null;
+    // Log the response for debugging
+    Log::info("Shopify Product Fetch Response: " . json_encode($data));
+
+    $variant = $data['data']['products']['edges'][0]['node']['variants']['edges'][0]['node'] ?? null;
+
+    return $variant ? ['variantId' => $variant['id']] : null;
 }
+
 public function getAbandonedCheckouts()
 {
     $query = [

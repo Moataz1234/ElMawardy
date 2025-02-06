@@ -17,15 +17,19 @@ class SortAndFilterService
         'created_at' => 'desc'
     ];
 
-    protected function applySearchFilter(Builder $query, string $search): void
+    protected function applySearchFilter(Builder $query, string $search, string $searchType): void
     {
         $normalizedSearch = ltrim(preg_replace('/\D/', '', $search), '0');
-        
-        $query->where(function ($query) use ($search, $normalizedSearch) {
-            $query->where('model', 'like', "%{$normalizedSearch}%")
-                  ->orWhere('model', 'like', "%-" . substr($normalizedSearch, 1) . "%")
-                  ->orWhere('serial_number', 'like', "%{$search}%");
-        });
+    
+        if ($searchType === 'serial_number') {
+            $query->where('serial_number', 'like', "%{$search}%");
+        } else {
+            // Default to model search
+            $query->where(function ($query) use ($search, $normalizedSearch) {
+                $query->where('model', 'like', "%{$normalizedSearch}%")
+                      ->orWhere('model', 'like', "%-" . substr($normalizedSearch, 1) . "%");
+            });
+        }
     }
 
     public function applyFilters(Builder $query, Request $request, array $allowedFilters): Builder
@@ -34,7 +38,8 @@ class SortAndFilterService
             if ($request->filled($filter)) {
                 switch ($filter) {
                     case 'search':
-                        $this->applySearchFilter($query, $request->input('search'));
+                        $searchType = $request->input('search_type', 'model'); // Default to 'model'
+                        $this->applySearchFilter($query, $request->input('search'), $searchType);
                         break;
                     case 'categories':
                         $this->applyCategoryFilter($query, $request->input('category'));
@@ -48,10 +53,9 @@ class SortAndFilterService
                 }
             }
         }
-
+    
         return $query;
     }
-
 
     /**
      * Apply sorting to the query

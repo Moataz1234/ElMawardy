@@ -12,6 +12,8 @@ use App\Models\Diamond;
 use Illuminate\Pagination\Paginator;
 use I18N_Arabic;
 
+use PhpOffice\PhpSpreadsheet\IOFactory;
+use PhpOffice\PhpSpreadsheet\Spreadsheet;
 use Barryvdh\DomPDF\Facade\Pdf;
 use GuzzleHttp\Client; 
 use Illuminate\Support\Facades\Storage;
@@ -27,7 +29,53 @@ class ShopifyProductController extends Controller
     {
         $this->shopifyService = $shopifyService;
     }
-
+    public function updateFromExcel(Request $request)
+    {
+        // Validate and upload file
+        $file = $request->file('excel_file');
+        if (!$file) {
+            return redirect()->back()->with('error', 'Please upload an Excel file.');
+        }
+    
+        // Load the Excel file
+        $spreadsheet = IOFactory::load($file);
+    
+        // Get the active sheet (first sheet)
+        $sheet = $spreadsheet->getActiveSheet();
+    
+        // Get all rows (data starts from row 2, assuming first row is the header)
+        $rows = $sheet->toArray(null, true, true, true);
+    
+        // Loop through rows and get SKU, Price, and Weight
+        foreach ($rows as $row) {
+            if (!$row['A']) continue;
+        
+            $sku = $row['A'];   // SKU in column A
+            $price = $row['B']; // Price in column B
+            $weight = $row['C']; // Weight in column C
+        
+            Log::info("Processing SKU: {$sku}, Price: {$price}, Weight: {$weight}");
+        
+            $shopifyProduct = $this->shopifyService->getProductBySku($sku);
+            if (!$shopifyProduct) {
+                Log::info("No product found for SKU: {$sku}");
+                continue;
+            }
+        
+            $variantId = $shopifyProduct['variantId'] ?? null;
+            if ($variantId) {
+                Log::info("Updating product with SKU: {$sku}, Variant ID: {$variantId}");
+                // $this->shopifyService->updateVariant($variantId, $price, $weight);
+                $response = $this->shopifyService->updateVariant($variantId, $price, $weight);
+                Log::info("Shopify Update Response: " . json_encode($response));
+            }
+        }
+    
+        return redirect()->back()->with('success', 'Products updated successfully from Excel!');
+    }
+    public function seeUpdatePrice(){
+        return view('shopify.update_price');
+    }
     public function index(Request $request)
     {
         $cursor = $request->input('cursor', null);
@@ -40,7 +88,12 @@ class ShopifyProductController extends Controller
         $nextCursor = $products['data']['products']['pageInfo']['endCursor'] ?? null;
         $hasNextPage = $products['data']['products']['pageInfo']['hasNextPage'] ?? false;
         $productEdges = $products['data']['products']['edges'] ?? [];
-        
+             
+        return view('shopify.products', [
+            'products' => is_array($productEdges) ? $productEdges : [],
+            'nextCursor' => $nextCursor,
+            'hasNextPage' => $hasNextPage
+        ]);
         // $latestGoldPrice = GoldPrice::latest()->first();
         // $goldWithWork = $latestGoldPrice ? $latestGoldPrice->gold_with_work : 0;
     
@@ -131,13 +184,133 @@ class ShopifyProductController extends Controller
         //             $roundedPrice = round($calculatedPrice / 50) * 50;
 
         //             Log::info('Diamond price is: ' . $roundedPrice);
-                
-        return view('shopify.products', [
-            'products' => is_array($productEdges) ? $productEdges : [],
-            'nextCursor' => $nextCursor,
-            'hasNextPage' => $hasNextPage
-        ]);
+           
     }
+//     public function updateGoldPrices(Request $request)
+// {
+//     $pricePerGram = $request->input('gold_price_per_gram');
+//     Log::info("Updating gold prices with price per gram: $pricePerGram");
+
+//     $cursor = null;
+//     do {
+//         $products = $this->shopifyService->getProducts($cursor);
+//         $productEdges = $products['data']['products']['edges'] ?? [];
+
+//         foreach ($productEdges as $edge) {
+//             $product = $edge['node'];
+//             $variants = $product['variants']['edges'] ?? [];
+
+//             foreach ($variants as $variantEdge) {
+//                 $variant = $variantEdge['node'];
+//                 if (str_starts_with($variant['sku'], 'G')) {
+//                     // Use the weight field directly (already in grams)
+//                     $weight = $variant['weight'];
+
+//                     if ($weight) {
+//                         // Calculate new price
+//                         $newPrice = $weight * $pricePerGram;
+
+//                         Log::info("Variant ID: {$variant['id']}, SKU: {$variant['sku']}, Weight: $weight grams, New Price: $newPrice");
+
+//                         // Simulate the update
+//                         $this->shopifyService->updateVariantPrice($variant['id'], $newPrice);
+//                     }
+//                 }
+//             }
+//         }
+
+//         $cursor = $products['data']['products']['pageInfo']['endCursor'] ?? null;
+//     } while ($cursor);
+
+//     return redirect()->back()->with('success', 'Gold prices updated successfully (simulated).');
+// }
+
+
+    public function updateGoldPrices(Request $request)
+{
+    Log::info('Fetching products from Shopify...');
+
+    $pricePerGram = $request->input('price_per_gram');
+
+    if (!$pricePerGram) {
+        return redirect()->back()->with('error', 'Please provide a price per gram.');
+    }
+
+    // Fetch products with SKUs starting with "G"
+    $cursor = null;
+    do {
+        $products = $this->shopifyService->getProducts($cursor);
+        $cursor = $products['data']['products']['pageInfo']['endCursor'] ?? null;
+        $productEdges = $products['data']['products']['edges'] ?? [];
+
+        foreach ($productEdges as $edge) {
+            $product = $edge['node'];
+            $sku = $product['variants']['edges'][0]['node']['sku'] ?? null;
+            // Log::info('Fetched product:', ['title' => $product['title'], 'sku' => $sku]);
+
+            if ($sku && str_starts_with($sku, 'G')) {
+                Log::info("Processing Gold SKU: {$sku}");
+
+                foreach ($product['variants']['edges'] as $variantEdge) {
+                    $variant = $variantEdge['node'];
+                    $weight = $variant['weight'] ?? 0;
+                    $weightUnit = $variant['weightUnit'] ?? 'GRAMS';
+
+                    Log::info("Product SKU {$sku} has weight: {$weight} grams");
+
+                    if ($weight > 0) {
+                        $newPrice = $weight * $pricePerGram;
+                        Log::info("Product SKU {$sku} has weight: {$weight} grams");
+
+                        Log::info("New price for SKU {$sku}: $newPrice (Weight: $weight grams)");
+
+                        // TODO: Uncomment for real API calls
+                        // $this->shopifyService->updateVariantPrice($variant['id'], $newPrice);
+                    }
+                }
+            }
+        }
+    } while ($products['data']['products']['pageInfo']['hasNextPage'] ?? false);
+
+    return redirect()->back()->with('success', 'Gold prices updated successfully!');
+}
+
+//     public function updateDiamondPrices(Request $request)
+//     {
+//         $pricePerCarat = $request->input('diamond_price_per_carat');
+//         Log::info("Updating diamond prices with price per carat: $pricePerCarat");
+    
+//         $cursor = null;
+//         do {
+//             $products = $this->shopifyService->getProducts($cursor);
+//             $productEdges = $products['data']['products']['edges'] ?? [];
+    
+//             foreach ($productEdges as $edge) {
+//                 $product = $edge['node'];
+//                 $variants = $product['variants']['edges'] ?? [];
+    
+//                 foreach ($variants as $variantEdge) {
+//                     $variant = $variantEdge['node'];
+//                     if (str_starts_with($variant['sku'], 'D')) {
+//                         $carat = $this->extractCaratFromSkuOrTitle($variant['sku'], $product['title']);
+    
+//                         if ($carat) {
+//                             $newPrice = $carat * $pricePerCarat;
+//                             Log::info("Variant ID: {$variant['id']}, SKU: {$variant['sku']}, Carat: $carat, New Price: $newPrice");
+    
+//                             // Simulate the update
+//                             $this->shopifyService->updateVariantPrice($variant['id'], $newPrice);
+//                         }
+//                     }
+//                 }
+//             }
+    
+//             $cursor = $products['data']['products']['pageInfo']['endCursor'] ?? null;
+//         } while ($cursor);
+    
+//         return redirect()->back()->with('success', 'Diamond prices updated successfully (simulated).');
+//     }
+
     // private function makeProductDraft($shopifyProductId)
     // {
     //     try {

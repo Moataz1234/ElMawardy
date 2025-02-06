@@ -5,6 +5,7 @@ namespace App\Services;
 use App\Models\GoldItem;
 use App\Models\GoldItemSold;
 use App\Models\Shop;
+use App\Models\AddRequest;
 use App\Http\Requests\UpdateGoldItemRequest;
 use App\Models\DeletedItemHistory;
 use App\Models\ItemRequest;
@@ -30,27 +31,7 @@ class Admin_GoldItemService
         $this->sortAndFilterService = $sortAndFilterService;
 
     }
-    // public function createGoldItem(array $validatedData, string $imagePath = null)
-    // {
-    //     // Automatically generate the next serial number
-    //     $lastItem = GoldItem::orderByRaw('CAST(SUBSTRING(serial_number, 3) AS UNSIGNED) DESC')->first();
-    //     $nextSerialNumber = $this->generateNextSerialNumber($lastItem);
 
-    //     GoldItem::create([
-    //         'serial_number' => $nextSerialNumber,
-    //         'shop_id' => $validatedData['shop_id'],
-    //         'shop_name' => Shop::find($validatedData['shop_id'])->name,
-    //         'kind' => $validatedData['kind'],
-    //         'model' => $validatedData['model'],
-    //         'gold_color' => $validatedData['gold_color'],
-    //         'metal_type' => $validatedData['metal_type'],
-    //         'metal_purity' => $validatedData['metal_purity'],
-    //         'quantity' => $validatedData['quantity'],
-    //         'weight' => $validatedData['weight'],
-    //         // 'source' => $validatedData['source'],
-    //         // 'link' => $imagePath,
-    //     ]);
-    // }
     public function findGoldItem($id)
     {
         return GoldItem::findOrFail($id);
@@ -132,86 +113,75 @@ class Admin_GoldItemService
         GoldItem::whereIn('id', $ids)->update(['status' => 'requested']);
         return true;
     }
-    // public function updateGoldItem($id, array $validatedData, $file = null)
-    // {
-    //     $goldItem = GoldItem::findOrFail($id);
-
-    //     if ($file) {
-    //         // Store the file
-    //         $imagePath = $file->store('uploads/gold_items', 'public');
-    //         $validatedData['link'] = $imagePath;
-
-    //         // Optionally delete the old image if needed
-    //         if ($goldItem->link) {
-    //             Storage::delete('public/' . $goldItem->link);
-    //         }
-    //     }
-
-    //     // Update the GoldItem
-    //     $goldItem->update($validatedData);
-    // }
+   
 
     public function generateNextSerialNumber()
     {
-        // Fetch the last item with the highest serial number
-        $lastItem = GoldItem::orderBy('serial_number', 'desc')->first();
+        // Get the highest serial number from both GoldItem and AddRequest tables
+        $lastGoldItemSerial = GoldItem::orderByRaw('CAST(SUBSTRING(serial_number, 3) AS UNSIGNED) DESC')->value('serial_number');
+        $lastAddRequestSerial = AddRequest::orderByRaw('CAST(SUBSTRING(serial_number, 3) AS UNSIGNED) DESC')->value('serial_number');
     
-        if ($lastItem) {
-            // Extract the numeric part of the serial number
-            $lastNumber = (int) substr($lastItem->serial_number, 2); // Assumes format "G-XXXXXX"
-            $nextNumber = $lastNumber + 1;
-        } else {
-            // If no items exist, start from 1
-            $nextNumber = 1;
-        }
+        // Extract the numeric parts
+        $lastGoldItemNumber = $lastGoldItemSerial ? intval(substr($lastGoldItemSerial, 2)) : 0;
+        $lastAddRequestNumber = $lastAddRequestSerial ? intval(substr($lastAddRequestSerial, 2)) : 0;
+    
+        // Get the next number
+        $nextNumber = max($lastGoldItemNumber, $lastAddRequestNumber) + 1;
     
         // Format the next serial number
         $nextSerialNumber = 'G-' . str_pad($nextNumber, 6, '0', STR_PAD_LEFT);
     
-        // Log the generated serial number for debugging
+        // Log for debugging
         Log::info('Generated serial number', ['serial_number' => $nextSerialNumber]);
     
         return $nextSerialNumber;
     }
+    
     public function getGoldItems( $request)
-{ 
-    $query = GoldItem::with(['shop', 'modelCategory']);
-
-    // Apply search filter
-    if ($search = $request->input('search')) {
-        // Normalize search input by removing non-numeric characters and leading zeros
-        $normalizedSearch = ltrim(preg_replace('/\D/', '', $search), '0');
-
-        $query->where(function ($query) use ($normalizedSearch) {
-            $query->where('model', 'like', "%{$normalizedSearch}%")
-                ->orWhere('model', 'like', "%-" . substr($normalizedSearch, 1) . "%"); // Handles "1-0010" pattern
-        });
+    { 
+        $query = GoldItem::with(['shop', 'modelCategory']);
+    
+        // Apply search filter
+        if ($search = $request->input('search')) {
+            $searchType = $request->input('search_type', 'model'); // Default to 'model'
+            $normalizedSearch = ltrim(preg_replace('/\D/', '', $search), '0');
+    
+            if ($searchType === 'serial_number') {
+                $query->where('serial_number', 'like', "%{$search}%");
+            } else {
+                // Default to model search
+                $query->where(function ($query) use ($normalizedSearch) {
+                    $query->where('model', 'like', "%{$normalizedSearch}%")
+                          ->orWhere('model', 'like', "%-" . substr($normalizedSearch, 1) . "%");
+                });
+            }
+        }
+        // Apply filters for metal purity and kind
+        if ($metalPurity = $request->input('metal_purity')) {
+            $query->whereIn('metal_purity', $metalPurity);
+        }
+    
+        if ($kind = $request->input('kind')) {
+            $query->whereIn('kind', $kind);
+        }
+        if ($category = $request->input('category')) {
+            $query->whereHas('modelCategory', function ($q) use ($category) {
+                $q->whereIn('category', $category);
+            });
+        }
+        if ($shopName  = $request->input('shop_name')) {
+            $query->whereIn('shop_name', $shopName);
+        }
+        $sortableFields = ['serial_number', 'model', 'kind', 'quantity', 'created_at'];
+        $sortField = in_array($request->input('sort'), $sortableFields) ? $request->input('sort') : 'serial_number';
+        $sortDirection = $request->input('direction') === 'desc' ? 'desc' : 'asc';
+    
+        // Step 4: Return paginated, sorted, and filtered results
+        return $query->orderBy($sortField, $sortDirection)
+                     ->paginate(20)
+                     ->appends($request->all());
     }
-    // Apply filters for metal purity and kind
-    if ($metalPurity = $request->input('metal_purity')) {
-        $query->whereIn('metal_purity', $metalPurity);
-    }
-
-    if ($kind = $request->input('kind')) {
-        $query->whereIn('kind', $kind);
-    }
-    if ($category = $request->input('category')) {
-        $query->whereHas('modelCategory', function ($q) use ($category) {
-            $q->whereIn('category', $category);
-        });
-    }
-    if ($shopName  = $request->input('shop_name')) {
-        $query->whereIn('shop_name', $shopName);
-    }
-    $sortableFields = ['serial_number', 'model', 'kind', 'quantity', 'created_at'];
-    $sortField = in_array($request->input('sort'), $sortableFields) ? $request->input('sort') : 'serial_number';
-    $sortDirection = $request->input('direction') === 'desc' ? 'desc' : 'asc';
-
-    // Step 4: Return paginated, sorted, and filtered results
-    return $query->orderBy($sortField, $sortDirection)
-                 ->paginate(20)
-                 ->appends($request->all());
-}
+    
 
     public function createWorkshopRequests(array $items, $reason, $transferAllModels = false)
     {
@@ -311,14 +281,19 @@ class Admin_GoldItemService
         // $query->where('shop_name', $userShopName);
         // Apply search filter
         if ($search = $request->input('search')) {
+            $searchType = $request->input('search_type', 'model'); // Default to 'model'
             $normalizedSearch = ltrim(preg_replace('/\D/', '', $search), '0');
-
-            $query->where(function ($query) use ($normalizedSearch) {
-                $query->where('model', 'like', "%{$normalizedSearch}%")
-                    ->orWhere('model', 'like', "%-" . substr($normalizedSearch, 1) . "%");
-            });
+    
+            if ($searchType === 'serial_number') {
+                $query->where('serial_number', 'like', "%{$search}%");
+            } else {
+                // Default to model search
+                $query->where(function ($query) use ($normalizedSearch) {
+                    $query->where('model', 'like', "%{$normalizedSearch}%")
+                          ->orWhere('model', 'like', "%-" . substr($normalizedSearch, 1) . "%");
+                });
+            }
         }
-
         // Apply filters
         if ($goldColor = $request->input('gold_color')) {
             $query->whereIn('gold_color', $goldColor);

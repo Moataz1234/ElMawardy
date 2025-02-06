@@ -1,35 +1,35 @@
-{{-- <div class="profile-card relative">
-    <label  for="dropdown-toggle" class="profile-info cursor-pointer font-medium text-gray-700 hover:text-gray-900">
-        <h4 class="name">{{ Auth::user()->name }}</h4>
-    </label>
+<style>
+    .search-type-dropdown {
+    padding: 5px;
+    border: 1px solid #ccc;
+    border-radius: 4px;
+    margin-right: 10px;
+}
 
-    <div class="dropdown-menu absolute right-0 mt-2 w-48 bg-white rounded-md shadow-lg hidden">
-        <form method="POST" action="{{ route('logout') }}">
-            @csrf
-            <x-dropdown-link :href="route('logout')"
-                             onclick="event.preventDefault(); this.closest('form').submit();"
-                             class="block px-4 py-2 text-gray-700 hover:bg-gray-100">
-                {{ __('Log Out') }}
-            </x-dropdown-link>
-        </form>
-    </div>
-</div> --}}
-
+.search-form {
+    display: flex;
+    align-items: center;
+}
+    </style>
 <nav class="second-section">
     <form action="{{ url()->current() }}" method="GET" class="search-form">
-       @foreach(request()->except(['search', 'page']) as $key => $value)
-           @if(is_array($value))
-               @foreach($value as $item)
-                   <input type="hidden" name="{{ $key }}[]" value="{{ $item }}">
-               @endforeach
-           @else
-               <input type="hidden" name="{{ $key }}" value="{{ $value }}">
-           @endif
-       @endforeach
-       <input type="text" name="search" class="search-input" 
-              value="{{ request('search') }}" placeholder="Model Name">
-       <button type="submit">Search</button>
-   </form>
+        @foreach(request()->except(['search', 'page', 'search_type']) as $key => $value)
+            @if(is_array($value))
+                @foreach($value as $item)
+                    <input type="hidden" name="{{ $key }}[]" value="{{ $item }}">
+                @endforeach
+            @else
+                <input type="hidden" name="{{ $key }}" value="{{ $value }}">
+            @endif
+        @endforeach
+        <select name="search_type" class="search-type-dropdown">
+            <option value="model" {{ request('search_type') == 'model' ? 'selected' : '' }}>Model</option>
+            <option value="serial_number" {{ request('search_type') == 'serial_number' ? 'selected' : '' }}>Serial Number</option>
+        </select>
+        <input type="text" name="search" class="search-input" 
+               value="{{ request('search') }}" placeholder="Search...">
+        <button type="submit">Search</button>
+    </form>
 </nav>
 <div class="container">
     <div class="filter-search">

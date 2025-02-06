@@ -5,7 +5,6 @@ use Illuminate\Support\Facades\Route;
 use Illuminate\Support\Facades\Http;
 use Illuminate\Support\Facades\Log;
 use App\Http\Controllers\{
-    TestController,
     HomeController,
     ProfileController,
     NewItemController,
@@ -31,10 +30,10 @@ use App\Http\Controllers\{
     NotificationController,
     Admin\BarcodeController,
     ModelsController,
-    SoldItemRequestController
+    SoldItemRequestController,
+    AddRequestController
     // NewItemTalabatController
 };
-use App\Models\SoldItemRequest;
 
 // Test SMTP Route
 Route::get('/test-smtp', function () {
@@ -119,6 +118,14 @@ Route::middleware(['auth'])->group(function () {
     Route::post('/update_prices/store', [GoldPriceController::class, 'store'])->name('gold_prices.store');
     Route::get('/gold-items/same-model', [ShopsController::class, 'getItemsByModel']);
 
+    // Notifications
+    Route::get('/notifications/stream', [NotificationController::class, 'stream'])->name('notifications.stream');
+    Route::get('/notifications/clear', [NotificationController::class, 'clear'])->name('notifications.clear');
+    // Add Requests
+    Route::get('/shop/addRequests', [AddRequestController::class, 'index'])->name('add-requests.index');
+    Route::post('/shop/addRequests/accept/{id}', [AddRequestController::class, 'accept'])->name('shop.requests.accept');
+    Route::post('/shop/addRequests/reject/{id}', [AddRequestController::class, 'reject'])->name('shop.requests.reject');
+    Route::post('/add-requests/bulk-action', [AddRequestController::class, 'bulkAction'])->name('add-requests.bulk-action');
     Route::get('/workshop-requests', [AdminDashboardController::class, 'workshopRequests'])
         ->name('workshop.requests');
     Route::prefix('admin')->group(function () {
@@ -168,6 +175,8 @@ Route::middleware(['auth'])->group(function () {
         Route::put('/gold-items-sold/{id}', [GoldItemSoldController::class, 'update'])->name('gold-items-sold.update');
         Route::get('/warehouse', [WarehouseController::class, 'index'])->name('admin.warehouse.index');
         Route::post('/warehouse', [WarehouseController::class, 'store'])->name('admin.warehouse.store');
+        Route::post('/bulk-action', [WarehouseController::class, 'bulkAction'])->name('warehouse.bulkAction');
+        Route::get('/warehouse/{id}/edit', [WarehouseController::class, 'edit'])->name('admin.warehouse.edit');
         Route::post('/warehouse/{id}/assign', [WarehouseController::class, 'assignToShop'])
             ->name('admin.warehouse.assign');
 
@@ -198,6 +207,12 @@ Route::middleware(['auth'])->group(function () {
         Route::get('/new-item/create', [NewItemController::class, 'create'])->name('new-item.create');
         Route::post('/new-item/store', [NewItemController::class, 'store'])->name('new-item.store');
         Route::get('/transfer-requests/history', [ShopsController::class, 'viewTransferRequestHistory'])->name('transfer.requests.history');
+
+
+        Route::post('/gold-items/add-to-session', [GoldItemController::class, 'addItemToSession'])->name('gold-items.add-to-session');
+        Route::delete('/gold-items/remove-session-item', [GoldItemController::class, 'removeSessionItem'])->name('gold-items.remove-session-item');
+        Route::post('/gold-items/submit-all', [GoldItemController::class, 'submitAllItems'])->name('gold-items.submit-all');
+        // Shopify Routes
         Route::get('/shopify-products', [ShopifyProductController::class, 'index'])->name('shopify.products');
         Route::get('/shopify-products/orders', [ShopifyProductController::class, 'Order_index'])->name('orders_shopify');
         Route::post('/shopify/orders/{id}/fulfill', [ShopifyProductController::class, 'fulfillOrder'])->name('fulfill_order');
@@ -206,7 +221,13 @@ Route::middleware(['auth'])->group(function () {
         Route::get('/shopify-products/abandoned-checkouts', [ShopifyProductController::class, 'AbandonedCheckouts_index'])->name('abandoned_checkouts_shopify');
         Route::get('/shopify-products/edit/{product_id}', [ShopifyProductController::class, 'showEditImageForm'])->name('shopify.products.showEditImageForm');
         Route::post('/shopify-products/edit/{product_id}', [ShopifyProductController::class, 'editProduct'])->name('shopify.products.editProduct');
+        // Route::post('/admin/update-gold-prices', [ShopifyProductController::class, 'updateGoldPrices'])->name('admin.update-gold-prices');
+        Route::post('/admin/update-gold-prices', [ShopifyProductController::class, 'updateGoldPrices'])->name('shopify.updateGold');
+        Route::post('/admin/update-diamond-prices', [ShopifyProductController::class, 'updateDiamondPrices'])->name('admin.update-diamond-prices');
         Route::post('/update-prices', [ShopifyProductController::class, 'updatePricesFromCsv']);
+        Route::post('/update-from-excel', [ShopifyProductController::class, 'updateFromExcel'])->name('shopify.updateFromExcel');
+
+        Route::get('shopify/update-prices', [ShopifyProductController::class, 'seeUpdatePrice']);
     });
 
     // Shop Routes
