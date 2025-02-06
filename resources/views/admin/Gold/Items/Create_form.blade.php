@@ -121,7 +121,7 @@
                             @foreach (session('gold_items') as $item)
                                 <tr data-id="{{ $item['id'] }}">
                                     <td>{{ $item['model'] }}</td>
-                                    <td>{{ $item['shops'][0]['id'] }}</td>
+                                    <td>{{ $item['shops'][0]['shop_id'] }}</td>
                                     <td>{{ $item['shops'][0]['weight'] }}</td>
                                     <td>{{ $item['kind'] }}</td>
                                     <td>{{ $item['quantity'] }}</td>
