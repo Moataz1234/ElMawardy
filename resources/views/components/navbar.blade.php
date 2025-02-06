@@ -114,6 +114,14 @@
         @endif
         </div>
         </li>
+        <li class="navbar-item dropdown">
+            <button id="priceDropdown" class="navbar-link dropdown-toggle">Gold Prices</button>
+            <div id="priceDropdownMenu" class="dropdown-menu-horizontal" style="display: none;">
+                <ul id="priceList"></ul>
+                <div id="priceDate"></div>
+            </div>
+        </li>
+
 
         <div class="dropdown">
             <button class="navbar-link dropdown-toggle">Profile</button>
@@ -132,3 +140,63 @@
         </div>
     </ul>
 </nav>
+<script>
+    document.getElementById('priceDropdown').addEventListener('click', function() {
+        const dropdownMenu = document.getElementById('priceDropdownMenu');
+        dropdownMenu.style.display = dropdownMenu.style.display === 'none' ? 'block' : 'none';
+
+        if (dropdownMenu.childElementCount === 2) {
+            fetch('{{ route('gold.prices') }}')
+                .then(response => response.json())
+                .then(response => {
+                    const priceList = document.getElementById('priceList');
+                    const priceDate = document.getElementById('priceDate');
+                    priceList.innerHTML = '';
+                    priceDate.textContent = '';
+
+                    const latestPrice = response.data;
+
+                    // Create list items without column names
+                    for (const [key, value] of Object.entries(latestPrice)) {
+                        if (key !== 'created_at') {
+                            const listItem = document.createElement('li');
+                            listItem.textContent = `${value}`;
+                            priceList.appendChild(listItem);
+                        }
+                    }
+
+                    // Add created_at date with larger styling
+                    if (latestPrice.created_at) {
+                        priceDate.textContent = `Last Updated: ${latestPrice.created_at}`;
+                    }
+                })
+                .catch(error => console.error('Error fetching prices:', error));
+        }
+    });
+</script>
+{{-- 
+<script>
+    document.getElementById('priceDropdown').addEventListener('click', function() {
+        const dropdownMenu = document.getElementById('priceDropdownMenu');
+        dropdownMenu.style.display = dropdownMenu.style.display === 'none' ? 'block' : 'none';
+
+        if (dropdownMenu.childElementCount === 1) {
+            fetch('{{ route('gold.prices') }}')
+                .then(response => response.json())
+                .then(response => {
+                    const priceList = document.getElementById('priceList');
+                    priceList.innerHTML = '';
+
+                    const latestPrice = response.data;
+
+                    // Create list items for each column in the latest gold price entry
+                    for (const [key, value] of Object.entries(latestPrice)) {
+                        const listItem = document.createElement('li');
+                        listItem.textContent = `${key}: ${value}`;
+                        priceList.appendChild(listItem);
+                    }
+                })
+                .catch(error => console.error('Error fetching prices:', error));
+        }
+    });
+</script> --}}

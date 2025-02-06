@@ -48,6 +48,10 @@
                     </tr>
                 </thead>
                 <tbody>
+                    @php
+                        $totalWeight = 0;
+                        $totalItems = count($requests);
+                    @endphp
                     @foreach ($requests as $request)
                         <tr>
                             <td>
@@ -59,8 +63,14 @@
                             <td>{{ $request->weight }}</td>
                             <td>{{ $request->gold_color }}</td>
                             <td>{{ $request->status }}</td>
+
                         </tr>
+                        @php
+                            $totalWeight += $request->weight;
+                        @endphp
                     @endforeach
+                    <strong class="badge bg-black ">Total Items:</strong> <span>{{ $totalItems }}</span> 
+                    <strong class="badge bg-warning ">Total Weight:</strong> <span>{{ $totalWeight }}</span> 
                 </tbody>
             </table>
 

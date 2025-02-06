@@ -24,12 +24,12 @@ class BarcodeController extends Controller
 
         // Filter by a specific date or date range
         if ($request->filled('date')) {
-            $query->whereDate('created_at', $request->date);
+            $query->whereDate('rest_since', $request->date);
         } elseif ($request->filled('start_date') && $request->filled('end_date')) {
-            $query->whereBetween('created_at', [$request->start_date, $request->end_date]);
+            $query->whereBetween('rest_since', [$request->start_date, $request->end_date]);
         } else {
             // Default to today's date if no other filters are applied
-            $query->whereDate('created_at', Carbon::today());
+            $query->whereDate('rest_since', Carbon::today());
         }
 
         
@@ -83,9 +83,9 @@ class BarcodeController extends Controller
 
         // Add date filtering logic
         if ($request->filled('date')) {
-            $query->whereDate('created_at', $request->date);
+            $query->whereDate('rest_since', $request->date);
         } elseif ($request->filled('start_date') && $request->filled('end_date')) {
-            $query->whereBetween('created_at', [$request->start_date, $request->end_date]);
+            $query->whereBetween('rest_since', [$request->start_date, $request->end_date]);
         }
 
         $goldItems = $query->orderBy('shop_id')->get()->groupBy('shop_id');

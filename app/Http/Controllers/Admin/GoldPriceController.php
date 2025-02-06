@@ -10,6 +10,24 @@ use App\Models\GoldPrice;
 
 class GoldPriceController extends Controller
 {
+    public function getGoldPrices()
+    {
+        // Get the latest gold price entry
+        $latestPrice = GoldPrice::latest()->first();
+
+        if ($latestPrice) {
+            $latestPrice->makeHidden(['id', 'updated_at']);
+        }
+
+        // Return a JSON response with formatted created_at
+        return response()->json([
+            'data' => $latestPrice ? array_merge(
+                $latestPrice->toArray(),
+                ['created_at' => $latestPrice->created_at->format('Y-m-d H:i:s')]
+            ) : null,
+        ]);
+    }
+
     // Show the form with the current gold prices
     public function create()
     {
@@ -39,4 +57,3 @@ class GoldPriceController extends Controller
         return redirect()->route('gold_prices.create')->with('success', 'Gold prices updated successfully.');
     }
 }
-

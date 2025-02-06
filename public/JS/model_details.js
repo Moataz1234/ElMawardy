@@ -126,7 +126,7 @@ document.addEventListener('DOMContentLoaded', function () {
             metal_purity: formData.get('metal_purity'),
             quantity: formData.get('quantity'),
             shops: shopsData
-        };
+        };addFieldBtn
 
         // Send the item data to the server
         fetch('/gold-items/add-to-session', {
