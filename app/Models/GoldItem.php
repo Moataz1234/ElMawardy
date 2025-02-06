@@ -89,9 +89,8 @@ class GoldItem extends Model
             ->orderBy('month');
     }
 
-
-public function sale_request()
-{
-    return $this->hasOne(SaleRequest::class, 'item_serial_number', 'serial_number');
-}
+    public function sale_request()
+    {
+        return $this->hasOne(SaleRequest::class, 'item_serial_number', 'serial_number');
+    }
 }

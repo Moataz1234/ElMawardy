@@ -27,18 +27,12 @@
                 <div class="dropdown-menu">
                     <a href="{{ route('sell-requests.index') }}" class="dropdown-item">Sold Requests</a>
                     <a href="{{ route('sale-requests.all') }}" class="dropdown-item">All Sold Requests</a>
-
-                    {{-- <a href="{{ route('barcode.view') }}" class="dropdown-item">Barcode</a>
-                    <a href="{{ route('admin.inventory') }}" class="dropdown-item">Items</a>
-                    <a href="{{ route('admin.sold-items') }}" class="dropdown-item">Sold Items</a>
-                    <a href="{{ route('workshop.items') }}" class="dropdown-item">Did</a> --}}
                 </div>
             </li>
             <li class="navbar-item dropdown">
                 <a href="#" class="navbar-link dropdown-toggle">Reports</a>
                 <div class="dropdown-menu">
                     <a href="{{ route('reports.view') }}" class="dropdown-item">View Reports</a>
-                    {{-- <a href="{{ route('daily.report.pdf') }}" class="dropdown-item">Generate PDF</a> --}}
                 </div>
             </li>
 
@@ -51,13 +45,11 @@
             </li>
         @endif
 
-        {{-- Rabea-specific navigation items --}}
         @if (auth()->user()->usertype === 'rabea')
             <li class="navbar-item"><a href="{{ route('orders.rabea.index') }}" class="navbar-link">الاوردرات</a></li>
             <li class="navbar-item"><a href="{{ route('orders.rabea.to_print') }}" class="navbar-link">الورشة</a></li>
             <li class="navbar-item"><a href="{{ route('orders.completed') }}" class="navbar-link">الاوردرات التي تم
                     تسليمها</a></li>
-            {{-- <li class="navbar-item"><a href="{{ route('gold-items.create') }}" class="navbar-link">اضافة قطعة</a></li> --}}
             <li class="navbar-item dropdown">
                 <a href="#" class="navbar-link dropdown-toggle">Models</a>
                 <div class="dropdown-menu">
@@ -79,11 +71,10 @@
                 <a href="#" class="navbar-link dropdown-toggle">Reports</a>
                 <div class="dropdown-menu">
                     <a href="{{ route('reports.view') }}" class="dropdown-item">View Reports</a>
-                    {{-- <a href="{{ route('daily.report.pdf') }}" class="dropdown-item">Generate PDF</a> --}}
                 </div>
             </li>
         @endif
-        {{-- Third user-specific navigation items --}}
+
         @if (auth()->user()->usertype === 'user')
             <li class="navbar-item dropdown">
                 <a href="#" class="navbar-link dropdown-toggle">Inventory</a>
@@ -108,7 +99,6 @@
                 <div class="dropdown-menu">
                     <a class="dropdown-item" href="{{ route('transfer.requests') }}" class="navbar-link">Transfer
                         Requests</a>
-
                     <a class="dropdown-item" href="{{ route('workshop.requests') }}" class="navbar-link">Workshop
                         Requests</a>
                     <a class="dropdown-item" href="{{ route('add-requests.index') }}" class="navbar-link">Add
@@ -142,63 +132,3 @@
         </div>
     </ul>
 </nav>
-<script>
-    document.addEventListener('DOMContentLoaded', function() {
-        function connectSSE() {
-            const eventSource = new EventSource('{{ route('notifications.stream') }}');
-            const addRequestRoute = "{{ route('add-requests.index') }}";
-
-            eventSource.onmessage = function(event) {
-                // Check if the event data is not empty
-                if (event.data && event.data !== '{}') {
-                    try {
-                        const notification = JSON.parse(event.data);
-
-                        // Check if notification has meaningful data
-                        if (notification.model && notification.serial_number) {
-                            Swal.fire({
-                                title: 'إشعار جديد',
-                                html: `
-                            <div style="text-align: right; direction: rtl;">
-                            موديل: ${notification.model}<br>
-                            رقم تسلسلي: ${notification.serial_number}<br>
-                            المتجر: ${notification.shop_name}<br>
-                            <a href="${addRequestRoute}" 
-                            style="color: #007bff; text-decoration: none; font-weight: bold; background-color: #f8f9fa; padding: 5px 10px; border-radius: 5px; display: inline-block; margin-top: 10px;">
-                            انتقل إلى إضافة الطلبات
-                            </a>
-                            </div>
-                        `,
-                                icon: 'info',
-                                toast: true,
-                                position: 'top-end',
-                                showConfirmButton: false,
-                                timer: 10000,
-                                timerProgressBar: true
-                                customClass: {
-                                    popup: 'rtl-alert' // Optional: Add a custom class for further styling
-                                }
-
-                            });
-                        }
-                    } catch (error) {
-                        console.error('Error parsing notification:', error);
-                    }
-                }
-            };
-
-            eventSource.onerror = function(error) {
-                console.error('EventSource failed:', error);
-                eventSource.close();
-            };
-        }
-
-        // Initial connection
-        connectSSE();
-
-        // Reconnect every 3 seconds
-        setInterval(() => {
-            connectSSE();
-        }, 10000);
-    });
-</script>

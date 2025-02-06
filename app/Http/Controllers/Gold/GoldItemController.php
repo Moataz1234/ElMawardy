@@ -8,15 +8,13 @@ use App\Http\Requests\GoldItemRequest;
 use App\Services\Admin_GoldItemService;
 use Illuminate\Support\Facades\Log;
 use Illuminate\Support\Facades\File;
-
 use Illuminate\Support\Facades\DB;
 use App\Models\GoldItem;
 use App\Models\Shop;
 use App\Models\Models;
 use App\Models\AddRequest;
 use App\Models\Talabat;
-use Illuminate\Http\Request as HttpRequest; // Rename the HTTP request class to avoid conflicts
-
+use Illuminate\Http\Request as HttpRequest;
 
 class GoldItemController extends Controller
 {
@@ -42,8 +40,7 @@ class GoldItemController extends Controller
     public function create()
     {
         $shops = Shop::all();
-        $models = Models::select('model')->get(); // Get all models
-        // $talabat = Talabat::select('model')->get(); // Get all talabat models
+        $models = Models::select('model')->get();
         $goldColors = GoldItem::select('gold_color')->distinct()->pluck('gold_color');
         $metalTypes = GoldItem::select('metal_type')->distinct()->pluck('metal_type');
         $metalPurities = GoldItem::select('metal_purity')->distinct()->pluck('metal_purity');
@@ -121,9 +118,6 @@ class GoldItemController extends Controller
         ]);
     }
     
-    
-   // In GoldItemController store method, modify the success message
-
     public function submitAllItems()
     {
         $sessionItems = session()->get('gold_items', []);
@@ -191,7 +185,6 @@ class GoldItemController extends Controller
                 ->with('error', 'Error submitting items: ' . $e->getMessage());
         }
     }
-
 
     public function edit(string $id)
     {

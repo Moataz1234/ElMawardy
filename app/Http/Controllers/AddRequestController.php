@@ -3,17 +3,12 @@
 namespace App\Http\Controllers;
 
 use Illuminate\Http\Request;
-// use App\Models\Request;
 use App\Models\GoldItem;
-use App\Models\MOdels;
+use App\Models\Models;
 use App\Models\Warehouse;
 use App\Models\AddRequest;
 use Illuminate\Support\Facades\Log;
-
-use Illuminate\Http\Request as HttpRequest;
 use Illuminate\Support\Facades\Auth;
-
-
 
 class AddRequestController extends Controller
 {
@@ -24,6 +19,7 @@ class AddRequestController extends Controller
         ->get();
         return view('admin.requests.add_requests', compact('requests'));
     }
+
     public function bulkAction(Request $request)
     {
         $action = $request->input('action'); // 'accept' or 'reject'
@@ -46,7 +42,7 @@ class AddRequestController extends Controller
 
                     // Update request status
                     $itemRequest->update(['status' => 'accepted']);
-                }  elseif ($action === 'reject') {
+                } elseif ($action === 'reject') {
                     // Log the warehouse data for debugging
                     Log::info('Warehouse Data:', $itemRequest->toArray());
                 
@@ -58,8 +54,6 @@ class AddRequestController extends Controller
                     
                     $warehouseData['status'] = 'rejected';
 
-                    // unset($warehouseData['status']); 
-                
                     // Log the warehouse data before creation
                     Log::info('Creating Warehouse Entry:', $warehouseData);
                 
@@ -81,8 +75,6 @@ class AddRequestController extends Controller
                     try {
                         Warehouse::create($warehouseData);
                         $itemRequest->update(['status' => 'rejected']);
-                        
-
                     } catch (\Exception $e) {
                         Log::error('Failed to create warehouse entry:', [
                             'error' => $e->getMessage(),
@@ -92,9 +84,6 @@ class AddRequestController extends Controller
                     }
                 
                     // Update request status
-                    // $itemRequest->update(['status' => 'rejected']);
-                
-                    // Log the status update
                     Log::info('Request Status Updated to Rejected:', ['id' => $itemRequest->id]);
                 }
             }
