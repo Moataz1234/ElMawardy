@@ -10,6 +10,7 @@ use App\Http\Requests\UpdateGoldItemRequest;
 use App\Models\DeletedItemHistory;
 use App\Models\ItemRequest;
 use App\Models\User;
+use App\Models\GoldItemWeightHistory;
 use App\Notifications\ItemRequestNotification;
 use App\Services\SortAndFilterService;
 use Illuminate\Support\Facades\Auth;
@@ -40,7 +41,25 @@ class Admin_GoldItemService
     public function updateGoldItem(UpdateGoldItemRequest $request, $id)
     {
         $goldItem = $this->findGoldItem($id);
+    
+        // Get the weight before the update
+        $weightBefore = $goldItem->weight;
+    
+        // Update the gold item
         $goldItem->update($request->validated());
+    
+        // Get the weight after the update
+        $weightAfter = $goldItem->weight;
+    
+        // Save the weight change history
+        if ($weightBefore != $weightAfter) {
+            GoldItemWeightHistory::create([
+                'gold_item_id' => $goldItem->id,
+                'weight_before' => $weightBefore,
+                'weight_after' => $weightAfter,
+            ]);
+        }
+    
         return $goldItem;
     }
     
@@ -174,7 +193,7 @@ class Admin_GoldItemService
         }
         $sortableFields = ['serial_number', 'model', 'kind', 'quantity', 'created_at'];
         $sortField = in_array($request->input('sort'), $sortableFields) ? $request->input('sort') : 'serial_number';
-        $sortDirection = $request->input('direction') === 'desc' ? 'desc' : 'asc';
+        $sortDirection = $request->input('direction') === 'asc' ? 'asc' : 'desc';
     
         // Step 4: Return paginated, sorted, and filtered results
         return $query->orderBy($sortField, $sortDirection)

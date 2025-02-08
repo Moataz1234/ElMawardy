@@ -27,6 +27,7 @@
                 <div class="dropdown-menu">
                     <a href="{{ route('sell-requests.index') }}" class="dropdown-item">Sold Requests</a>
                     <a href="{{ route('sale-requests.all') }}" class="dropdown-item">All Sold Requests</a>
+                    <a href="{{ route('admin.add.requests') }}" class="dropdown-item">Add Requests</a>
                 </div>
             </li>
             <li class="navbar-item dropdown">
@@ -99,8 +100,7 @@
                 <div class="dropdown-menu">
                     <a class="dropdown-item" href="{{ route('transfer.requests') }}" class="navbar-link">Transfer
                         Requests</a>
-                    <a class="dropdown-item" href="{{ route('workshop.requests') }}" class="navbar-link">Workshop
-                        Requests</a>
+                    {{-- <a class="dropdown-item" href="{{ route('workshop.requests') }}" class="navbar-link">Workshop Requests</a> --}}
                     <a class="dropdown-item" href="{{ route('add-requests.index') }}" class="navbar-link">Add
                         Requests</a>
                     <a class="dropdown-item" href="{{ route('shop.requests.index') }}" class="navbar-link">

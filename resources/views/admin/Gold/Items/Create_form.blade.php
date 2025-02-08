@@ -65,6 +65,11 @@
                         <label for="quantity">Quantity:</label>
                         <input type="number" name="quantity" id="quantity" value="1" required>
                     </div>
+                    <div style="width: 40%" class="form-group">
+                        <label for="rest_since">Rest Since:</label>
+                        <input type="date" name="rest_since" id="rest_since" 
+                               value="<?php echo date('Y-m-d'); ?>" required>
+                    </div>
                 </div>
 
                 <div id="dynamic-fields-container">
@@ -192,17 +197,17 @@
                     success: function(response) {
                         if (response.success) {
                             var newRow = `
-                            <tr data-id="${response.item.id}">
-                                <td>${response.item.model}</td>
-                                <td>${response.item.shops[0].id}</td>
-                                <td>${response.item.shops[0].weight}</td>
-                                <td>${response.item.kind}</td>
-                                <td>${response.item.quantity}</td>
-                                <td>
-                                    <button class="remove-item" data-id="${response.item.id}">Remove</button>
-                                </td>
-                            </tr>
-                        `;
+        <tr data-id="${response.item.id}">
+            <td>${response.item.model}</td>
+            <td>${response.item.shops[0].shop_id}</td>  // Changed from .id to .shop_id
+            <td>${response.item.shops[0].weight}</td>
+            <td>${response.item.kind}</td>
+            <td>${response.item.quantity}</td>
+            <td>
+                <button class="remove-item" data-id="${response.item.id}">Remove</button>
+            </td>
+        </tr>
+        `;
                             $('#items-table tbody').append(newRow);
                             $('#items-count').text(response.total_items);
                             $('#gold-item-form')[0].reset();
@@ -320,7 +325,7 @@
         const goldColors = @json($goldColors);
     </script>
     <script src="{{ asset('js/model_details.js') }}"></script>
-    
+
 </body>
 
 </html>

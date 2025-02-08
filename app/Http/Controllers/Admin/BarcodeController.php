@@ -36,9 +36,9 @@ class BarcodeController extends Controller
 
         $goldItems = $query->get();
 
-        foreach ($goldItems as $item) {
-            $item->modified_source = $this->modifySource(optional($item->modelCategory)->source);
-        }
+        // foreach ($goldItems as $item) {
+        //     $item->modified_source =($item->modelCategory)->source;
+        // }
         $shops = Shop::all();
 
         return view('admin.Gold.Barcode', compact('goldItems', 'shops'));
@@ -57,13 +57,13 @@ class BarcodeController extends Controller
             'B1' => 'Shop',
             'C1' => 'Model',
             'D1' => 'Weight',
-            'E1' => 'Source', // New header
+            'E1' => 'to_print', // New header
             'F1' => 'Stars',  // New header
             'G1' => 'Serial Number',
             'H1' => 'Shop',
             'I1' => 'Model',
             'J1' => 'Weight',
-            'K1' => 'Source', // New header
+            'K1' => 'to_print', // New header
             'L1' => 'Stars',  // New header
         ];
 

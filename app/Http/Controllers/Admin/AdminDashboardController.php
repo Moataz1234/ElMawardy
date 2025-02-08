@@ -36,14 +36,7 @@ class AdminDashboardController extends Controller
         $this->popularModelsService = $popularModelsService;
     }
 
-    // public function allSoldItems()
-    // {
-    //     $goldItems = $this->goldItemSoldService->getAllSoldItems();
-
-    //     return view('admin.sold-items', [
-    //         'goldItems' => $goldItems,
-    //     ]);
-    // }
+   
     public function index(Request $request)
     {
         $goldItems = $this->goldItemService->getGoldItems($request);
@@ -52,13 +45,7 @@ class AdminDashboardController extends Controller
             'goldItems' => $goldItems,
         ]);
     }
-    // public function models_index(Request $request)
-    // {
-    //     $goldItems = $this->goldItemService->getGoldItems($request);
-    //     $models = Models::with(['goldItems', 'goldItemsAvg'])->get();
-
-    //     return view('admin.Gold.Models.models', compact('models','goldItems'));
-    // }
+  
     
     public function Sold(Request $request)
     {
@@ -68,16 +55,14 @@ class AdminDashboardController extends Controller
             'goldItems' => $goldItems,
         ]);
     }
-//     public function edit($id)
-// {
-//     $goldItem = $this->goldItemService->findGoldItem($id);
-//     return view('Admin.Gold.edit', compact('goldItem'));
-// }
 
 public function update(UpdateGoldItemRequest $request, $id)
 {
     $this->goldItemService->updateGoldItem($request, $id);
     return redirect()->route('admin.inventory')->with('success', 'Item updated successfully');
+}
+public function showUpdatedItems(){
+    
 }
 
 public function bulkAction(Request $request)
@@ -256,3 +241,24 @@ public function bulkAction(Request $request)
     }
   
 }
+ // public function allSoldItems()
+    // {
+    //     $goldItems = $this->goldItemSoldService->getAllSoldItems();
+
+    //     return view('admin.sold-items', [
+    //         'goldItems' => $goldItems,
+    //     ]);
+    // }
+    
+      // public function models_index(Request $request)
+    // {
+    //     $goldItems = $this->goldItemService->getGoldItems($request);
+    //     $models = Models::with(['goldItems', 'goldItemsAvg'])->get();
+
+    //     return view('admin.Gold.Models.models', compact('models','goldItems'));
+    // }
+//     public function edit($id)
+// {
+//     $goldItem = $this->goldItemService->findGoldItem($id);
+//     return view('Admin.Gold.edit', compact('goldItem'));
+// }

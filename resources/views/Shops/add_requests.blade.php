@@ -32,80 +32,54 @@
                 <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
             </div>
         @endif
-        <div class="container mt-4">
-            <form action="{{ route('admin.add.requests') }}" method="GET" class="row g-3">
-                <div class="col-md-4">
-                    <label for="status" class="form-label">Filter by Status</label>
-                    <select name="status" id="status" class="form-select">
-                        <option value="">-- Select Status --</option>
-                        <option value="pending" {{ request('status') == 'pending' ? 'selected' : '' }}>Pending</option>
-                        <option value="accepted" {{ request('status') == 'accepted' ? 'selected' : '' }}>Accepted</option>
-                    </select>
-                </div>
-        
-                <div class="col-md-4">
-                    <label for="shop_name" class="form-label">Filter by Shop Name</label>
-                    <select name="shop_name" id="shop_name" class="form-select">
-                        <option value="">-- Select Shop --</option>
-                        @foreach ($shops as $shop)
-                            <option value="{{ $shop }}" {{ request('shop_name') == $shop ? 'selected' : '' }}>
-                                {{ $shop }}
-                            </option>
-                        @endforeach
-                    </select>
-                </div>
-        
-                <div class="col-md-4 d-flex align-items-end">
-                    <button type="submit" class="btn btn-primary">Filter</button>
-                </div>
-            </form>
-        </div>
-        
-        <table class="table table-bordered mt-4">
-            <thead>
-                <tr>
-                    <th>Model</th>
-                    <th>Serial Number</th>
-                    <th>Shop Name</th>
-                    <th>Kind</th>
-                    <th>Weight</th>
-                    <th>Gold Color</th>
-                    <th>Status</th>
-                </tr>
-            </thead>
-            <tbody>
-                @php
-                    $totalWeight = 0;
-                    $totalItems = count($requests);
-                @endphp
-                @forelse ($requests as $request)
+
+        <form id="bulk-action-form" action="{{ route('add-requests.bulk-action') }}" method="POST">
+            @csrf
+            <input type="hidden" name="action" value="accept">
+            <table class="table table-bordered">
+                <thead>
                     <tr>
-                        <td>{{ $request->model }}</td>
-                        <td>{{ $request->serial_number }}</td>
-                        <td>{{ $request->shop_name }}</td>
-                        <td>{{ $request->kind }}</td>
-                        <td>{{ $request->weight }}</td>
-                        <td>{{ $request->gold_color }}</td>
-                        <td>{{ $request->status }}</td>
+                        <th><input type="checkbox" id="select-all"></th>
+                        <th>Model</th>
+                        <th>Serial Number</th>
+                        <th>Kind</th>
+                        <th>Weight</th>
+                        <th>Gold Color</th>
+                        <th>Status</th>
                     </tr>
+                </thead>
+                <tbody>
                     @php
-                    $totalWeight += $request->weight;
-                @endphp
-                @empty
-                    <tr>
-                        <td colspan="7" class="text-center">No requests found.</td>
-                    </tr>
-                @endforelse
-            </tbody>
-            <div class="d-flex justify-content-between mt-4">
-                <strong class="total_items badge bg-danger col-4 fs-6">Total Items: <span class="fs-6 ">{{ $totalItems }}</span> </strong> 
-                <strong class="total_weight badge bg-warning col-4 fs-6">Total Weight: <span class="fs-6 ">{{ $totalWeight }}</span></strong>  
-                </div>
-        </table>
-        
-            {{-- <div class="mt-3">
+                        $totalWeight = 0;
+                        $totalItems = count($requests);
+                    @endphp
+                    @foreach ($requests as $request)
+                        <tr>
+                            <td>
+                                <input type="checkbox" name="selected_requests[]" value="{{ $request->id }}">
+                            </td>
+                            <td>{{ $request->model }}</td>
+                            <td>{{ $request->serial_number }}</td>
+                            <td>{{ $request->kind }}</td>
+                            <td>{{ $request->weight }}</td>
+                            <td>{{ $request->gold_color }}</td>
+                            <td>{{ $request->status }}</td>
+
+                        </tr>
+                        @php
+                            $totalWeight += $request->weight;
+                        @endphp
+                    @endforeach
+                    <div class="d-flex justify-content-between">
+                    <strong class="total_items badge bg-danger col-4 fs-6">Total Items: <span class="fs-6 ">{{ $totalItems }}</span> </strong> 
+                    <strong class="total_weight badge bg-warning col-4 fs-6">Total Weight: <span class="fs-6 ">{{ $totalWeight }}</span></strong>  
+                    </div>
+                </tbody>
+            </table>
+
+            <div class="mt-3">
                 <button type="button" id="accept-selected" class="btn btn-success">Accept Selected</button>
-            </div> --}}
+            </div>
         </form>
     </div>
 

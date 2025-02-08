@@ -122,6 +122,8 @@ Route::middleware(['auth'])->group(function () {
     Route::get('/notifications/stream', [NotificationController::class, 'stream'])->name('notifications.stream');
     Route::get('/notifications/clear', [NotificationController::class, 'clear'])->name('notifications.clear');
     // Add Requests
+    Route::get('/admin/add_requests', [AddRequestController::class, 'allRequests'])->name('admin.add.requests');
+
     Route::get('/shop/addRequests', [AddRequestController::class, 'index'])->name('add-requests.index');
     Route::post('/shop/addRequests/accept/{id}', [AddRequestController::class, 'accept'])->name('shop.requests.accept');
     Route::post('/shop/addRequests/reject/{id}', [AddRequestController::class, 'reject'])->name('shop.requests.reject');
@@ -142,6 +144,12 @@ Route::middleware(['auth'])->group(function () {
 
     // Admin Routes
     Route::middleware('admin')->group(function () {
+        Route::post('/gold-items/add-to-session', [GoldItemController::class, 'addItemToSession'])->name('gold-items.add-to-session');
+        Route::delete('/gold-items/remove-session-item', [GoldItemController::class, 'removeSessionItem'])->name('gold-items.remove-session-item');
+        Route::post('/gold-items/submit-all', [GoldItemController::class, 'submitAllItems'])->name('gold-items.submit-all');
+       
+      
+      
         // Route::get('/sold-item-requests', [SoldItemRequestController::class, 'showSoldItemRequests'])->name('sold-item-requests.index'); // Replace YourController
         // Route::get('/all-sold-item-requests', [SoldItemRequestController::class, 'showAllSoldItemRequests'])->name('all-sold-item-requests.index'); // Replace YourController
         // Route::post('/sold-item-requests/{itemRequest}/accept', [SoldItemRequestController::class, 'acceptSoldItemRequest'])->name('sold-item-requests.accept');
@@ -211,10 +219,7 @@ Route::middleware(['auth'])->group(function () {
         Route::get('/transfer-requests/history', [ShopsController::class, 'viewTransferRequestHistory'])->name('transfer.requests.history');
 
 
-        Route::post('/gold-items/add-to-session', [GoldItemController::class, 'addItemToSession'])->name('gold-items.add-to-session');
-        Route::delete('/gold-items/remove-session-item', [GoldItemController::class, 'removeSessionItem'])->name('gold-items.remove-session-item');
-        Route::post('/gold-items/submit-all', [GoldItemController::class, 'submitAllItems'])->name('gold-items.submit-all');
-        // Shopify Routes
+       // Shopify Routes
         Route::get('/shopify-products', [ShopifyProductController::class, 'index'])->name('shopify.products');
         Route::get('/shopify-products/orders', [ShopifyProductController::class, 'Order_index'])->name('orders_shopify');
         Route::post('/shopify/orders/{id}/fulfill', [ShopifyProductController::class, 'fulfillOrder'])->name('fulfill_order');

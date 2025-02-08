@@ -1,0 +1,12 @@
+.total_weight{
+padding: 20px;
+}
+.total_items{
+padding: 20px;
+}
+.total_weight  span{
+    color:rgb(0, 0, 0)
+}
+.total_items span{
+    color:rgb(208, 211, 41)
+}
