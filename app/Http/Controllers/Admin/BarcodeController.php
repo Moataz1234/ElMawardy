@@ -21,7 +21,10 @@ class BarcodeController extends Controller
         if ($request->filled('shop_id')) {
             $query->where('shop_id', $request->shop_id);
         }
-
+        // if ($request->filled('serial_number')) {
+        //     $query->where('serial_number', $request->serial_number);
+        // }
+    
         // Filter by a specific date or date range
         if ($request->filled('date')) {
             $query->whereDate('rest_since', $request->date);
@@ -36,9 +39,9 @@ class BarcodeController extends Controller
 
         $goldItems = $query->get();
 
-        // foreach ($goldItems as $item) {
-        //     $item->modified_source =($item->modelCategory)->source;
-        // }
+        foreach ($goldItems as $item) {
+            $item->modified_source = $this->modifySource(optional($item->modelCategory)->source);
+        }
         $shops = Shop::all();
 
         return view('admin.Gold.Barcode', compact('goldItems', 'shops'));
@@ -57,13 +60,13 @@ class BarcodeController extends Controller
             'B1' => 'Shop',
             'C1' => 'Model',
             'D1' => 'Weight',
-            'E1' => 'to_print', // New header
+            'E1' => 'Source', // New header
             'F1' => 'Stars',  // New header
             'G1' => 'Serial Number',
             'H1' => 'Shop',
             'I1' => 'Model',
             'J1' => 'Weight',
-            'K1' => 'to_print', // New header
+            'K1' => 'Source', // New header
             'L1' => 'Stars',  // New header
         ];
 
@@ -80,7 +83,9 @@ class BarcodeController extends Controller
         if ($request->filled('shop_id')) {
             $query->where('shop_id', $request->shop_id);
         }
-
+        // if ($request->filled('serial_number')) {
+        //     $query->where('serial_number', $request->serial_number);
+        // }
         // Add date filtering logic
         if ($request->filled('date')) {
             $query->whereDate('rest_since', $request->date);
@@ -161,12 +166,13 @@ class BarcodeController extends Controller
             }
         }
 
+    
         // Add date filter to filename if provided
-        if ($request->filled('date')) {
-            $filename .= '-date-' . $request->date;
-        } elseif ($request->filled('start_date') && $request->filled('end_date')) {
-            $filename .= '-from-' . $request->start_date . '-to-' . $request->end_date;
-        }
+        // if ($request->filled('date')) {
+        //     $filename .= '-date-' . $request->date;
+        // } elseif ($request->filled('start_date') && $request->filled('end_date')) {
+        //     $filename .= '-from-' . $request->start_date . '-to-' . $request->end_date;
+        // }
 
         $filename .= '-' . date('Y-m-d') . '.xlsx';
 

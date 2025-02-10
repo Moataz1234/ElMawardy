@@ -33,6 +33,7 @@
             <div class="col-md-3">
                 <input type="date" id="date-filter" class="form-control" value="{{ request('date') }}">
             </div>
+            
             <div class="col-md-3">
                 <form id="exportForm" action="{{ route('barcode.export') }}" method="GET">
                     <input type="hidden" name="shop_id" id="export-shop-id" value="">

@@ -24,6 +24,11 @@ class SoldItemRequestController extends Controller
         $this->saleService = $saleService;
     }
 
+    public function viewSaleRequestsAcc()
+    {
+        $soldItemRequests = SaleRequest::where('status', 'pending')->get();
+        return view('temp.Acc_sold_requests', compact('soldItemRequests'));
+    }
     public function viewSaleRequests()
     {
         $soldItemRequests = SaleRequest::where('status', 'pending')->get();

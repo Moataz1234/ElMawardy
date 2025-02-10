@@ -68,20 +68,20 @@
                     </label> --}}
                 </div>
                 <div class="horizontal-line"></div>
-                <h3>Category</h3>
+                <h3>Stars</h3>
                 <label>
-                    <input type="checkbox" name="category[]" value="*" 
-                        {{ in_array('*', request('category', [])) ? 'checked' : '' }}>
+                    <input type="checkbox" name="stars[]" value="*" 
+                        {{ in_array('*', request('stars', [])) ? 'checked' : '' }}>
                     <span class="custom-checkbox-purity"></span> *
                 </label>
                 <label>
-                    <input type="checkbox" name="category[]" value="**" 
-                        {{ in_array('**', request('category', [])) ? 'checked' : '' }}>
+                    <input type="checkbox" name="stars[]" value="**" 
+                        {{ in_array('**', request('stars', [])) ? 'checked' : '' }}>
                     <span class="custom-checkbox-purity"></span> **
                 </label>
                 <label>
-                    <input type="checkbox" name="category[]" value="***" 
-                        {{ in_array('***', request('category', [])) ? 'checked' : '' }}>
+                    <input type="checkbox" name="stars[]" value="***" 
+                        {{ in_array('***', request('stars', [])) ? 'checked' : '' }}>
                     <span class="custom-checkbox-purity"></span> ***
                 </label>
                 <div class="horizontal-line"></div>

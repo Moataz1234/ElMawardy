@@ -32,7 +32,7 @@ class GoldItemSold extends Model
         'customer_id',
         'created_at',
         'updated_at',
-
+        'stars'
 
     ];
 

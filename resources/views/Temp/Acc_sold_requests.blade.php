@@ -8,10 +8,11 @@
             <tr>
                 <th>Serial Number</th>
                 <th>Shop Name</th>
-                {{-- <th>Price</th> --}}
+                <th>Price</th>
                 <th>Status</th>
                 <th>Approver</th>
                 <th>Date</th>
+                <th>Actions</th>
             </tr>
         </thead>
         <tbody>
@@ -20,11 +21,26 @@
                 <tr>
                     <td>{{ $request->item_serial_number }}</td>
                     <td>{{ $request->shop_name }}</td>
-                    {{-- <td>{{ $request->price }} {{ config('app.currency') }}</td> <!-- Display price --> --}}
+                    <td>{{ $request->price }} {{ config('app.currency') }}</td> <!-- Display price -->
+                    <td>{{ $request->payment_way }}</td> <!-- Display price -->
+                   
                     <td>{{ $request->status }}</td>
                     <td>{{ $request->approver_shop_name }}</td>
                     <td>{{ $request->created_at->format('Y-m-d H:i') }}</td>
-                  
+                    <td>
+                        @if ($request->status === 'pending')
+                            <form action="{{ route('sell-requests.approve', $request->id) }}" method="POST"
+                                class="d-inline">
+                                @csrf
+                                <button type="submit" class="btn btn-success btn-sm">Approve</button>
+                            </form>
+                            <form action="{{ route('sell-requests.reject', $request->id) }}" method="POST"
+                                class="d-inline">
+                                @csrf
+                                <button type="submit" class="btn btn-danger btn-sm">Reject</button>
+                            </form>
+                        @endif
+                    </td>
                 </tr>
             @endforeach
         </tbody>

@@ -94,7 +94,13 @@
                     <a href="{{ route('orders.history') }}" class="dropdown-item">Orders History</a>
                 </div>
             </li>
-            <li class="navbar-item"><a href="{{ route('gold-catalog') }}" class="navbar-link">Catalog</a></li>
+            <li class="navbar-item dropdown">
+                <a href="#" class="navbar-link dropdown-toggle">Orders</a>
+                <div class="dropdown-menu">
+                    <a href="{{ route('gold-catalog') }}" class="navbar-link dropdown-item">Gold Catalog</a>
+                    <a href="{{ route('gold-catalog') }}" class="navbar-link">Diamond Catalog</a>
+                </div>
+            </li>
             <li class="navbar-item dropdown">
                 <a href="#" class="navbar-link dropdown-toggle">Requests</a>
                 <div class="dropdown-menu">

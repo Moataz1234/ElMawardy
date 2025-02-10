@@ -157,7 +157,7 @@ class ImportSoldItems extends Controller
 
         for ($row = $startRow; $row <= $endRow; $row++) {
             // Get the row data and log it
-            $rowData = $sheet->rangeToArray('A' . $row . ':O' . $row, null, true, false)[0];
+            $rowData = $sheet->rangeToArray('A' . $row . ':P' . $row, null, true, false)[0];
             Log::info("Raw row {$row} data:", $rowData);
 
             // Get serial number cell (Column B)
@@ -184,10 +184,11 @@ class ImportSoldItems extends Controller
                 'metal_purity' => trim($rowData[9]),
                 'quantity' => (int)$rowData[10],
                 'add_date' => $this->parseDate($rowData[12]),
-                'price' => (float)str_replace(',', '', $rowData[13]),
-                'sold_date' => $this->parseDate($rowData[14]),
+                'price' => (float)str_replace(',', '', $rowData[14]),
+                'sold_date' => $this->parseDate(dateValue: $rowData[15]),
                 'stones' => !empty($rowData[7]) ? $rowData[7] : null,
                 'talab' => strtoupper(trim($rowData[5])) === 'YES',
+                'stars' =>trim($rowData[13]),
                 'customer_id' => null,
                 'created_at' => Carbon::now(),
                 'updated_at' => Carbon::now(),

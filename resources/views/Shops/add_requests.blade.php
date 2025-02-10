@@ -13,12 +13,6 @@
     @include('components.navbar')
     <div class="container mt-5">
         <h1 class="text-center mb-4">طلبات الاضافة</h1>
-
-        @if (session('success'))
-            <div class="alert alert-success">
-                {{ session('success') }}
-            </div>
-        @endif
         @if (session('success'))
             <div class="alert alert-success alert-dismissible fade show" role="alert">
                 {!! session('success') !!}
@@ -71,8 +65,10 @@
                         @endphp
                     @endforeach
                     <div class="d-flex justify-content-between">
-                    <strong class="total_items badge bg-danger col-4 fs-6">Total Items: <span class="fs-6 ">{{ $totalItems }}</span> </strong> 
-                    <strong class="total_weight badge bg-warning col-4 fs-6">Total Weight: <span class="fs-6 ">{{ $totalWeight }}</span></strong>  
+                        <strong class="total_items badge bg-danger col-4 fs-6">Total Items: <span
+                                class="fs-6 ">{{ $totalItems }}</span> </strong>
+                        <strong class="total_weight badge bg-warning col-4 fs-6">Total Weight: <span
+                                class="fs-6 ">{{ $totalWeight }}</span></strong>
                     </div>
                 </tbody>
             </table>

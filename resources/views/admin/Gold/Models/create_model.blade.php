@@ -14,8 +14,8 @@
             <input type="file" id="scanned_image" name="scanned_image" accept="image/*">
         </div>
         <div>
-            <label for="category">Stars:</label>
-            <input type="text" id="category" name="category" value="***">
+            <label for="stars">Stars:</label>
+            <input type="text" id="stars" name="stars" value="***">
         </div>
         <div>
             <label for="source">Source:</label>

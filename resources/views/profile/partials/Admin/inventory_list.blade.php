@@ -69,7 +69,7 @@
                         <td>{{ $item->metal_purity }}</td>
                         {{-- <td>{{ $item->quantity }}</td> --}}
                         <td>{{ $item->weight }}</td>
-                        <td>{{ $item->modelCategory->category ?? 'No Category' }}</td>
+                        <td>{{ $item->modelCategory->stars ?? 'No stars' }}</td>
                         <td>
                             <a class="action_button" href="{{ route('gold-items.edit', $item->id) }}">Edit</a>
                         </td>

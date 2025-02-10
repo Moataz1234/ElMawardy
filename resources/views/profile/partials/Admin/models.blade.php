@@ -12,7 +12,7 @@
                 <tr>
                     <th>Model</th>
                     <th>SKU</th>
-                    <th>Category</th>
+                    <th>Stars</th>
                     <th> Serial Number</th>
                     <th> Weight</th>
                     <th>Avg Weight</th>
@@ -23,7 +23,7 @@
                 <tr>
                             <td>{{ $model->model }}</td>
                             <td>{{ $model->SKU }}</td>
-                            <td>{{ $model->category }}</td>
+                            <td>{{ $model->stars }}</td>
                             {{-- <td>{{ $goldItem->serial_number }}</td> --}}
                             {{-- <td>{{ $goldItem->weight }}</td> --}}
                             <td>{{ $model->goldItemsAvg->stones_weight ?? 'N/A' }}</td>

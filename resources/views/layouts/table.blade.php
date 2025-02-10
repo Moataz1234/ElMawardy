@@ -7,11 +7,14 @@
     
     <link href="{{ asset('css/first_page.css') }}" rel="stylesheet">
     <link href="{{ asset('css/modal.css') }}" rel="stylesheet">
+    {{-- <link href="{{ asset('css/loader.css') }}" rel="stylesheet"> --}}
+
     {{-- <link href="{{ asset('css/navbar.css') }}" rel="stylesheet"> --}}
 {{-- <link href="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/css/bootstrap.min.css" rel="stylesheet"> --}}
 
 </head>
 <body>
+    {{-- <x-loader /> --}}
     @include('dashboard')
     {{-- @include('components.navbar') --}}
     @include('components.pagination')

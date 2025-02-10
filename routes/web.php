@@ -55,6 +55,7 @@ Route::get('/test-smtp', function () {
 Route::middleware('guest')->group(function () {
     Route::get('login', [AsgardeoAuthController::class, 'redirectToAsgardeo'])->name('login');
     Route::get('callback', [AsgardeoAuthController::class, 'handleAsgardeoCallback'])->name('auth.callback');
+    
 });
 // Authenticated Routes
 Route::middleware(['auth'])->group(function () {
@@ -108,6 +109,12 @@ Route::middleware(['auth'])->group(function () {
         }
     })->name('dashboard');
 
+
+    // sell requests for acc
+    Route::get('/Acc_sell_requests', action: [SoldItemRequestController::class, 'viewSaleRequestsAcc'])->name('sell-requests.acc');
+    Route::post('/Acc_sell_requests/{id}/approve', [SoldItemRequestController::class, 'approveSaleRequest'])->name('sell-requests.approve');
+    Route::post('/Acc_sell_requests/{id}/reject', [SoldItemRequestController::class, 'rejectSaleRequest'])->name('sell-requests.reject');
+  
     // Import Excels
     Route::get('/excel', [ImportGoldItems::class, 'showForm']);
     Route::post('/import-excel', [ImportGoldItems::class, 'import'])->name('import.excel');
@@ -121,7 +128,7 @@ Route::middleware(['auth'])->group(function () {
     // Notifications
     Route::get('/notifications/stream', [NotificationController::class, 'stream'])->name('notifications.stream');
     Route::get('/notifications/clear', [NotificationController::class, 'clear'])->name('notifications.clear');
-    // Add Requests
+    // Add Requestsadmin/add_requests
     Route::get('/admin/add_requests', [AddRequestController::class, 'allRequests'])->name('admin.add.requests');
 
     Route::get('/shop/addRequests', [AddRequestController::class, 'index'])->name('add-requests.index');
@@ -154,9 +161,9 @@ Route::middleware(['auth'])->group(function () {
         // Route::get('/all-sold-item-requests', [SoldItemRequestController::class, 'showAllSoldItemRequests'])->name('all-sold-item-requests.index'); // Replace YourController
         // Route::post('/sold-item-requests/{itemRequest}/accept', [SoldItemRequestController::class, 'acceptSoldItemRequest'])->name('sold-item-requests.accept');
         // Route::post('/sold-item-requests/{itemRequest}/reject', [SoldItemRequestController::class, 'rejectSoldItemRequest'])->name('sold-item-requests.reject');
-        Route::get('/sale-requests', [SoldItemRequestController::class, 'viewSaleRequests'])->name('sell-requests.index');
-        Route::post('/sale-requests/{id}/approve', [SoldItemRequestController::class, 'approveSaleRequest'])->name('sell-requests.approve');
-        Route::post('/sale-requests/{id}/reject', [SoldItemRequestController::class, 'rejectSaleRequest'])->name('sell-requests.reject');
+        Route::get('/sale-requests', action: [SoldItemRequestController::class, 'viewSaleRequests'])->name('sell-requests.index');
+        // Route::post('/sale-requests/{id}/approve', [SoldItemRequestController::class, 'approveSaleRequest'])->name('sell-requests.approve');
+        // Route::post('/sale-requests/{id}/reject', [SoldItemRequestController::class, 'rejectSaleRequest'])->name('sell-requests.reject');
         Route::get('/all-sale-requests', [SoldItemRequestController::class, 'viewAllSaleRequests'])->name('sale-requests.all');
         Route::get('/item-details/{serial_number}', [ShopsController::class, 'getItemDetails'])->name('item.details');
 

@@ -183,9 +183,9 @@ class Admin_GoldItemService
         if ($kind = $request->input('kind')) {
             $query->whereIn('kind', $kind);
         }
-        if ($category = $request->input('category')) {
-            $query->whereHas('modelCategory', function ($q) use ($category) {
-                $q->whereIn('category', $category);
+        if ($stars = $request->input('stars')) {
+            $query->whereHas('modelCategory', function ($q) use ($stars) {
+                $q->whereIn('stars', $stars);
             });
         }
         if ($shopName  = $request->input('shop_name')) {

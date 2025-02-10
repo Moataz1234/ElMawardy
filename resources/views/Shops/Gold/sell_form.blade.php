@@ -87,9 +87,10 @@
                             </div>
                         </div>
                     @endforeach
+                    <button class="form-button"  type="submit">Complete Sale</button>
+
                 </div>
 
-                <button class="form-button"  type="submit">Complete Sale</button>
             </form>
         </div>
     </div>
