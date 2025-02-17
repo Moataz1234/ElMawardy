@@ -1,10 +1,13 @@
-<div class="container mt-4">
+<head>
     <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
-<script src="https://cdn.jsdelivr.net/npm/bootstrap@4.6.0/dist/js/bootstrap.bundle.min.js"></script>
-<link href="https://cdn.jsdelivr.net/npm/bootstrap@4.6.0/dist/css/bootstrap.min.css" rel="stylesheet">
-
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@4.6.0/dist/js/bootstrap.bundle.min.js"></script>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@4.6.0/dist/css/bootstrap.min.css" rel="stylesheet">    
+    @include('components.navbar')
+</head>
+<div class="container mt-4">
     <table class="table table-striped table-hover">
         <thead class="thead-dark">
+
             <tr>
                 <th>Serial Number</th>
                 <th>Shop Name</th>
@@ -23,7 +26,7 @@
                 </td>
                 <td>{{ $request->shop_name }}</td>
                 <td>
-                    <span class="badge badge-{{ $request->status === 'approved' ? 'success' : ($request->status === 'rejected' ? 'danger' : 'warning') }}">
+                    <span class="badge p-2 badge-{{ $request->status === 'approved' ? 'success' : ($request->status === 'rejected' ? 'danger' : 'warning') }}">
                         {{ $request->status }}
                     </span>
                 </td>

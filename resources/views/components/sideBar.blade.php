@@ -1,12 +1,12 @@
 <!DOCTYPE html>
 <html>
 <head>
-    @if (auth()->user()->usertype === 'admin')
+    @if (auth()->user()->usertype === 'admin'||auth()->user()->usertype === 'rabea')
         @include('sidebars.admin-sidebar')
-    @elseif (auth()->user()->usertype === 'user')
+    @elseif (auth()->user()->usertype === 'user' )
         @include('sidebars.user-sidebar')
-    @elseif (auth()->user()->usertype === 'rabea')
-        @include('sidebars.rabea-sidebar')
+    {{-- @elseif (auth()->user()->usertype === 'rabea')
+        @include('sidebars.rabea-sidebar') --}}
     @endif
 </head>
 <body>

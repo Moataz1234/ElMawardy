@@ -86,11 +86,11 @@ class AsgardeoAuthController extends Controller
         }
 
         // Exchange authorization code for access token
-        $response = Http::asForm()->post($this->tokenUrl, [
+        $response = Http::withoutVerifying()->asForm()->post($this->tokenUrl, [
             'grant_type' => 'authorization_code',
             'client_id' => $this->clientId,
             'client_secret' => $this->clientSecret,
-            'redirect_uri' => $this->redirectUri, // Use the dynamically set redirect URI
+            'redirect_uri' => $this->redirectUri,
             'code' => $code,
         ]);
 
@@ -141,7 +141,7 @@ class AsgardeoAuthController extends Controller
      */
     protected function getUserInfo($accessToken)
     {
-        $response = Http::withHeaders([
+        $response = Http::withoutVerifying()->withHeaders([
             'Authorization' => "Bearer {$accessToken}",
         ])->get('https://api.asgardeo.io/t/elmawardyjewelry/oauth2/userinfo');
 

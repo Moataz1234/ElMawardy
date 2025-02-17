@@ -1,132 +1,181 @@
 :root {
-    --primary-color: #4f46e5;
-    --secondary-color: #1e293b;
-    --accent-color: #f59e0b;
-    --success-color: #10b981;
-    --info-color: #3b82f6;
-    --warning-color: #f97316;
-    --danger-color: #ef4444;
+    --primary-color: #4f46e5;    /* Indigo */
+    --secondary-color: #1e293b;  /* Slate */
+    --accent-color: #f59e0b;     /* Amber */
+    --success-color: #10b981;    /* Emerald */
+    --info-color: #3b82f6;       /* Blue */
+    --warning-color: #f97316;    /* Orange */
+    --danger-color: #ef4444;     /* Red */
+    --purple-color: #8b5cf6;     /* Purple */
+    --pink-color: #ec4899;       /* Pink */
+    --teal-color: #14b8a6;       /* Teal */
+    --indigo-color: #6366f1;     /* Lighter Indigo */
+    --lime-color: #84cc16;       /* Lime */
+    --cyan-color: #06b6d4;       /* Cyan */
     --text-color: #1e293b;
     --text-light: #64748b;
     --bg-color: #f8fafc;
     --card-bg: #ffffff;
 }
 
+/* Dashboard Layout */
 .dashboard-grid {
     display: grid;
-    grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
-    gap: 2rem;
-    padding: 2rem;
+    grid-template-columns: repeat(auto-fit, minmax(400px, 1fr));
+    gap: 24px;
+    padding: 24px;
     background-color: var(--bg-color);
-    min-height: 100vh;
 }
 
+/* Card Styling */
 .dashboard-card {
     background: var(--card-bg);
-    border-radius: 12px;
-    padding: 1.5rem;
+    border-radius: 16px;
     box-shadow: 0 4px 6px rgba(0, 0, 0, 0.05);
+    padding: 24px;
     transition: all 0.3s ease;
     border-left: 4px solid var(--primary-color);
+    animation: fadeIn 0.5s ease-out;
 }
 
 .dashboard-card:hover {
-    transform: translateY(-5px);
+    transform: translateY(-2px);
     box-shadow: 0 6px 12px rgba(0, 0, 0, 0.1);
 }
 
+@keyframes fadeIn {
+    from {
+        opacity: 0;
+        transform: translateY(20px);
+    }
+    to {
+        opacity: 1;
+        transform: translateY(0);
+    }
+}
+
+@keyframes rotateIn {
+    from {
+        transform: rotate(-180deg);
+        opacity: 0;
+    }
+    to {
+        transform: rotate(0);
+        opacity: 1;
+    }
+}
+
 .card-header {
-    border-bottom: 1px solid #e5e7eb;
-    padding-bottom: 1rem;
-    margin-bottom: 1.5rem;
+    margin-bottom: 20px;
+    border-bottom: 1px solid #eee;
+    padding-bottom: 15px;
 }
 
 .card-header h3 {
     font-size: 1.25rem;
     font-weight: 600;
-    color: var(--primary-color);
+    color: var(--text-color);
+    margin: 0;
 }
 
-.metric-value {
-    font-size: 2rem;
-    font-weight: 700;
-    color: var(--secondary-color);
-    margin: 1rem 0;
-}
-
-.metric-label {
+.card-header .subtitle {
     color: var(--text-light);
-    font-size: 0.875rem;
-    text-transform: uppercase;
-    letter-spacing: 0.5px;
+    font-size: 0.9rem;
+    margin-top: 5px;
 }
 
+/* Chart Container */
 .chart-container {
-    height: 300px;
-    margin-top: 1.5rem;
     position: relative;
+    height: 400px;
+    margin: 0 auto;
+    padding: 15px 0;
 }
 
-.list-item {
-    display: flex;
-    justify-content: space-between;
-    align-items: center;
-    padding: 0.75rem 0;
-    border-bottom: 1px solid #e5e7eb;
-    transition: background-color 0.2s;
+/* Metrics and Values */
+.metric-value {
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+    font-size: 1.5rem;
+    font-weight: 700;
+    color: var(--text-color);
 }
 
-.list-item:hover {
-    background-color: #f8fafc;
+.total-weight {
+    text-align: center;
+    font-size: 1.2rem;
+    font-weight: 600;
+    color: var(--primary-color);
+    margin-top: 10px;
 }
 
-.list-item:last-child {
-    border-bottom: none;
-}
-
-.badge {
-    background: var(--primary-color);
-    color: white;
-    padding: 0.25rem 0.75rem;
-    border-radius: 9999px;
-    font-size: 0.875rem;
-    font-weight: 500;
-}
-
-.year-section {
-    margin-bottom: 1.5rem;
-    padding: 1rem;
-    background-color: #f8fafc;
+/* Legend Styling */
+.turnover-legend {
+    margin-top: 20px;
+    padding: 15px;
+    background: #f8fafc;
     border-radius: 8px;
 }
 
-.year-section h4 {
-    font-size: 1.1rem;
-    font-weight: 500;
-    color: var(--secondary-color);
-    margin-bottom: 0.5rem;
+.legend-item {
+    display: flex;
+    align-items: center;
+    margin-bottom: 8px;
 }
 
-/* Custom card colors */
-.dashboard-card:nth-child(1) { border-color: var(--primary-color); }
-.dashboard-card:nth-child(2) { border-color: var(--success-color); }
-.dashboard-card:nth-child(3) { border-color: var(--warning-color); }
-.dashboard-card:nth-child(4) { border-color: var(--info-color); }
-.dashboard-card:nth-child(5) { border-color: var(--danger-color); }
-.dashboard-card:nth-child(6) { border-color: var(--accent-color); }
+.legend-color {
+    width: 12px;
+    height: 12px;
+    border-radius: 50%;
+    margin-right: 8px;
+}
 
-/* Responsive adjustments */
+/* Status Badges */
+.badge {
+    padding: 6px 12px;
+    border-radius: 20px;
+    font-weight: 500;
+    font-size: 0.875rem;
+}
+
+/* Section Colors */
+.section-primary { border-color: var(--primary-color); }
+.section-success { border-color: var(--success-color); }
+.section-warning { border-color: var(--warning-color); }
+.section-info { border-color: var(--info-color); }
+.section-danger { border-color: var(--danger-color); }
+
+/* Animations */
+@keyframes fadeIn {
+    from { 
+        opacity: 0; 
+        transform: translateY(10px); 
+    }
+    to { 
+        opacity: 1; 
+        transform: translateY(0); 
+    }
+}
+
+/* Responsive Adjustments */
 @media (max-width: 768px) {
     .dashboard-grid {
-        padding: 1rem;
-        gap: 1rem;
+        grid-template-columns: 1fr;
+        padding: 16px;
+        gap: 16px;
     }
-    
+
     .dashboard-card {
-        padding: 1rem;
+        padding: 16px;
     }
-    
-    .metric-value {
-        font-size: 1.75rem;
+
+    .chart-container {
+        height: 300px;
+    }
+
+    .card-header h3 {
+        font-size: 1.1rem;
     }
 }

@@ -81,7 +81,7 @@
                 <a href="#" class="navbar-link dropdown-toggle">Inventory</a>
                 <div class="dropdown-menu">
                     <a href="{{ route('dashboard') }}" class="dropdown-item">Gold Inventory</a>
-                    <a href="{{ route('gold-items.create') }}" class="dropdown-item">Diamond Inventory</a>
+                    {{-- <a href="{{ route('gold-items.create') }}" class="dropdown-item">Diamond Inventory</a> --}}
                     <a href="{{ route('gold-items.index') }}" class="dropdown-item">All Items</a>
                 </div>
             </li>
@@ -95,10 +95,10 @@
                 </div>
             </li>
             <li class="navbar-item dropdown">
-                <a href="#" class="navbar-link dropdown-toggle">Orders</a>
+                <a href="#" class="navbar-link dropdown-toggle">Catalogs</a>
                 <div class="dropdown-menu">
                     <a href="{{ route('gold-catalog') }}" class="navbar-link dropdown-item">Gold Catalog</a>
-                    <a href="{{ route('gold-catalog') }}" class="navbar-link">Diamond Catalog</a>
+                    <a href="{{ route('gold-catalog') }}" class="navbar-link dropdown-item">Diamond Catalog</a>
                 </div>
             </li>
             <li class="navbar-item dropdown">
@@ -132,13 +132,13 @@
         <div class="dropdown">
             <button class="navbar-link dropdown-toggle">Profile</button>
             <div class="dropdown-menu">
-                <div class="profile-info cursor-pointer font-medium text-gray-700 hover:text-gray-900">
+                <div class="profile-info cursor-pointer font-medium text-black">
                     <h4 class="name">{{ Auth::user()->name }}</h4>
                 </div>
                 <form method="POST" action="{{ route('logout') }}">
                     @csrf
                     <x-dropdown-link :href="route('logout')" onclick="event.preventDefault(); this.closest('form').submit();"
-                        class="block px-4 py-2 text-gray-700 hover:bg-gray-100">
+                        class=" logout block px-4 py-2 hover:bg-danger">
                         {{ __('Log Out') }}
                     </x-dropdown-link>
                 </form>

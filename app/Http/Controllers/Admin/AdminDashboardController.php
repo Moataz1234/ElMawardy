@@ -1,4 +1,5 @@
 <?php
+
 namespace App\Http\Controllers\Admin;
 
 use App\Http\Controllers\Controller;
@@ -36,108 +37,6 @@ class AdminDashboardController extends Controller
         $this->popularModelsService = $popularModelsService;
     }
 
-   
-    public function index(Request $request)
-    {
-        $goldItems = $this->goldItemService->getGoldItems($request);
-
-        return view('Admin.Gold.Items.Inventory_list', [
-            'goldItems' => $goldItems,
-        ]);
-    }
-  
-    
-    public function Sold(Request $request)
-    {
-        $goldItems = $this->goldItemService->getGoldItemsSold($request);
-        
-        return view('Admin.Gold.sold_index', [
-            'goldItems' => $goldItems,
-        ]);
-    }
-
-public function update(UpdateGoldItemRequest $request, $id)
-{
-    $this->goldItemService->updateGoldItem($request, $id);
-    return redirect()->route('admin.inventory')->with('success', 'Item updated successfully');
-}
-public function showUpdatedItems(){
-    
-}
-
-public function bulkAction(Request $request)
-{
-    if (!$request->has('selected_items')) {
-        return redirect()->back()->with('error', 'No items selected');
-    }
-
-    $action = $request->input('action');
-    $selectedItems = $request->input('selected_items');
-
-    try {
-        switch ($action) {
-            case 'delete':
-                Log::info('Creating deletion history record', [
-                    'item_id' => $request->id,
-                    'serial_number' => $request->serial_number
-                ]);
-                $reason = $request->input('deletion_reason');
-                $this->goldItemService->bulkDelete($selectedItems, $reason);
-                $message = 'Selected items deleted successfully';
-                break;
-            case 'request':
-                $this->goldItemService->bulkRequest($selectedItems);
-                $message = 'Selected items requested successfully';
-                break;
-            case 'workshop':
-                $reason = $request->input('transfer_reason');
-                $transferAllModels = $request->input('transfer_all_models') === 'true';
-                
-                // Prepare items array with required data
-                $items = [];
-                foreach ($selectedItems as $id) {
-                    $item = GoldItem::find($id);
-                    if ($item) {
-                        $items[] = [
-                            'id' => $item->id,
-                            'serial_number' => $item->serial_number,
-                            'shop_name' => $item->shop_name
-                        ];
-                    }
-                }
-                
-                // First create workshop requests
-                $this->goldItemService->createWorkshopRequests(
-                    $items,
-                    $reason,
-                    $transferAllModels
-                );
-                
-                // Then perform the actual transfer
-                $this->goldItemService->bulkTransferToWorkshop(
-                    $selectedItems,
-                    $reason,
-                    $transferAllModels
-                );
-                
-                $message = $transferAllModels 
-                    ? 'All items with matching models transferred to workshop successfully'
-                    : 'Selected items transferred to workshop successfully';
-                break;
-            default:
-                return redirect()->back()->with('error', 'Invalid action');
-        }
-
-        return redirect()->back()->with('success', $message);
-    }catch (\Exception $e) {
-        Log::error('Bulk action failed', [
-            'action' => $action,
-            'items' => $selectedItems,
-            'error' => $e->getMessage()
-        ]);
-        return redirect()->back()->with('error', 'An error occurred: ' . $e->getMessage());
-    }
-}
     public function dashboard(): View
     {
         $totalWeightSoldByYearAndShop = $this->shopWeightAnalysisService->getTotalWeightSoldByYearAndShop();
@@ -147,7 +46,16 @@ public function bulkAction(Request $request)
         $inventoryTurnover = $this->shopWeightAnalysisService->getInventoryTurnover();
 
         // New analysis data
-        $kindSalesAnalysis = GoldItem::mostSold()->get();
+        // Get sales analysis for all kinds
+        $kindSalesAnalysis = DB::table('gold_items_sold')
+            ->select(
+                'kind',
+                DB::raw('COUNT(*) as total_sold'),
+                DB::raw('SUM(weight) as total_weight')
+            )
+            ->groupBy('kind')
+            ->orderBy('total_sold', 'desc')
+            ->get();
         $kindInventory = GoldItem::select('kind', DB::raw('SUM(weight) as total_weight'), DB::raw('COUNT(*) as total_items'))
             ->groupBy('kind')
             ->get();
@@ -157,6 +65,11 @@ public function bulkAction(Request $request)
             $kindSalesTrends[$kind->kind] = GoldItem::salesTrendByKind($kind->kind)->get();
         }
 
+        // Add new analysis methods
+        $monthlyTrends = $this->shopWeightAnalysisService->getMonthlyTrends();
+        $turnoverRates = $this->shopWeightAnalysisService->getInventoryTurnoverRates();
+        $topPerformers = $this->popularModelsService->getTopPerformers();
+
         return view('admin.new-dashboard', [
             'salesTrends' => $salesTrends,
             'topSellingItems' => $topSellingItems,
@@ -165,13 +78,116 @@ public function bulkAction(Request $request)
             'totalWeightInventory' => $totalWeightInventory,
             'kindSalesAnalysis' => $kindSalesAnalysis,
             'kindInventory' => $kindInventory,
-            'kindSalesTrends' => $kindSalesTrends
+            'kindSalesTrends' => $kindSalesTrends,
+            'monthlyTrends' => $monthlyTrends,
+            'turnoverRates' => $turnoverRates,
+            'topPerformers' => $topPerformers
         ]);
     }
+    public function index(Request $request)
+    {
+        $goldItems = $this->goldItemService->getGoldItems($request);
+
+        return view('Admin.Gold.Items.Inventory_list', [
+            'goldItems' => $goldItems,
+        ]);
+    }
+
+
+    public function Sold(Request $request)
+    {
+        $goldItems = $this->goldItemService->getGoldItemsSold($request);
+
+        return view('Admin.Gold.sold_index', [
+            'goldItems' => $goldItems,
+        ]);
+    }
+
+    public function update(UpdateGoldItemRequest $request, $id)
+    {
+        $this->goldItemService->updateGoldItem($request, $id);
+        return redirect()->route('admin.inventory')->with('success', 'Item updated successfully');
+    }
+    public function showUpdatedItems() {}
+
+    public function bulkAction(Request $request)
+    {
+        if (!$request->has('selected_items')) {
+            return redirect()->back()->with('error', 'No items selected');
+        }
+
+        $action = $request->input('action');
+        $selectedItems = $request->input('selected_items');
+
+        try {
+            switch ($action) {
+                case 'delete':
+                    Log::info('Creating deletion history record', [
+                        'item_id' => $request->id,
+                        'serial_number' => $request->serial_number
+                    ]);
+                    $reason = $request->input('deletion_reason');
+                    $this->goldItemService->bulkDelete($selectedItems, $reason);
+                    $message = 'Selected items deleted successfully';
+                    break;
+                case 'request':
+                    $this->goldItemService->bulkRequest($selectedItems);
+                    $message = 'Selected items requested successfully';
+                    break;
+                case 'workshop':
+                    $reason = $request->input('transfer_reason');
+                    $transferAllModels = $request->input('transfer_all_models') === 'true';
+
+                    // Prepare items array with required data
+                    $items = [];
+                    foreach ($selectedItems as $id) {
+                        $item = GoldItem::find($id);
+                        if ($item) {
+                            $items[] = [
+                                'id' => $item->id,
+                                'serial_number' => $item->serial_number,
+                                'shop_name' => $item->shop_name
+                            ];
+                        }
+                    }
+
+                    // First create workshop requests
+                    $this->goldItemService->createWorkshopRequests(
+                        $items,
+                        $reason,
+                        $transferAllModels
+                    );
+
+                    // Then perform the actual transfer
+                    $this->goldItemService->bulkTransferToWorkshop(
+                        $selectedItems,
+                        $reason,
+                        $transferAllModels
+                    );
+
+                    $message = $transferAllModels
+                        ? 'All items with matching models transferred to workshop successfully'
+                        : 'Selected items transferred to workshop successfully';
+                    break;
+                default:
+                    return redirect()->back()->with('error', 'Invalid action');
+            }
+
+            return redirect()->back()->with('success', $message);
+        } catch (\Exception $e) {
+            Log::error('Bulk action failed', [
+                'action' => $action,
+                'items' => $selectedItems,
+                'error' => $e->getMessage()
+            ]);
+            return redirect()->back()->with('error', 'An error occurred: ' . $e->getMessage());
+        }
+    }
+
     public function deletedItems(Request $request)
     {
         $deletedItems = DeletedItemHistory::all();
-            
+
         return view('admin.Gold.deleted_items_history', compact('deletedItems'));
     }
 
@@ -180,7 +196,7 @@ public function bulkAction(Request $request)
         $workshopItems = DB::table('workshop_items')
             ->orderBy('transferred_at', 'desc')
             ->paginate(20);
-            
+
         return view('admin.Gold.workshop_items', compact('workshopItems'));
     }
 
@@ -189,7 +205,7 @@ public function bulkAction(Request $request)
         $requests = DB::table('workshop_transfer_requests')
             ->orderBy('created_at', 'desc')
             ->paginate(20);
-            
+
         return view('admin.Gold.workshop_requests', compact('requests'));
     }
 
@@ -208,7 +224,8 @@ public function bulkAction(Request $request)
 
         return redirect()->back()->with('success', 'Request status updated successfully');
     }
-    public function update_prices(){
+    public function update_prices()
+    {
         return view('shopify.update_price');
     }
 
@@ -226,7 +243,7 @@ public function bulkAction(Request $request)
         $transferAllModels = $request->input('transfer_all_models') === 'true';
 
         // Add shop_name to each item
-        $items = array_map(function($item) {
+        $items = array_map(function ($item) {
             $goldItem = GoldItem::find($item['id']);
             return [
                 'id' => $item['id'],
@@ -239,7 +256,6 @@ public function bulkAction(Request $request)
 
         return redirect()->back()->with('success', 'Workshop transfer requests created successfully');
     }
-  
 }
  // public function allSoldItems()
     // {

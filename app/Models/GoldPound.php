@@ -18,4 +18,9 @@ class GoldPound extends Model
         'quantity',
         'description',
     ];
+    public function inventoryItems()
+    {
+        return $this->hasMany(GoldPoundInventory::class);
+    }
+
 }

@@ -95,3 +95,97 @@ document.addEventListener('DOMContentLoaded', function() {
     const badge = document.querySelector('.badge');
     const link = document.querySelector('.nav-link');
 });
+
+// Add this code after the form initialization
+document.addEventListener('DOMContentLoaded', function() {
+    const form = document.querySelector('.custom-form');
+    
+    // Prevent form submission on enter key
+    form.addEventListener('keypress', function(e) {
+        if (e.key === 'Enter') {
+            e.preventDefault();
+            return false;
+        }
+    });
+
+    // Add at least one order item when the page loads
+    document.getElementById('add-item').click();
+
+    form.addEventListener('submit', function(e) {
+        e.preventDefault();
+        
+        // Get required fields
+        const customerName = form.querySelector('input[name="customer_name"]').value.trim();
+        const sellerName = form.querySelector('input[name="seller_name"]').value.trim();
+        const orderDetails = form.querySelector('textarea[name="order_details"]').value.trim();
+        const orderItems = document.querySelectorAll('#order-items .order-item').length;
+
+        // Validate required fields
+        if (!customerName || !sellerName || !orderDetails) {
+            Swal.fire({
+                icon: 'error',
+                title: 'خطأ في البيانات',
+                text: 'برجاء ملء جميع الحقول المطلوبة (اسم العميل، البائع، موضوع الطلب)',
+                confirmButtonText: 'حسناً'
+            });
+            return;
+        }
+
+        if (orderItems === 0) {
+            Swal.fire({
+                icon: 'error',
+                title: 'خطأ في البيانات',
+                text: 'يجب إضافة منتج واحد على الأقل',
+                confirmButtonText: 'حسناً'
+            });
+            return;
+        }
+
+        // Create a new FormData object
+        const formData = new FormData(form);
+
+        // Remove template item data from FormData
+        const templateInputs = document.getElementById('order-item-template').querySelectorAll('input, select');
+        templateInputs.forEach(input => {
+            if (input.name) {
+                // Get all values for this input name
+                const values = formData.getAll(input.name);
+                // Remove the last value (template value)
+                values.pop();
+                // Remove all values for this name
+                formData.delete(input.name);
+                // Add back all values except the template
+                values.forEach(value => formData.append(input.name, value));
+            }
+        });
+
+        // If validation passes, submit the form
+        fetch(form.action, {
+            method: 'POST',
+            body: formData
+        })
+        .then(response => response.json())
+        .then(data => {
+            Swal.fire({
+                icon: 'success',
+                title: 'تم الحفظ بنجاح',
+                text: 'تم حفظ الطلب بنجاح',
+                confirmButtonText: 'حسناً'
+            }).then((result) => {
+                if (result.isConfirmed) {
+                    // Optionally redirect or reset form
+                    form.reset();
+                    window.location.reload();
+                }
+            });
+        })
+        .catch(error => {
+            Swal.fire({
+                icon: 'error',
+                title: 'خطأ',
+                text: 'حدث خطأ أثناء حفظ البيانات',
+                confirmButtonText: 'حسناً'
+            });
+        });
+    });
+});

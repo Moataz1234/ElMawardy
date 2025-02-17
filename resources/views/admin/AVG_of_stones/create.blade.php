@@ -33,7 +33,7 @@
                 </div>
                 <div style="width: 40%" class="form-group">
                     <label for="stones_weight">Stones Weight</label>
-                    <input type="number" name="stones_weight[]" step="0.01" required>
+                    <input type="number" name="stones_weight[]" required>
                 </div>
             </div>
         </div>

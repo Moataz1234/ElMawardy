@@ -1,8 +1,10 @@
-<div class="container mt-4">
+<head>
     <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@4.6.0/dist/js/bootstrap.bundle.min.js"></script>
-    <link href="https://cdn.jsdelivr.net/npm/bootstrap@4.6.0/dist/css/bootstrap.min.css" rel="stylesheet">
-
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@4.6.0/dist/css/bootstrap.min.css" rel="stylesheet">    
+    @include('components.navbar')
+</head>
+<div class="container mt-4">
     <table class="table table-striped table-hover">
         <thead class="thead-dark">
             <tr>
@@ -10,7 +12,7 @@
                 <th>Shop Name</th>
                 {{-- <th>Price</th> --}}
                 <th>Status</th>
-                <th>Approver</th>
+                {{-- <th>Approver</th> --}}
                 <th>Date</th>
             </tr>
         </thead>
@@ -18,11 +20,14 @@
             <!-- In sold_requests.blade.php -->
             @foreach ($soldItemRequests as $request)
                 <tr>
-                    <td>{{ $request->item_serial_number }}</td>
-                    <td>{{ $request->shop_name }}</td>
+                    <td>
+                        <a href="#" class="item-details text-primary" data-serial="{{ $request->item_serial_number }}">
+                            {{ $request->item_serial_number }}
+                        </a>
+                    </td>                    <td>{{ $request->shop_name }}</td>
                     {{-- <td>{{ $request->price }} {{ config('app.currency') }}</td> <!-- Display price --> --}}
                     <td>{{ $request->status }}</td>
-                    <td>{{ $request->approver_shop_name }}</td>
+                    {{-- <td>{{ $request->approver_shop_name }}</td> --}}
                     <td>{{ $request->created_at->format('Y-m-d H:i') }}</td>
                   
                 </tr>
@@ -83,10 +88,6 @@
                     <div class="row mb-2">
                         <div class="col-5 font-weight-bold">Weight:</div>
                         <div class="col-7">${data.weight}</div>
-                    </div>
-                    <div class="row mb-2">
-                        <div class="col-5 font-weight-bold">Price:</div>
-                        <div class="col-7">${data.price}</div>
                     </div>
                 `;
                     $('#itemDetails').html(details);

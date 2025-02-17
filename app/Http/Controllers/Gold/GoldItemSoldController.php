@@ -12,9 +12,9 @@ use App\Models\GoldItem;
 use App\Services\GoldItemSoldService;
 use Carbon\Carbon;
 use Illuminate\Support\Facades\Log;
-
-
 use Barryvdh\DomPDF\Facade\Pdf;
+
+
 
 class GoldItemSoldController extends Controller
 {

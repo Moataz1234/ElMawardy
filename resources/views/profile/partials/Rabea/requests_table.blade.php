@@ -35,10 +35,11 @@
                     'seller_name' => 'Seller Name',
                     'order_date' => 'Order Date',
                     'status' => 'Status',
+                    'action' => 'Action',
                 ];
             @endphp
 
-            @foreach ($columns as $field => $label)
+            @foreach ($columns as $field => $label) 
                 <th>
                         {{ $label }}
                         
@@ -62,6 +63,11 @@
                     <td>{{ $order->seller_name }}</td>
                     <td>{{ $order->order_date }}</td>
                     <td>{{ $order->status }}</td>
+                    <td>
+                        <div class="action-buttons">
+                            <a href="{{ route('orders.show', $order->id) }}" class="action_button">View</a>
+                        </div>
+                    </td>
                     {{-- <td>
                         <form action="{{ route('orders.accept', $order->id) }}" method="POST" style="display:inline;">
                             @csrf

@@ -37,45 +37,61 @@ class TransferService
 
 
 
-//     public function handleTransfer(string $requestId, string $status): void
-// {
-//     try {
-//         $transferRequest = TransferRequest::findOrFail($requestId);
-        
-//         if ($status === 'accepted') {
-//             // Get the shop details from shops table using shop_name
-//             $toShop = Shop::where('name', $transferRequest->to_shop_name)
-//                          ->firstOrFail();
+public function handleTransfer(string $requestId, string $status): void
+{
+    try {
+        Log::info('Handling transfer request:', ['request_id' => $requestId, 'status' => $status]);
 
-//             // Only update the gold item's shop information when the transfer is accepted
-//             $goldItem = $transferRequest->goldItem;
-//             $goldItem->update([
-//                 'shop_name' => $toShop->name,
-//                 'shop_id' => $toShop->id
-//             ]);
-//         }
-        
-//         $transferRequest->update(['status' => $status]);
+        $transferRequest = TransferRequest::findOrFail($requestId);
+        Log::info('Transfer request found:', ['transfer_request' => $transferRequest]);
 
-//     } catch (\Exception $e) {
-//         Log::error('Transfer handling failed:', [
-//             'error' => $e->getMessage(),
-//             'request_id' => $requestId,
-//             'status' => $status
-//         ]);
-//         throw $e;
-//     }
-// }
+        if ($status === 'accepted') {
+            $toShop = Shop::where('name', $transferRequest->to_shop_name)
+                         ->firstOrFail();
+            Log::info('To shop found:', ['to_shop' => $toShop]);
+
+            $goldItem = $transferRequest->goldItem;
+            Log::info('Gold item found:', ['gold_item' => $goldItem]);
+
+            $goldItem->update([
+                'shop_name' => $toShop->name,
+                'shop_id' => $toShop->id
+            ]);
+            Log::info('Gold item updated:', ['gold_item' => $goldItem]);
+        }
+
+        $transferRequest->update(['status' => $status]);
+        Log::info('Transfer request updated:', ['transfer_request' => $transferRequest]);
+
+    } catch (\Exception $e) {
+        Log::error('Transfer handling failed:', [
+            'error' => $e->getMessage(),
+            'request_id' => $requestId,
+            'status' => $status
+        ]);
+        throw $e;
+    }
+}
 
     public function getPendingTransfers(): array
     {
-        // Get transfers for current user's shop
-        $transferRequests = TransferRequest::with('goldItem')
-            ->where('to_shop_name', Auth::user()->shop_name)
+        $shopName = Auth::user()->shop_name;
+
+        // Get incoming transfers
+        $incomingRequests = TransferRequest::with('goldItem')
+            ->where('to_shop_name', $shopName)
             ->where('status', 'pending')
             ->get();
 
-        return ['transferRequests' => $transferRequests];
+        // Get outgoing transfers
+        $outgoingRequests = TransferRequest::with('goldItem')
+            ->where('from_shop_name', $shopName)
+            ->get();
+
+        return [
+            'incomingRequests' => $incomingRequests,
+            'outgoingRequests' => $outgoingRequests
+        ];
     }
 
     public function getTransferHistory(): Collection

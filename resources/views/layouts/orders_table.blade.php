@@ -7,10 +7,10 @@
         <link href="{{ asset('css/app.css') }}" rel="stylesheet">
         <link href="{{ asset('css/order-details.css') }}" rel="stylesheet">
         <link href="{{ asset('css/first_page.css') }}" rel="stylesheet">
-        <link href="{{ asset('css/order_index.css') }}" rel="stylesheet">
         <link href="{{ asset('css/sidebar.css') }}" rel="stylesheet">
         <link href="{{ asset('css/navbar.css') }}" rel="stylesheet">
         <link href="{{ asset('css/style.css') }}" rel="stylesheet">
+        <link href="{{ asset('css/order_index.css') }}" rel="stylesheet">
         <link rel="stylesheet" href="https://www.w3schools.com/w3css/4/w3.css">
         <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.6.0/css/all.min.css">
         <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.4/css/all.min.css">

@@ -60,6 +60,16 @@ class GoldItem extends Model
     }
 
     // New methods for dashboard analysis
+
+    public function sale_request()
+    {
+        return $this->hasOne(SaleRequest::class, 'item_serial_number', 'serial_number');
+    }
+    public function poundInventory()
+    {
+        return $this->hasOne(GoldPoundInventory::class, 'serial_number', 'serial_number');
+    }
+
     public function scopeByKind($query, $kind)
     {
         return $query->where('kind', $kind);
@@ -87,10 +97,5 @@ class GoldItem extends Model
             ->groupBy('year', 'month')
             ->orderBy('year')
             ->orderBy('month');
-    }
-
-    public function sale_request()
-    {
-        return $this->hasOne(SaleRequest::class, 'item_serial_number', 'serial_number');
     }
 }

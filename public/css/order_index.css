@@ -193,3 +193,12 @@
      #notification {
          font-size: 40px;
      }
+     .action_button{
+        background-color: #7cb4f4;
+        color: white;
+        border: none;
+        padding: 10px 20px;
+        border-radius: 5px;
+        cursor: pointer;
+     }
+     

@@ -42,7 +42,7 @@ document.addEventListener('DOMContentLoaded', function () {
         }
 
         modelImageDiv.innerHTML = '<p>Loading...</p>';
-        tableBody.innerHTML = '<tr><td colspan="2">Loading...</td></tr>';
+        tableBody.innerHTML = '<tr><td colspan="4">Loading...</td></tr>';
 
         fetch(`/gold-items/model-details?model=${encodeURIComponent(modelValue)}`, {
             method: 'GET',
@@ -73,25 +73,44 @@ document.addEventListener('DOMContentLoaded', function () {
 
                 if (data.items.length === 0) {
                     const row = document.createElement('tr');
-                    row.innerHTML = '<td colspan="3">No items found</td>';
+                    row.innerHTML = '<td colspan="4">No items found</td>';
                     tableBody.appendChild(row);
                     return;
                 }
 
+                // Group items by shop and gold color
+                const groupedItems = {};
                 data.items.forEach(item => {
+                    const key = `${item.shop_name}-${item.gold_color}`;
+                    if (!groupedItems[key]) {
+                        groupedItems[key] = {
+                            shop_name: item.shop_name,
+                            gold_color: item.gold_color,
+                            total_weight: 0,
+                            count: 0,
+                            serial_numbers: new Set()
+                        };
+                    }
+                    groupedItems[key].total_weight += parseFloat(item.weight);
+                    groupedItems[key].count++;
+                    groupedItems[key].serial_numbers.add(item.serial_number);
+                });
+
+                // Display grouped items
+                Object.values(groupedItems).forEach(group => {
                     const row = document.createElement('tr');
                     row.innerHTML = `
-            <td>${item.shop_name}</td>
-            <td>${item.weight}</td>
-            <td>${item.serial_number}</td>
-            <td>${item.gold_color}</td>
-        `;
+                        <td>${group.shop_name} (${group.gold_color})</td>
+                        <td>${group.total_weight.toFixed(2)}</td>
+                        <td>${Array.from(group.serial_numbers).join(', ')}</td>
+                        <td>${group.count}</td>
+                    `;
                     tableBody.appendChild(row);
                 });
             })
             .catch(error => {
                 console.error('Error:', error);
-                tableBody.innerHTML = '<tr><td colspan="3">Error fetching data</td></tr>';
+                tableBody.innerHTML = '<tr><td colspan="4">Error fetching data</td></tr>';
                 modelImageDiv.innerHTML = '<p>Error loading model details</p>';
             });
     }
@@ -126,7 +145,7 @@ document.addEventListener('DOMContentLoaded', function () {
             metal_purity: formData.get('metal_purity'),
             quantity: formData.get('quantity'),
             shops: shopsData
-        };addFieldBtn
+        };
 
         // Send the item data to the server
         fetch('/gold-items/add-to-session', {

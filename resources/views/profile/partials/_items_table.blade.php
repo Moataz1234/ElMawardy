@@ -34,7 +34,7 @@
                             <th>Model</th>
                             <th>Gold Color</th>
                             <th>Weight</th>
-                            <th>Category</th>
+                            <th>Stars</th>
                         </tr>
                     </thead>
                     <tbody id="table-body">
@@ -75,7 +75,7 @@
                                 </td>
                                 <td>{{ $item->gold_color }}</td>
                                 <td>{{ $item->weight }}</td>
-                                <td>{{ $item->modelCategory->stars ?? 'No Category' }}</td>
+                                <td>{{ $item->modelCategory->stars ?? 'No Stars' }}</td>
                             </tr>
                         @endforeach
                     </tbody>

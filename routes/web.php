@@ -10,7 +10,6 @@ use App\Http\Controllers\{
     NewItemController,
     Gold\GoldItemController,
     Gold\GoldItemSoldController,
-    Gold\GoldPoundController,
     ShopsController,
     OrderController,
     Admin\ShopifyProductController,
@@ -31,7 +30,9 @@ use App\Http\Controllers\{
     Admin\BarcodeController,
     ModelsController,
     SoldItemRequestController,
-    AddRequestController
+    AddRequestController,
+    Gold\GoldPoundController,
+    AddPoundsRequestController,
     // NewItemTalabatController
 };
 
@@ -55,7 +56,6 @@ Route::get('/test-smtp', function () {
 Route::middleware('guest')->group(function () {
     Route::get('login', [AsgardeoAuthController::class, 'redirectToAsgardeo'])->name('login');
     Route::get('callback', [AsgardeoAuthController::class, 'handleAsgardeoCallback'])->name('auth.callback');
-    
 });
 // Authenticated Routes
 Route::middleware(['auth'])->group(function () {
@@ -114,7 +114,8 @@ Route::middleware(['auth'])->group(function () {
     Route::get('/Acc_sell_requests', action: [SoldItemRequestController::class, 'viewSaleRequestsAcc'])->name('sell-requests.acc');
     Route::post('/Acc_sell_requests/{id}/approve', [SoldItemRequestController::class, 'approveSaleRequest'])->name('sell-requests.approve');
     Route::post('/Acc_sell_requests/{id}/reject', [SoldItemRequestController::class, 'rejectSaleRequest'])->name('sell-requests.reject');
-  
+    Route::get('/item-details/{serial_number}', [ShopsController::class, 'getItemDetails'])->name('item.details');
+
     // Import Excels
     Route::get('/excel', [ImportGoldItems::class, 'showForm']);
     Route::post('/import-excel', [ImportGoldItems::class, 'import'])->name('import.excel');
@@ -147,16 +148,23 @@ Route::middleware(['auth'])->group(function () {
             'destroy' => 'admin.gold_items_avg.destroy',
         ]);
     });
+    // pounds
     Route::get('/gold-prices', [GoldPriceController::class, 'getGoldPrices'])->name('gold.prices');
+    Route::get('/gold-pounds', [GoldPoundController::class, 'index'])->name('gold-pounds.index');
+    Route::post('/gold-pounds', [GoldPoundController::class, 'store'])->name('gold-pounds.store');
+    Route::get('/gold-pounds/sell-form', [GoldPoundController::class, 'showSellForm'])
+        ->name('gold-pounds.sell-form');
+    Route::post('/gold-pounds/create-sale-request', [GoldPoundController::class, 'createSaleRequest'])
+        ->name('gold-pounds.create-sale-request');
 
     // Admin Routes
     Route::middleware('admin')->group(function () {
         Route::post('/gold-items/add-to-session', [GoldItemController::class, 'addItemToSession'])->name('gold-items.add-to-session');
         Route::delete('/gold-items/remove-session-item', [GoldItemController::class, 'removeSessionItem'])->name('gold-items.remove-session-item');
         Route::post('/gold-items/submit-all', [GoldItemController::class, 'submitAllItems'])->name('gold-items.submit-all');
-       
-      
-      
+
+
+
         // Route::get('/sold-item-requests', [SoldItemRequestController::class, 'showSoldItemRequests'])->name('sold-item-requests.index'); // Replace YourController
         // Route::get('/all-sold-item-requests', [SoldItemRequestController::class, 'showAllSoldItemRequests'])->name('all-sold-item-requests.index'); // Replace YourController
         // Route::post('/sold-item-requests/{itemRequest}/accept', [SoldItemRequestController::class, 'acceptSoldItemRequest'])->name('sold-item-requests.accept');
@@ -165,7 +173,6 @@ Route::middleware(['auth'])->group(function () {
         // Route::post('/sale-requests/{id}/approve', [SoldItemRequestController::class, 'approveSaleRequest'])->name('sell-requests.approve');
         // Route::post('/sale-requests/{id}/reject', [SoldItemRequestController::class, 'rejectSaleRequest'])->name('sell-requests.reject');
         Route::get('/all-sale-requests', [SoldItemRequestController::class, 'viewAllSaleRequests'])->name('sale-requests.all');
-        Route::get('/item-details/{serial_number}', [ShopsController::class, 'getItemDetails'])->name('item.details');
 
 
         Route::get('/generate-model', [ModelsController::class, 'generateModel']);
@@ -226,7 +233,7 @@ Route::middleware(['auth'])->group(function () {
         Route::get('/transfer-requests/history', [ShopsController::class, 'viewTransferRequestHistory'])->name('transfer.requests.history');
 
 
-       // Shopify Routes
+        // Shopify Routes
         Route::get('/shopify-products', [ShopifyProductController::class, 'index'])->name('shopify.products');
         Route::get('/shopify-products/orders', [ShopifyProductController::class, 'Order_index'])->name('orders_shopify');
         Route::post('/shopify/orders/{id}/fulfill', [ShopifyProductController::class, 'fulfillOrder'])->name('fulfill_order');
@@ -267,11 +274,12 @@ Route::middleware(['auth'])->group(function () {
         Route::post('/bulk-transfer', [ShopsController::class, 'bulkTransfer'])->name('gold-items.bulk-transfer');
         Route::get('/orders', [OrderController::class, 'index'])->name('orders.index');
         Route::get('/orders/create', [OrderController::class, 'create'])->name('orders.create');
-        Route::post('/orders/store', [OrderController::class, 'store'])->name('orders.store');
         Route::get('/orders/history', [OrderController::class, 'showCompletedOrders'])->name('orders.history');
         Route::post('/shop-items/bulk-sell', [ShopsController::class, 'BulkSell'])->name('shop-items.bulkSell');
         Route::get('/shop-items/bulk-sell-form', [ShopsController::class, 'showBulkSellForm'])->name('shop-items.bulkSellForm');
         Route::get('/shop-items/bulk-transfer-form', [ShopsController::class, 'showBulkTransferForm'])->name('shop-items.bulkTransferForm');
+        Route::post('/transfer-requests/{requestId}/handle', [ShopsController::class, 'handleTransferRequest'])
+        ->name('transfer-requests.handle');
         Route::get('/import', [ExcelImportController::class, 'showForm'])->name('import.form');
         Route::post('/import', [ExcelImportController::class, 'import'])->name('excel.import');
     });
@@ -279,19 +287,37 @@ Route::middleware(['auth'])->group(function () {
     // Rabea Routes
     Route::middleware('rabea')->group(function () {
         Route::get('/orders/rabea', [RabiaController::class, 'indexForRabea'])->name('orders.rabea.index');
+
         Route::get('/search', [RabiaController::class, 'search'])->name('orders.search');
         Route::post('/update-status/{id}', [RabiaController::class, 'updateStatus'])->name('orders.updateStatus');
         Route::post('/orders/update-status-bulk', [RabiaController::class, 'updateStatusBulk'])->name('orders.updateStatus.bulk');
+        // orders show
         Route::get('/orders/rabea/{id}', [RabiaController::class, 'show'])->name('orders.show');
+        // orders edit
+        Route::get('/orders/edit/{id}', [RabiaController::class, 'edit'])->name('orders.rabea.edit');
+        Route::put('/orders/update/{id}', [RabiaController::class, 'update'])->name('orders.update');
+        // orders requests
         Route::get('/orders/requests', [RabiaController::class, 'requests'])->name('orders.requests');
         Route::post('/orders/accept', [RabiaController::class, 'accept'])->name('orders.accept');
         Route::get('/orders/toPrint', [RabiaController::class, 'toPrint'])->name('orders.rabea.to_print');
         Route::get('/orders/completed', [RabiaController::class, 'completed'])->name('orders.completed');
     });
 
-     // Common Routes for All Authenticated Users
-     Route::get('/gold-items-sold', [GoldItemSoldController::class, 'index'])->name('gold-items.sold');
-     Route::get('/gold-pounds', [GoldPoundController::class, 'index'])->name('gold-pounds.index');
- });
- 
- require __DIR__ . '/auth.php';
+    // Common Routes for All Authenticated Users
+});
+
+require __DIR__ . '/auth.php';
+
+Route::get('/export-sales', [SoldItemRequestController::class, 'exportSales'])->name('export.sales');
+// rabea pounds
+Route::get('/gold-items-sold', [GoldItemSoldController::class, 'index'])->name('gold-items.sold');
+Route::get('/gold-pounds', [GoldPoundController::class, 'index'])->name('gold-pounds.index');
+Route::get('/gold-pounds/create', [GoldPoundController::class, 'create'])->name('gold-pounds.create');
+Route::post('/gold-pounds', [GoldPoundController::class, 'store'])->name('gold-pounds.store');
+//shop pounds requests
+Route::get('/pound-requests', [AddPoundsRequestController::class, 'index'])->name('pound-requests.index');
+Route::post('/pound-requests/bulk-approve', [AddPoundsRequestController::class, 'bulkApprove'])->name('pound-requests.bulk-approve');
+Route::post('/pound-requests/bulk-reject', [AddPoundsRequestController::class, 'bulkReject'])->name('pound-requests.bulk-reject');
+Route::post('/orders/store', [OrderController::class, 'store'])
+    ->name('orders.store')
+    ->middleware(['auth', 'web']);

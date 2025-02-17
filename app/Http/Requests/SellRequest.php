@@ -20,18 +20,18 @@ class SellRequest extends FormRequest
      * @return array<string, \Illuminate\Contracts\Validation\ValidationRule|array<mixed>|string>
      */
     public function rules()
-{
-    return [
-        'first_name' => 'required|string',
-        'last_name' => 'required|string',
-        'phone_number' => 'nullable|string',
-        'address' => 'nullable|string',
-        'email' => 'nullable|email',
-        'payment_method' => 'required|string',
-        'ids' => 'required|array',
-        'ids.*' => 'exists:gold_items,id', // Ensure all item IDs exist
-        'prices' => 'required|array',
-        'prices.*' => 'numeric|min:0' // Ensure all prices are valid numbers
-    ];
-}
+    {
+        return [
+            'first_name' => 'required|string',
+            'last_name' => 'required|string',
+            'phone_number' => 'nullable|string',
+            'address' => 'nullable|string',
+            'email' => 'nullable|email',
+            'payment_method' => 'required|string',
+            'serial_numbers' => 'required|array',
+            'serial_numbers.*' => 'exists:gold_pounds_inventory,serial_number',
+            'prices' => 'required|array',
+            'prices.*' => 'numeric|min:0'
+        ];
+    }
 }

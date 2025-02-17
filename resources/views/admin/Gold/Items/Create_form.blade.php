@@ -153,10 +153,10 @@
             <table id="shop-data-table" border="1">
                 <thead>
                     <tr>
-                        <th>Shop Name</th>
-                        <th>Weight</th>
-                        <th>Serial Number</th>
-                        <th>Gold Color</th>
+                        <th>Shop & Color</th>
+                        <th>Total Weight</th>
+                        <th>Serial Numbers</th>
+                        <th>Count</th>
                     </tr>
                 </thead>
                 <tbody>
@@ -212,12 +212,12 @@
                             $('#items-count').text(response.total_items);
                             $('#gold-item-form')[0].reset();
 
-                            Swal.fire({
-                                icon: 'success',
-                                title: 'Success',
-                                text: 'Item added successfully',
-                                timer: 1500
-                            });
+                            // Swal.fire({
+                            //     icon: 'success',
+                            //     title: 'Success',
+                            //     text: 'Item added successfully',
+                            //     timer: 1500
+                            // });
                         }
                     },
                     error: function(xhr) {
@@ -325,7 +325,5 @@
         const goldColors = @json($goldColors);
     </script>
     <script src="{{ asset('js/model_details.js') }}"></script>
-
 </body>
-
 </html>

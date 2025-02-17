@@ -29,7 +29,7 @@
                 <th>Model</th>
                 <th>Gold Color</th>
                 <th>Weight</th>
-                <th>Category</th>
+                <th>Stars</th>
                 <th>Sold Price</th> 
                 <th>Sold Date</th>
                 {{-- <th>Actions</th> --}}
@@ -55,7 +55,7 @@
                     <td>{{ $item->model }}</td>
                     <td>{{ $item->gold_color }}</td>
                     <td>{{ $item->weight }}</td>
-                    <td>{{ $item->modelCategory->category ?? 'No Category' }}</td>
+                    <td>{{ $item->modelCategory->stars ?? 'No stars' }}</td>
                     <td>{{ $item->price }}</td>
                     <td>{{ $item->sold_date }}</td>
                     {{-- <td>

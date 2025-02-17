@@ -51,7 +51,19 @@ class ShopsController extends Controller
         $this->saleService = $saleService;
         $this->warehouseService = $warehouseService;
     }
-
+    public function handleTransferRequest(Request $request, $requestId)
+    {
+        $validated = $request->validate([
+            'status' => 'required|in:accepted,rejected'
+        ]);
+    
+        try {
+            $this->transferService->handleTransfer($requestId, $validated['status']);
+            return redirect()->back()->with('success', 'Transfer request status updated successfully.');
+        } catch (\Exception $e) {
+            return redirect()->back()->with('error', 'Failed to update transfer request: ' . $e->getMessage());
+        }
+    }
     public function showShopItems(Request $request)
     {
 
@@ -62,8 +74,11 @@ class ShopsController extends Controller
 
     public function viewTransferRequests()
     {
-        $data = $this->transferService->getPendingTransfers();
-        return view('shops.transfer_requests.show_requests', $data);
+        $transferData = $this->transferService->getPendingTransfers();
+        return view('shops.transfer_requests.show_requests', [
+            'incomingRequests' => $transferData['incomingRequests'],
+            'outgoingRequests' => $transferData['outgoingRequests']
+        ]);
     }
 
     public function viewTransferRequestHistory()

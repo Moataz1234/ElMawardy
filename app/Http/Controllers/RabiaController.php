@@ -74,7 +74,7 @@ public function updateStatusBulk(Request $request)
         // Show the order details
         $order = Order::findOrFail($id); // Fetch the order or fail with a 404
         
-        $this->authorize('view', $order);
+        // $this->authorize('view', $order);
         return view('rabea.orders-show', compact('order')); // Pass the order to the view}
     }
     public function edit($id)
@@ -118,7 +118,8 @@ public function updateStatusBulk(Request $request)
             // Update item data
             $item->order_kind = $orderKind;
             $item->order_fix_type = $request->order_fix_type[$index];
-            $item->quantity = $request->quantity[$index];
+            // $item->quantity = $request->quantity[$index];
+            $item->weight = $request->weight[$index];
             $item->gold_color = $request->gold_color[$index];
             $item->save();
         }

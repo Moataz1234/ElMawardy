@@ -12,7 +12,8 @@ class SoldItemRequest extends Model
         'approver_shop_name',
         'status',
         'customer_id',
-        'price'
+        'price',
+        'payment_method'
 
     ];
     public function goldItem()
@@ -28,4 +29,5 @@ class SoldItemRequest extends Model
     {
         return $this->belongsTo(User::class, 'accepted_by', 'name'); // Assuming 'name' is unique
     }
+    
 }
