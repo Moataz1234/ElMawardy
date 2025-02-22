@@ -81,15 +81,16 @@
                 <a href="#" class="navbar-link dropdown-toggle">Inventory</a>
                 <div class="dropdown-menu">
                     <a href="{{ route('dashboard') }}" class="dropdown-item">Gold Inventory</a>
+                    <a href="{{ route('gold-pounds.index') }}" class="dropdown-item">Gold Pounds</a>
                     {{-- <a href="{{ route('gold-items.create') }}" class="dropdown-item">Diamond Inventory</a> --}}
                     <a href="{{ route('gold-items.index') }}" class="dropdown-item">All Items</a>
                 </div>
             </li>
             <li class="navbar-item"><a href="{{ route('gold-items.sold') }}" class="navbar-link">Sold Items</a></li>
-            <li class="navbar-item"><a href="{{ route('orders.create') }}" class="navbar-link">Custom Order</a></li>
             <li class="navbar-item dropdown">
                 <a href="#" class="navbar-link dropdown-toggle">Orders</a>
                 <div class="dropdown-menu">
+                    <a href="{{ route('orders.create') }}" class="dropdown-item">Custom Order</a>
                     <a href="{{ route('orders.index') }}" class="dropdown-item">Orders List</a>
                     <a href="{{ route('orders.history') }}" class="dropdown-item">Orders History</a>
                 </div>
@@ -98,7 +99,7 @@
                 <a href="#" class="navbar-link dropdown-toggle">Catalogs</a>
                 <div class="dropdown-menu">
                     <a href="{{ route('gold-catalog') }}" class="navbar-link dropdown-item">Gold Catalog</a>
-                    <a href="{{ route('gold-catalog') }}" class="navbar-link dropdown-item">Diamond Catalog</a>
+                    <a href="http://172.29.206.251:8000/diamond/ThreeView" class="navbar-link dropdown-item">Diamond Catalog</a>
                 </div>
             </li>
             <li class="navbar-item dropdown">
@@ -109,6 +110,7 @@
                     {{-- <a class="dropdown-item" href="{{ route('workshop.requests') }}" class="navbar-link">Workshop Requests</a> --}}
                     <a class="dropdown-item" href="{{ route('add-requests.index') }}" class="navbar-link">Add
                         Requests</a>
+                    <a class="dropdown-item" href="{{ route('pound-requests.index') }}" class="navbar-link">Pound Requests</a>
                     <a class="dropdown-item" href="{{ route('shop.requests.index') }}" class="navbar-link">
                         Item Requests
                         @if (Auth::user()->unreadNotifications->count() > 0)

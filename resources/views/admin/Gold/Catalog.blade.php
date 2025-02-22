@@ -23,8 +23,8 @@
             <div class="product-image" 
             style="background-image: url('{{ 
                 $catalogItem->modelCategory && $catalogItem->modelCategory->scanned_image 
-                ? asset($catalogItem->modelCategory->scanned_image) 
-                : asset('path/to/default/image.jpg') 
+                ? asset('storage/' . $catalogItem->modelCategory->scanned_image) 
+                : asset('images/default.png') 
             }}');" alt="Image">
        </div>
                 <span class="product-name">Model name:{{ $catalogItem->model }}</span>

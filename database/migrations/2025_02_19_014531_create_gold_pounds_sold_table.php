@@ -10,6 +10,7 @@ return new class extends Migration
     {
         Schema::create('gold_pounds_sold', function (Blueprint $table) {
             $table->id();
+            $table->string('serial_number')->unique();
             $table->foreignId('gold_pound_id')->constrained('gold_pounds');
             $table->string('shop_name');
             $table->decimal('price', 10, 2);

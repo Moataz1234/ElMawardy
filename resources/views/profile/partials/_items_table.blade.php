@@ -51,7 +51,7 @@
                                 <td>
                                     @if($isPending)
                                         <span class="pending-badge">Pending Transfer</span>
-                                    @elseif($item->sale_request && $item->sale_request->status === 'pending')
+                                    @elseif($item->status === 'pending_sale')
                                         <span class="pending-badge">Pending Sale Approval</span>
                                     @else
                                         <input type="checkbox" class="select-item" data-id="{{ $item->id }}">
@@ -99,6 +99,29 @@
                 </div>
                 <div class="modal-footer">
                     <button type="button" class="btn btn-secondary" data-dismiss="modal">Close</button>
+                </div>
+            </div>
+        </div>
+        <!-- Add this modal for pound sales -->
+        <div class="modal" id="poundSaleModal" tabindex="-1" role="dialog">
+            <div class="modal-dialog" role="document">
+                <div class="modal-content">
+                    <div class="modal-header">
+                        <h5 class="modal-title">Associated Gold Pounds</h5>
+                        <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                            <span aria-hidden="true">&times;</span>
+                        </button>
+                    </div>
+                    <div class="modal-body">
+                        <p>The following gold pounds are associated with the sold items:</p>
+                        <div id="poundsList"></div>
+                        <form id="poundSaleForm" action="{{ route('gold-pounds.sell') }}" method="POST">
+                            @csrf
+                            <input type="hidden" name="customer_id" id="customerIdInput">
+                            <div id="poundInputs"></div>
+                            <button type="submit" class="btn btn-primary">Sell Associated Pounds</button>
+                        </form>
+                    </div>
                 </div>
             </div>
         </div>
@@ -192,6 +215,46 @@
 
                 localStorage.removeItem('selectedItems');
             @endif
+
+            document.getElementById('sellForm').addEventListener('submit', function(e) {
+                e.preventDefault();
+                
+                const formData = new FormData(this);
+                
+                fetch(this.action, {
+                    method: 'POST',
+                    body: formData,
+                    headers: {
+                        'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]').content
+                    }
+                })
+                .then(response => response.json())
+                .then(data => {
+                    if (data.associatedPounds && data.associatedPounds.length > 0) {
+                        // Populate the pounds modal
+                        const poundsList = document.getElementById('poundsList');
+                        const poundInputs = document.getElementById('poundInputs');
+                        poundsList.innerHTML = '';
+                        poundInputs.innerHTML = '';
+                        
+                        data.associatedPounds.forEach(pound => {
+                            poundsList.innerHTML += `<p>Serial Number: ${pound.serial_number}</p>`;
+                            poundInputs.innerHTML += `
+                                <input type="hidden" name="serial_numbers[]" value="${pound.serial_number}">
+                                <div class="form-group">
+                                    <label>Price for ${pound.serial_number}</label>
+                                    <input type="number" name="prices[${pound.serial_number}]" class="form-control" required>
+                                </div>
+                            `;
+                        });
+                        
+                        document.getElementById('customerIdInput').value = data.customer_id;
+                        $('#poundSaleModal').modal('show');
+                    } else {
+                        window.location.reload();
+                    }
+                });
+            });
         });
     </script>
 </body>

@@ -100,6 +100,11 @@
                             <div class="card-body">
                                 <div class="list-group list-group-flush">
                                     <div class="list-group-item d-flex justify-content-between align-items-center">
+                                        <strong><i class="fas fa-shopping-cart me-2"></i>Order Number:</strong>
+                                        <span>{{ $order->order_number }}</span>
+                                    </div>
+                                <div class="list-group list-group-flush">
+                                    <div class="list-group-item d-flex justify-content-between align-items-center">
                                         <strong><i class="fas fa-store me-2"></i>Shop:</strong>
                                         <span>{{ $order->shop->name }}</span>
                                     </div>
@@ -159,28 +164,30 @@
                                         <thead class="table-primary">
                                             <tr>
                                                 <th scope="col">Item Kind</th>
-                                                {{-- <th scope="col">Qty</th> --}}
-                                                {{-- <th scope="col">Ring Size</th> --}}
                                                 <th scope="col">Weight</th>
                                                 <th scope="col">Gold Color</th>
                                                 <th scope="col">Fix Type</th>
+                                                <th scope="col">Order Type</th>
                                                 <th>Item Image</th>
-
                                             </tr>
                                         </thead>
                                         <tbody>
                                             @foreach ($order->items as $item)
                                                 <tr>
                                                     <td>{{ $item->order_kind }}</td>
-                                                    {{-- <td>{{ $item->quantity }}</td> --}}
-                                                    {{-- <td>{{ $item->ring_size }}</td> --}}
                                                     <td>{{ $item->weight }}</td>
                                                     <td>{{ $item->gold_color }}</td>
                                                     <td>{{ $item->order_fix_type }}</td>
                                                     <td>
+                                                        @if($item->order_type === 'by_customer')
+                                                            طلب العميل
+                                                        @elseif($item->order_type === 'by_shop')
+                                                            طلب المحل
+                                                        @endif
+                                                    </td>
+                                                    <td>
                                                         @if ($item->image_link)
-                                                            <img src="{{ asset('storage/' . $orderItem->image_link) }}"
-                                                                alt="Order Item Image">
+                                                            <img src="{{ asset('storage/' . $item->image_link) }}" alt="Order Item Image">
                                                         @else
                                                             <p>No image available for this item.</p>
                                                         @endif

@@ -72,7 +72,7 @@
                     </div>
                     <div class="col-md-4">
                         <div class="form-floating">
-                            <input type="tel" class="form-control" name="customer_phone" id="customer_phone" value="{{ $order->customer_phone }}" required>
+                            <input type="tel" class="form-control" name="customer_phone" id="customer_phone" value="{{ $order->customer_phone }}" >
                             <label for="customer_phone">تليفون العميل</label>
                         </div>
                     </div>
@@ -179,6 +179,30 @@
                                             <option value="white" {{ $item->gold_color == 'white' ? 'selected' : '' }}>فضي</option>
                                             <option value="rose" {{ $item->gold_color == 'rose' ? 'selected' : '' }}>روز</option>
                                         </select>
+                                    </div>
+                                </div>
+
+                                <div class="col-md-4">
+                                    <div class="form-group">
+                                        <label>نوع الطلب</label>
+                                        <div class="d-flex gap-3">
+                                            <div class="form-check">
+                                                <input type="radio" class="form-check-input" 
+                                                       name="order_type[{{ $index }}]" 
+                                                       value="by_customer" 
+                                                       id="by_customer_{{ $index }}"
+                                                       {{ $item->order_type === 'by_customer' ? 'checked' : '' }} required>
+                                                <label class="form-check-label" for="by_customer_{{ $index }}">طلب العميل</label>
+                                            </div>
+                                            <div class="form-check">
+                                                <input type="radio" class="form-check-input" 
+                                                       name="order_type[{{ $index }}]" 
+                                                       value="by_shop" 
+                                                       id="by_shop_{{ $index }}"
+                                                       {{ $item->order_type === 'by_shop' ? 'checked' : '' }}>
+                                                <label class="form-check-label" for="by_shop_{{ $index }}">طلب المحل</label>
+                                            </div>
+                                        </div>
                                     </div>
                                 </div>
                             </div>

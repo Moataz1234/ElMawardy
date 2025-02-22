@@ -45,6 +45,7 @@ class OrderController extends Controller
                 'gold_color.*' => 'nullable|string',      // Allow null for gold color
                 'weight.*' => 'nullable|numeric',
                 'image_link.*' => 'nullable|file|mimes:jpeg,png,jpg,gif,svg|max:2048',
+                'order_type.*' => 'required|in:by_customer,by_shop',
             ]);
 
             // Get the logged-in user's shop ID
@@ -101,6 +102,7 @@ class OrderController extends Controller
                     'gold_color' => $request->gold_color[$index] ?? null, // Allow null
                     'weight' => $request->weight[$index] ?? null,      // Allow null
                     'image_link' => $imagePath,                        // Can be null
+                    'order_type' => $request->order_type[$index],
                 ]);
             }
             // dd($request->all());

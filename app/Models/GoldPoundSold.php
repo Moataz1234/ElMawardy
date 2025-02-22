@@ -10,6 +10,7 @@ class GoldPoundSold extends Model
 
     protected $fillable = [
         'serial_number',
+        'gold_pound_id',
         'shop_name',
         'price',
         'customer_id'

@@ -19,7 +19,7 @@ class SellRequest extends FormRequest
      *
      * @return array<string, \Illuminate\Contracts\Validation\ValidationRule|array<mixed>|string>
      */
-    public function rules()
+    public function rules(): array
     {
         return [
             'first_name' => 'required|string',
@@ -28,10 +28,20 @@ class SellRequest extends FormRequest
             'address' => 'nullable|string',
             'email' => 'nullable|email',
             'payment_method' => 'required|string',
-            'serial_numbers' => 'required|array',
-            'serial_numbers.*' => 'exists:gold_pounds_inventory,serial_number',
+            'ids' => 'required|array',
+            'ids.*' => 'exists:gold_items,id',
             'prices' => 'required|array',
-            'prices.*' => 'numeric|min:0'
+            'prices.*' => 'required|numeric|min:0'
+        ];
+    }
+
+    public function messages(): array
+    {
+        return [
+            'ids.required' => 'Please select at least one item to sell',
+            'prices.*.required' => 'Price is required for all selected items',
+            'prices.*.numeric' => 'Price must be a number',
+            'prices.*.min' => 'Price cannot be negative'
         ];
     }
 }

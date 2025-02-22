@@ -23,7 +23,7 @@
     <table class="table">
         <thead>
             <tr>
-                <th>Select</th>
+                {{-- <th>Select</th> --}}
                 <th>Image</th>
                 <th>Serial Number</th>
                 <th>Shop Name</th>
@@ -32,17 +32,17 @@
                 <th>Gold Color</th>
                 <th>Weight</th>
                 <th>Stars</th>
-                {{-- <th>Sold Price</th> --}}
+                <th>Sold Price</th>
                 <th>Sold Date</th>
-                <th>Actions</th>
+                {{-- <th>Actions</th> --}}
             </tr>
         </thead>
         <tbody id="table-body">
             @foreach ($goldItems as $item)
                 <tr>
-                    <td>
+                    {{-- <td>
                         <input type="checkbox" class="select-item" data-id="{{ $item->id }}">
-                    </td>
+                    </td> --}}
                     <td>
                         @if ($item->modelCategory)
                             @if ($item->modelCategory->scanned_image)
@@ -60,15 +60,15 @@
                     <td>{{ $item->gold_color }}</td>
                     <td>{{ $item->weight }}</td>
                     <td>{{ $item->modelCategory->stars ?? 'No Stars' }}</td>
-                    {{-- <td>{{ $item->price }}</td> --}}
+                    <td>{{ $item->price }}</td>
                     <td>{{ $item->sold_date }}</td>
-                    <td>
+                    {{-- <td>
                         <form action="{{ route('gold-items-sold.markAsRest', $item->id) }}" method="POST"
                             style="display:inline;">
                             @csrf
                             <button type="submit" class="btn btn-warning">Return to Stock</button>
                         </form>
-                    </td>
+                    </td> --}}
                 </tr>
             @endforeach
         </tbody>

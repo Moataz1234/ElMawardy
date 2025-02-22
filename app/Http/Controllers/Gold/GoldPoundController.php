@@ -36,59 +36,43 @@ class GoldPoundController extends Controller
             $halfPoundModels = ['2-1899', '5-1369', '1-1291'];
             $quarterPoundModels = ['9-0194', '7-1329', '7-1013-A', '4-0854', '5-1370', '7-1386'];
 
-            // Log all models we're searching for
-            Log::info('Searching for models:', [
-                '1 pound' => $onePoundModels,
-                '1/2 pound' => $halfPoundModels,
-                '1/4 pound' => $quarterPoundModels
-            ]);
-
             // Get all gold items that match these models
-            $query = GoldItem::whereIn('model', array_merge($onePoundModels, $halfPoundModels, $quarterPoundModels));
-
-            // Log the actual SQL query being executed
-            Log::info('SQL Query:', [
-                'sql' => $query->toSql(),
-                'bindings' => $query->getBindings()
-            ]);
-
-            $goldItems = $query->get();
-
-            // Log what we found
-            Log::info('Found gold items:', [
-                'count' => $goldItems->count(),
-                'items' => $goldItems->map(function($item) {
-                    return [
-                        'serial_number' => $item->serial_number,
-                        'model' => $item->model,
-                        'shop_name' => $item->shop_name
-                    ];
-                })->toArray()
-            ]);
+            $goldItems = GoldItem::whereIn('model', array_merge($onePoundModels, $halfPoundModels, $quarterPoundModels))->get();
 
             foreach ($goldItems as $item) {
-                // Determine pound type
-                if (in_array($item->model, $onePoundModels)) {
-                    $type = '1 pound';
-                    $poundId = 1;
-                } elseif (in_array($item->model, $halfPoundModels)) {
-                    $type = '1/2 pound';
-                    $poundId = 2;
-                } else {
-                    $type = '1/4 pound';
-                    $poundId = 3;
+                // Check if inventory record already exists
+                $existingInventory = GoldPoundInventory::where('related_item_serial', $item->serial_number)->first();
+                
+                if ($existingInventory) {
+                    continue; // Skip if record already exists
                 }
 
-                // Update or create inventory record
-                GoldPoundInventory::updateOrCreate(
-                    ['serial_number' => $item->serial_number],
-                    [
-                        'gold_pound_id' => $poundId,
-                        'shop_name' => $item->shop_name,
-                        'type' => $type,
-                        'quantity' => 1
-                    ]
-                );
+                // Determine pound type and get pound details
+                if (in_array($item->model, $onePoundModels)) {
+                    $poundId = 1; // ID for 1 pound
+                } elseif (in_array($item->model, $halfPoundModels)) {
+                    $poundId = 2; // ID for 1/2 pound
+                } else {
+                    $poundId = 3; // ID for 1/4 pound
+                }
+
+                // Get pound details
+                $goldPound = GoldPound::find($poundId);
+                
+                // Generate next serial number only for new records
+                $serialNumber = $this->generateNextPoundSerialNumber();
+
+                // Create new inventory record
+                GoldPoundInventory::create([
+                    'serial_number' => $serialNumber,
+                    'related_item_serial' => $item->serial_number,
+                    'gold_pound_id' => $poundId,
+                    'shop_name' => $item->shop_name,
+                    'type' => 'in_item',
+                    'weight' => $goldPound->weight,
+                    'purity' => $goldPound->purity,
+                    'quantity' => 1
+                ]);
             }
 
             return response()->json([
@@ -103,6 +87,20 @@ class GoldPoundController extends Controller
                 'message' => 'Error syncing pounds: ' . $e->getMessage()
             ], 500);
         }
+    }
+
+    private function generateNextPoundSerialNumber()
+    {
+        $lastSerial = GoldPoundInventory::orderBy('serial_number', 'desc')
+            ->where('serial_number', 'like', 'P-%')
+            ->value('serial_number');
+
+        if (!$lastSerial) {
+            return 'P-0001';
+        }
+
+        $number = intval(substr($lastSerial, 2)) + 1;
+        return 'P-' . str_pad($number, 4, '0', STR_PAD_LEFT);
     }
 
     public function index()
@@ -341,6 +339,37 @@ class GoldPoundController extends Controller
         }
 
         return view('admin.gold.pounds.sell_form', compact('pounds'));
+    }
+
+    public function sell(Request $request)
+    {
+        $validated = $request->validate([
+            'customer_id' => 'required|exists:customers,id',
+            'serial_numbers' => 'required|array',
+            'serial_numbers.*' => 'exists:gold_pounds_inventory,serial_number',
+            'prices' => 'required|array',
+            'prices.*' => 'required|numeric|min:0'
+        ]);
+
+        foreach ($validated['serial_numbers'] as $serialNumber) {
+            SaleRequest::create([
+                'item_serial_number' => $serialNumber,
+                'shop_name' => Auth::user()->shop_name,
+                'status' => 'pending',
+                'customer_id' => $validated['customer_id'],
+                'price' => $validated['prices'][$serialNumber],
+                'item_type' => 'pound'
+            ]);
+
+            // Update inventory status
+            GoldPoundInventory::where('serial_number', $serialNumber)
+                ->update(['status' => 'pending_sale']);
+        }
+
+        return response()->json([
+            'success' => true,
+            'message' => 'Pound sale requests created successfully'
+        ]);
     }
 }
 

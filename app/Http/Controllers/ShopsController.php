@@ -29,6 +29,8 @@ use Illuminate\Support\Facades\DB;
 use PhpOffice\PhpSpreadsheet\IOFactory;
 use App\Notifications\TransferRequestNotification;
 use Illuminate\Support\Facades\Notification;
+use App\Models\GoldPoundInventory;
+use App\Models\SaleRequest;
 
 class ShopsController extends Controller
 {
@@ -117,21 +119,75 @@ class ShopsController extends Controller
         return redirect()->back()->with($result['status'], $result['message']);
     }
 
-    public function showBulkSellForm(Request $request)
+//     public function showBulkSellForm(Request $request)
+// {
+//     $itemIds = explode(',', $request->input('ids'));
+//     $data = $this->saleService->getBulkSellFormData($itemIds);
+//     session()->flash('clear_selections', true);
+//     return view('shops.Gold.sell_form', $data);
+// }
+//     public function bulkSell(SellRequest $request)
+//     {
+//         Log::info('Bulk sell request received', [
+//             'request_data' => $request->all()
+//         ]);
+
+//         try {
+//             $validated = $request->validated();
+//             Log::info('Request validation passed', ['validated_data' => $validated]);
+
+//             $result = $this->saleService->processBulkSale($validated);
+//             session()->flash('clear_selections', true);
+            
+//             Log::info('Bulk sell completed successfully', ['result' => $result]);
+            
+//             return response()->json([
+//                 'success' => true,
+//                 'message' => 'Selected items sold successfully',
+//                 'data' => $result
+//             ]);
+//         } catch (\Illuminate\Validation\ValidationException $e) {
+//             Log::error('Validation error in bulk sell', [
+//                 'errors' => $e->errors()
+//             ]);
+//             return response()->json([
+//                 'success' => false,
+//                 'message' => 'Validation failed',
+//                 'errors' => $e->errors()
+//             ], 422);
+//         } catch (\Exception $e) {
+//             Log::error('Error in bulk sell', [
+//                 'error' => $e->getMessage(),
+//                 'trace' => $e->getTraceAsString()
+//             ]);
+            
+//             return response()->json([
+//                 'success' => false,
+//                 'message' => 'Failed to process sale: ' . $e->getMessage()
+//             ], 500);
+//         }
+//     }
+public function showBulkSellForm(Request $request)
 {
     $itemIds = explode(',', $request->input('ids'));
     $data = $this->saleService->getBulkSellFormData($itemIds);
     session()->flash('clear_selections', true);
     return view('shops.Gold.sell_form', $data);
 }
-    public function bulkSell(SellRequest  $request)
-    {
-        $this->saleService->processBulkSale($request->validated());
-        session()->flash('clear_selections', true);
-        return redirect()->route('gold-items.shop')
-            ->with('success', 'Selected items sold successfully');
-    }
 
+public function bulkSell(SellRequest $request)
+{
+    $validated = $request->validated();
+    $validated['pound_prices'] = $request->input('pound_prices', []); // Add pound prices from form
+    $result = $this->saleService->processBulkSale($validated);
+    session()->flash('clear_selections', true);
+    
+    return response()->json([
+        'success' => true,
+        'message' => 'Selected items sold successfully',
+        'data' => $result['data']
+    ]);
+}
     public function showBulkTransferForm(Request $request)
     {
         $itemIds = explode(',', $request->input('ids'));
@@ -246,5 +302,82 @@ class ShopsController extends Controller
             $item = GoldItemSold::where('serial_number', $serial_number)->first();
         }
         return response()->json($item);
+    }
+
+    public function submitPoundPrice(Request $request)
+    {
+        try {
+            $validated = $request->validate([
+                'serial_number' => 'required|string',
+                'customer_id' => 'required|exists:customers,id',
+                'price' => 'required|numeric|min:0'
+            ]);
+
+            DB::transaction(function () use ($validated) {
+                // Get the pound inventory record
+                $poundInventory = GoldPoundInventory::where('serial_number', $validated['serial_number'])
+                    ->firstOrFail();
+
+                // Create sale request for the pound
+                SaleRequest::create([
+                    'item_serial_number' => $validated['serial_number'],
+                    'shop_name' => Auth::user()->shop_name,
+                    'status' => 'pending',
+                    'customer_id' => $validated['customer_id'],
+                    'price' => $validated['price'],
+                    'payment_method' => 'cash', // You might want to pass this from the form
+                    'item_type' => 'pound',
+                    'weight' => $poundInventory->goldPound->weight,
+                    'purity' => $poundInventory->goldPound->purity,
+                    'kind' => $poundInventory->goldPound->kind
+                ]);
+            });
+
+            return response()->json([
+                'success' => true,
+                'message' => 'Pound price submitted successfully'
+            ]);
+        } catch (\Exception $e) {
+            Log::error('Failed to submit pound price: ' . $e->getMessage());
+            return response()->json([
+                'success' => false,
+                'message' => 'Failed to submit pound price: ' . $e->getMessage()
+            ], 500);
+        }
+    }
+
+    public function checkAssociatedPounds(Request $request)
+    {
+        Log::info('Checking associated pounds', ['request_data' => $request->all()]); // Debug log
+
+        $validated = $request->validate([
+            'ids' => 'required|array',
+            'ids.*' => 'exists:gold_items,id'
+        ]);
+
+        foreach ($validated['ids'] as $id) {
+            $goldItem = GoldItem::findOrFail($id);
+            Log::info('Checking item', ['item_id' => $id, 'serial_number' => $goldItem->serial_number]); // Debug log
+            
+            $poundInventory = GoldPoundInventory::where('related_item_serial', $goldItem->serial_number)->first();
+            
+            if ($poundInventory) {
+                Log::info('Found associated pound', ['pound_inventory' => $poundInventory->toArray()]); // Debug log
+                $pound = $poundInventory->goldPound;
+                
+                return response()->json([
+                    'hasPound' => true,
+                    'poundDetails' => [
+                        'serial_number' => $poundInventory->serial_number,
+                        'kind' => $pound->kind,
+                        'weight' => $pound->weight,
+                        'purity' => $pound->purity
+                    ]
+                ]);
+            }
+        }
+
+        Log::info('No associated pounds found'); // Debug log
+        return response()->json(['hasPound' => false]);
     }
 }

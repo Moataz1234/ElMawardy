@@ -19,6 +19,7 @@ class OrderItem extends Model
         'ring_size',
         'weight',
         'gold_color',
+        'order_type',
     ];
 
     /**

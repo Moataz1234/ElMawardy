@@ -112,17 +112,16 @@ public function updateStatusBulk(Request $request)
     
         // Update order items (loop through and update each item)
         foreach ($request->order_kind as $index => $orderKind) {
-            // Find the specific item by index or ID
-            $item = $order->items()->get()[$index]; // Retrieve the item using the relationship
+            $item = $order->items()->get()[$index];
             
-            // Update item data
             $item->order_kind = $orderKind;
             $item->order_fix_type = $request->order_fix_type[$index];
-            // $item->quantity = $request->quantity[$index];
             $item->weight = $request->weight[$index];
             $item->gold_color = $request->gold_color[$index];
+            $item->order_type = $request->order_type[$index];
             $item->save();
         }
+        
         // Redirect to the orders list or wherever necessary
         return redirect()->route('orders.rabea.index')->with('success', 'Order updated successfully.');
     }

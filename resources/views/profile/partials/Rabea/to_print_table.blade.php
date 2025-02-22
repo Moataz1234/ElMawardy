@@ -19,11 +19,10 @@
     <table style="width: 1200px">
         <thead>
             <tr>
-                <th>موضوع الطلب</th>
-                <th>رقم الاوردر</th>
-                <th>اسم البائع</th>
-                <th>رقم المحل</th>
-
+                <th style="width: 60%;">موضوع الطلب</th>
+                <th style="width: 15%;">رقم الاوردر</th>
+                <th style="width: 15%;">اسم البائع</th>
+                <th style="width: 10%;">رقم المحل</th>
             </tr>
         </thead>
         <tbody id="table-body">

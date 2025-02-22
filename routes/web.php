@@ -115,7 +115,7 @@ Route::middleware(['auth'])->group(function () {
     Route::post('/Acc_sell_requests/{id}/approve', [SoldItemRequestController::class, 'approveSaleRequest'])->name('sell-requests.approve');
     Route::post('/Acc_sell_requests/{id}/reject', [SoldItemRequestController::class, 'rejectSaleRequest'])->name('sell-requests.reject');
     Route::get('/item-details/{serial_number}', [ShopsController::class, 'getItemDetails'])->name('item.details');
-
+    Route::post('/sell-requests/bulk-approve', [SoldItemRequestController::class, 'bulkApprove'])->name('sell-requests.bulk-approve');
     // Import Excels
     Route::get('/excel', [ImportGoldItems::class, 'showForm']);
     Route::post('/import-excel', [ImportGoldItems::class, 'import'])->name('import.excel');
@@ -156,6 +156,7 @@ Route::middleware(['auth'])->group(function () {
         ->name('gold-pounds.sell-form');
     Route::post('/gold-pounds/create-sale-request', [GoldPoundController::class, 'createSaleRequest'])
         ->name('gold-pounds.create-sale-request');
+    Route::post('gold-pounds/sell', [GoldPoundController::class, 'sell'])->name('gold-pounds.sell');
 
     // Admin Routes
     Route::middleware('admin')->group(function () {
@@ -287,7 +288,7 @@ Route::middleware(['auth'])->group(function () {
     // Rabea Routes
     Route::middleware('rabea')->group(function () {
         Route::get('/orders/rabea', [RabiaController::class, 'indexForRabea'])->name('orders.rabea.index');
-
+        
         Route::get('/search', [RabiaController::class, 'search'])->name('orders.search');
         Route::post('/update-status/{id}', [RabiaController::class, 'updateStatus'])->name('orders.updateStatus');
         Route::post('/orders/update-status-bulk', [RabiaController::class, 'updateStatusBulk'])->name('orders.updateStatus.bulk');
@@ -321,3 +322,7 @@ Route::post('/pound-requests/bulk-reject', [AddPoundsRequestController::class, '
 Route::post('/orders/store', [OrderController::class, 'store'])
     ->name('orders.store')
     ->middleware(['auth', 'web']);
+
+Route::post('/api/pound-sale', [ShopsController::class, 'submitPoundPrice'])->name('pound.submit-price');
+
+Route::post('/check-associated-pounds', [ShopsController::class, 'checkAssociatedPounds'])->name('check-associated-pounds');

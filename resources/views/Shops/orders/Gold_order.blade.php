@@ -48,6 +48,148 @@
             border-radius: 5px;
             margin-top: 1rem;
         }
+        /* Custom Radio and Checkbox Styles */
+        .custom-control-group {
+            display: flex;
+            gap: 20rem;
+            margin-bottom: 1rem;
+            padding: 0.5rem;
+            background-color: #f8f9fa;
+            border-radius: 8px;
+        }
+
+        .custom-control {
+            position: relative;
+            display: inline-flex;
+            align-items: center;
+            padding: 0.5rem 1rem;
+            border-radius: 6px;
+            transition: all 0.3s ease;
+            border: 1px solid #dee2e6;
+            background-color: white;
+            min-width: 120px;
+            justify-content: center;
+        }
+
+        .custom-radio, .custom-checkbox {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            cursor: pointer;
+            margin: 0 0.5rem;
+            transition: all 0.3s ease;
+        }
+
+        .custom-radio:hover, .custom-checkbox:hover {
+            background-color: #f8f9fa;
+            transform: translateY(-2px);
+        }
+
+        .custom-radio input:checked + label {
+            color: #0d6efd;
+            font-weight: 600;
+        }
+
+        .by-customer input:checked ~ .radio-circle {
+            border-color: #198754;
+            background-color: #198754;
+        }
+
+        .by-shop input:checked ~ .radio-circle {
+            border-color: #dc3545;
+            background-color: #dc3545;
+        }
+
+        .custom-checkbox input:checked + label {
+            color: #6610f2;
+            font-weight: 600;
+        }
+
+        .radio-circle, .checkbox-square {
+            position: relative;
+            width: 24px;
+            height: 24px;
+            border: 2px solid #adb5bd;
+            transition: all 0.3s ease;
+        }
+
+        .radio-circle {
+            border-radius: 50%;
+        }
+
+        .checkbox-square {
+            border-radius: 4px;
+        }
+
+        input[type="radio"], input[type="checkbox"] {
+            position: absolute;
+            opacity: 0;
+            cursor: pointer;
+        }
+
+        /* Radio button checked state */
+        input[type="radio"]:checked ~ .radio-circle {
+            border-color: #0d6efd;
+            background-color: #0d6efd;
+        }
+
+        input[type="radio"]:checked ~ .radio-circle::after {
+            content: '';
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            width: 12px;
+            height: 12px;
+            border-radius: 50%;
+            background: white;
+            animation: radioPop 0.3s ease;
+        }
+
+        /* Checkbox checked state */
+        input[type="checkbox"]:checked ~ .checkbox-square {
+            background-color: #6610f2;
+            border-color: #6610f2;
+            animation: checkboxPop 0.3s ease;
+        }
+
+        input[type="checkbox"]:checked ~ .checkbox-square::after {
+            content: '';
+            position: absolute;
+            top: 3px;
+            left: 7px;
+            width: 6px;
+            height: 12px;
+            border: solid white;
+            border-width: 0 2px 2px 0;
+            transform: rotate(45deg);
+            animation: checkmark 0.3s ease;
+        }
+
+        /* Animations */
+        @keyframes radioPop {
+            0% { transform: scale(0); }
+            80% { transform: scale(1.1); }
+            100% { transform: scale(1); }
+        }
+
+        @keyframes checkboxPop {
+            0% { transform: scale(0.9); }
+            50% { transform: scale(1.1); }
+            100% { transform: scale(1); }
+        }
+
+        @keyframes checkmark {
+            from { height: 0; }
+            to { height: 12px; }
+        }
+
+        .custom-control label {
+            margin: 0;
+            font-size: 0.95rem;
+            white-space: nowrap;
+            transition: color 0.3s ease;
+        }
     </style>
 </head>
 <body>
@@ -174,10 +316,30 @@
             </div>
         </div>
 
-        <div class="mb-3">
-            <div class="form-check">
-                <input type="checkbox" class="form-check-input toggleLabel">
-                <label class="form-check-label">عينة</label>
+        <div class="custom-control-group">
+            <div class="d-flex justify-content-between">
+            <div class="custom-radio by-shop">
+                <input type="radio" class="order-type-radio" 
+                       name="order_type[]" 
+                       value="by_shop" 
+                       id="by_shop_template">
+                <span class="radio-circle"></span>
+                <label for="by_shop_template">خاص بالمحل</label>
+            </div>
+            
+            <div class="custom-radio by-customer">
+                <input type="radio" class="order-type-radio" 
+                       name="order_type[]" 
+                       value="by_customer" 
+                       id="by_customer_template" required>
+                <span class="radio-circle"></span>
+                <label for="by_customer_template">خاص بالعميل</label>
+            </div>
+            </div>
+            <div class="custom-checkbox">
+                <input type="checkbox" class="toggleLabel" id="sample_template">
+                <span class="checkbox-square"></span>
+                <label for="sample_template">عينة  </label>
             </div>
         </div>
 

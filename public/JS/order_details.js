@@ -14,6 +14,17 @@ document.getElementById('add-item').addEventListener('click', function() {
         }
     });
 
+    // Update radio button names and IDs
+    template.querySelectorAll('.order-type-radio').forEach((radio) => {
+        radio.name = `order_type[${itemIndex}]`;
+        radio.id = `${radio.value}_${itemIndex}`;
+        // Update associated label's 'for' attribute
+        const label = radio.nextElementSibling;
+        if (label) {
+            label.setAttribute('for', radio.id);
+        }
+    });
+
     // Append the new item
     document.getElementById('order-items').appendChild(template);
 
@@ -186,6 +197,28 @@ document.addEventListener('DOMContentLoaded', function() {
                 text: 'حدث خطأ أثناء حفظ البيانات',
                 confirmButtonText: 'حسناً'
             });
+        });
+    });
+
+    // Add click event listener to checkbox-square
+    document.querySelectorAll('.checkbox-square').forEach(function(span) {
+        span.addEventListener('click', function() {
+            const checkbox = this.previousElementSibling; // Get the checkbox
+            checkbox.checked = !checkbox.checked; // Toggle the checkbox
+
+            // Trigger the toggleLabelVisibility function
+            toggleLabelVisibility(checkbox);
+
+            checkbox.dispatchEvent(new Event('change')); // Trigger change event
+        });
+    });
+
+    // Add click event listener to radio-circle
+    document.querySelectorAll('.radio-circle').forEach(function(span) {
+        span.addEventListener('click', function() {
+            const radio = this.previousElementSibling; // Get the radio input
+            radio.checked = true; // Check the radio input
+            radio.dispatchEvent(new Event('change')); // Trigger change event
         });
     });
 });

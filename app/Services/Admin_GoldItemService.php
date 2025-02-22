@@ -330,8 +330,8 @@ class Admin_GoldItemService
         $sortableFields = ['serial_number', 'model', 'kind', 'quantity', 'sold_date'];
         $sortField = in_array($request->input('sort'), $sortableFields) 
             ? $request->input('sort') 
-            : 'serial_number';
-        $sortDirection = $request->input('direction') === 'desc' ? 'desc' : 'asc';
+            : 'sold_date';
+        $sortDirection = $request->input('direction') === 'asc' ? 'asc' : 'desc';
 
         return $query->orderBy($sortField, $sortDirection)
                     ->paginate(20)

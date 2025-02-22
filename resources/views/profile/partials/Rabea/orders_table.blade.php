@@ -13,6 +13,7 @@
                 <th>موضوع الطلب</th>
                 {{-- <th>تاريخ الاستلام</th> --}}
                 <th>حالة الطلب</th>
+                <th>آخر تحديث</th>
                 <th>عرض الطلب</th>
             </tr>
         </thead>
@@ -39,6 +40,7 @@
                             {{ $order->status }}
                         </div>
                     </td>
+                    <td>{{ $order->updated_at->addHours(2)->format('Y-m-d H:i:s') }}</td>
                     <td>
                         <div class="action-buttons">
                             <a href="{{ route('orders.show', $order->id) }}" class="action_button">View</a>

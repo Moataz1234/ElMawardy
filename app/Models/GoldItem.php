@@ -67,7 +67,7 @@ class GoldItem extends Model
     }
     public function poundInventory()
     {
-        return $this->hasOne(GoldPoundInventory::class, 'serial_number', 'serial_number');
+        return $this->hasOne(GoldPoundInventory::class, 'related_item_serial', 'serial_number');
     }
 
     public function scopeByKind($query, $kind)

@@ -13,10 +13,10 @@ return new class extends Migration
             $table->string('serial_number')->unique();
             $table->foreignId('gold_pound_id')->constrained('gold_pounds');
             $table->string('shop_name')->nullable()->index();  // Add shop_name for standalone pounds
-            $table->foreign('shop_name')
-                ->references('shop_name')
-                ->on('users')
-                ->onDelete('cascade');
+            // $table->foreign('shop_name')
+            //     ->references('shop_name')
+            //     ->on('users')
+            //     ->onDelete('cascade');
             $table->enum('type', ['standalone', 'in_item']);
             $table->decimal('weight', 8, 2);
             $table->integer('quantity');
