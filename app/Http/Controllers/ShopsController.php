@@ -23,7 +23,7 @@ use App\Services\SellService;
 use App\Services\OuterService;
 use App\Services\WarehouseService;
 use Illuminate\Support\Facades\DB;
-
+use App\Services\Admin_GoldItemService;
 
 
 use PhpOffice\PhpSpreadsheet\IOFactory;
@@ -36,6 +36,7 @@ class ShopsController extends Controller
 {
     private TransferService $transferService;
     private GoldItemService $goldItemService;
+    private Admin_GoldItemService $adminGoldItemService;
     private OuterService $outerService;
     private SellService $saleService;
     private WarehouseService $warehouseService;
@@ -45,13 +46,15 @@ class ShopsController extends Controller
         GoldItemService $goldItemService,
         OuterService $outerService,
         SellService $saleService,
-        WarehouseService $warehouseService
+        WarehouseService $warehouseService,
+        Admin_GoldItemService $adminGoldItemService
     ) {
         $this->transferService = $transferService;
         $this->goldItemService = $goldItemService;
         $this->outerService = $outerService;
         $this->saleService = $saleService;
         $this->warehouseService = $warehouseService;
+        $this->adminGoldItemService = $adminGoldItemService;
     }
     public function handleTransferRequest(Request $request, $requestId)
     {
@@ -379,5 +382,10 @@ public function bulkSell(SellRequest $request)
 
         Log::info('No associated pounds found'); // Debug log
         return response()->json(['hasPound' => false]);
+    }
+    public function getAllItems(Request $request)
+    {
+        $goldItems = $this->adminGoldItemService->getGoldItems($request);
+        return view('Shops.Gold.all_items', compact('goldItems'));
     }
 }

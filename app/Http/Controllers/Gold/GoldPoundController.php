@@ -18,6 +18,7 @@ use Illuminate\Support\Facades\Schema;
 use App\Models\Customer;
 use Illuminate\Support\Facades\Validator;
 use App\Models\PoundRequest;
+use Illuminate\Support\Facades\Response;
 
 class GoldPoundController extends Controller
 {
@@ -89,20 +90,13 @@ class GoldPoundController extends Controller
         }
     }
 
-    private function generateNextPoundSerialNumber()
+   
+    public function AdminIndex()
     {
-        $lastSerial = GoldPoundInventory::orderBy('serial_number', 'desc')
-            ->where('serial_number', 'like', 'P-%')
-            ->value('serial_number');
-
-        if (!$lastSerial) {
-            return 'P-0001';
-        }
-
-        $number = intval(substr($lastSerial, 2)) + 1;
-        return 'P-' . str_pad($number, 4, '0', STR_PAD_LEFT);
+        $shopPounds = GoldPoundInventory::with(['goldPound', 'goldItem.modelCategory'])
+        ->get();
+        return view('admin.Gold.pounds.index', compact('shopPounds'));
     }
-
     public function index()
     {
         try {
@@ -123,7 +117,7 @@ class GoldPoundController extends Controller
                 'items' => $shopPounds->pluck('serial_number')->toArray()
             ]);
 
-            return view('admin.Gold.pounds.index', compact('shopPounds'));
+            return view('Shops.Pounds.index', compact('shopPounds'));
         } catch (\Exception $e) {
             Log::error('Error in index method:', [
                 'error' => $e->getMessage(),
@@ -195,7 +189,7 @@ class GoldPoundController extends Controller
                     PoundRequest::create([
                         'serial_number' => $request->type === 'in_item' 
                             ? $request->serial_number 
-                            : $this->generateNextSerialNumber(),
+                            : $this->generateNextPoundSerialNumber(),
                         'gold_pound_id' => $goldPound->id,
                         'shop_name' => $request->shop_name,
                         'type' => $request->type,
@@ -222,10 +216,10 @@ class GoldPoundController extends Controller
             ], 500);
         }
     }
-
-    private function generateNextSerialNumber()
+    private function generateNextPoundSerialNumber()
     {
-        $lastSerial = PoundRequest::orderBy('serial_number', 'desc')
+        $lastSerial = GoldPoundInventory::orderBy('serial_number', 'desc')
+            ->where('serial_number', 'like', 'P-%')
             ->value('serial_number');
 
         if (!$lastSerial) {
@@ -235,6 +229,18 @@ class GoldPoundController extends Controller
         $number = intval(substr($lastSerial, 2)) + 1;
         return 'P-' . str_pad($number, 4, '0', STR_PAD_LEFT);
     }
+    // private function generateNextSerialNumber()
+    // {
+    //     $lastSerial = PoundRequest::orderBy('serial_number', 'desc')
+    //         ->value('serial_number');
+
+    //     if (!$lastSerial) {
+    //         return 'P-0001';
+    //     }
+
+    //     $number = intval(substr($lastSerial, 2)) + 1;
+    //     return 'P-' . str_pad($number, 4, '0', STR_PAD_LEFT);
+    // }
 
     // Shop creates sale request
     public function createSaleRequest(Request $request)
@@ -338,7 +344,7 @@ class GoldPoundController extends Controller
                 ->with('error', 'No matching pounds found in inventory.');
         }
 
-        return view('admin.gold.pounds.sell_form', compact('pounds'));
+        return view('Shops.Pounds.sell_form', compact('pounds'));
     }
 
     public function sell(Request $request)
@@ -370,6 +376,97 @@ class GoldPoundController extends Controller
             'success' => true,
             'message' => 'Pound sale requests created successfully'
         ]);
+    }
+
+    public function search(Request $request)
+    {
+        try {
+            $query = GoldPoundInventory::with(['goldPound', 'goldItem']);
+            
+            if (!Auth::user()->is_admin) {
+                $query->where('shop_name', Auth::user()->shop_name);
+            }
+            
+            if ($request->filled('search')) {
+                $searchTerm = $request->search;
+                $query->where(function($q) use ($searchTerm) {
+                    $q->where('serial_number', 'LIKE', "%{$searchTerm}%")
+                      ->orWhere('related_item_serial', 'LIKE', "%{$searchTerm}%")
+                      ->orWhere('shop_name', 'LIKE', "%{$searchTerm}%")
+                      ->orWhereHas('goldPound', function($q) use ($searchTerm) {
+                          $q->where('kind', 'LIKE', "%{$searchTerm}%");
+                      });
+                });
+            }
+
+            $shopPounds = $query->get();
+
+            if ($request->ajax()) {
+                $html = view('admin.Gold.pounds._table_body', compact('shopPounds'))->render();
+                
+                return response()->json([
+                    'success' => true,
+                    'html' => $html,
+                    'count' => $shopPounds->count()
+                ]);
+            }
+
+            return view('admin.Gold.pounds.index', compact('shopPounds'));
+        } catch (\Exception $e) {
+            Log::error('Search error: ' . $e->getMessage());
+            return response()->json([
+                'success' => false,
+                'message' => 'Error performing search: ' . $e->getMessage()
+            ], 500);
+        }
+    }
+
+    public function export()
+    {
+        $shopPounds = GoldPoundInventory::with(['goldPound', 'goldItem'])
+            ->get();
+
+        // Create CSV headers
+        $headers = [
+            'Serial Number',
+            'Related Item Serial',
+            'Type',
+            'Weight (g)',
+            'Linked Item',
+            'Status',
+            'Shop Name',
+            'Created At'
+        ];
+
+        // Create CSV content
+        $callback = function() use ($shopPounds, $headers) {
+            $file = fopen('php://output', 'w');
+            fputcsv($file, $headers);
+
+            foreach ($shopPounds as $pound) {
+                $row = [
+                    $pound->serial_number,
+                    $pound->related_item_serial ?? 'N/A',
+                    $pound->goldPound ? ucfirst(str_replace('_', ' ', $pound->goldPound->kind)) : 'N/A',
+                    $pound->goldPound ? $pound->goldPound->weight : 'N/A',
+                    $pound->goldItem ? 'Yes' : 'No',
+                    $pound->status ?? 'Available',
+                    $pound->shop_name,
+                    $pound->created_at->format('Y-m-d H:i:s')
+                ];
+                fputcsv($file, $row);
+            }
+            fclose($file);
+        };
+
+        // Generate CSV file
+        $filename = 'gold_pounds_' . date('Y-m-d_His') . '.csv';
+        $headers = [
+            'Content-Type' => 'text/csv',
+            'Content-Disposition' => 'attachment; filename="' . $filename . '"',
+        ];
+
+        return Response::stream($callback, 200, $headers);
     }
 }
 

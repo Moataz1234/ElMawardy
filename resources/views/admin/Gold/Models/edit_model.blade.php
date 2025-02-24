@@ -9,27 +9,32 @@
             <input type="text" id="model" name="model" value="{{ $model->model }}" required>
         </div>
         <div>
+            <label for="stars">Stars:</label>
+            <input type="text" id="stars" name="stars" value="{{ $model->stars }}">
+        </div>
+        <div>
+            <label for="source">Source:</label>
+            <input type="text" id="source" name="source" value="{{ $model->source }}">
+        </div>
+
+            <div>
+                <label for="first_production">First Production:</label>
+                <input type="date" id="first_production" name="first_production" value="{{ $model->first_production }}">
+            </div>
+        <div>
             <label for="scanned_image">Scanned Image:</label>
             @if($model->scanned_image)
                 <img src="{{ asset('storage/' . $model->scanned_image) }}" alt="Current Scanned Image" style="max-width: 200px; max-height: 200px;">
             @endif
             <input type="file" id="scanned_image" name="scanned_image" accept="image/*">
         </div>
-        <div>
+        {{-- <div>
             <label for="website_image">Website Image:</label>
             @if($model->website_image)
                 <img src="{{ asset('storage/' . $model->website_image) }}" alt="Current Website Image" style="max-width: 200px; max-height: 200px;">
             @endif
             <input type="file" id="website_image" name="website_image" accept="image/*">
-        </div>
-        <div>
-            <label for="category">Stars:</label>
-            <input type="text" id="category" name="category" value="{{ $model->category }}">
-        </div>
-        <div>
-            <label for="source">Source:</label>
-            <input type="text" id="source" name="source" value="{{ $model->source }}">
-        </div>
+        </div> --}}
         {{-- <div>
             <label for="first_production">First Production:</label>
             <br>

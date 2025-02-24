@@ -179,7 +179,7 @@ class Admin_GoldItemService
         if ($metalPurity = $request->input('metal_purity')) {
             $query->whereIn('metal_purity', $metalPurity);
         }
-    
+        
         if ($kind = $request->input('kind')) {
             $query->whereIn('kind', $kind);
         }
@@ -191,7 +191,10 @@ class Admin_GoldItemService
         if ($shopName  = $request->input('shop_name')) {
             $query->whereIn('shop_name', $shopName);
         }
-        $sortableFields = ['serial_number', 'model', 'kind', 'quantity', 'created_at'];
+        if ($goldColor = $request->input('gold_color')) {
+            $query->whereIn('gold_color', $goldColor);
+        }
+        $sortableFields = ['serial_number', 'model', 'kind', 'quantity', 'created_at' , 'gold_color'];
         $sortField = in_array($request->input('sort'), $sortableFields) ? $request->input('sort') : 'serial_number';
         $sortDirection = $request->input('direction') === 'asc' ? 'asc' : 'desc';
     

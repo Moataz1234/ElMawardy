@@ -84,7 +84,7 @@
                         <table class="table table-hover">
                             <thead>
                                 <tr>
-                                    {{-- <th width="5%">Select</th> --}}
+                                    <th width="5%">Select</th>
                                     <th>Serial Number</th>
                                     <th>Related Item Serial</th>
                                     <th>Type</th>
@@ -96,7 +96,7 @@
                             <tbody>
                                 @foreach ($shopPounds as $pound)
                                     <tr>
-                                        {{-- <td>
+                                        <td>
                                             @if ($pound->status === 'pending_sale' || $pound->status === 'pending')
                                                 <span class="badge bg-warning">Pending</span>
                                             @else
@@ -107,7 +107,7 @@
                                                         data-serial="{{ $pound->serial_number }}">
                                                 </div>
                                             @endif
-                                        </td> --}}
+                                        </td>
                                         <td><span class="fw-medium">{{ $pound->serial_number }}</span></td>
                                         <td>{{ $pound->related_item_serial ?? 'N/A' }}</td>
                                         <td>{{ $pound->goldPound ? ucfirst(str_replace('_', ' ', $pound->goldPound->kind)) : 'N/A' }}</td>
@@ -132,7 +132,7 @@
                         </table>
                     </div>
                     
-                    {{-- <div class="d-flex justify-content-between align-items-center mt-4">
+                    <div class="d-flex justify-content-between align-items-center mt-4">
                         <div>
                             <span class="text-muted">Selected items: </span>
                             <span id="selectedCount" class="badge bg-primary">0</span>
@@ -140,7 +140,7 @@
                         <button type="button" id="sellSelectedBtn" class="btn btn-primary" disabled>
                             <i class="fas fa-shopping-cart me-1"></i> Sell Selected Pounds
                         </button>
-                    </div> --}}
+                    </div>
                 </form>
             </div>
         </div>

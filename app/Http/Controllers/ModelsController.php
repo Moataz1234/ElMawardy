@@ -7,6 +7,10 @@ use App\Models\GoldItem;
 use App\Models\Talabat;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Storage;
+use Illuminate\Support\Facades\DB;
+use Illuminate\Support\Facades\Log;
+use Illuminate\Support\Facades\Schema;
+
 
 class ModelsController extends Controller
 {
@@ -97,53 +101,99 @@ class ModelsController extends Controller
     {
         $validatedData = $request->validate([
             'model' => 'required|string|max:255|unique:models,model,' . $model->id,
-            'stars' => 'string|max:255|nullable',
-            'source' => 'string|max:255|nullable',
-            // 'first_production' => 'date|nullable',
-            // 'semi_or_no' => 'string|max:255|nullable',
-            // 'average_of_stones' => 'numeric|nullable',
-            'scanned_image' => 'image|mimes:jpeg,png,jpg,gif|max:2048|nullable',
-            'website_image' => 'image|mimes:jpeg,png,jpg,gif|max:2048|nullable',
+            'stars' => 'nullable|string|max:255',
+            'source' => 'nullable|string|max:255',
+            'first_production' => 'nullable|date',
+            'scanned_image' => 'nullable|image|mimes:jpeg,png,jpg,gif|max:2048',
+            'website_image' => 'nullable|image|mimes:jpeg,png,jpg,gif|max:2048',
         ]);
 
-        preg_match('/^(\d+)-(\d+)(?:-(\w+))?$/', $request->model, $matches);
+        try {
+            DB::beginTransaction();
 
-        if (count($matches) >= 3) {
-            $prefix = $matches[1]; // e.g., 1
-            $mainPart = $matches[2]; // e.g., 0003
-            $suffix = $matches[3] ?? ''; // e.g., A or B (optional)
-            $sku = 'G' . $prefix . $mainPart . $suffix; // Combine parts
-        } else {
-            // Default SKU in case of invalid format
-            $sku = 'G' . str_pad(substr($request->model, -4), 4, '0', STR_PAD_LEFT);
+            // Store old model name
+            $oldModelName = $model->model;
+            $newModelName = $validatedData['model'];
+
+            Log::info("Attempting to update model", [
+                'old_name' => $oldModelName,
+                'new_name' => $newModelName,
+                'validated_data' => $validatedData
+            ]);
+
+            // Handle image uploads
+            if ($request->hasFile('scanned_image')) {
+                $scannedImagePath = $request->file('scanned_image')->store('models/scanned', 'public');
+                $validatedData['scanned_image'] = $scannedImagePath;
+            }
+
+            if ($request->hasFile('website_image')) {
+                $websiteImagePath = $request->file('website_image')->store('models/website', 'public');
+                $validatedData['website_image'] = $websiteImagePath;
+            }
+
+            // Update SKU if model name changed
+            if ($oldModelName !== $newModelName) {
+                preg_match('/^(\d+)-(\d+)(?:-(\w+))?$/', $newModelName, $matches);
+                if (count($matches) >= 3) {
+                    $prefix = $matches[1];
+                    $mainPart = $matches[2];
+                    $suffix = $matches[3] ?? '';
+                    $validatedData['SKU'] = 'G' . $prefix . $mainPart . $suffix;
+                } else {
+                    $validatedData['SKU'] = 'G' . str_pad(substr($newModelName, -4), 4, '0', STR_PAD_LEFT);
+                }
+            }
+
+            // Disable foreign key checks
+            DB::statement('SET FOREIGN_KEY_CHECKS=0');
+
+            // Update the model
+            $updated = DB::table('models')
+                ->where('id', $model->id)
+                ->update($validatedData);
+
+            Log::info("Model update result", ['success' => $updated]);
+
+            // If model name is changing and model update was successful, update related tables
+            if ($updated && $oldModelName !== $newModelName) {
+                $tables = [
+                    'gold_items',
+                    'add_requests',
+                    'warehouses',
+                    'deleted_items_history',
+                    'gold_items_avg',
+                    'gold_items_sold',
+                    'workshop_items'
+                ];
+
+                foreach ($tables as $table) {
+                    if (Schema::hasTable($table)) {
+                        $updated = DB::table($table)
+                            ->where('model', $oldModelName)
+                            ->update(['model' => $newModelName]);
+                        
+                        Log::info("Updated table {$table}", ['rows_affected' => $updated]);
+                    }
+                }
+            }
+
+            // Re-enable foreign key checks
+            DB::statement('SET FOREIGN_KEY_CHECKS=1');
+
+            DB::commit();
+            return redirect()->route('models.index')->with('success', 'Model updated successfully.');
+
+        } catch (\Exception $e) {
+            // Re-enable foreign key checks in case of error
+            DB::statement('SET FOREIGN_KEY_CHECKS=1');
+            
+            DB::rollBack();
+            Log::error("Error updating model: " . $e->getMessage());
+            return redirect()->back()
+                ->with('error', 'Error updating model: ' . $e->getMessage())
+                ->withInput();
         }
-
-        $validatedData['SKU'] = $sku;
-
-
-        // Handle scanned image upload
-        if ($request->hasFile('scanned_image')) {
-            // if ($model->scanned_image) {
-            //     Storage::disk('public')->delete($model->scanned_image);
-            // }
-            $scannedImagePath = $request->file('scanned_image')->store('models/scanned', 'public');
-            $validatedData['scanned_image'] = $scannedImagePath;
-        }
-
-        // Handle website image upload
-        if ($request->hasFile('website_image')) {
-            // Delete old image if exists
-
-            // if ($model->website_image) {
-            //     Storage::disk('public')->delete($model->website_image);
-            // }
-            $websiteImagePath = $request->file('website_image')->store('models/website', 'public');
-            $validatedData['website_image'] = $websiteImagePath;
-        }
-
-        $model->update($validatedData);
-
-        return redirect()->route('models.index')->with('success', 'Model updated successfully.');
     }
 
     public function destroy(Models $model)

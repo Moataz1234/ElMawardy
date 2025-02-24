@@ -121,7 +121,7 @@ Route::middleware(['auth'])->group(function () {
     Route::post('/import-excel', [ImportGoldItems::class, 'import'])->name('import.excel');
     Route::post('/import-excel-sold', [ImportSoldItems::class, 'import'])->name('import.excel-sold');
     Route::post('/import-excel-models', [ImportModels::class, 'import'])->name('import.excel-models');
-    Route::get('/gold-items', [GoldItemController::class, 'index'])->name('gold-items.index');
+    Route::get('/gold-items', [ShopsController::class, 'getAllItems'])->name('gold-items.index');
     Route::get('/update_prices', [GoldPriceController::class, 'Create'])->name('gold_prices.create');
     Route::post('/update_prices/store', [GoldPriceController::class, 'store'])->name('gold_prices.store');
     Route::get('/gold-items/same-model', [ShopsController::class, 'getItemsByModel']);
@@ -313,6 +313,7 @@ Route::get('/export-sales', [SoldItemRequestController::class, 'exportSales'])->
 // rabea pounds
 Route::get('/gold-items-sold', [GoldItemSoldController::class, 'index'])->name('gold-items.sold');
 Route::get('/gold-pounds', [GoldPoundController::class, 'index'])->name('gold-pounds.index');
+Route::get('/gold-pounds/admin', [GoldPoundController::class, 'AdminIndex'])->name('gold-pounds.admin.index');
 Route::get('/gold-pounds/create', [GoldPoundController::class, 'create'])->name('gold-pounds.create');
 Route::post('/gold-pounds', [GoldPoundController::class, 'store'])->name('gold-pounds.store');
 //shop pounds requests
@@ -326,3 +327,6 @@ Route::post('/orders/store', [OrderController::class, 'store'])
 Route::post('/api/pound-sale', [ShopsController::class, 'submitPoundPrice'])->name('pound.submit-price');
 
 Route::post('/check-associated-pounds', [ShopsController::class, 'checkAssociatedPounds'])->name('check-associated-pounds');
+
+Route::get('gold-pounds/search', [GoldPoundController::class, 'search'])->name('gold-pounds.search');
+Route::get('gold-pounds/export', [GoldPoundController::class, 'export'])->name('gold-pounds.export');
