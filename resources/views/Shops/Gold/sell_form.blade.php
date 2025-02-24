@@ -1,5 +1,5 @@
 <!DOCTYPE html>
-<html lang="ar" dir="rtl">
+<html lang="en">
 
 <head>
     <meta charset="UTF-8">
@@ -16,15 +16,15 @@
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
 </head>
 
-<body class="bg-light">
+<body class="bg-light"  >
     <div class="container py-5">
-        <div class="row justify-content-center">
+        <div class="row justify-content-center" dir="rtl">
             <div class="col-12">
                 <div class="card shadow-sm">
                     <div class="card-body p-4">
                         <!-- Customer Details Section -->
                         <h2 class="card-title text-center mb-4" style="color: #28a745">بيانات الزبون</h2>
-                        <form class="item-details-form" action="{{ route('shop-items.bulkSell') }}" method="POST">
+                        <form  class="item-details-form" action="{{ route('shop-items.bulkSell') }}" method="POST">
                             @csrf
                             <div class="row g-3">
                                 <div class="col-md-6">
