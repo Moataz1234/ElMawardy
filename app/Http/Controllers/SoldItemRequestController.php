@@ -17,6 +17,8 @@ use PhpOffice\PhpSpreadsheet\Writer\Xlsx;
 use App\Models\GoldPoundSold;
 use App\Models\GoldPoundInventory;
 use App\Models\GoldPound;
+use App\Models\Models;
+use App\Models\TransferRequestHistory;
 
 // ... other imports
 
@@ -120,10 +122,37 @@ class SoldItemRequestController extends Controller
                         $goldItem = GoldItem::where('serial_number', $saleRequest->item_serial_number)->first();
 
                         if ($goldItem) {
+                            // Get model details for the additional fields
+                            $modelDetails = Models::where('model', $goldItem->model)->first();
+
+                            // Archive transfer requests before deleting them
+                            foreach ($goldItem->transferRequests as $transferRequest) {
+                                TransferRequestHistory::create([
+                                    'from_shop_name' => $transferRequest->from_shop_name,
+                                    'to_shop_name' => $transferRequest->to_shop_name,
+                                    'status' => $transferRequest->status,
+                                    'serial_number' => $goldItem->serial_number,
+                                    'model' => $goldItem->model,
+                                    'kind' => $goldItem->kind,
+                                    'weight' => $goldItem->weight,
+                                    'gold_color' => $goldItem->gold_color,
+                                    'metal_type' => $goldItem->metal_type,
+                                    'metal_purity' => $goldItem->metal_purity,
+                                    'quantity' => $goldItem->quantity,
+                                    'stones' => $goldItem->stones,
+                                    'talab' => $goldItem->talab,
+                                    'transfer_completed_at' => $transferRequest->updated_at,
+                                    'item_sold_at' => now(),
+                                    // Add new fields from Models table
+                                    'stars' => $modelDetails ? $modelDetails->stars : null,
+                                    'scanned_image' => $modelDetails ? $modelDetails->scanned_image : null
+                                ]);
+                            }
+
                             // First verify the model exists in the models table
-                            $modelExists = DB::table('models')->where('model', $goldItem->model)->exists();
+                            $modelCategory = Models::where('model', $goldItem->model)->first();
                             
-                            if (!$modelExists) {
+                            if (!$modelCategory) {
                                 Log::error('Model not found in models table', [
                                     'model' => $goldItem->model,
                                     'item_serial' => $goldItem->serial_number
@@ -131,7 +160,7 @@ class SoldItemRequestController extends Controller
                                 throw new \Exception("Invalid model reference: {$goldItem->model}");
                             }
 
-                            // Create record in gold_items_sold
+                            // Create record in gold_items_sold with stars
                             GoldItemSold::create([
                                 'serial_number' => $goldItem->serial_number,
                                 'shop_name' => $saleRequest->shop_name,
@@ -148,10 +177,12 @@ class SoldItemRequestController extends Controller
                                 'add_date' => $goldItem->rest_since,
                                 'price' => $saleRequest->price,
                                 'sold_date' => now(),
-                                'customer_id' => $saleRequest->customer_id
+                                'customer_id' => $saleRequest->customer_id,
+                                'stars' => $modelCategory->stars
                             ]);
 
-                            // Delete the original item
+                            // Delete transfer requests and original item
+                            $goldItem->transferRequests()->delete();
                             $goldItem->delete();
                             Log::info('Item moved to sold table', ['serial_number' => $goldItem->serial_number]);
 

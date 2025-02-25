@@ -118,6 +118,19 @@
             flex: 1;
             min-width: 0;
         }
+
+        .rating-stars i {
+            color: #ddd;
+            cursor: pointer;
+        }
+        
+        .rating-stars i.active {
+            color: #ffd700;
+        }
+        
+        .shop-input {
+            width: 100%;
+        }
     </style>
 </head>
 
@@ -139,8 +152,8 @@
                     <div class="dynamic-field">
                         <div class="form-group">
                             <label for="model">Model:</label>
-                            <input list="models" name="model" id="model" class="form-control" required
-                                onblur="checkModelExists(this, '{{ route('models.create') }}')">
+                            <input list="models" name="model" id="model" class="form-control" required>
+                                {{-- onblur="checkModelExists(this, '{{ route('models.create') }}')"> --}}
                             <datalist id="models">
                                 @foreach ($models as $model)
                                     <option value="{{ $model->model }}"></option>
@@ -188,11 +201,14 @@
                         <div class="dynamic-field">
                             <div class="form-group">
                                 <label for="shop_id">Shop:</label>
-                                <select name="shops[0][shop_id]" class="form-control" required>
+                                <input list="shops-list" name="shops[0][shop_name]" class="form-control shop-input" required 
+                                       placeholder="Select or type shop name" data-index="0">
+                                <datalist id="shops-list">
                                     @foreach ($shops as $shop)
-                                        <option value="{{ $shop->id }}">{{ $shop->name }}</option>
+                                        <option value="{{ $shop->name }} (ID: {{ $shop->id }})"></option>
                                     @endforeach
-                                </select>
+                                </datalist>
+                                <input type="hidden" name="shops[0][shop_id]" class="shop-id-input">
                             </div>
                             <div class="form-group">
                                 <label for="gold_color">Gold Color:</label>
@@ -224,7 +240,7 @@
                         <thead class="table-dark">
                             <tr>
                                 <th>Model</th>
-                                <th>Shop_id</th>
+                                <th>Shop</th>
                                 <th>Weight</th>
                                 <th>Kind</th>
                                 <th>Quantity</th>
@@ -236,7 +252,7 @@
                                 @foreach (session('gold_items') as $item)
                                     <tr data-id="{{ $item['id'] }}">
                                         <td>{{ $item['model'] }}</td>
-                                        <td>{{ $item['shops'][0]['shop_id'] }}</td>
+                                        <td>{{ $item['shops'][0]['shop_name'] ?? '' }}</td>
                                         <td>{{ $item['shops'][0]['weight'] }}</td>
                                         <td>{{ $item['kind'] }}</td>
                                         <td>{{ $item['quantity'] }}</td>
@@ -314,10 +330,17 @@
                             var newRow = `
                                 <tr data-id="${response.item.id}">
                                     <td>${response.item.model}</td>
-                                    <td>${response.item.shops[0].shop_id}</td>
+                                    <td>${response.item.shops[0].shop_name}</td>
                                     <td>${response.item.shops[0].weight}</td>
                                     <td>${response.item.kind}</td>
                                     <td>${response.item.quantity}</td>
+                                    <td class="rating-stars">
+                                        <i class="fas fa-star" data-rating="1"></i>
+                                        <i class="fas fa-star" data-rating="2"></i>
+                                        <i class="fas fa-star" data-rating="3"></i>
+                                        <i class="fas fa-star" data-rating="4"></i>
+                                        <i class="fas fa-star" data-rating="5"></i>
+                                    </td>
                                     <td>
                                         <button class="remove-item" data-id="${response.item.id}">Remove</button>
                                     </td>
@@ -326,7 +349,7 @@
                             $('#items-table tbody').append(newRow);
                             $('#items-count').text(response.total_items);
                             
-                            $('select[name="shops[0][shop_id]"]').val($('select[name="shops[0][shop_id]"] option:first').val());
+                            $('select[name="shops[0][shop_name]"]').val($('select[name="shops[0][shop_name]"] option:first').val());
                             $('select[name="shops[0][gold_color]"]').val($('select[name="shops[0][gold_color]"] option:first').val());
                             $('input[name="shops[0][weight]"]').val('');
                             $('input[name="shops[0][talab]"]').prop('checked', false);
@@ -416,19 +439,19 @@
             });
         });
 
-        function checkModelExists(modelInput, createRoute) {
-            const model = modelInput.value.trim();
-            if (model) {
-                fetch(`/check-model-exists?model=${model}`)
-                    .then(response => response.json())
-                    .then(data => {
-                        if (!data.exists) {
-                            const url = `${createRoute}?model=${encodeURIComponent(model)}`;
-                            window.location.href = url;
-                        }
-                    });
-            }
-        }
+        // function checkModelExists(modelInput, createRoute) {
+        //     const model = modelInput.value.trim();
+        //     if (model) {
+        //         fetch(`/check-model-exists?model=${model}`)
+        //             .then(response => response.json())
+        //             .then(data => {
+        //                 if (!data.exists) {
+        //                     const url = `${createRoute}?model=${encodeURIComponent(model)}`;
+        //                     window.location.href = url;
+        //                 }
+        //             });
+        //     }
+        // }
     </script>
 
     <script>

@@ -56,6 +56,7 @@
                 <th>Stars</th>
                 <th>Source</th>
                 <th>First Production</th>
+                <th>Semi or No </th>
                 <th>Avg_Of_Stones</th>
                 <th>Actions</th>
             </tr>
@@ -80,8 +81,8 @@
                     <td>{{ $model->stars }}</td>
                     <td>{{ $model->source }}</td>
                     <td>{{ $model->first_production }}</td>
+                    <td>{{ $model->semi_or_no }}</td>
                     <td>{{ $model->average_of_stones }}</td>
-
                     <td>
                         <a class="navbar-link" style="color:blue" href="{{ route('models.edit', $model) }}">Edit</a>
                     </td>

@@ -31,6 +31,8 @@ use App\Notifications\TransferRequestNotification;
 use Illuminate\Support\Facades\Notification;
 use App\Models\GoldPoundInventory;
 use App\Models\SaleRequest;
+use App\Models\User;
+use App\Models\TransferRequestHistory;
 
 class ShopsController extends Controller
 {
@@ -86,11 +88,11 @@ class ShopsController extends Controller
         ]);
     }
 
-    public function viewTransferRequestHistory()
-    {
-        $history = $this->transferService->getTransferHistory();
-        return view('shops.transfer_requests.history', compact('history'));
-    }
+    // public function viewTransferRequestHistory()
+    // {
+    //     $transferRequests  = $this->transferService->getTransferHistory();
+    //     return view('shops.transfer_requests.history', compact('transferRequests'));
+    // }
 
 
     public function edit(string $id)
@@ -249,27 +251,19 @@ public function bulkSell(SellRequest $request)
 
                     // Create warehouse record
                     Warehouse::create([
-                        'link' => $goldItem->link,
-                        'serial_number' => $goldItem->serial_number,
-                        'shop_name' => 'admin',
-                        'shop_id' => $goldItem->shop_id,
-                        'kind' => $goldItem->kind,
                         'model' => $goldItem->model,
-                        'talab' => $goldItem->talab,
+                        'serial_number' => $goldItem->serial_number,
+                        // 'shop_name' => 'admin',
+                        // 'shop_id' => $goldItem->shop_id,
+                        'kind' => $goldItem->kind,
+                        'weight' => $goldItem->weight,
                         'gold_color' => $goldItem->gold_color,
-                        'stones' => $goldItem->stones,
                         'metal_type' => $goldItem->metal_type,
                         'metal_purity' => $goldItem->metal_purity,
                         'quantity' => $goldItem->quantity,
-                        'weight' => $goldItem->weight,
-                        'rest_since' => $goldItem->rest_since,
-                        'source' => $goldItem->source,
-                        'to_print' => $goldItem->to_print,
-                        'price' => $goldItem->price,
-                        'semi_or_no' => $goldItem->semi_or_no,
-                        'average_of_stones' => $goldItem->average_of_stones,
-                        'net_weight' => $goldItem->net_weight,
-                        'website' => $goldItem->website
+                        'stones' => $goldItem->stones,
+                        'talab' => $goldItem->talab,
+                        // 'rest_since' => $goldItem->rest_since,
                     ]);
                 }
             });
@@ -388,4 +382,5 @@ public function bulkSell(SellRequest $request)
         $goldItems = $this->adminGoldItemService->getGoldItems($request);
         return view('Shops.Gold.all_items', compact('goldItems'));
     }
+
 }

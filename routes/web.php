@@ -33,7 +33,8 @@ use App\Http\Controllers\{
     AddRequestController,
     Gold\GoldPoundController,
     AddPoundsRequestController,
-    // NewItemTalabatController
+    TransferRequestsController
+    // NewItemTalabatController 
 };
 
 // Test SMTP Route
@@ -231,7 +232,8 @@ Route::middleware(['auth'])->group(function () {
         Route::post('/reports/send', [GoldReportController::class, 'sendDailyReport'])->name('reports.send');
         Route::get('/new-item/create', [NewItemController::class, 'create'])->name('new-item.create');
         Route::post('/new-item/store', [NewItemController::class, 'store'])->name('new-item.store');
-        Route::get('/transfer-requests/history', [ShopsController::class, 'viewTransferRequestHistory'])->name('transfer.requests.history');
+        Route::get('/transfer-requests/history', [TransferRequestsController::class, 'viewTransferRequestHistory'])
+            ->name('transfer.requests.admin');
 
 
         // Shopify Routes
@@ -330,3 +332,8 @@ Route::post('/check-associated-pounds', [ShopsController::class, 'checkAssociate
 
 Route::get('gold-pounds/search', [GoldPoundController::class, 'search'])->name('gold-pounds.search');
 Route::get('gold-pounds/export', [GoldPoundController::class, 'export'])->name('gold-pounds.export');
+// Route::get('gold-pounds/transfer-requests', [ShopsController::class, 'viewTransferRequestHistory'])->name('transfer.requests.admin');
+
+// Route::get('/storage/{filename}', function ($filename) {
+//     return response()->download(storage_path('app/public/' . $filename));
+// })->name('download.file');

@@ -14,16 +14,18 @@ class AddRequestController extends Controller
 {
     public function allRequests(Request $request)
     {
-        $query = AddRequest::query();
+        $query = AddRequest::query()
+            ->leftJoin('models', 'add_requests.model', '=', 'models.model')
+            ->select('add_requests.*', 'models.stars');
 
         // Filter by status if provided
         if ($request->has('status') && $request->status != '') {
-            $query->where('status', $request->status);
+            $query->where('add_requests.status', $request->status);
         }
 
         // Filter by shop_name if provided
         if ($request->has('shop_name') && $request->shop_name != '') {
-            $query->where('shop_name', $request->shop_name);
+            $query->where('add_requests.shop_name', $request->shop_name);
         }
 
         $requests = $query->get();

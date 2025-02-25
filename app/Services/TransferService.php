@@ -4,38 +4,17 @@ namespace App\Services;
 
 use App\Models\GoldItem;
 use App\Models\Shop;
+use App\Models\Models;
 use App\Models\User;
 
 use App\Models\TransferRequest;
+use App\Models\TransferRequestHistory;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Log;
 use Illuminate\Database\Eloquent\Collection;
 
 class TransferService
 {
-//     public function createTransfer(string $itemId, string $toShopName): void
-//     {
-//         try {
-//             $goldItem = GoldItem::findOrFail($itemId);
-//             $currentUserShop = Auth::user()->shop_name;
-    
-//             TransferRequest::create([
-//                 'gold_item_id' => $goldItem->id,
-//                 'from_shop_name' => $currentUserShop,
-//                 'to_shop_name' => $toShopName,
-//                 'status' => 'pending'
-//             ]);
-//         } catch (\Exception $e) {
-//             Log::error('Transfer Request Creation Failed:', [
-//                 'error' => $e->getMessage(),
-//                 'item_id' => $itemId,
-//                 'to_shop' => $toShopName
-//             ]);
-//             throw $e;
-//         }
-//     }
-
-
 
 public function handleTransfer(string $requestId, string $status): void
 {
@@ -52,16 +31,44 @@ public function handleTransfer(string $requestId, string $status): void
 
             $goldItem = $transferRequest->goldItem;
             Log::info('Gold item found:', ['gold_item' => $goldItem]);
+            $modelDetails = Models::where('model', $goldItem->model)->first();  
+            // Create transfer history record
+            TransferRequestHistory::create([
+                'from_shop_name' => $transferRequest->from_shop_name,
+                'to_shop_name' => $transferRequest->to_shop_name,
+                'status' => 'accepted',
+                'serial_number' => $goldItem->serial_number,
+                'model' => $goldItem->model,
+                'kind' => $goldItem->kind,
+                'weight' => $goldItem->weight,
+                'gold_color' => $goldItem->gold_color,
+                'metal_type' => $goldItem->metal_type,
+                'metal_purity' => $goldItem->metal_purity,
+                'quantity' => $goldItem->quantity,
+                'stones' => $goldItem->stones,
+                'talab' => $goldItem->talab,
+                'transfer_completed_at' => now(),
+                'stars' => $modelDetails ? $modelDetails->stars : null,
+                'scanned_image' => $modelDetails ? $modelDetails->scanned_image : null
+            ]);
 
+            Log::info('Transfer history record created');
+
+            // Update gold item shop
             $goldItem->update([
                 'shop_name' => $toShop->name,
                 'shop_id' => $toShop->id
             ]);
             Log::info('Gold item updated:', ['gold_item' => $goldItem]);
-        }
 
-        $transferRequest->update(['status' => $status]);
-        Log::info('Transfer request updated:', ['transfer_request' => $transferRequest]);
+            // Delete the transfer request
+            $transferRequest->delete();
+            Log::info('Transfer request deleted');
+        } else {
+            // If rejected, just update the status
+            $transferRequest->update(['status' => $status]);
+            Log::info('Transfer request updated:', ['transfer_request' => $transferRequest]);
+        }
 
     } catch (\Exception $e) {
         Log::error('Transfer handling failed:', [
@@ -181,5 +188,84 @@ public function clearSelectedItems(array $itemIds): array
         'items' => $itemIds,
         'timestamp' => now()->timestamp
     ];
+}
+
+public function getAllTransferRequests($filters = [])
+{
+    $query = TransferRequest::with(['goldItem', 'fromShop', 'toShop']);
+
+    // Apply date filter
+    if (!empty($filters['date'])) {
+        $query->whereDate('created_at', $filters['date']);
+    }
+
+    // Apply status filter
+    if (!empty($filters['status'])) {
+        $query->where('status', $filters['status']);
+    }
+
+    // Apply from shop filter
+    if (!empty($filters['from_shop'])) {
+        $query->where('from_shop_name', $filters['from_shop']);
+    }
+
+    // Apply to shop filter
+    if (!empty($filters['to_shop'])) {
+        $query->where('to_shop_name', $filters['to_shop']);
+    }
+
+    // Apply search filter
+    if (!empty($filters['search'])) {
+        $search = $filters['search'];
+        $query->whereHas('goldItem', function ($q) use ($search) {
+            $q->where('serial_number', 'LIKE', "%{$search}%")
+              ->orWhere('model', 'LIKE', "%{$search}%");
+        });
+    }
+
+    return $query->orderBy('created_at', 'desc')->get();
+}
+
+public function exportToExcel($transferRequests)
+{
+    $spreadsheet = new \PhpOffice\PhpSpreadsheet\Spreadsheet();
+    $sheet = $spreadsheet->getActiveSheet();
+
+    // Set headers
+    $sheet->setCellValue('A1', 'Serial Number');
+    $sheet->setCellValue('B1', 'Model');
+    $sheet->setCellValue('C1', 'Weight');
+    $sheet->setCellValue('D1', 'From Shop');
+    $sheet->setCellValue('E1', 'To Shop');
+    $sheet->setCellValue('F1', 'Status');
+    $sheet->setCellValue('G1', 'Created At');
+    $sheet->setCellValue('H1', 'Updated At');
+
+    // Add data
+    $row = 2;
+    foreach ($transferRequests as $request) {
+        $sheet->setCellValue('A' . $row, $request->goldItem->serial_number);
+        $sheet->setCellValue('B' . $row, $request->goldItem->model);
+        $sheet->setCellValue('C' . $row, $request->goldItem->weight);
+        $sheet->setCellValue('D' . $row, $request->from_shop_name);
+        $sheet->setCellValue('E' . $row, $request->to_shop_name);
+        $sheet->setCellValue('F' . $row, ucfirst($request->status));
+        $sheet->setCellValue('G' . $row, $request->created_at->format('Y-m-d H:i:s'));
+        $sheet->setCellValue('H' . $row, $request->updated_at->format('Y-m-d H:i:s'));
+        $row++;
+    }
+
+    // Auto-size columns
+    foreach (range('A', 'H') as $col) {
+        $sheet->getColumnDimension($col)->setAutoSize(true);
+    }
+
+    // Create Excel file
+    $writer = new \PhpOffice\PhpSpreadsheet\Writer\Xlsx($spreadsheet);
+    $filename = 'transfer_requests_' . date('Y-m-d_His') . '.xlsx';
+    $path = storage_path('app/public/' . $filename);
+    $writer->save($path);
+
+    return $filename;
 }
 }

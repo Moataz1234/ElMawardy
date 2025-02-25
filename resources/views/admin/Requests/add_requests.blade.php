@@ -67,8 +67,11 @@
                     <th>Shop Name</th>
                     <th>Kind</th>
                     <th>Weight</th>
+                    <th>Stars</th>
                     <th>Gold Color</th>
+                    <th>Created At</th>
                     <th>Status</th>
+                    
                 </tr>
             </thead>
             <tbody class="">
@@ -83,7 +86,9 @@
                         <td>{{ $request->shop_name }}</td>
                         <td>{{ $request->kind }}</td>
                         <td>{{ $request->weight }}</td>
+                        <td>{{ $request->stars }}</td>
                         <td>{{ $request->gold_color }}</td>
+                        <td>{{ $request->created_at->format('Y-m-d') }}</td>
                         <td>{{ $request->status }}</td>
                     </tr>
                     @php
@@ -91,7 +96,7 @@
                     @endphp
                 @empty
                     <tr>
-                        <td colspan="7" class="text-center">No requests found.</td>
+                        <td colspan="9" class="text-center">No requests found.</td>
                     </tr>
                 @endforelse
             </tbody>

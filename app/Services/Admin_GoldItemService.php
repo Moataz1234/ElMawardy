@@ -304,15 +304,14 @@ class Admin_GoldItemService
         // Apply search filter
         if ($search = $request->input('search')) {
             $searchType = $request->input('search_type', 'model'); // Default to 'model'
-            $normalizedSearch = ltrim(preg_replace('/\D/', '', $search), '0');
-    
+            // $normalizedSearch = ltrim(preg_replace('/\D/', '', $search), '0');
+            
             if ($searchType === 'serial_number') {
                 $query->where('serial_number', 'like', "%{$search}%");
             } else {
                 // Default to model search
-                $query->where(function ($query) use ($normalizedSearch) {
-                    $query->where('model', 'like', "%{$normalizedSearch}%")
-                          ->orWhere('model', 'like', "%-" . substr($normalizedSearch, 1) . "%");
+                $query->where(function ($query) use ($search) {
+                    $query->where('model', 'like', "%{$search}%");
                 });
             }
         }

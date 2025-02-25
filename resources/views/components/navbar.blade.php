@@ -35,9 +35,10 @@
             <li class="navbar-item dropdown">
                 <a href="#" class="navbar-link dropdown-toggle">Requests</a>
                 <div class="dropdown-menu">
+                    <a href="{{ route('admin.add.requests') }}" class="dropdown-item">Add Requests</a>
+                    <a class="dropdown-item" href="{{ route('transfer.requests.admin') }}" class="navbar-link">Transfer Requests</a>
                     <a href="{{ route('sell-requests.index') }}" class="dropdown-item">Sold Requests</a>
                     <a href="{{ route('sale-requests.all') }}" class="dropdown-item">All Sold Requests</a>
-                    <a href="{{ route('admin.add.requests') }}" class="dropdown-item">Add Requests</a>
                 </div>
             </li>
             <li class="navbar-item dropdown">
@@ -93,9 +94,10 @@
             <li class="navbar-item dropdown">
                 <a href="#" class="navbar-link dropdown-toggle">Requests</a>
                 <div class="dropdown-menu">
+                    <a href="{{ route('admin.add.requests') }}" class="dropdown-item">Add Requests</a>
+                    <a class="dropdown-item" href="{{ route('transfer.requests') }}" class="navbar-link">Transfer Requests</a>
                     <a href="{{ route('sell-requests.index') }}" class="dropdown-item">Sold Requests</a>
                     <a href="{{ route('sale-requests.all') }}" class="dropdown-item">All Sold Requests</a>
-                    <a href="{{ route('admin.add.requests') }}" class="dropdown-item">Add Requests</a>
                 </div>
             </li>
             <li class="navbar-item dropdown">
@@ -135,14 +137,11 @@
             <li class="navbar-item dropdown">
                 <a href="#" class="navbar-link dropdown-toggle">Requests</a>
                 <div class="dropdown-menu">
-                    <a class="dropdown-item" href="{{ route('transfer.requests') }}" class="navbar-link">Transfer
-                        Requests</a>
+                    <a class="dropdown-item" href="{{ route('transfer.requests') }}" class="navbar-link">Transfer Requests</a>
                     {{-- <a class="dropdown-item" href="{{ route('workshop.requests') }}" class="navbar-link">Workshop Requests</a> --}}
-                    <a class="dropdown-item" href="{{ route('add-requests.index') }}" class="navbar-link">Add
-                        Requests</a>
+                    <a class="dropdown-item" href="{{ route('add-requests.index') }}" class="navbar-link">Add Requests</a>
                     <a class="dropdown-item" href="{{ route('pound-requests.index') }}" class="navbar-link">Pound Requests</a>
-                    <a class="dropdown-item" href="{{ route('shop.requests.index') }}" class="navbar-link">
-                        Item Requests
+                    <a class="dropdown-item" href="{{ route('shop.requests.index') }}" class="navbar-link"> Item Requests
                         @if (Auth::user()->unreadNotifications->count() > 0)
                             <span class="badge badge-danger">
                                 {{ Auth::user()->unreadNotifications->count() }}

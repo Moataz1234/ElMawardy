@@ -96,8 +96,19 @@ document.addEventListener('DOMContentLoaded', function () {
                     groupedItems[key].serial_numbers.add(item.serial_number);
                 });
 
-                // Display grouped items
-                Object.values(groupedItems).forEach(group => {
+                // Sort grouped items by shop name and gold color
+                const sortedItems = Object.values(groupedItems).sort((a, b) => {
+                    // First sort by shop name
+                    if (a.shop_name < b.shop_name) return -1;
+                    if (a.shop_name > b.shop_name) return 1;
+                    // If shop names are equal, sort by gold color
+                    if (a.gold_color < b.gold_color) return -1;
+                    if (a.gold_color > b.gold_color) return 1;
+                    return 0;
+                });
+
+                // Display sorted grouped items
+                sortedItems.forEach(group => {
                     const row = document.createElement('tr');
                     row.innerHTML = `
                         <td>${group.shop_name} (${group.gold_color})</td>
@@ -178,4 +189,37 @@ document.addEventListener('DOMContentLoaded', function () {
         })
         .catch(error => console.error('Error:', error));
     });
+
+    // Handle shop selection
+    document.addEventListener('input', function(e) {
+        if (e.target.classList.contains('shop-input')) {
+            const selectedValue = e.target.value;
+            const match = selectedValue.match(/^(.*?)\s*\(ID:\s*(\d+)\)$/);
+            
+            if (match) {
+                const [_, shopName, shopId] = match;
+                const index = e.target.dataset.index;
+                document.querySelector(`input[name="shops[${index}][shop_id]"]`).value = shopId;
+            }
+        }
+    });
+
+   
+    // Modify your existing code that adds new rows to include stars
+    function addNewRow(item) {
+        const newRow = `
+            <tr data-id="${item.id}">
+                <td>${item.model}</td>
+                <td>${item.shops[0].shop_name || ''}</td>
+                <td>${item.shops[0].weight}</td>
+                <td>${item.kind}</td>
+                <td>${item.quantity}</td>
+          
+                <td>
+                    <button class="remove-item" data-id="${item.id}">Remove</button>
+                </td>
+            </tr>
+        `;
+        $('#items-table tbody').append(newRow);
+    }
 });

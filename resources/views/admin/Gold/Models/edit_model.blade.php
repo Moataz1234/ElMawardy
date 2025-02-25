@@ -16,6 +16,15 @@
             <label for="source">Source:</label>
             <input type="text" id="source" name="source" value="{{ $model->source }}">
         </div>
+        <div>
+            <label for="semi_or_no">Semi or No:</label>
+            <input type="text" id="semi_or_no" name="semi_or_no" value="{{ $model->semi_or_no }}" list="semi_or_no_options">
+            <datalist id="semi_or_no_options">
+                @foreach(\App\Models\Models::select('semi_or_no')->distinct()->whereNotNull('semi_or_no')->pluck('semi_or_no') as $option)
+                    <option value="{{ $option }}">
+                @endforeach
+            </datalist>
+        </div>
 
             <div>
                 <label for="first_production">First Production:</label>

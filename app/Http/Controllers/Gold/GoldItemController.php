@@ -63,9 +63,10 @@ class GoldItemController extends Controller
             'metal_type' => 'required',
             'metal_purity' => 'required',
             'quantity' => 'required|integer',
-            'rest_since' => 'required|date',  // Add this line
+            'rest_since' => 'required|date',
             'shops' => 'required|array',
             'shops.*.shop_id' => 'required|exists:shops,id',
+            'shops.*.shop_name' => 'required',
             'shops.*.gold_color' => 'required',
             'shops.*.weight' => 'required|numeric',
         ]);
@@ -85,7 +86,7 @@ class GoldItemController extends Controller
             'metal_type' => $validatedData['metal_type'],
             'metal_purity' => $validatedData['metal_purity'],
             'quantity' => $validatedData['quantity'],
-            'rest_since' => $validatedData['rest_since'],  // Add this line
+            'rest_since' => $validatedData['rest_since'],
             'shops' => $validatedData['shops']
         ];
 

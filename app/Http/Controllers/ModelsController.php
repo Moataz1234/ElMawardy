@@ -104,6 +104,7 @@ class ModelsController extends Controller
             'stars' => 'nullable|string|max:255',
             'source' => 'nullable|string|max:255',
             'first_production' => 'nullable|date',
+            'semi_or_no' => 'nullable|string|max:255',
             'scanned_image' => 'nullable|image|mimes:jpeg,png,jpg,gif|max:2048',
             'website_image' => 'nullable|image|mimes:jpeg,png,jpg,gif|max:2048',
         ]);

@@ -36,25 +36,23 @@ class SellService
     public function processBulkSale(array $validatedData): array
     {
         Log::info('Starting bulk sale process', ['data' => $validatedData]);
-    
+
         return DB::transaction(function () use ($validatedData) {
-            $customer = Customer::firstOrCreate(
+            $customer = Customer::create(
                 [
                     'phone_number' => $validatedData['phone_number'],
-                    'email' => $validatedData['email']
-                ],
-                [
+                    'email' => $validatedData['email'],
                     'first_name' => $validatedData['first_name'],
                     'last_name' => $validatedData['last_name'],
                     'address' => $validatedData['address']
                 ]
             );
-    
+
             $results = [];
             foreach ($validatedData['ids'] as $id) {
                 $goldItem = GoldItem::with('poundInventory.goldPound')->findOrFail($id);
                 $poundInventory = $goldItem->poundInventory;
-    
+
                 // Create item sale request
                 $itemSaleRequest = SaleRequest::create([
                     'item_serial_number' => $goldItem->serial_number,
@@ -68,10 +66,10 @@ class SellService
                     'purity' => $goldItem->metal_purity,
                     'kind' => $goldItem->kind
                 ]);
-    
+
                 $goldItem->update(['status' => 'pending_sale']);
                 $results[] = ['item_serial_number' => $goldItem->serial_number, 'sale_id' => $itemSaleRequest->id];
-    
+
                 // If there's an associated pound and price provided
                 if ($poundInventory && isset($validatedData['pound_prices'][$poundInventory->serial_number])) {
                     $poundSaleRequest = SaleRequest::create([
@@ -87,12 +85,12 @@ class SellService
                         'kind' => $poundInventory->goldPound->kind,
                         'related_item_serial' => $goldItem->serial_number // Link to parent item
                     ]);
-    
+
                     $poundInventory->update(['status' => 'pending_sale']);
                     $results[] = ['pound_serial_number' => $poundInventory->serial_number, 'sale_id' => $poundSaleRequest->id];
                 }
             }
-    
+
             return [
                 'success' => true,
                 'message' => 'Sale requests created successfully',
@@ -118,7 +116,7 @@ class SellService
 
     //             foreach ($validatedData['ids'] as $id) {
     //                 $goldItem = GoldItem::findOrFail($id);
-                    
+
     //                 // Create main item sale request
     //                 $mainSaleRequest = SaleRequest::create([
     //                     'item_serial_number' => $goldItem->serial_number,
@@ -137,7 +135,7 @@ class SellService
     //                     $validatedData['has_pound'] === 'true' && 
     //                     isset($validatedData['pound_price']) && 
     //                     isset($validatedData['pound_serial'])) {
-                        
+
     //                     // Get the pound inventory
     //                     $poundInventory = GoldPoundInventory::where('serial_number', $validatedData['pound_serial'])
     //                         ->where('related_item_serial', $goldItem->serial_number)
