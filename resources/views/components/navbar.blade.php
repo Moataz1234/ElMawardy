@@ -15,7 +15,7 @@
             <li class="navbar-item dropdown">
                 <a href="#" class="navbar-link dropdown-toggle">Add Items</a>
                 <div class="dropdown-menu">
-                    <a href="{{ route('gold-pounds.create') }}" class="dropdown-item">New Pound</a>
+                    {{-- <a href="{{ route('gold-pounds.create') }}" class="dropdown-item">New Pound</a> --}}
                     <a href="{{ route('gold-items.create') }}" class="dropdown-item">NewItem</a>
                     <a href="{{ route('barcode.view') }}" class="dropdown-item">Barcode</a>
                 </div>
