@@ -317,8 +317,35 @@
                 });
             @endif
 
+            // Add this function to extract shop ID from the selection
+            function extractShopId(shopString) {
+                const match = shopString.match(/\(ID: (\d+)\)/);
+                return match ? match[1] : null;
+            }
+
+            // Add event listener for shop input changes
+            $(document).on('input', '.shop-input', function() {
+                const selectedValue = $(this).val();
+                const shopId = extractShopId(selectedValue);
+                $(this).siblings('.shop-id-input').val(shopId);
+            });
+
             $('#add-item-btn').click(function(e) {
                 e.preventDefault();
+                
+                // Validate shop selection before submission
+                const shopInput = $('input[name="shops[0][shop_name]"]');
+                const shopIdInput = $('input[name="shops[0][shop_id]"]');
+                
+                if (!shopIdInput.val()) {
+                    Swal.fire({
+                        icon: 'error',
+                        title: 'Error',
+                        text: 'Please select a valid shop from the list'
+                    });
+                    return;
+                }
+
                 var formData = $('#gold-item-form').serialize();
 
                 $.ajax({
