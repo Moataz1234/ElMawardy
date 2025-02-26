@@ -15,6 +15,7 @@
 </head>
 <body>
     {{-- <x-loader /> --}}
+    {{-- @include('components.loader') --}}
     @include('dashboard')
     {{-- @include('components.navbar') --}}
     @include('components.pagination')

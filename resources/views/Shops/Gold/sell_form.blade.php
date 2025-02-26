@@ -158,7 +158,7 @@
                     @endforeach
 
                     <div class="text-center mt-4">
-                        <button type="submit" class="btn btn-success btn-lg px-5">
+                        <button type="submit" class="btn btn-success btn-lg px-5" id="submitButton">
                             <i class="fas fa-check-circle me-2"></i> إرسال طلب البيع
                         </button>
                     </div>
@@ -198,8 +198,16 @@
     <script>
         document.addEventListener('DOMContentLoaded', function() {
             const sellForm = document.querySelector('.item-details-form');
+            const submitButton = document.getElementById('submitButton');
+
             sellForm.addEventListener('submit', function(event) {
                 event.preventDefault();
+                
+                // Disable button immediately
+                submitButton.disabled = true;
+                const originalText = submitButton.innerHTML;
+                submitButton.innerHTML = '<i class="fas fa-spinner fa-spin me-2"></i> جاري المعالجة...';
+
                 fetch(sellForm.action, {
                     method: 'POST',
                     body: new FormData(sellForm),
@@ -213,30 +221,32 @@
                     if (data.success) {
                         Swal.fire({
                             icon: 'success',
-                            title: 'Success!',
-                            text: 'Sale request submitted successfully.',
+                            title: 'تم بنجاح!',
+                            text: 'تم إرسال طلب البيع بنجاح.',
+                            showConfirmButton: false,
+                            timer: 1500
                         }).then(() => {
                             localStorage.removeItem('selectedItems');
-                            window.location.href = '{{ route('gold-items.shop') }}';
+                            window.location.href = '{{ route("gold-items.shop") }}';
                         });
                     } else {
-                        Swal.fire({
-                            icon: 'error',
-                            title: 'Error',
-                            text: data.message || 'Failed to submit the form',
-                        });
+                        throw new Error(data.message || 'فشل في إرسال الطلب');
                     }
                 })
                 .catch(error => {
+                    console.error('Error:', error);
                     Swal.fire({
                         icon: 'error',
-                        title: 'Error',
-                        text: 'Failed to submit the form. Please try again.',
+                        title: 'خطأ',
+                        text: error.message || 'حدث خطأ أثناء إرسال الطلب. يرجى المحاولة مرة أخرى.',
                     });
+                    // Re-enable button on error
+                    submitButton.disabled = false;
+                    submitButton.innerHTML = originalText;
                 });
             });
         });
-        </script>
+    </script>
     {{-- <script>
         document.addEventListener('DOMContentLoaded', function() {
             const sellForm = document.querySelector('.item-details-form');

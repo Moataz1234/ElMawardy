@@ -110,50 +110,50 @@
 
         @if (auth()->user()->usertype === 'user')
             <li class="navbar-item dropdown">
-                <a href="#" class="navbar-link dropdown-toggle">Inventory</a>
+                <a href="#" class="navbar-link dropdown-toggle">المخزون</a>
                 <div class="dropdown-menu">
-                    <a href="{{ route('dashboard') }}" class="dropdown-item">Gold Inventory</a>
-                    <a href="{{ route('gold-pounds.index') }}" class="dropdown-item">Gold Pounds</a>
+                    <a href="{{ route('dashboard') }}" class="dropdown-item">القطع</a>
+                    <a href="{{ route('gold-pounds.index') }}" class="dropdown-item">الجنيهات و التول</a>
                     {{-- <a href="{{ route('gold-items.create') }}" class="dropdown-item">Diamond Inventory</a> --}}
-                    <a href="{{ route('gold-items.index') }}" class="dropdown-item">All Items</a>
-                    <a href="{{ route('items.statistics') }}" class="dropdown-item">الجرد</a>
+                    <a href="{{ route('gold-items.index') }}" class="dropdown-item">كل القطع</a>
+                    {{-- <a href="{{ route('items.statistics') }}" class="dropdown-item">الجرد</a> --}}
                 </div>
             </li>
-            <li class="navbar-item"><a href="{{ route('gold-items.sold') }}" class="navbar-link">Sold Items</a></li>
+            <li class="navbar-item"><a href="{{ route('gold-items.sold') }}" class="navbar-link">المبيعات</a></li>
             <li class="navbar-item dropdown">
-                <a href="#" class="navbar-link dropdown-toggle">Orders</a>
+                <a href="#" class="navbar-link dropdown-toggle">الطلبات</a>
                 <div class="dropdown-menu">
-                    <a href="{{ route('orders.create') }}" class="dropdown-item">Custom Order</a>
-                    <a href="{{ route('orders.index') }}" class="dropdown-item">Orders List</a>
-                    <a href="{{ route('orders.history') }}" class="dropdown-item">Orders History</a>
-                </div>
-            </li>
-            <li class="navbar-item dropdown">
-                <a href="#" class="navbar-link dropdown-toggle">Catalogs</a>
-                <div class="dropdown-menu">
-                    <a href="{{ route('gold-catalog') }}" class="navbar-link dropdown-item">Gold Catalog</a>
-                    <a href="http://172.29.206.251:8000/diamond/ThreeView" class="navbar-link dropdown-item">Diamond Catalog</a>
+                    <a href="{{ route('orders.create') }}" class="dropdown-item">عمل طلب </a>
+                    <a href="{{ route('orders.index') }}" class="dropdown-item"> الطلبات</a>
+                    <a href="{{ route('orders.history') }}" class="dropdown-item">الطلبات السابقة</a>
                 </div>
             </li>
             <li class="navbar-item dropdown">
-                <a href="#" class="navbar-link dropdown-toggle">Requests</a>
+                <a href="#" class="navbar-link dropdown-toggle">الكتالوجات</a>
                 <div class="dropdown-menu">
-                    <a class="dropdown-item" href="{{ route('transfer.requests') }}" class="navbar-link">Transfer Requests</a>
+                    <a href="{{ route('gold-catalog') }}" class="navbar-link dropdown-item">كتالوج الذهب</a>
+                    <a href="http://172.29.206.251:8000/diamond/ThreeView" class="navbar-link dropdown-item">كتالوج الالماظ</a>
+                </div>
+            </li>
+            <li class="navbar-item dropdown">
+                <a href="#" class="navbar-link dropdown-toggle">الطلبات</a>
+                <div class="dropdown-menu">
+                    <a class="dropdown-item" href="{{ route('transfer.requests') }}" class="navbar-link"> التحويلات</a>
                     {{-- <a class="dropdown-item" href="{{ route('workshop.requests') }}" class="navbar-link">Workshop Requests</a> --}}
-                    <a class="dropdown-item" href="{{ route('add-requests.index') }}" class="navbar-link">Add Requests</a>
-                    <a class="dropdown-item" href="{{ route('pound-requests.index') }}" class="navbar-link">Pound Requests</a>
-                    <a class="dropdown-item" href="{{ route('shop.requests.index') }}" class="navbar-link"> Item Requests
+                    <a class="dropdown-item" href="{{ route('add-requests.index') }}" class="navbar-link">الاضافات</a>
+                    {{-- <a class="dropdown-item" href="{{ route('pound-requests.index') }}" class="navbar-link">Pound Requests</a> --}}
+                    {{-- <a class="dropdown-item" href="{{ route('shop.requests.index') }}" class="navbar-link"> Item Requests
                         @if (Auth::user()->unreadNotifications->count() > 0)
                             <span class="badge badge-danger">
                                 {{ Auth::user()->unreadNotifications->count() }}
                             </span>
                         @endif
-                    </a>
+                    </a> --}}
         @endif
         </div>
         </li>
         <li class="navbar-item dropdown">
-            <button id="priceDropdown" class="navbar-link dropdown-toggle">Gold Prices</button>
+            <button id="priceDropdown" class="navbar-link dropdown-toggle">اخر الاسعار</button>
             <div id="priceDropdownMenu" class="dropdown-menu-horizontal" style="display: none;">
                 <ul id="priceList"></ul>
                 <div id="priceDate"></div>
@@ -162,7 +162,7 @@
 
 
         <div class="dropdown">
-            <button class="navbar-link dropdown-toggle">Profile</button>
+            <button class="navbar-link dropdown-toggle">الحساب</button>
             <div class="dropdown-menu">
                 <div class="profile-info cursor-pointer font-medium text-black">
                     <h4 class="name">{{ Auth::user()->name }}</h4>
@@ -170,8 +170,8 @@
                 <form method="POST" action="{{ route('logout') }}">
                     @csrf
                     <x-dropdown-link :href="route('logout')" onclick="event.preventDefault(); this.closest('form').submit();"
-                        class=" logout block px-4 py-2 hover:bg-danger">
-                        {{ __('Log Out') }}
+                        class=" logout block px-4 py-2 hover:bg-primary text-yellow">
+                        {{ __('تسجيل الخروج') }}
                     </x-dropdown-link>
                 </form>
             </div>

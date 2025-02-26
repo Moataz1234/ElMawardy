@@ -38,6 +38,9 @@ use App\Http\Controllers\{
     // NewItemTalabatController 
 };
 
+// Add this near the top of the file, after the use statements
+Route::view('/loader-component', 'components.loader')->name('loader.component');
+
 // Test SMTP Route
 Route::get('/test-smtp', function () {
     try {

@@ -7,6 +7,7 @@ use App\Models\GoldItem;
 use App\Models\Models;
 use App\Models\Warehouse;
 use App\Models\AddRequest;
+use App\Models\PoundRequest;
 use Illuminate\Support\Facades\Log;
 use Illuminate\Support\Facades\Auth;
 
@@ -48,10 +49,18 @@ class AddRequestController extends Controller
 
     public function index()
     {
-        $requests = AddRequest::where('shop_name', Auth::user()->shop_name)
+        // Get item requests
+        $itemRequests = AddRequest::where('shop_name', Auth::user()->shop_name)
             ->where('status', 'pending')
             ->get();
-        return view('shops.add_requests', compact('requests'));
+
+        // Get pound requests
+        $poundRequests = PoundRequest::with('goldPound')
+            ->where('shop_name', Auth::user()->shop_name)
+            ->where('status', 'pending')
+            ->get();
+
+        return view('shops.add_requests', compact('itemRequests', 'poundRequests'));
     }
 
     public function bulkAction(Request $request)

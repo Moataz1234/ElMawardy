@@ -21,7 +21,7 @@
     <table>
         <thead>
             <tr>
-                <th>Select</th>
+                {{-- <th>Select</th> --}}
                 <th>Image</th>
                 <th>Serial Number</th>
                 <th>Shop Name</th>
@@ -38,12 +38,13 @@
         <tbody id="table-body">   
             @foreach ($goldItems as $item)
                 <tr>
-                    <td>
+                    {{-- <td>
                         <input type="checkbox" class="select-item" data-id="{{ $item->id }}">
-                    </td>
+                    </td> --}}
                     <td>
-                        @if($item->modelCategory && $item->modelCategory->scanned_image)
-                            <img src="{{ asset( $item->modelCategory->scanned_image) }}" alt="Scanned Image" width="50">
+                        @if ($item->modelCategory && $item->modelCategory->scanned_image)
+                            <img src="{{ asset('storage/' . $item->modelCategory->scanned_image) }}"
+                                alt="Scanned Image" width="50">
                         @else
                             No Image
                         @endif

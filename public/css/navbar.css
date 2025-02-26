@@ -43,6 +43,7 @@ padding-left: 100px; */
     margin: 0;
     padding: 0;
     display: flex;
+    /* direction: rtl; */
     /* justify-content: center; */
 }
 
@@ -50,6 +51,7 @@ padding-left: 100px; */
     /* position: relative; */
     /* width: 10%; */
     height: auto;
+    font-size: 16px;
 }
 
 /* Dropdown container */
@@ -68,7 +70,7 @@ padding-left: 100px; */
     text-decoration: none;
     background: none;
     border: none;
-    font-size: 16px;
+    font-size: 20px;
     cursor: pointer;
 }
 

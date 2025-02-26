@@ -22,7 +22,10 @@
                     @csrf
                     <input type="hidden" name="ids" id="selectedIdsForTransfer">
                 </form>
-
+                <div class="button-container">
+                    <button id="sellItemsButton" class="btn btn-primary">بيع</button>
+                    <button id="transferItemsButton" class="btn btn-danger">تحويل</button>
+                </div>
                 <table class="table table-striped table-hover">
                     <thead>
                         <tr>
@@ -50,9 +53,9 @@
                             <tr style="{{ $isOuter ? 'background-color: yellow;' : '' }}">
                                 <td>
                                     @if($isPending)
-                                        <span class="pending-badge">Pending Transfer</span>
+                                        <span class="pending-badge" style="font-size: 16px;">في انتظار  الموافقة على التحويل</span>
                                     @elseif($item->status === 'pending_sale')
-                                        <span class="pending-badge">Pending Sale Approval</span>
+                                        <span class="pending-badge" style="font-size: 16px;">في انتظار الموافقة على البيع</span>
                                     @else
                                         <input type="checkbox" class="select-item" data-id="{{ $item->id }}">
                                     @endif
@@ -81,10 +84,7 @@
                     </tbody>
                 </table>
 
-                <div class="button-container">
-                    <button id="sellItemsButton" class="btn btn-primary">Sell</button>
-                    <button id="transferItemsButton" class="btn btn-danger">Transfer</button>
-                </div>
+              
             </div>
         </div>
         <!-- Model Details Modal -->

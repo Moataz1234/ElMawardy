@@ -6,6 +6,14 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Transfer Gold Item</title>
     <link href="{{ asset('css/transferForm.css') }}" rel="stylesheet">
+    <style>
+        /* Add styles for disabled button */
+        .transfer-button:disabled {
+            background-color: #cccccc;
+            cursor: not-allowed;
+            opacity: 0.7;
+        }
+    </style>
 </head>
 <body>
     <div class="transfer-container">
@@ -57,37 +65,43 @@
                     </tbody>
                 </table>
             </div>
-            <button type="submit" class="transfer-button">Transfer Items</button>
+            <button type="submit" class="transfer-button" id="submitButton">Transfer Items</button>
         </form>
     </div>
     <script>
         document.addEventListener('DOMContentLoaded', function() {
             const transferForm = document.querySelector('form[action="{{ route("gold-items.bulk-transfer") }}"]');
+            const submitButton = document.getElementById('submitButton');
     
             transferForm.addEventListener('submit', function(event) {
-                event.preventDefault(); // Prevent the default form submission
-    
+                event.preventDefault();
+                
+                // Disable the button immediately
+                submitButton.disabled = true;
+                submitButton.textContent = 'Processing...';
+
                 // Submit the form using fetch
                 fetch(transferForm.action, {
                     method: 'POST',
                     body: new FormData(transferForm),
                     headers: {
-                        'X-CSRF-TOKEN': '{{ csrf_token() }}' // Add CSRF token for Laravel
+                        'X-CSRF-TOKEN': '{{ csrf_token() }}'
                     }
                 })
                 .then(response => {
                     if (response.ok) {
-                        // Clear local storage after successful submission
                         localStorage.removeItem('selectedItems');
-                        // Redirect or show a success message
-                        window.location.href = '{{ route("dashboard") }}'; // Redirect to the dashboard
-                    } else {
-                        // Handle errors
                         Swal.fire({
-                            icon: 'error',
-                            title: 'Error',
-                            text: 'Failed to submit the form. Please try again.',
+                            icon: 'success',
+                            title: 'Success',
+                            text: 'Items transferred successfully!',
+                            showConfirmButton: false,
+                            timer: 1500
+                        }).then(() => {
+                            window.location.href = '{{ route("dashboard") }}';
                         });
+                    } else {
+                        throw new Error('Form submission failed');
                     }
                 })
                 .catch(error => {
@@ -97,6 +111,9 @@
                         title: 'Error',
                         text: 'An error occurred while submitting the form.',
                     });
+                    // Re-enable the button on error
+                    submitButton.disabled = false;
+                    submitButton.textContent = 'Transfer Items';
                 });
             });
         });
