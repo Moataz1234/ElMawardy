@@ -116,6 +116,7 @@
                     <a href="{{ route('gold-pounds.index') }}" class="dropdown-item">Gold Pounds</a>
                     {{-- <a href="{{ route('gold-items.create') }}" class="dropdown-item">Diamond Inventory</a> --}}
                     <a href="{{ route('gold-items.index') }}" class="dropdown-item">All Items</a>
+                    <a href="{{ route('items.statistics') }}" class="dropdown-item">Items Count</a>
                 </div>
             </li>
             <li class="navbar-item"><a href="{{ route('gold-items.sold') }}" class="navbar-link">Sold Items</a></li>

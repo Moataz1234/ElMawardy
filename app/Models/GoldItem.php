@@ -98,4 +98,20 @@ class GoldItem extends Model
             ->orderBy('year')
             ->orderBy('month');
     }
+
+    public static function getShopStatistics()
+    {
+        return self::select(
+            'shop_name',
+            'kind',
+            DB::raw('COUNT(*) as total_items'),
+            DB::raw('SUM(weight) as total_weight')
+        )
+        ->whereNotIn('status', ['sold', 'deleted']) // Exclude sold and deleted items
+        ->groupBy('shop_name', 'kind')
+        ->orderBy('shop_name')
+        ->orderBy('kind')
+        ->get()
+        ->groupBy('shop_name');
+    }
 }

@@ -33,7 +33,8 @@ use App\Http\Controllers\{
     AddRequestController,
     Gold\GoldPoundController,
     AddPoundsRequestController,
-    TransferRequestsController
+    TransferRequestsController,
+    ItemStatisticsController
     // NewItemTalabatController 
 };
 
@@ -337,3 +338,5 @@ Route::get('gold-pounds/export', [GoldPoundController::class, 'export'])->name('
 // Route::get('/storage/{filename}', function ($filename) {
 //     return response()->download(storage_path('app/public/' . $filename));
 // })->name('download.file');
+
+Route::get('/items-statistics', [ItemStatisticsController::class, 'index'])->name('items.statistics');
