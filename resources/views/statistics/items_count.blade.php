@@ -3,7 +3,7 @@
 <div class="container mt-4">
     <div class="statistics-container">
         <div class="shop-header">
-            <h2>{{ $shopName }} إحصائيات المخزون</h2>
+            <h2>{{ $shopName }} إحصائيات الجرد</h2>
             <div class="total-summary">
                 <div class="summary-item">
                     <i class="fas fa-cubes"></i>
