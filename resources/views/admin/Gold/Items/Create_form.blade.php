@@ -244,6 +244,7 @@
                                 <th>Weight</th>
                                 <th>Kind</th>
                                 <th>Quantity</th>
+                                <th>Stars</th>
                                 <th>Actions</th>
                             </tr>
                         </thead>
@@ -256,6 +257,7 @@
                                         <td>{{ $item['shops'][0]['weight'] }}</td>
                                         <td>{{ $item['kind'] }}</td>
                                         <td>{{ $item['quantity'] }}</td>
+                                        <td>{{ $item['stars'] ?? '' }}</td>
                                         <td>
                                             <button class="remove-item btn" data-id="{{ $item['id'] }}">Remove</button>
                                         </td>
@@ -361,13 +363,7 @@
                                     <td>${response.item.shops[0].weight}</td>
                                     <td>${response.item.kind}</td>
                                     <td>${response.item.quantity}</td>
-                                    <td class="rating-stars">
-                                        <i class="fas fa-star" data-rating="1"></i>
-                                        <i class="fas fa-star" data-rating="2"></i>
-                                        <i class="fas fa-star" data-rating="3"></i>
-                                        <i class="fas fa-star" data-rating="4"></i>
-                                        <i class="fas fa-star" data-rating="5"></i>
-                                    </td>
+                                    <td>${response.item.stars || ''}</td>
                                     <td>
                                         <button class="remove-item" data-id="${response.item.id}">Remove</button>
                                     </td>
@@ -376,7 +372,9 @@
                             $('#items-table tbody').append(newRow);
                             $('#items-count').text(response.total_items);
                             
-                            $('select[name="shops[0][shop_name]"]').val($('select[name="shops[0][shop_name]"] option:first').val());
+                            // Clear form fields
+                            $('input[name="shops[0][shop_name]"]').val('');
+                            $('input[name="shops[0][shop_id]"]').val('');
                             $('select[name="shops[0][gold_color]"]').val($('select[name="shops[0][gold_color]"] option:first').val());
                             $('input[name="shops[0][weight]"]').val('');
                             $('input[name="shops[0][talab]"]').prop('checked', false);

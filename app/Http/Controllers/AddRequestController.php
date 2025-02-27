@@ -81,9 +81,6 @@ class AddRequestController extends Controller
                     $goldItemData = $itemRequest->toArray();
                     unset($goldItemData['id']);
                     $goldItemData['status'] = 'available';
-                    if (!isset($goldItemData['rest_since'])) {
-                        $goldItemData['rest_since'] = now()->toDateString();
-                    }
 
                     GoldItem::create($goldItemData);
 

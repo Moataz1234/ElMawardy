@@ -79,6 +79,7 @@
                                 <th>Weight</th>
                                 <th>Gold Color</th>
                                 <th>Status</th>
+                                <th>Date</th>
                             </tr>
                         </thead>
                         <tbody>
@@ -97,6 +98,7 @@
                                     <td>{{ $request->weight }}</td>
                                     <td>{{ $request->gold_color }}</td>
                                     <td>{{ $request->status }}</td>
+                                    <td>{{ $request->rest_since}}</td>
                                 </tr>
                                 @php
                                     $totalWeight += $request->weight;
@@ -240,6 +242,11 @@
                     icon: "info"
                 });
             }
+        });
+
+        // Add this new event listener
+        document.getElementById('confirm-accept').addEventListener('click', function() {
+            document.getElementById('bulk-action-form').submit();
         });
 
         // Pounds tab functionality

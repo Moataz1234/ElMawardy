@@ -71,6 +71,8 @@ class GoldItemController extends Controller
             'shops.*.weight' => 'required|numeric',
         ]);
 
+        // Get the stars from the Models table
+        $modelStars = Models::where('model', $validatedData['model'])->value('stars');
 
         // Get current session items or initialize empty array
         $sessionItems = session()->get('gold_items', []);
@@ -87,9 +89,9 @@ class GoldItemController extends Controller
             'metal_purity' => $validatedData['metal_purity'],
             'quantity' => $validatedData['quantity'],
             'rest_since' => $validatedData['rest_since'],
-            'shops' => $validatedData['shops']
+            'shops' => $validatedData['shops'],
+            'stars' => $modelStars // Add the stars value
         ];
-
 
         // Add the item to session
         $sessionItems[] = $itemData;
