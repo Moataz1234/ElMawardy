@@ -51,6 +51,7 @@
                     <th>Model</th>
                     <th>Weight</th>
                     <th>Source</th>
+                    <th>To-Print</th>
                     <th>Stars</th>
                 </tr>
             </thead>
@@ -61,7 +62,8 @@
                         <td>{{ $item->shop_id ?? 'Admin' }}</td>
                         <td>{{ $item->model }}</td>
                         <td>{{ $item->weight }}</td>
-                        <td>{{  optional($item->modelCategory)->source  }}</td>
+                        <td>{{ optional($item->modelCategory)->source }}</td>
+                        <td>{{ $item->modified_source }}</td>
                         <td>{{ optional($item->modelCategory)->stars }}</td>
                     </tr>
                 @endforeach

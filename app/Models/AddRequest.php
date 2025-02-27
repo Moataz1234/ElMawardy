@@ -10,6 +10,10 @@ class AddRequest extends Model
         'serial_number', 'model', 'shop_id', 'shop_name', 'kind', 
         'gold_color', 'metal_type', 'metal_purity', 'quantity', 
         'weight', 'talab', 'status', 'rest_since', 
-
     ];
+
+    public function modelCategory()
+    {
+        return $this->belongsTo(Models::class, 'model', 'model');
+    }
 }
