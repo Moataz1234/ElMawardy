@@ -28,14 +28,27 @@
 
         .dynamic-field {
             display: flex;
-            flex-wrap: wrap;
+            flex-wrap: nowrap;
             gap: 1rem;
             margin-bottom: 1rem;
         }
 
         .dynamic-field .form-group {
             flex: 1;
-            min-width: 200px;
+            min-width: 150px;
+        }
+
+        .form-control {
+            padding: 0.375rem 0.5rem;
+            font-size: 0.9rem;
+        }
+
+        .shop-weight-row .form-group {
+            flex: 1;
+        }
+
+        .shop-weight-row .form-group:first-child {
+            flex: 2;
         }
 
         .table-container {
@@ -131,6 +144,42 @@
         .shop-input {
             width: 100%;
         }
+
+        .form-row {
+            display: flex;
+            gap: 1rem;
+            margin-bottom: 1rem;
+        }
+
+        .form-row .form-group {
+            flex: 1;
+            min-width: 0; /* Prevents flex items from overflowing */
+        }
+
+        .form-control {
+            padding: 0.375rem 0.5rem;
+            font-size: 0.9rem;
+            height: 38px; /* Make all inputs same height */
+        }
+
+        /* Adjust the shop-weight row specifically */
+        .shop-weight-row {
+            display: flex;
+            gap: 1rem;
+        }
+
+        .shop-weight-row .form-group:first-child {
+            flex: 2;
+        }
+
+        .shop-weight-row .form-group:last-child {
+            flex: 1;
+        }
+
+        /* Style for pending requests */
+        .pending-request {
+            background-color: #fff3cd !important;
+        }
     </style>
 </head>
 
@@ -149,11 +198,11 @@
             <div class="form-section">
                 <form class="create-form" id="gold-item-form">
                     @csrf
-                    <div class="dynamic-field">
+                    <!-- First Row -->
+                    <div class="form-row">
                         <div class="form-group">
                             <label for="model">Model:</label>
                             <input list="models" name="model" id="model" class="form-control" required>
-                                {{-- onblur="checkModelExists(this, '{{ route('models.create') }}')"> --}}
                             <datalist id="models">
                                 @foreach ($models as $model)
                                     <option value="{{ $model->model }}"></option>
@@ -164,9 +213,6 @@
                             <label for="kind">Kind:</label>
                             <input type="text" name="kind" id="kind" class="form-control" readonly>
                         </div>
-                    </div>
-
-                    <div class="dynamic-field">
                         <div class="form-group">
                             <label for="metal_type">Metal Type:</label>
                             <select name="metal_type" id="metal_type" class="form-control" required>
@@ -185,49 +231,50 @@
                         </div>
                     </div>
 
-                    <div class="dynamic-field">
+                    <!-- Second Row -->
+                    <div class="form-row">
                         <div class="form-group">
                             <label for="quantity">Quantity:</label>
                             <input type="number" name="quantity" id="quantity" value="1" class="form-control" required>
                         </div>
                         <div class="form-group">
-                            <label for="rest_since">Rest Since:</label>
-                            <input type="date" name="rest_since" id="rest_since" 
-                                value="<?php echo date('Y-m-d'); ?>" class="form-control" required>
+                            <label for="gold_color">Gold Color:</label>
+                            <select name="shops[0][gold_color]" class="form-control" required>
+                                @foreach ($goldColors as $color)
+                                    <option value="{{ $color }}">{{ $color }}</option>
+                                @endforeach
+                            </select>
                         </div>
-                    </div>
-
-                    <div id="dynamic-fields-container">
-                        <div class="dynamic-field">
-                            <div class="form-group">
-                                <label for="shop_id">Shop:</label>
-                                <input list="shops-list" name="shops[0][shop_name]" class="form-control shop-input" required 
-                                       placeholder="Select or type shop name" data-index="0">
-                                <datalist id="shops-list">
-                                    @foreach ($shops as $shop)
-                                        <option value="{{ $shop->name }} (ID: {{ $shop->id }})"></option>
-                                    @endforeach
-                                </datalist>
-                                <input type="hidden" name="shops[0][shop_id]" class="shop-id-input">
-                            </div>
-                            <div class="form-group">
-                                <label for="gold_color">Gold Color:</label>
-                                <select name="shops[0][gold_color]" class="form-control" required>
-                                    @foreach ($goldColors as $color)
-                                        <option value="{{ $color }}">{{ $color }}</option>
-                                    @endforeach
-                                </select>
-                            </div>
-                            <div class="form-group">
-                                <label for="weight">Weight:</label>
-                                <input type="number" step="0.01" name="shops[0][weight]" class="form-control" required>
-                            </div>
-                            <div class="form-group">
-                                <label for="talab">Talab:</label>
+                        <div class="form-group">
+                            <label for="rest_since">Rest Since:</label>
+                            <input type="date" name="rest_since" id="rest_since" value="<?php echo date('Y-m-d'); ?>" class="form-control" required>
+                        </div>
+                        <div class="form-group">
+                            <label for="talab">Talab:</label>
+                            <div>
                                 <input type="hidden" name="shops[0][talab]" value="0">
                                 <input type="checkbox" class="checkboxInput" id="checkboxInput" name="shops[0][talab]" value="1">
                                 <label for="checkboxInput" class="toggleSwitch"></label>
                             </div>
+                        </div>
+                    </div>
+
+                    <!-- Third Row -->
+                    <div class="form-row shop-weight-row">
+                        <div class="form-group">
+                            <label for="shop_id">Shop:</label>
+                            <input list="shops-list" name="shops[0][shop_name]" class="form-control shop-input" required 
+                                   placeholder="Select or type shop name" data-index="0">
+                            <datalist id="shops-list">
+                                @foreach ($shops as $shop)
+                                    <option value="{{ $shop->name }} (ID: {{ $shop->id }})"></option>
+                                @endforeach
+                            </datalist>
+                            <input type="hidden" name="shops[0][shop_id]" class="shop-id-input">
+                        </div>
+                        <div class="form-group">
+                            <label for="weight">Weight:</label>
+                            <input type="number" step="0.01" name="shops[0][weight]" class="form-control" required>
                         </div>
                     </div>
 

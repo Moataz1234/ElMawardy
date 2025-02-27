@@ -51,79 +51,64 @@ document.addEventListener('DOMContentLoaded', function () {
                 'X-Requested-With': 'XMLHttpRequest'
             }
         })
-            .then(response => response.json())
-            .then(data => {
-                tableBody.innerHTML = '';
-                modelImageDiv.innerHTML = '';
+        .then(response => response.json())
+        .then(data => {
+            tableBody.innerHTML = '';
+            modelImageDiv.innerHTML = '';
 
-                if (data.modelDetails && data.modelDetails.scanned_image) {
-                    const imageElement = document.createElement('img');
-                    imageElement.src = `/storage/${data.modelDetails.scanned_image}`;
-                    imageElement.alt = `Model ${data.modelDetails.model}`;
-                    imageElement.className = 'model-scanned-image';
+            // Handle model image
+            if (data.modelDetails && data.modelDetails.scanned_image) {
+                const imageElement = document.createElement('img');
+                imageElement.src = `/storage/${data.modelDetails.scanned_image}`;
+                imageElement.alt = `Model ${data.modelDetails.model}`;
+                imageElement.className = 'model-scanned-image';
+                modelImageDiv.appendChild(imageElement);
+            } else {
+                modelImageDiv.innerHTML = '<p>No image available for this model</p>';
+            }
 
-                    const modelInfo = document.createElement('div');
-                    modelInfo.className = 'model-info';
-
-                    modelImageDiv.appendChild(modelInfo);
-                    modelImageDiv.appendChild(imageElement);
-                } else {
-                    modelImageDiv.innerHTML = '<p>No image available for this model</p>';
-                }
-
-                if (data.items.length === 0) {
-                    const row = document.createElement('tr');
-                    row.innerHTML = '<td colspan="4">No items found</td>';
-                    tableBody.appendChild(row);
-                    return;
-                }
-
-                // Group items by shop and gold color
-                const groupedItems = {};
+            // First display existing items
+            if (data.items && data.items.length > 0) {
                 data.items.forEach(item => {
-                    const key = `${item.shop_name}-${item.gold_color}`;
-                    if (!groupedItems[key]) {
-                        groupedItems[key] = {
-                            shop_name: item.shop_name,
-                            gold_color: item.gold_color,
-                            total_weight: 0,
-                            count: 0,
-                            serial_numbers: new Set()
-                        };
-                    }
-                    groupedItems[key].total_weight += parseFloat(item.weight);
-                    groupedItems[key].count++;
-                    groupedItems[key].serial_numbers.add(item.serial_number);
-                });
-
-                // Sort grouped items by shop name and gold color
-                const sortedItems = Object.values(groupedItems).sort((a, b) => {
-                    // First sort by shop name
-                    if (a.shop_name < b.shop_name) return -1;
-                    if (a.shop_name > b.shop_name) return 1;
-                    // If shop names are equal, sort by gold color
-                    if (a.gold_color < b.gold_color) return -1;
-                    if (a.gold_color > b.gold_color) return 1;
-                    return 0;
-                });
-
-                // Display sorted grouped items
-                sortedItems.forEach(group => {
                     const row = document.createElement('tr');
                     row.innerHTML = `
-                        <td>${group.shop_name} (${group.gold_color})</td>
-                        <td>${group.total_weight.toFixed(2)}</td>
-                        <td>${Array.from(group.serial_numbers).join(', ')}</td>
-                        <td>${group.count}</td>
+                        <td>${item.shop_name} (${item.gold_color})</td>
+                        <td>${parseFloat(item.weight).toFixed(2)}</td>
+                        <td>${item.serial_number}</td>
+                        <td>${item.quantity}</td>
                     `;
                     tableBody.appendChild(row);
                 });
-            })
-            .catch(error => {
-                console.error('Error:', error);
-                tableBody.innerHTML = '<tr><td colspan="4">Error fetching data</td></tr>';
-                modelImageDiv.innerHTML = '<p>Error loading model details</p>';
-            });
+            }
+
+            // Then display pending requests with yellow background and badge
+            if (data.pendingRequests && data.pendingRequests.length > 0) {
+                data.pendingRequests.forEach(item => {
+                    const row = document.createElement('tr');
+                    row.style.backgroundColor = 'rgb(44, 40, 25)';
+                    row.innerHTML = `
+                        <td>
+                            ${item.shop_name} (${item.gold_color})
+                            <span class="badge bg-warning text-dark ms-2">Pending</span>
+                        </td>
+                        <td>${parseFloat(item.weight).toFixed(2)}</td>
+                        <td>${item.serial_number}</td>
+                        <td>${item.quantity}</td>
+                    `;
+                    tableBody.appendChild(row);
+                });
+            }
+
+            if ((!data.items || data.items.length === 0) && 
+                (!data.pendingRequests || data.pendingRequests.length === 0)) {
+                tableBody.innerHTML = '<tr><td colspan="4">No items found</td></tr>';
+            }
+        })
+        .catch(error => {
+            console.error('Error:', error);
+            tableBody.innerHTML = '<tr><td colspan="4">Error fetching data</td></tr>';
+            modelImageDiv.innerHTML = '<p>Error loading model details</p>';
+        });
     }
 
     // Event Listeners
@@ -136,6 +121,7 @@ document.addEventListener('DOMContentLoaded', function () {
     modelInput.addEventListener('change', function (e) {
         const modelValue = e.target.value;
         kindInput.value = determineKind(modelValue);
+        fetchItems(modelValue);
     });
 
     addFieldBtn.addEventListener('click', function () {
@@ -221,5 +207,55 @@ document.addEventListener('DOMContentLoaded', function () {
             </tr>
         `;
         $('#items-table tbody').append(newRow);
+    }
+
+    function updateModelDetails(model) {
+        if (!model) return;
+
+        $.ajax({
+            url: '/api/model-details/' + model,
+            type: 'GET',
+            success: function(data) {
+                // Clear existing table
+                $('#shop-data-table tbody').empty();
+
+                // First show pending add requests with yellow background
+                if (data.addRequests && data.addRequests.length > 0) {
+                    data.addRequests.forEach(function(item) {
+                        if (item.status === 'pending') {
+                            $('#shop-data-table tbody').append(`
+                                <tr style="background-color:rgb(44, 40, 25);">
+                                    <td>${item.shop_name} - ${item.gold_color}</td>
+                                    <td>${item.weight}</td>
+                                    <td>${item.serial_number}</td>
+                                    <td>${item.quantity}</td>
+                                </tr>
+                            `);
+                        }
+                    });
+                }
+
+                // Then show existing gold items
+                if (data.goldItems && data.goldItems.length > 0) {
+                    data.goldItems.forEach(function(item) {
+                        $('#shop-data-table tbody').append(`
+                            <tr>
+                                <td>${item.shop_name} - ${item.gold_color}</td>
+                                <td>${item.weight}</td>
+                                <td>${item.serial_number}</td>
+                                <td>${item.quantity}</td>
+                            </tr>
+                        `);
+                    });
+                }
+
+                // Update model image if available
+                if (data.image_url) {
+                    $('#model-image').html(`<img src="${data.image_url}" alt="Model Image">`);
+                } else {
+                    $('#model-image').html('No image available');
+                }
+            }
+        });
     }
 });

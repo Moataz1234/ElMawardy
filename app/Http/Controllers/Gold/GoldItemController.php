@@ -247,4 +247,28 @@ class GoldItemController extends Controller
         $exists = Models::where('model', $model)->exists();
         return response()->json(['exists' => $exists]);
     }
+
+    public function getModelDetails(Request $request)
+    {
+        $model = $request->query('model');
+        
+        // Get existing gold items
+        $items = GoldItem::where('model', $model)
+            ->whereNotIn('status', ['sold', 'deleted'])
+            ->get();
+
+        // Get pending add requests
+        $pendingRequests = AddRequest::where('model', $model)
+            ->where('status', 'pending')
+            ->get();
+
+        // Get model details (including image)
+        $modelDetails = Models::where('model', $model)->first();
+
+        return response()->json([
+            'items' => $items,
+            'pendingRequests' => $pendingRequests,
+            'modelDetails' => $modelDetails
+        ]);
+    }
 }

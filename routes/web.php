@@ -198,7 +198,7 @@ Route::middleware(['auth'])->group(function () {
         Route::post('/gold-items/store', [GoldItemController::class, 'store'])->name('gold-items.store');
         Route::get('/gold-items/{id}/edit', [GoldItemController::class, 'edit'])->name('gold-items.edit');
         Route::put('/gold-items/{id}', [AdminDashboardController::class, 'update'])->name('gold-items.update');
-        Route::get('/gold-items/model-details', [ModelsController::class, 'getModelDetails']);
+        Route::get('/gold-items/model-details', [GoldItemController::class, 'getModelDetails']);
         Route::get('/barcode', [BarcodeController::class, 'index'])->name('barcode.view');
         Route::get('/barcode/export', [BarcodeController::class, 'export'])->name('barcode.export');
 
