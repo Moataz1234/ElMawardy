@@ -4,6 +4,7 @@ namespace App\Http\Controllers\Admin;
 use App\Http\Controllers\Controller;
 use App\Models\GoldItem;
 use App\Models\Shop;
+use App\Models\AddRequest;
 use Illuminate\Http\Request;
 use PhpOffice\PhpSpreadsheet\Spreadsheet;
 use PhpOffice\PhpSpreadsheet\Writer\Xlsx;
@@ -15,7 +16,7 @@ class BarcodeController extends Controller
 {
     public function index(Request $request)
     {
-        $query = GoldItem::query();
+        $query = AddRequest::query();
 
         // Filter by shop ID if provided
         if ($request->filled('shop_id')) {
@@ -60,14 +61,14 @@ class BarcodeController extends Controller
             'B1' => 'Shop',
             'C1' => 'Model',
             'D1' => 'Weight',
-            'E1' => 'Source', // New header
-            'F1' => 'Stars',  // New header
+            'E1' => 'To-Print',
+            'F1' => 'Stars',
             'G1' => 'Serial Number',
             'H1' => 'Shop',
             'I1' => 'Model',
             'J1' => 'Weight',
-            'K1' => 'Source', // New header
-            'L1' => 'Stars',  // New header
+            'K1' => 'To-Print',
+            'L1' => 'Stars',
         ];
 
         foreach ($headers as $cell => $value) {
@@ -78,7 +79,7 @@ class BarcodeController extends Controller
         $sheet->getStyle('A1:L1')->getFont()->setBold(true);
 
         // Get data filtered by shop and date
-        $query = GoldItem::query();
+        $query = AddRequest::query();
 
         if ($request->filled('shop_id')) {
             $query->where('shop_id', $request->shop_id);
@@ -110,7 +111,6 @@ class BarcodeController extends Controller
                     // New fields for first item
                     $source = optional($item->modelCategory)->source;
                     $sheet->setCellValue('E' . $row, $this->modifySource($source));
-                    // $sheet->setCellValue('E' . $row, optional($item->modelCategory)->source);
 
                     $sheet->setCellValue('F' . $row, optional($item->modelCategory)->stars);
                 }
@@ -128,7 +128,6 @@ class BarcodeController extends Controller
                         // New fields for second item
                         $source2 = optional($item2->modelCategory)->source;
                         $sheet->setCellValue('K' . $row, $this->modifySource($source2));
-                        // $sheet->setCellValue('K' . $row, optional($item2->modelCategory)->source);
                         $sheet->setCellValue('L' . $row, optional($item2->modelCategory)->stars);
                     }
                 } else {
