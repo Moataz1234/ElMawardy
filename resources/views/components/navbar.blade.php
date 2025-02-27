@@ -135,8 +135,11 @@
                     <a href="http://172.29.206.251:8000/diamond/ThreeView" class="navbar-link dropdown-item">كتالوج الالماظ</a>
                 </div>
             </li>
+            <li class="navbar-item"><a href="{{ route('transfer.requests') }}" class="navbar-link">التحويلات</a></li>
+            <li class="navbar-item"><a href="{{ route('add-requests.index') }}" class="navbar-link">الاضافات</a></li>
+
             <li class="navbar-item dropdown">
-                <a href="#" class="navbar-link dropdown-toggle">الطلبات</a>
+                {{-- <a href="#" class="navbar-link dropdown-toggle">التحويلات و الاضافات</a> --}}
                 <div class="dropdown-menu">
                     <a class="dropdown-item" href="{{ route('transfer.requests') }}" class="navbar-link"> التحويلات</a>
                     {{-- <a class="dropdown-item" href="{{ route('workshop.requests') }}" class="navbar-link">Workshop Requests</a> --}}
