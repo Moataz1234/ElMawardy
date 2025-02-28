@@ -94,13 +94,13 @@
                                 <div class="info-box">
                                     <div class="row">
                                         <div class="col-md-4">
-                                            <strong>المصروفات:</strong> {{ number_format(session('total_cost', 0), 2) }} ريال
+                                            <strong>المصروفات:</strong> {{ number_format(session('total_cost', 0), 2) }} جنيه
                                         </div>
                                         <div class="col-md-4">
-                                            <strong>الإيرادات:</strong> {{ number_format(session('total_earn', 0), 2) }} ريال
+                                            <strong>الإيرادات:</strong> {{ number_format(session('total_earn', 0), 2) }} جنيه
                                         </div>
                                         <div class="col-md-4">
-                                            <strong>صافي الربح:</strong> {{ number_format($operation->operation_cost, 2) }} ريال
+                                            <strong>صافي الربح:</strong> {{ number_format($operation->operation_cost, 2) }} جنيه
                                         </div>
                                     </div>
                                 </div>

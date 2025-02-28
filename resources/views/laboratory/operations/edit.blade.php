@@ -55,9 +55,6 @@
                         <div class="card mb-4">
                             <div class="card-header d-flex justify-content-between align-items-center">
                                 <h6 class="mb-0">التسليمات</h6>
-                                <button type="button" class="btn btn-success btn-sm" data-bs-toggle="modal" data-bs-target="#addInputModal">
-                                    <i class="fas fa-plus"></i> إضافة تسليم
-                                </button>
                             </div>
                             <div class="card-body">
                                 <div class="table-responsive">
@@ -70,7 +67,7 @@
                                                 <th>التاريخ</th>
                                             </tr>
                                         </thead>
-                                        <tbody>
+                                        <tbody id="inputsTableBody">
                                             @foreach($operation->inputs()->orderBy('created_at', 'asc')->get() as $index => $input)
                                             <tr>
                                                 <td>{{ $index + 1 }}</td>
@@ -80,6 +77,38 @@
                                             </tr>
                                             @endforeach
                                         </tbody>
+                                        <tfoot>
+                                            <tr id="newInputRow" style="display: none;">
+                                                <form action="{{ route('laboratory.operations.add-input', $operation) }}" method="POST" id="newInputForm">
+                                                    @csrf
+                                                    <td></td>
+                                                    <td>
+                                                        <input type="number" step="0.001" name="weight" class="form-control form-control-sm" required>
+                                                    </td>
+                                                    <td>
+                                                        <input type="number" name="purity" class="form-control form-control-sm" required>
+                                                    </td>
+                                                    <td>
+                                                        <div class="d-flex">
+                                                            <input type="date" name="input_date" class="form-control form-control-sm" value="{{ date('Y-m-d') }}" required>
+                                                            <button type="submit" class="btn btn-success btn-sm ms-1">
+                                                                <i class="fas fa-check"></i>
+                                                            </button>
+                                                            <button type="button" class="btn btn-danger btn-sm ms-1" onclick="hideInputRow()">
+                                                                <i class="fas fa-times"></i>
+                                                            </button>
+                                                        </div>
+                                                    </td>
+                                                </form>
+                                            </tr>
+                                            <tr>
+                                                <td colspan="4" class="text-center">
+                                                    <button type="button" class="btn btn-success btn-sm" onclick="showInputRow()">
+                                                        <i class="fas fa-plus"></i> إضافة تسليم
+                                                    </button>
+                                                </td>
+                                            </tr>
+                                        </tfoot>
                                     </table>
                                 </div>
                             </div>
@@ -89,9 +118,6 @@
                         <div class="card">
                             <div class="card-header d-flex justify-content-between align-items-center">
                                 <h6 class="mb-0">الاستلامات</h6>
-                                <button type="button" class="btn btn-success btn-sm" data-bs-toggle="modal" data-bs-target="#addOutputModal">
-                                    <i class="fas fa-plus"></i> إضافة استلام
-                                </button>
                             </div>
                             <div class="card-body">
                                 <div class="table-responsive">
@@ -104,7 +130,7 @@
                                                 <th>التاريخ</th>
                                             </tr>
                                         </thead>
-                                        <tbody>
+                                        <tbody id="outputsTableBody">
                                             @foreach($operation->outputs()->orderBy('created_at', 'asc')->get() as $index => $output)
                                             <tr>
                                                 <td>{{ $index + 1 }}</td>
@@ -114,6 +140,38 @@
                                             </tr>
                                             @endforeach
                                         </tbody>
+                                        <tfoot>
+                                            <tr id="newOutputRow" style="display: none;">
+                                                <form action="{{ route('laboratory.operations.add-output', $operation) }}" method="POST" id="newOutputForm">
+                                                    @csrf
+                                                    <td></td>
+                                                    <td>
+                                                        <input type="number" step="0.001" name="weight" class="form-control form-control-sm" required>
+                                                    </td>
+                                                    <td>
+                                                        <input type="number" name="purity" class="form-control form-control-sm" required>
+                                                    </td>
+                                                    <td>
+                                                        <div class="d-flex">
+                                                            <input type="date" name="output_date" class="form-control form-control-sm" value="{{ date('Y-m-d') }}" required>
+                                                            <button type="submit" class="btn btn-success btn-sm ms-1">
+                                                                <i class="fas fa-check"></i>
+                                                            </button>
+                                                            <button type="button" class="btn btn-danger btn-sm ms-1" onclick="hideOutputRow()">
+                                                                <i class="fas fa-times"></i>
+                                                            </button>
+                                                        </div>
+                                                    </td>
+                                                </form>
+                                            </tr>
+                                            <tr>
+                                                <td colspan="4" class="text-center">
+                                                    <button type="button" class="btn btn-success btn-sm" onclick="showOutputRow()">
+                                                        <i class="fas fa-plus"></i> إضافة استلام
+                                                    </button>
+                                                </td>
+                                            </tr>
+                                        </tfoot>
                                     </table>
                                 </div>
                             </div>
@@ -124,79 +182,30 @@
         </div>
     </div>
 
-    <!-- Add Input Modal -->
-    <div class="modal fade" id="addInputModal" tabindex="-1">
-        <div class="modal-dialog">
-            <div class="modal-content">
-                <form action="{{ route('laboratory.operations.add-input', $operation) }}" method="POST">
-                    @csrf
-                    <div class="modal-header">
-                        <h5 class="modal-title">إضافة تسليم جديد</h5>
-                        <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
-                    </div>
-                    <div class="modal-body">
-                        <div class="mb-3">
-                            <label class="form-label">الوزن (جم)</label>
-                            <input type="number" step="0.001" name="weight" class="form-control" required>
-                        </div>
-                        <div class="mb-3">
-                            <label class="form-label">العيار</label>
-                            <input type="number" name="purity" class="form-control" required>
-                        </div>
-                        <div class="mb-3">
-                            <label class="form-label">التاريخ</label>
-                            <input type="date" name="input_date" class="form-control" value="{{ date('Y-m-d') }}" required>
-                        </div>
-                    </div>
-                    <div class="modal-footer">
-                        <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">إلغاء</button>
-                        <button type="submit" class="btn btn-primary">حفظ</button>
-                    </div>
-                </form>
-            </div>
-        </div>
-    </div>
-
-    <!-- Add Output Modal -->
-    <div class="modal fade" id="addOutputModal" tabindex="-1">
-        <div class="modal-dialog">
-            <div class="modal-content">
-                <form action="{{ route('laboratory.operations.add-output', $operation) }}" method="POST">
-                    @csrf
-                    <div class="modal-header">
-                        <h5 class="modal-title">إضافة استلام جديد</h5>
-                        <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
-                    </div>
-                    <div class="modal-body">
-                        <div class="mb-3">
-                            <label class="form-label">الوزن (جم)</label>
-                            <input type="number" step="0.001" name="weight" class="form-control" required>
-                        </div>
-                        <div class="mb-3">
-                            <label class="form-label">العيار</label>
-                            <input type="number" name="purity" class="form-control" required>
-                        </div>
-                        <div class="mb-3">
-                            <label class="form-label">التاريخ</label>
-                            <input type="date" name="output_date" class="form-control" value="{{ date('Y-m-d') }}" required>
-                        </div>
-                    </div>
-                    <div class="modal-footer">
-                        <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">إلغاء</button>
-                        <button type="submit" class="btn btn-primary">حفظ</button>
-                    </div>
-                </form>
-            </div>
-        </div>
-    </div>
-
     <!-- Bootstrap JS -->
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
     
     <script>
+        function showInputRow() {
+            document.getElementById('newInputRow').style.display = 'table-row';
+        }
+
+        function hideInputRow() {
+            document.getElementById('newInputRow').style.display = 'none';
+        }
+
+        function showOutputRow() {
+            document.getElementById('newOutputRow').style.display = 'table-row';
+        }
+
+        function hideOutputRow() {
+            document.getElementById('newOutputRow').style.display = 'none';
+        }
+
+        // Auto-hide success alerts after 5 seconds
         document.addEventListener('DOMContentLoaded', function() {
             setTimeout(function() {
-                const alerts = document.querySelectorAll('.alert');
+                const alerts = document.querySelectorAll('.alert-success');
                 alerts.forEach(function(alert) {
                     const bsAlert = new bootstrap.Alert(alert);
                     bsAlert.close();

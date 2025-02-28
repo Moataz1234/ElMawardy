@@ -22,12 +22,12 @@
                 <ul class="nav nav-pills nav-fill">
                     <li class="nav-item">
                         <a class="nav-link active" id="incoming-tab" data-bs-toggle="pill" href="#incoming">
-                            <i class="bi bi-arrow-down-circle me-2"></i>تحويلات ليا
+                            <i class="bi bi-arrow-down-circle me-2"></i>استلام
                         </a>
                     </li>
                     <li class="nav-item">
                         <a class="nav-link" id="outgoing-tab" data-bs-toggle="pill" href="#outgoing">
-                            <i class="bi bi-arrow-up-circle me-2"></i>تحويلات من عندي
+                            <i class="bi bi-arrow-up-circle me-2"></i>  خروج
                         </a>
                     </li>
                 </ul>

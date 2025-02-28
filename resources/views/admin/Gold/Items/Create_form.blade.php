@@ -279,6 +279,7 @@
                     </div>
 
                     <button type="button" id="add-item-btn">Add to List</button>
+                    <a class="reset-button btn btn-primary" href="{{ route('models.create') }}">Add New Model</a>
                 </form>
 
                 <!-- Session Items Table -->
