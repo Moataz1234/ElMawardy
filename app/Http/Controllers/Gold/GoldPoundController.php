@@ -33,9 +33,9 @@ class GoldPoundController extends Controller
     {
         try {
             // Simple arrays of pound models
-            $onePoundModels = ['5-1416', '1-1068', '5-1338-C', '2-1928', '5-1290'];
-            $halfPoundModels = ['2-1899', '5-1369', '1-1291'];
-            $quarterPoundModels = ['9-0194', '7-1329', '7-1013-A', '4-0854', '5-1370', '7-1386'];
+            $onePoundModels = ['5-1416', '1-1068', '5-1338-C', '2-1928', '5-1290','1-1095'];
+            $halfPoundModels = ['2-1899', '5-1369', '1-1291', '5-1338-B'];
+            $quarterPoundModels = ['9-0194', '7-1329', '7-1013-A', '4-0854', '5-1370', '7-1386', '5-1338-A'];
 
             // Get all gold items that match these models
             $goldItems = GoldItem::whereIn('model', array_merge($onePoundModels, $halfPoundModels, $quarterPoundModels))->get();
@@ -93,6 +93,8 @@ class GoldPoundController extends Controller
    
     public function AdminIndex()
     {
+        $syncResult = $this->syncGoldPoundsInventory(); 
+        Log::info('Sync Result:', ['result' => $syncResult]);
         $shopPounds = GoldPoundInventory::with(['goldPound', 'goldItem.modelCategory'])
         ->get();
         return view('admin.Gold.pounds.index', compact('shopPounds'));
