@@ -34,7 +34,7 @@ class GoldPoundController extends Controller
         try {
             // Simple arrays of pound models
             $onePoundModels = ['5-1416', '1-1068', '5-1338-C', '2-1928', '5-1290','1-1095'];
-            $halfPoundModels = ['2-1899', '5-1369', '1-1291', '5-1338-B'];
+            $halfPoundModels = ['2-1899', '5-1369', '1-1291', '5-1338-B','7-1013-B'];
             $quarterPoundModels = ['9-0194', '7-1329', '7-1013-A', '4-0854', '5-1370', '7-1386', '5-1338-A'];
 
             // Get all gold items that match these models
