@@ -34,7 +34,9 @@ use App\Http\Controllers\{
     Gold\GoldPoundController,
     AddPoundsRequestController,
     TransferRequestsController,
-    ItemStatisticsController
+    ItemStatisticsController,
+    LaboratoryOperationController,
+    LaboratoryDestinationController
     // NewItemTalabatController 
 };
 
@@ -343,3 +345,20 @@ Route::get('gold-pounds/export', [GoldPoundController::class, 'export'])->name('
 // })->name('download.file');
 
 Route::get('/items-statistics', [ItemStatisticsController::class, 'index'])->name('items.statistics');
+
+// Laboratory Operations
+Route::prefix('laboratory')->name('laboratory.')->group(function () {
+    Route::resource('operations', LaboratoryOperationController::class);
+    Route::post('operations/{operation}/add-output', [LaboratoryOperationController::class, 'addOutput'])
+         ->name('operations.add-output');
+    Route::post('operations/{operation}/add-input', [LaboratoryOperationController::class, 'addInput'])
+         ->name('operations.add-input');
+    Route::patch('operations/{operation}/close', [LaboratoryOperationController::class, 'closeOperation'])
+         ->name('operations.close');
+    Route::get('operations/{operation}/edit', [LaboratoryOperationController::class, 'edit'])
+         ->name('operations.edit');
+    Route::patch('/operations/{operation}/weights', [LaboratoryOperationController::class, 'updateWeights'])
+        ->name('operations.update-weights');
+    Route::patch('/operations/{operation}/costs', [LaboratoryOperationController::class, 'updateCosts'])
+        ->name('operations.update-costs');
+});
