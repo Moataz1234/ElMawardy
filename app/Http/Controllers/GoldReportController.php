@@ -28,21 +28,7 @@ class GoldReportController extends Controller
             ->groupBy('model');
 
         if ($soldItems->isEmpty()) {
-            return view('Admin/reports/no_sales', [
-                'workshop_count' => 0,
-                'order_date' => $date->format('d-m-Y'),
-                'gold_color' => '',
-                'source' => 'Production',
-                'model' => 'No Sales Today',
-                'remaining' => 0,
-                'total_production' => 0,
-                'total_sold' => 0,
-                'first_production' => '',
-                'last_production' => '',
-                'shop' => '',
-                'sold_prices' => '',
-                'shops_data' => []
-            ]);
+            return [];
         }
 
         $reportsData = [];
@@ -50,175 +36,154 @@ class GoldReportController extends Controller
         foreach ($soldItems as $model => $items) {
             $modelInfo = Models::where('model', $model)->first();
 
-            $currentInventory = GoldItem::where('model', $model)->get();
+            // Step 1: Get all items for the model from GoldItems and GoldItemsSold
+            $inventoryItems = GoldItem::where('model', $model)->get();
+            $soldItemsForModel = GoldItemSold::where('model', $model)->get();
+            
+            Log::info("Model: $model - Inventory Items: " . $inventoryItems->count());
+            Log::info("Model: $model - Sold Items: " . $soldItemsForModel->count());
 
-            // Calculate total pieces sold on the selected date for this model
-            $totalPiecesSoldToday = $items->sum('quantity');
+            // Step 2: Find the latest date from rest_since and add_date
+            $latestInventoryDate = $inventoryItems->max('rest_since');
+            $latestSoldDate = $soldItemsForModel->max('add_date');
 
-            // Get unique shop names that sold this model on the selected date
-            $shopsWithSales = $items->pluck('shop_name')->unique()->implode(' / ');
-
-            // Calculate shop distribution for current inventory (not sold items)
-            $shopDistribution = [];
-            $shops = [
-                'Mohandessin Shop',
-                'Mall of Arabia',
-                'Nasr City',
-                'Zamalek',
-                'Mall of Egypt',
-                'EL Guezira Shop',
-                'Arkan',
-                'District 5',
-                'U Venues'
-            ];
-
-            foreach ($shops as $shop) {
-                $shopItems = $currentInventory->where('shop_name', $shop);
-
-                $shopDistribution[$shop] = [
-                    'all_rests' => $shopItems->count(), // Total items in this shop
-                    'white_gold' => $shopItems->where('gold_color', 'White')->count(),
-                    'yellow_gold' => $shopItems->where('gold_color', 'Yellow')->count(),
-                    'rose_gold' => $shopItems->where('gold_color', 'Rose')->count()
-                ];
+            $latestDate = null;
+            if ($latestInventoryDate && $latestSoldDate) {
+                $latestDate = $latestInventoryDate > $latestSoldDate ? $latestInventoryDate : $latestSoldDate;
+            } elseif ($latestInventoryDate) {
+                $latestDate = $latestInventoryDate;
+            } elseif ($latestSoldDate) {
+                $latestDate = $latestSoldDate;
             }
+            Log::info("Model: $model - Latest Date: " . ($latestDate ? $latestDate : 'No Date Found'));
 
-            // Calculate remaining items (current inventory)
-            $remaining = GoldItem::where('model', $model)->count();
+            // Step 3: Calculate the quantity for the latest date or for "old" items
+            $lastProductionQuantity = 0;
+            $oldItemsQuantity = 0;
 
-            // Calculate total sold items
-            $totalSold = GoldItemSold::where('model', $model)->count();
+            if ($latestDate) {
+                // Calculate quantity for the latest date
+                $lastProductionQuantity += $inventoryItems
+                    ->where('rest_since', $latestDate)
+                    ->sum('quantity');
 
-            // Calculate total production (remaining + total sold)
-            $totalProduction = $remaining + $totalSold;
-               // Calculate last production date and quantity
-        $lastProductionDate = null;
-        $lastProductionQuantity = 0;
-
-        // Get the latest production date from GoldItem (rest_since) and GoldItemSold (add_date)
-        $lastInventoryItem = GoldItem::where('model', $model)
-            ->where('talab', false)
-            ->whereHas('modelCategory', function ($query) {
-                $query->where('source', 'Production');
-            })
-            ->orderBy('rest_since', 'desc')
-            ->first();
-
-        $lastSoldItem = GoldItemSold::where('model', $model)
-            ->where('talab', false)
-            ->whereHas('modelCategory', function ($query) {
-                $query->where('source', 'Production');
-            })
-            ->orderBy('add_date', 'desc')
-            ->first();
-
-        // Determine the latest date between inventory and sold items
-        if ($lastInventoryItem && $lastSoldItem) {
-            if ($lastInventoryItem->rest_since > $lastSoldItem->add_date) {
-                $lastProductionDate = $lastInventoryItem->rest_since;
-                $lastProductionQuantity = $lastInventoryItem->quantity;
+                $lastProductionQuantity += $soldItemsForModel
+                    ->where('add_date', $latestDate)
+                    ->sum('quantity');
+                Log::info("Model: $model - Last Production Quantity: " . $lastProductionQuantity);
             } else {
-                $lastProductionDate = $lastSoldItem->add_date;
-                $lastProductionQuantity = $lastSoldItem->quantity;
-            }
-        } elseif ($lastInventoryItem) {
-            $lastProductionDate = $lastInventoryItem->rest_since;
-            $lastProductionQuantity = $lastInventoryItem->quantity;
-        } elseif ($lastSoldItem) {
-            $lastProductionDate = $lastSoldItem->add_date;
-            $lastProductionQuantity = $lastSoldItem->quantity;
-        }
-            $reportsData[$model] = [
+                // Calculate quantity for items with null dates (old items)
+                $oldItemsQuantity += $inventoryItems
+                    ->whereNull('rest_since')
+                    ->sum('quantity');
 
+                $oldItemsQuantity += $soldItemsForModel
+                    ->whereNull('add_date')
+                    ->sum('quantity');
+                Log::info("Model: $model - Old Items Quantity: " . $oldItemsQuantity);
+            }
+
+            // Step 4: Prepare the last production data
+            $lastProductionDisplay = $latestDate
+                ? Carbon::parse($latestDate)->format('d-m-Y') . ' (Qty: ' . $lastProductionQuantity . ')'
+                : 'Old (Qty: ' . $oldItemsQuantity . ')';
+
+            $reportsData[$model] = [
                 'workshop_count' => $items->where('shop_name', 'Workshop')->count(),
-                'order_date' => $date->format('d-m-Y'),
+                'order_date' => $date->format('Y-m-d'),
                 'gold_color' => $items->first()->gold_color,
-                'source' => $modelInfo ? $modelInfo->source : $items->first()->source, // Get source from Models
-                'stars' => $modelInfo ? $modelInfo->stars : $items->first()->stars, // Get source from Models
-                'image_path' => $modelInfo ? $modelInfo->scanned_image : null, // Get image from Models
+                'source' => $modelInfo ? $modelInfo->source : $items->first()->source,
+                'stars' => $modelInfo ? $modelInfo->stars : $items->first()->stars,
+                'image_path' => $modelInfo ? $modelInfo->scanned_image : null,
                 'model' => $model,
-                'remaining' => $remaining,
-                'total_production' => $totalProduction,
-                'total_sold' => $totalSold,
-                'first_sale' => $items->min('sold_date'),
+                'remaining' => GoldItem::where('model', $model)->count(),
+                'total_production' => GoldItem::where('model', $model)->count() + GoldItemSold::where('model', $model)->count(),
+                'total_sold' => GoldItemSold::where('model', $model)->count(),
+                'first_sale' => $modelInfo ? $modelInfo->first_production : $items->first()->first_production,
                 'last_sale' => $items->max('sold_date'),
-                'shop' => $shopsWithSales,
-                'pieces_sold_today' => $totalPiecesSoldToday,
-                'shops_data' => $shopDistribution,
-                'last_production_date' => $lastProductionDate ? Carbon::parse($lastProductionDate)->format('d-m-Y') : null,
-                'last_production_quantity' => $lastProductionQuantity
-            ];        }
+                'shop' => $items->pluck('shop_name')->unique()->implode(' / '),
+                'pieces_sold_today' => $items->count(),
+                'shops_data' => $this->getShopDistribution($model),
+                'last_production' => $lastProductionDisplay
+            ];
+        }
 
         return $reportsData;
     }
+
+    /**
+     * Helper method to get shop distribution for a specific model.
+     */
+    private function getShopDistribution($model)
+    {
+        $shops = [
+            'Mohandessin Shop', 'Mall of Arabia', 'Nasr City', 'Zamalek',
+            'Mall of Egypt', 'EL Guezira Shop', 'Arkan', 'District 5', 'U Venues'
+        ];
+
+        $shopDistribution = [];
+
+        foreach ($shops as $shop) {
+            $shopItems = GoldItem::where('model', $model)->where('shop_name', $shop)->get();
+
+            $shopDistribution[$shop] = [
+                'all_rests' => $shopItems->count(),
+                'white_gold' => $shopItems->where('gold_color', 'White')->count(),
+                'yellow_gold' => $shopItems->where('gold_color', 'Yellow')->count(),
+                'rose_gold' => $shopItems->where('gold_color', 'Rose')->count()
+            ];
+        }
+
+        return $shopDistribution;
+    }
+
     public function sendDailyReport(Request $request)
     {
         try {
-            // Get the selected date and recipients from the request
             $date = $request->input('date');
             $recipients = $request->input('recipients', []);
-    
-            // Validate recipients
+
             if (empty($recipients)) {
                 return response()->json([
                     'success' => false,
                     'message' => 'No recipients specified'
                 ]);
             }
-    
-            // Fetch sold items for the selected date, grouped by model
-            $soldItems = GoldItemSold::whereDate('sold_date', $date)
-                ->get()
-                ->groupBy('model');
-    
-            // Check if there are any sales for the selected date
-            if ($soldItems->isEmpty()) {
-                Log::info('No sales found for the selected date: ' . $date);
-    
-                return response()->json([
-                    'success' => false,
-                    'message' => 'No sales reported for ' . Carbon::parse($date)->format('d-m-Y')
-                ]);
-            }
-    
-            // Generate the report data for the selected date
-            $reportData = $this->generateDailyReport($date);
-            Log::info('Report data generated successfully for date: ' . $date);
-    
-            // Calculate total items sold for the selected day
+
+            // Generate the report data
+            $reportsData = $this->generateDailyReport($date);
             $totalItemsSold = GoldItemSold::whereDate('sold_date', $date)->count();
-    
-            // Generate the PDF using the correct view
+            $formattedDate = Carbon::parse($date)->format('d-m-Y');
+
+            // Generate PDF using the same view as the web display
             $pdf = PDF::loadView('Admin.Reports.view', [
-                'reportsData' => $reportData,
+                'reportsData' => $reportsData,
                 'selectedDate' => $date,
                 'totalItemsSold' => $totalItemsSold,
-                'recipients' => $recipients, // Pass recipients to the view
-                'isPdf' => true // Add a flag to indicate PDF export
+                'recipients' => $recipients,
+                'isPdf' => true  // This flag will hide web-only elements
             ]);
+            
             $pdf->setPaper('A4', 'landscape');
-            Log::info('PDF generated successfully');
-    
-            // Send email to the specified recipients
+
             try {
+                // Send email with the PDF attachment
                 Mail::to($recipients)
-                    ->send(new DailyReportMail($reportData, $pdf));
-                Log::info('Email sent successfully to recipients');
+                    ->send(new DailyReportMail($reportsData, $pdf, $formattedDate));
+                
+                Log::info('Email sent successfully to recipients for date: ' . $formattedDate);
             } catch (\Exception $e) {
                 Log::error('Mail sending failed: ' . $e->getMessage());
-                Log::error('Stack trace: ' . $e->getTraceAsString());
                 throw $e;
             }
-    
+
             return response()->json([
                 'success' => true,
-                'message' => 'Report sent successfully for ' . Carbon::parse($date)->format('d-m-Y')
+                'message' => 'Report sent successfully for ' . $formattedDate
             ]);
-    
+
         } catch (\Exception $e) {
             Log::error('Error in sendDailyReport: ' . $e->getMessage());
-            Log::error('Stack trace: ' . $e->getTraceAsString());
-    
             return response()->json([
                 'success' => false,
                 'message' => 'Failed to send report: ' . $e->getMessage()

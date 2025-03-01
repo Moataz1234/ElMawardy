@@ -10,22 +10,29 @@ class DailyReportMail extends Mailable
 {
     use Queueable, SerializesModels;
 
-    public $reportsData;
-    public $pdf;
+    protected $reportData;
+    protected $pdf;
+    protected $reportDate;
 
-    public function __construct($reportsData, $pdf)
+    public function __construct($reportData, $pdf, $reportDate)
     {
-        $this->reportsData = $reportsData;
+        $this->reportData = $reportData;
         $this->pdf = $pdf;
+        $this->reportDate = $reportDate;
     }
 
     public function build()
     {
         try {
             Log::info('Attempting to build email');
-            return $this->subject('Daily Gold Sales Report - ' . now()->format('d-m-Y'))
-                       ->view('emails.daily_report')
-                       ->attachData($this->pdf->output(), 'daily_report.pdf');
+            return $this->subject('Daily Sales Report - ' . $this->reportDate)
+                       ->view('Admin.Reports.gold_report')
+                       ->attachData($this->pdf->output(), 'sales_report_' . $this->reportDate . '.pdf')
+                       ->with([
+                           'reportData' => $this->reportData,
+                           'reportDate' => $this->reportDate,
+                           'isPdf' => true
+                       ]);
         } catch (\Exception $e) {
             Log::error('Error building email: ' . $e->getMessage());
             throw $e;

@@ -209,7 +209,7 @@ class GoldItemSoldController extends Controller
                 'shop' => $items->pluck('shop_name')->unique()->implode(' / '),
                 'pieces_sold_today' => $items->count(),
                 'shops_data' => $this->getShopDistribution($model), // Helper method to get shop distribution
-                'last_production' => $lastProductionDisplay, // Combined last production or old items
+                'last_production' => $lastProductionDisplay, // Changed from 'last_production_display'
             ];
         }
     
