@@ -45,6 +45,7 @@
                 <a href="#" class="navbar-link dropdown-toggle">Reports</a>
                 <div class="dropdown-menu">
                     <a href="{{ route('reports.view') }}" class="dropdown-item">View Reports</a>
+                    <a href="{{ route('gold-analysis.index') }}" class="dropdown-item">الجرد</a>
                 </div>
             </li>
 

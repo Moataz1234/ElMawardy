@@ -36,7 +36,8 @@ use App\Http\Controllers\{
     TransferRequestsController,
     ItemStatisticsController,
     LaboratoryOperationController,
-    LaboratoryDestinationController
+    LaboratoryDestinationController,
+    GoldAnalysisController
     // NewItemTalabatController 
 };
 
@@ -258,6 +259,10 @@ Route::middleware(['auth'])->group(function () {
         Route::post('/update-from-excel', [ShopifyProductController::class, 'updateFromExcel'])->name('shopify.updateFromExcel');
 
         Route::get('shopify/update-prices', [ShopifyProductController::class, 'seeUpdatePrice']);
+
+        // Add these new routes inside the admin middleware group
+        Route::get('/gold-analysis', [GoldAnalysisController::class, 'index'])->name('gold-analysis.index');
+        Route::get('/gold-analysis/export', [GoldAnalysisController::class, 'export'])->name('gold-analysis.export');
     });
 
     // Shop Routes
