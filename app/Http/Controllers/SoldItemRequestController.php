@@ -246,48 +246,6 @@ class SoldItemRequestController extends Controller
             ], 500);
         }
     }
-    // public function approveSaleRequest($id)
-    // {
-    //     DB::transaction(function () use ($id) {
-    //         $request = SaleRequest::findOrFail($id);
-
-    //         // Update request status
-    //         $request->update([
-    //             'status' => 'approved',
-    //             'approver_shop_name' => Auth::user()->shop_name
-    //         ]);
-
-    //         // Check if this is a pound sale
-    //         if ($request->item_type === 'pound') {
-    //             // Get the pound from inventory
-    //             $poundInventory = GoldPoundInventory::where('serial_number', $request->item_serial_number)
-    //                 ->where('status', 'pending_sale')
-    //                 ->first();
-
-    //             if (!$poundInventory) {
-    //                 throw new \Exception('Gold pound not found in inventory or not in pending status');
-    //             }
-
-    //             // Create record in gold_pounds_sold
-    //             GoldPoundSold::create([
-    //                 'serial_number' => $request->item_serial_number,
-    //                 'gold_pound_id' => $poundInventory->gold_pound_id,
-    //                 'shop_name' => $request->shop_name,
-    //                 'price' => $request->price,
-    //                 'customer_id' => $request->customer_id
-    //             ]);
-
-    //             // Remove from inventory after creating sold record
-    //             $poundInventory->delete();
-    //         } else {
-    //             // Handle regular item sale
-    //             $this->sellService->approveSale($request);
-    //         }
-    //     });
-
-    //     return redirect()->back()->with('success', 'Sale request approved and item marked as sold');
-    // }
-
 
     public function rejectSaleRequest($id)
     {
@@ -421,5 +379,37 @@ class SoldItemRequestController extends Controller
         header('Content-Disposition: attachment; filename="' . urlencode($fileName) . '"');
         $writer->save('php://output');
         exit;
+    }
+
+    public function viewAllSoldItems(Request $request)
+    {
+        $query = SaleRequest::with(['goldItem', 'customer']);
+
+        // Apply date range filter
+        if ($request->filled('from_date')) {
+            $query->whereDate('created_at', '>=', $request->from_date);
+        }
+        if ($request->filled('to_date')) {
+            $query->whereDate('created_at', '<=', $request->to_date);
+        }
+
+        // Apply shop filter
+        if ($request->filled('shop_name')) {
+            $query->where('shop_name', $request->shop_name);
+        }
+
+        // Apply status filter, default to 'approved' if no status is specified
+        $status = $request->get('status', 'approved');
+        if ($status !== 'all') {
+            $query->where('status', $status);
+        }
+
+        // Get unique shop names for the dropdown
+        $shops = SaleRequest::distinct('shop_name')->pluck('shop_name');
+
+        // Get paginated results
+        $soldItemRequests = $query->orderBy('created_at', 'desc')->paginate(50);
+
+        return view('Accountant.all_sold_requests', compact('soldItemRequests', 'shops'));
     }
 }

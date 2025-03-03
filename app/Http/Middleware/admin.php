@@ -16,7 +16,7 @@ class admin
     public function handle(Request $request, Closure $next): Response
     {
         $user = Auth::user();
-        if ($user->usertype === 'admin' || $user->usertype === 'rabea') {
+        if ($user->usertype === 'admin' || $user->usertype === 'rabea' || $user->usertype === 'Acc') {
             return $next($request);
         }
         return redirect('/login')->withErrors('You do not have permission to access this page.');    }

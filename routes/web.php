@@ -97,9 +97,10 @@ Route::middleware(['auth'])->group(function () {
                     return redirect()->route('admin.inventory');
                 case 'rabea':
                     return redirect()->route('orders.rabea.index');
+                case 'Acc':
+                    return redirect()->route('sell-requests.acc');
                 case 'user':
                     return redirect()->route('shop-dashboard');
-                    // return view('dashboard');
                 default:
                     Log::error('Invalid usertype', ['usertype' => $usertype]);
                     Auth::logout();
@@ -117,11 +118,18 @@ Route::middleware(['auth'])->group(function () {
         }
     })->name('dashboard');
 
+    // Add this inside the authenticated routes group
+    Route::middleware(['auth', 'acc'])->group(function () {
+        Route::get('/Acc_sell_requests', [SoldItemRequestController::class, 'viewSaleRequestsAcc'])->name('sell-requests.acc');
+        Route::post('/Acc_sell_requests/{id}/approve', [SoldItemRequestController::class, 'approveSaleRequest'])->name('sell-requests.approve');
+        Route::post('/Acc_sell_requests/{id}/reject', [SoldItemRequestController::class, 'rejectSaleRequest'])->name('sell-requests.reject');
+        Route::get('/all-sold-items', [SoldItemRequestController::class, 'viewAllSoldItems'])
+            ->name('all-sold-items');
+            
+
+    });
 
     // sell requests for acc
-    Route::get('/Acc_sell_requests', action: [SoldItemRequestController::class, 'viewSaleRequestsAcc'])->name('sell-requests.acc');
-    Route::post('/Acc_sell_requests/{id}/approve', [SoldItemRequestController::class, 'approveSaleRequest'])->name('sell-requests.approve');
-    Route::post('/Acc_sell_requests/{id}/reject', [SoldItemRequestController::class, 'rejectSaleRequest'])->name('sell-requests.reject');
     Route::get('/item-details/{serial_number}', [ShopsController::class, 'getItemDetails'])->name('item.details');
     Route::post('/sell-requests/bulk-approve', [SoldItemRequestController::class, 'bulkApprove'])->name('sell-requests.bulk-approve');
     // Import Excels
@@ -172,15 +180,10 @@ Route::middleware(['auth'])->group(function () {
         Route::delete('/gold-items/remove-session-item', [GoldItemController::class, 'removeSessionItem'])->name('gold-items.remove-session-item');
         Route::post('/gold-items/submit-all', [GoldItemController::class, 'submitAllItems'])->name('gold-items.submit-all');
 
+        Route::get('/gold-analysis', [GoldAnalysisController::class, 'index'])->name('gold-analysis.index');
+        Route::get('/gold-analysis/export', [GoldAnalysisController::class, 'export'])->name('gold-analysis.export');
 
-
-        // Route::get('/sold-item-requests', [SoldItemRequestController::class, 'showSoldItemRequests'])->name('sold-item-requests.index'); // Replace YourController
-        // Route::get('/all-sold-item-requests', [SoldItemRequestController::class, 'showAllSoldItemRequests'])->name('all-sold-item-requests.index'); // Replace YourController
-        // Route::post('/sold-item-requests/{itemRequest}/accept', [SoldItemRequestController::class, 'acceptSoldItemRequest'])->name('sold-item-requests.accept');
-        // Route::post('/sold-item-requests/{itemRequest}/reject', [SoldItemRequestController::class, 'rejectSoldItemRequest'])->name('sold-item-requests.reject');
         Route::get('/sale-requests', action: [SoldItemRequestController::class, 'viewSaleRequests'])->name('sell-requests.index');
-        // Route::post('/sale-requests/{id}/approve', [SoldItemRequestController::class, 'approveSaleRequest'])->name('sell-requests.approve');
-        // Route::post('/sale-requests/{id}/reject', [SoldItemRequestController::class, 'rejectSaleRequest'])->name('sell-requests.reject');
         Route::get('/all-sale-requests', [SoldItemRequestController::class, 'viewAllSaleRequests'])->name('sale-requests.all');
 
 
@@ -261,8 +264,6 @@ Route::middleware(['auth'])->group(function () {
         Route::get('shopify/update-prices', [ShopifyProductController::class, 'seeUpdatePrice']);
 
         // Add these new routes inside the admin middleware group
-        Route::get('/gold-analysis', [GoldAnalysisController::class, 'index'])->name('gold-analysis.index');
-        Route::get('/gold-analysis/export', [GoldAnalysisController::class, 'export'])->name('gold-analysis.export');
     });
 
     // Shop Routes

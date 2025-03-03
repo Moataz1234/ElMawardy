@@ -58,6 +58,26 @@
             </li>
         @endif
 
+        @if (auth()->user()->usertype === 'Acc')
+            <li class="navbar-item"><a href="{{ route('dashboard') }}" class="navbar-link"> طلبات البيع</a></li>
+            {{-- <li class="navbar-item"><a href="{{ route('sell-requests.acc') }}" class="navbar-link"> ط</a></li> --}}
+            <li class="navbar-item"><a href="{{ route('all-sold-items') }}" class="navbar-link">كل طلبات البيع</a></li>
+            
+            {{-- <li class="navbar-item dropdown">
+                <a href="#" class="navbar-link dropdown-toggle">المبيعات</a>
+                <div class="dropdown-menu">
+                    <a href="{{ route('sell-requests.acc') }}" class="dropdown-item">طلبات البيع</a>
+                </div>
+            </li> --}}
+            {{-- <li class="navbar-item dropdown">
+                <a href="#" class="navbar-link dropdown-toggle">التقارير</a>
+                <div class="dropdown-menu">
+                    <a href="{{ route('reports.view') }}" class="dropdown-item">عرض التقارير</a>
+                    <a href="{{ route('gold-analysis.index') }}" class="dropdown-item">الجرد</a>
+                </div>
+            </li> --}}
+        @endif
+
         @if (auth()->user()->usertype === 'rabea')
             <li class="navbar-item"><a href="{{ route('orders.rabea.index') }}" class="navbar-link">الاوردرات</a></li>
             <li class="navbar-item"><a href="{{ route('orders.rabea.to_print') }}" class="navbar-link">الورشة</a></li>

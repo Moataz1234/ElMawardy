@@ -3,7 +3,7 @@
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@4.6.0/dist/js/bootstrap.bundle.min.js"></script>
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@4.6.0/dist/css/bootstrap.min.css" rel="stylesheet">
 
-    {{-- @include('components.navbar') --}}
+    @include('components.navbar')
 </head>
 <div class="container mt-4">
     <div class="row mb-4">
@@ -40,7 +40,7 @@
                 <th>Payment Method</th>
                 <th>Status</th>
                 <th>Date</th>
-                {{-- <th>Actions</th> --}}
+                <th>Actions</th>
             </tr>
         </thead>
         <tbody>
@@ -205,14 +205,16 @@
                         @endif
                     </td>
                     <td>{{ $request->created_at->format('Y-m-d H:i') }}</td>
-                    {{-- <td>
+                    <td>
                         @if ($request->status === 'pending')
-                            <button class="btn btn-success approve-btn" data-request-id="{{ $request->id }}">
+                            {{-- <button class="btn btn-success btn-sm approve-btn" data-request-id="{{ $request->id }}">
                                 Approve
+                            </button> --}}
+                            <button class="btn btn-danger btn-sm reject-btn" data-request-id="{{ $request->id }}">
+                                Reject
                             </button>
                         @endif
                     </td>
-                    --}}
                 </tr>
             @endforeach
         </tbody>
@@ -300,5 +302,26 @@ $(document).ready(function() {
                 }
             });
         }
+
+        // Add reject functionality
+        $('.reject-btn').on('click', function() {
+            const requestId = $(this).data('request-id');
+            if (confirm('Are you sure you want to reject this request?')) {
+                $.ajax({
+                    url: `/Acc_sell_requests/${requestId}/reject`,
+                    type: 'POST',
+                    data: {
+                        _token: '{{ csrf_token() }}'
+                    },
+                    success: function(response) {
+                        alert('Request rejected successfully');
+                        location.reload();
+                    },
+                    error: function(xhr) {
+                        alert('Error rejecting request');
+                    }
+                });
+            }
+        });
     });
 </script>
