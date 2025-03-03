@@ -2,7 +2,54 @@
     <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@4.6.0/dist/js/bootstrap.bundle.min.js"></script>
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@4.6.0/dist/css/bootstrap.min.css" rel="stylesheet">
+    
     @include('components.navbar')
+    <style>
+    .pagination {
+        display: flex;
+        justify-content: center;
+        margin: 20px 0;
+    }
+
+    .pagination .page-item {
+        margin: 0 2px;
+    }
+
+    .pagination .page-link {
+        color: #333;
+        padding: 8px 16px;
+        border: 1px solid #ddd;
+        border-radius: 4px;
+        transition: all 0.3s ease;
+    }
+
+    .pagination .page-link:hover {
+        background-color: #f8f9fa;
+        border-color: #ddd;
+        text-decoration: none;
+    }
+
+    .pagination .page-item.active .page-link {
+        background-color: #007bff;
+        border-color: #007bff;
+        color: white;
+    }
+
+    .pagination .page-item.disabled .page-link {
+        color: #6c757d;
+        pointer-events: none;
+        background-color: #fff;
+        border-color: #ddd;
+    }
+
+    /* Add responsive styling */
+    @media (max-width: 768px) {
+        .pagination .page-link {
+            padding: 6px 12px;
+            font-size: 14px;
+        }
+    }
+    </style>
 </head>
 
 <div class="container mt-4">
@@ -121,7 +168,9 @@
         </tbody>
     </table>
 
-    {{ $soldItemRequests->links() }}
+    <div class="d-flex justify-content-center">
+        {!! $soldItemRequests->appends(request()->query())->links('pagination::bootstrap-4') !!}
+    </div>
 </div>
 <div class="modal fade" id="itemModal" tabindex="-1" role="dialog" aria-labelledby="itemModalLabel" aria-hidden="true">
     <div class="modal-dialog modal-dialog-centered">

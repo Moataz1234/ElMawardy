@@ -407,8 +407,10 @@ class SoldItemRequestController extends Controller
         // Get unique shop names for the dropdown
         $shops = SaleRequest::distinct('shop_name')->pluck('shop_name');
 
-        // Get paginated results
-        $soldItemRequests = $query->orderBy('created_at', 'desc')->paginate(50);
+        // Get paginated results with 50 items per page
+        $soldItemRequests = $query->orderBy('created_at', 'desc')
+            ->paginate(50)
+            ->withQueryString(); // This preserves the filter parameters
 
         return view('Accountant.all_sold_requests', compact('soldItemRequests', 'shops'));
     }
