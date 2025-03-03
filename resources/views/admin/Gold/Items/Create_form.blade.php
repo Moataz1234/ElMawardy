@@ -94,12 +94,136 @@
             padding: 2rem;
             margin: 1rem;
             box-shadow: 0 0 20px rgba(0,0,0,0.1);
-            overflow-y: auto;
+            display: grid;
+            grid-template-rows: auto 1fr;
+            gap: 1.5rem;
+        }
+
+        .model-image-container {
+            text-align: center;
+            padding: 1rem;
+            background: #f8f9fa;
+            border-radius: 8px;
+            border: 1px solid #dee2e6;
+        }
+
+        .model-image-container h3 {
+            margin-bottom: 1rem;
+            color: #333;
+            font-size: 1.2rem;
+        }
+
+        #model-image {
+            height: 200px;
             display: flex;
-            justify-content: space-around;
-            border: 1px solid #ddd;
+            align-items: center;
+            justify-content: center;
+        }
+
+        #model-image img {
+            max-width: 100%;
+            max-height: 100%;
+            object-fit: contain;
+        }
+
+        #shop-data-table-container {
+            border-radius: 8px;
+            border: 1px solid #dee2e6;
+        }
+
+        #shop-data-table {
+            width: 100%;
+            border-collapse: separate;
+            border-spacing: 0;
+        }
+
+        #shop-data-table th {
+            background: #343a40;
+            color: white;
+            padding: 12px;
+            font-weight: 500;
+            text-align: left;
+            border: none;
+        }
+
+        #shop-data-table td {
+            padding: 12px;
+            border-bottom: 1px solid #dee2e6;
+            background: white;
+            vertical-align: top;
+        }
+
+        /* Column widths */
+        #shop-data-table th:nth-child(1),
+        #shop-data-table td:nth-child(1) {
+            width: 25%;
+        }
+
+        #shop-data-table th:nth-child(2),
+        #shop-data-table td:nth-child(2) {
+            width: 15%;
+        }
+
+        #shop-data-table th:nth-child(3),
+        #shop-data-table td:nth-child(3) {
+            width: 45%;
+            white-space: pre-line;
+            line-height: 1.5;
+            font-family: monospace;
+            font-size: 0.9rem;
+        }
+
+        #shop-data-table th:nth-child(4),
+        #shop-data-table td:nth-child(4) {
+            width: 15%;
+            text-align: center;
+        }
+
+        .pending-request td {
+            background-color: #fff3cd !important;
+        }
+
+        /* Hover effects */
+        #shop-data-table tbody tr:hover td {
+            background-color: #f8f9fa;
+        }
+
+        /* Badge styling */
+        .badge.bg-warning {
+            background-color: #ffc107 !important;
+            color: #000 !important;
+            padding: 0.25em 0.6em;
+            font-size: 0.75rem;
+            font-weight: 500;
             border-radius: 4px;
-            margin-top: 10px;
+        }
+
+        /* Scrollbar styling */
+        #shop-data-table-container::-webkit-scrollbar {
+            width: 8px;
+            height: 8px;
+        }
+
+        #shop-data-table-container::-webkit-scrollbar-track {
+            background: #f1f1f1;
+            border-radius: 4px;
+        }
+
+        #shop-data-table-container::-webkit-scrollbar-thumb {
+            background: #888;
+            border-radius: 4px;
+        }
+
+        #shop-data-table-container::-webkit-scrollbar-thumb:hover {
+            background: #555;
+        }
+
+        /* Responsive adjustments */
+        @media (max-width: 1200px) {
+            .model-details {
+                height: auto;
+                min-height: 500px;
+            }
         }
 
         .model-details img {
@@ -179,6 +303,14 @@
         /* Style for pending requests */
         .pending-request {
             background-color: #fff3cd !important;
+        }
+
+        #shop-data-table td:nth-child(3) {
+            /* Serial Numbers column */
+            white-space: pre-line;  /* Allow line breaks */
+            word-break: break-all;  
+            vertical-align: top;    /* Align content to top */
+            padding: 8px;          /* Add some padding */
         }
     </style>
 </head>
@@ -329,17 +461,19 @@
                         <h3>Model Image</h3>
                         <div id="model-image"></div>
                     </div>
-                    <table id="shop-data-table" class="table table-striped">
-                        <thead class="table-dark">
-                            <tr>
-                                <th>Shop & Color</th>
-                                <th>Total Weight</th>
-                                <th>Serial Numbers</th>
-                                <th>Count</th>
-                            </tr>
-                        </thead>
-                        <tbody></tbody>
-                    </table>
+                    <div id="shop-data-table-container">
+                        <table id="shop-data-table" class="table table-striped">
+                            <thead class="table-dark">
+                                <tr>
+                                    <th>Shop & Color</th>
+                                    <th>Total Weight</th>
+                                    <th>Serial Numbers</th>
+                                    <th>Count</th>
+                                </tr>
+                            </thead>
+                            <tbody></tbody>
+                        </table>
+                    </div>
                 </div>
             </div>
         </div>

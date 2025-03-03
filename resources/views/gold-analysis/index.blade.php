@@ -9,66 +9,64 @@
 
 </head>
 <body>
-    <div class="container mt-4">
-        <div class="row justify-content-center">
-            <div class="col-md-12">
-                <div class="card">
-                    <div class="card-header d-flex justify-content-between align-items-center">
-                        <h3 class="mb-0">Gold Items Analysis</h3>
-                        <div class="d-flex gap-2">
-                            <form action="{{ route('gold-analysis.index') }}" method="GET" class="d-flex gap-2">
-                                <select name="shop_name" class="form-select">
-                                    <option value="">All Shops</option>
-                                    @foreach($shops as $id => $name)
-                                        <option value="{{ $name }}" {{ $selectedShop == $name ? 'selected' : '' }}>
-                                            {{ $name }}
-                                        </option>
-                                    @endforeach
-                                </select>
-                                <button type="submit" class="btn btn-primary">Filter</button>
-                            </form>
+    <div class="container-fluid mt-4">
+        <div class="row mb-4">
+            <div class="col-12 d-flex justify-content-between align-items-center">
+                <h2>Gold Items Analysis - All Shops</h2>
+                <form action="{{ route('gold-analysis.export') }}" method="GET">
+                    <button type="submit" class="btn btn-success">
+                        Export All to Excel
+                    </button>
+                </form>
+            </div>
+        </div>
+
+        <div class="row">
+            @foreach($shopStatistics as $shopData)
+                <div class="col-md-4 mb-4">
+                    <div class="card">
+                        <div class="card-header d-flex justify-content-between align-items-center">
+                            <h4 class="mb-0">Shop #{{ $shopData['shop']->id }} - {{ $shopData['shop']->name }}</h4>
                             <form action="{{ route('gold-analysis.export') }}" method="GET">
-                                @if($selectedShop)
-                                    <input type="hidden" name="shop_name" value="{{ $selectedShop }}">
-                                @endif
-                                <button type="submit" class="btn btn-success">
-                                    Export to Excel
+                                <input type="hidden" name="shop_name" value="{{ $shopData['shop']->name }}">
+                                <button type="submit" class="btn btn-sm btn-success">
+                                    Export
                                 </button>
                             </form>
                         </div>
-                    </div>
 
-                    <div class="card-body">
-                        <div class="table-responsive">
-                            <table class="table table-striped">
-                                <thead>
-                                    <tr>
-                                        <th>Kind</th>
-                                        <th>Total Items</th>
-                                        <th>Total Weight</th>
-                                    </tr>
-                                </thead>
-                                <tbody>
-                                    @foreach($statistics as $stat)
-                                    <tr>
-                                        <td>{{ $stat->kind }}</td>
-                                        <td>{{ $stat->total_items }}</td>
-                                        <td>{{ number_format($stat->total_weight, 2) }} g</td>
-                                    </tr>
-                                    @endforeach
-                                </tbody>
-                                <tfoot>
-                                    <tr class="table-dark">
-                                        <td><strong>Total</strong></td>
-                                        <td><strong>{{ $statistics->sum('total_items') }}</strong></td>
-                                        <td><strong>{{ number_format($statistics->sum('total_weight'), 2) }} g</strong></td>
-                                    </tr>
-                                </tfoot>
-                            </table>
+                        <div class="card-body">
+                            <div class="table-responsive">
+                                <table class="table table-striped table-sm">
+                                    <thead>
+                                        <tr>
+                                            <th>Kind</th>
+                                            <th>Total Items</th>
+                                            <th>Total Weight</th>
+                                        </tr>
+                                    </thead>
+                                    <tbody>
+                                        @foreach($shopData['statistics'] as $stat)
+                                        <tr>
+                                            <td>{{ $stat->kind }}</td>
+                                            <td>{{ $stat->total_items }}</td>
+                                            <td>{{ number_format($stat->total_weight, 2) }} g</td>
+                                        </tr>
+                                        @endforeach
+                                    </tbody>
+                                    <tfoot>
+                                        <tr class="table-dark">
+                                            <td><strong>Total</strong></td>
+                                            <td><strong>{{ $shopData['statistics']->sum('total_items') }}</strong></td>
+                                            <td><strong>{{ number_format($shopData['statistics']->sum('total_weight'), 2) }} g</strong></td>
+                                        </tr>
+                                    </tfoot>
+                                </table>
+                            </div>
                         </div>
                     </div>
                 </div>
-            </div>
+            @endforeach
         </div>
     </div>
 

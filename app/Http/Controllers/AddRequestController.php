@@ -19,14 +19,27 @@ class AddRequestController extends Controller
             ->leftJoin('models', 'add_requests.model', '=', 'models.model')
             ->select('add_requests.*', 'models.stars');
 
-        // Filter by status if provided
-        if ($request->has('status') && $request->status != '') {
-            $query->where('add_requests.status', $request->status);
+        // Default to pending status if not specified
+        $status = $request->get('status', 'pending');
+        if ($status) {
+            $query->where('add_requests.status', $status);
         }
 
         // Filter by shop_name if provided
         if ($request->has('shop_name') && $request->shop_name != '') {
             $query->where('add_requests.shop_name', $request->shop_name);
+        }
+
+        // Filter by date if provided, default to today
+        $date = $request->get('date', date('Y-m-d'));
+        $query->whereDate('add_requests.created_at', $date);
+
+        // Handle sorting
+        $sort = $request->get('sort');
+        $direction = $request->get('direction', 'desc');
+        
+        if ($sort === 'date') {
+            $query->orderBy('add_requests.created_at', $direction);
         }
 
         $requests = $query->get();

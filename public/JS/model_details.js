@@ -1,10 +1,21 @@
 document.addEventListener('DOMContentLoaded', function () {
+    // Get DOM elements with null checks
     const modelInput = document.getElementById('model');
     const kindInput = document.getElementById('kind');
     const addFieldBtn = document.getElementById('add-field-btn');
     const dynamicFieldsContainer = document.getElementById('dynamic-fields-container');
     const tableBody = document.querySelector('#shop-data-table tbody');
     const modelImageDiv = document.getElementById('model-image');
+
+    // Check if required elements exist before setting up event listeners
+    if (!modelInput || !tableBody || !modelImageDiv) {
+        console.error('Required DOM elements not found:', {
+            modelInput: !!modelInput,
+            tableBody: !!tableBody,
+            modelImageDiv: !!modelImageDiv
+        });
+        return;
+    }
 
     function determineKind(modelValue) {
         if (!modelValue) return '';
@@ -41,156 +52,176 @@ document.addEventListener('DOMContentLoaded', function () {
             return;
         }
 
-        modelImageDiv.innerHTML = '<p>Loading...</p>';
         tableBody.innerHTML = '<tr><td colspan="4">Loading...</td></tr>';
+        modelImageDiv.innerHTML = '<p>Loading...</p>';
 
-        fetch(`/gold-items/model-details?model=${encodeURIComponent(modelValue)}`, {
-            method: 'GET',
-            headers: {
-                'Accept': 'application/json',
-                'X-Requested-With': 'XMLHttpRequest'
-            }
-        })
-        .then(response => response.json())
-        .then(data => {
-            tableBody.innerHTML = '';
-            modelImageDiv.innerHTML = '';
+        fetch(`/gold-items/model-details?model=${encodeURIComponent(modelValue)}`)
+            .then(response => {
+                if (!response.ok) {
+                    throw new Error('Network response was not ok');
+                }
+                return response.json();
+            })
+            .then(data => {
+                console.log('Received data:', data); // Debug log
+                console.log('Shop data:', data.shopData); // Additional debug log
+                tableBody.innerHTML = '';
+                modelImageDiv.innerHTML = '';
 
-            // Handle model image
-            if (data.modelDetails && data.modelDetails.scanned_image) {
-                const imageElement = document.createElement('img');
-                imageElement.src = `/storage/${data.modelDetails.scanned_image}`;
-                imageElement.alt = `Model ${data.modelDetails.model}`;
-                imageElement.className = 'model-scanned-image';
-                modelImageDiv.appendChild(imageElement);
-            } else {
-                modelImageDiv.innerHTML = '<p>No image available for this model</p>';
-            }
+                // Handle model image
+                if (data.modelDetails && data.modelDetails.scanned_image) {
+                    const imageElement = document.createElement('img');
+                    imageElement.src = `/storage/${data.modelDetails.scanned_image}`;
+                    imageElement.alt = `Model ${data.modelDetails.model}`;
+                    imageElement.className = 'model-scanned-image';
+                    modelImageDiv.appendChild(imageElement);
+                } else {
+                    modelImageDiv.innerHTML = '<p>No image available for this model</p>';
+                }
 
-            // First display existing items
-            if (data.items && data.items.length > 0) {
-                data.items.forEach(item => {
-                    const row = document.createElement('tr');
-                    row.innerHTML = `
-                        <td>${item.shop_name} (${item.gold_color})</td>
-                        <td>${parseFloat(item.weight).toFixed(2)}</td>
-                        <td>${item.serial_number}</td>
-                        <td>${item.quantity}</td>
-                    `;
-                    tableBody.appendChild(row);
-                });
-            }
+                // Display the sorted shop data
+                if (data.shopData && Array.isArray(data.shopData) && data.shopData.length > 0) {
+                    data.shopData.forEach(item => {
+                        console.log('Processing item:', item); // Debug log for each item
+                        
+                        if (!item || !item.shop_name) {
+                            console.warn('Invalid item data:', item);
+                            return;
+                        }
 
-            // Then display pending requests with yellow background and badge
-            if (data.pendingRequests && data.pendingRequests.length > 0) {
-                data.pendingRequests.forEach(item => {
-                    const row = document.createElement('tr');
-                    row.style.backgroundColor = 'rgb(44, 40, 25)';
-                    row.innerHTML = `
-                        <td>
-                            ${item.shop_name} (${item.gold_color})
-                            <span class="badge bg-warning text-dark ms-2">Pending</span>
-                        </td>
-                        <td>${parseFloat(item.weight).toFixed(2)}</td>
-                        <td>${item.serial_number}</td>
-                        <td>${item.quantity}</td>
-                    `;
-                    tableBody.appendChild(row);
-                });
-            }
+                        const row = document.createElement('tr');
+                        
+                        // Add pending status styling if needed
+                        if (item.is_pending) {
+                            row.classList.add('pending-request');
+                        }
 
-            if ((!data.items || data.items.length === 0) && 
-                (!data.pendingRequests || data.pendingRequests.length === 0)) {
-                tableBody.innerHTML = '<tr><td colspan="4">No items found</td></tr>';
-            }
-        })
-        .catch(error => {
-            console.error('Error:', error);
-            tableBody.innerHTML = '<tr><td colspan="4">Error fetching data</td></tr>';
-            modelImageDiv.innerHTML = '<p>Error loading model details</p>';
-        });
+                        try {
+                            // Format serial numbers with proper spacing
+                            const formattedSerialNumbers = Array.isArray(item.serial_numbers) 
+                                ? item.serial_numbers
+                                    .map(serial => serial.trim())
+                                    .filter(serial => serial) // Remove empty strings
+                                    .join('\n')
+                                : '';
+
+                            row.innerHTML = `
+                                <td>
+                                    ${item.shop_name} (${item.gold_color || 'N/A'})
+                                    ${item.is_pending ? '<span class="badge bg-warning text-dark ms-2">Pending</span>' : ''}
+                                </td>
+                                <td>${item.total_weight ? parseFloat(item.total_weight).toFixed(2) : '0.00'}</td>
+                                <td>${formattedSerialNumbers}</td>
+                                <td>${item.count || 0}</td>
+                            `;
+                            tableBody.appendChild(row);
+                        } catch (error) {
+                            console.error('Error creating row:', error, item);
+                        }
+                    });
+                } else {
+                    console.log('No shop data available or invalid format:', data.shopData);
+                    tableBody.innerHTML = '<tr><td colspan="4">No items found for this model</td></tr>';
+                }
+            })
+            .catch(error => {
+                console.error('Error:', error);
+                tableBody.innerHTML = '<tr><td colspan="4">Error fetching data</td></tr>';
+                modelImageDiv.innerHTML = '<p>Error loading model details</p>';
+            });
     }
 
-    // Event Listeners
-    modelInput.addEventListener('input', function (e) {
+    // Event Listeners - Only add if elements exist
+    modelInput.addEventListener('input', debounce(function(e) {
         const modelValue = e.target.value;
-        kindInput.value = determineKind(modelValue);
-        debounce(fetchItems, 300)(modelValue);
-    });
+        if (kindInput) {
+            kindInput.value = determineKind(modelValue);
+        }
+        fetchItems(modelValue);
+    }, 300));
 
-    modelInput.addEventListener('change', function (e) {
+    modelInput.addEventListener('change', function(e) {
         const modelValue = e.target.value;
-        kindInput.value = determineKind(modelValue);
+        if (kindInput) {
+            kindInput.value = determineKind(modelValue);
+        }
         fetchItems(modelValue);
     });
 
-    addFieldBtn.addEventListener('click', function () {
-        const formData = new FormData(document.getElementById('gold-item-form'));
-        const shopsData = Array.from(dynamicFieldsContainer.children).map((field, index) => {
-            return {
-                shop_id: formData.get(`shops[${index}][shop_id]`),
-                gold_color: formData.get(`shops[${index}][gold_color]`),
-                weight: formData.get(`shops[${index}][weight]`),
-                talab: formData.get(`shops[${index}][talab]`) || 0
+    // Only add these event listeners if the elements exist
+    if (addFieldBtn) {
+        addFieldBtn.addEventListener('click', function () {
+            const formData = new FormData(document.getElementById('gold-item-form'));
+            const shopsData = Array.from(dynamicFieldsContainer.children).map((field, index) => {
+                return {
+                    shop_id: formData.get(`shops[${index}][shop_id]`),
+                    gold_color: formData.get(`shops[${index}][gold_color]`),
+                    weight: formData.get(`shops[${index}][weight]`),
+                    talab: formData.get(`shops[${index}][talab]`) || 0
+                };
+            });
+
+            const itemData = {
+                model: formData.get('model'),
+                kind: formData.get('kind'),
+                metal_type: formData.get('metal_type'),
+                metal_purity: formData.get('metal_purity'),
+                quantity: formData.get('quantity'),
+                shops: shopsData
             };
+
+            // Send the item data to the server
+            fetch('/gold-items/add-to-session', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                    'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]').getAttribute('content')
+                },
+                body: JSON.stringify(itemData)
+            })
+            .then(response => response.json())
+            .then(data => {
+                if (data.success) {
+                    // Update the UI with the new item
+                    data.item.shops.forEach(shop => {
+                        const row = document.createElement('tr');
+                        row.innerHTML = `
+                            <td>${data.item.model}</td>
+                            <td>${shop.shop_id}</td>
+                            <td>${shop.weight}</td>
+                            <td>${data.item.kind}</td>
+                            <td>${data.item.quantity}</td>
+                            <td><button class="remove-item" data-id="${data.item.id}">Remove</button></td>
+                        `;
+                        document.querySelector('#items-table tbody').appendChild(row);
+                    });
+                    document.getElementById('items-count').textContent = data.total_items;
+                    document.getElementById('gold-item-form').reset();
+                }
+            })
+            .catch(error => console.error('Error:', error));
         });
+    }
 
-        const itemData = {
-            model: formData.get('model'),
-            kind: formData.get('kind'),
-            metal_type: formData.get('metal_type'),
-            metal_purity: formData.get('metal_purity'),
-            quantity: formData.get('quantity'),
-            shops: shopsData
-        };
-
-        // Send the item data to the server
-        fetch('/gold-items/add-to-session', {
-            method: 'POST',
-            headers: {
-                'Content-Type': 'application/json',
-                'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]').getAttribute('content')
-            },
-            body: JSON.stringify(itemData)
-        })
-        .then(response => response.json())
-        .then(data => {
-            if (data.success) {
-                // Update the UI with the new item
-                data.item.shops.forEach(shop => {
-                    const row = document.createElement('tr');
-                    row.innerHTML = `
-                        <td>${data.item.model}</td>
-                        <td>${shop.shop_id}</td>
-                        <td>${shop.weight}</td>
-                        <td>${data.item.kind}</td>
-                        <td>${data.item.quantity}</td>
-                        <td><button class="remove-item" data-id="${data.item.id}">Remove</button></td>
-                    `;
-                    document.querySelector('#items-table tbody').appendChild(row);
-                });
-                document.getElementById('items-count').textContent = data.total_items;
-                document.getElementById('gold-item-form').reset();
+    // Handle shop selection if the document exists
+    if (document) {
+        document.addEventListener('input', function(e) {
+            if (e.target.classList.contains('shop-input')) {
+                const selectedValue = e.target.value;
+                const match = selectedValue.match(/^(.*?)\s*\(ID:\s*(\d+)\)$/);
+                
+                if (match) {
+                    const [_, shopName, shopId] = match;
+                    const index = e.target.dataset.index;
+                    const shopIdInput = document.querySelector(`input[name="shops[${index}][shop_id]"]`);
+                    if (shopIdInput) {
+                        shopIdInput.value = shopId;
+                    }
+                }
             }
-        })
-        .catch(error => console.error('Error:', error));
-    });
+        });
+    }
 
-    // Handle shop selection
-    document.addEventListener('input', function(e) {
-        if (e.target.classList.contains('shop-input')) {
-            const selectedValue = e.target.value;
-            const match = selectedValue.match(/^(.*?)\s*\(ID:\s*(\d+)\)$/);
-            
-            if (match) {
-                const [_, shopName, shopId] = match;
-                const index = e.target.dataset.index;
-                document.querySelector(`input[name="shops[${index}][shop_id]"]`).value = shopId;
-            }
-        }
-    });
-
-   
     // Modify your existing code that adds new rows to include stars
     function addNewRow(item) {
         const newRow = `

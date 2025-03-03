@@ -253,21 +253,87 @@ class GoldItemController extends Controller
         $model = $request->query('model');
         
         // Get existing gold items
-        $items = GoldItem::where('model', $model)
+        $goldItems = GoldItem::where('model', $model)
             ->whereNotIn('status', ['sold', 'deleted'])
-            ->get();
+            ->get()
+            ->map(function ($item) {
+                return [
+                    'shop_id' => $item->shop_id,
+                    'shop_name' => $item->shop_name,
+                    'gold_color' => $item->gold_color,
+                    'total_weight' => $item->weight,
+                    'count' => $item->quantity,
+                    'serial_numbers' => [$item->serial_number],
+                    'is_pending' => false
+                ];
+            });
 
         // Get pending add requests
         $pendingRequests = AddRequest::where('model', $model)
             ->where('status', 'pending')
-            ->get();
+            ->get()
+            ->map(function ($request) {
+                return [
+                    'shop_id' => $request->shop_id,
+                    'shop_name' => $request->shop_name,
+                    'gold_color' => $request->gold_color,
+                    'total_weight' => $request->weight,
+                    'count' => $request->quantity,
+                    'serial_numbers' => [$request->serial_number],
+                    'is_pending' => true
+                ];
+            });
+
+        // Group existing items by shop and color
+        $groupedGoldItems = $goldItems->groupBy(function ($item) {
+            return $item['shop_id'] . '-' . $item['gold_color'];
+        })->map(function ($group) {
+            $firstItem = $group->first();
+            return [
+                'shop_id' => $firstItem['shop_id'],
+                'shop_name' => $firstItem['shop_name'],
+                'gold_color' => $firstItem['gold_color'],
+                'total_weight' => $group->sum('total_weight'),
+                'count' => $group->sum('count'),
+                'serial_numbers' => $group->pluck('serial_numbers')->flatten()->toArray(),
+                'is_pending' => false
+            ];
+        });
+
+        // Group pending requests by shop and color
+        $groupedPendingRequests = $pendingRequests->groupBy(function ($item) {
+            return $item['shop_id'] . '-' . $item['gold_color'];
+        })->map(function ($group) {
+            $firstItem = $group->first();
+            return [
+                'shop_id' => $firstItem['shop_id'],
+                'shop_name' => $firstItem['shop_name'],
+                'gold_color' => $firstItem['gold_color'],
+                'total_weight' => $group->sum('total_weight'),
+                'count' => $group->sum('count'),
+                'serial_numbers' => $group->pluck('serial_numbers')->flatten()->toArray(),
+                'is_pending' => true
+            ];
+        });
+
+        // Combine and sort the data
+        $allData = $groupedGoldItems->concat($groupedPendingRequests);
+        
+        // Sort the data according to requirements
+        $sortedData = $allData->sortBy([
+            // First by pending status (non-pending items first)
+            ['is_pending', 'asc'],
+            // Then by count (lower counts first)
+            ['count', 'asc'],
+            // Then by shop_id (lower IDs first)
+            ['shop_id', 'asc']
+        ])->values();
 
         // Get model details (including image)
         $modelDetails = Models::where('model', $model)->first();
 
         return response()->json([
-            'items' => $items,
-            'pendingRequests' => $pendingRequests,
+            'shopData' => $sortedData,
             'modelDetails' => $modelDetails
         ]);
     }

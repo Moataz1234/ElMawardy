@@ -8,13 +8,14 @@
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@4.6.0/dist/js/bootstrap.bundle.min.js"></script>
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@4.6.0/dist/css/bootstrap.min.css" rel="stylesheet">
     <link href="{{ url('css/addRequests.css') }}" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
 
 </head>
 
 <body>
     @include('components.navbar')
     <div class="container mt-5">
-        <h1 class="text-center mb-4">طلبات الاضافة</h1>
+        <h1 class="text-center mb-4">Add Requests</h1>
 
         @if (session('success'))
             <div class="alert alert-success alert-dismissible fade show" role="alert">
@@ -29,22 +30,22 @@
                 <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
             </div>
         @endif
-        <div class="container mt-4">
-            <form action="{{ route('admin.add.requests') }}" method="GET" class="row g-3">
-                <div class="col-md-4">
-                    <label for="status" class="form-label">Filter by Status</label>
-                    <select name="status" id="status" class="form-select">
-                        <option value="">-- Select Status --</option>
-                        <option value="pending" {{ request('status') == 'pending' ? 'selected' : '' }}>Pending</option>
-                        <option value="accepted" {{ request('status') == 'accepted' ? 'selected' : '' }}>Accepted
-                        </option>
+
+        <div class="filters-container mt-4">
+            <form action="{{ route('admin.add.requests') }}" method="GET" class="row align-items-end g-3">
+                <div class="col">
+                    <label for="status" class="form-label">Request Status</label>
+                    <select name="status" id="status" class="form-select custom-select">
+                        <option value="">All Status</option>
+                        <option value="pending" {{ request('status', 'pending') == 'pending' ? 'selected' : '' }}>Pending</option>
+                        <option value="accepted" {{ request('status') == 'accepted' ? 'selected' : '' }}>Accepted</option>
                     </select>
                 </div>
 
-                <div class="col-md-4">
-                    <label for="shop_name" class="form-label">Filter by Shop Name</label>
-                    <select name="shop_name" id="shop_name" class="form-select">
-                        <option value="">-- Select Shop --</option>
+                <div class="col">
+                    <label for="shop_name" class="form-label">Shop Name</label>
+                    <select name="shop_name" id="shop_name" class="form-select custom-select">
+                        <option value="">All Shops</option>
                         @foreach ($shops as $shop)
                             <option value="{{ $shop }}" {{ request('shop_name') == $shop ? 'selected' : '' }}>
                                 {{ $shop }}
@@ -53,60 +54,75 @@
                     </select>
                 </div>
 
-                <div class="col-md-4 d-flex align-items-end">
+                <div class="col">
+                    <label for="date" class="form-label">Date</label>
+                    <input type="date" class="form-control custom-date" id="date" name="date" value="{{ request('date', date('Y-m-d')) }}">
+                </div>
+
+                <div class="col-auto">
                     <button type="submit" class="btn btn-primary">Filter</button>
+                    <button type="reset" class="btn btn-secondary">Reset</button>
                 </div>
             </form>
         </div>
 
-        <table class="table table-bordered  mt-4">
-            <thead>
-                <tr>
-                    <th>Model</th>
-                    <th>Serial Number</th>
-                    <th>Shop Name</th>
-                    <th>Kind</th>
-                    <th>Weight</th>
-                    <th>Stars</th>
-                    <th>Gold Color</th>
-                    <th>Created At</th>
-                    <th>Status</th>
-                    
-                </tr>
-            </thead>
-            <tbody class="">
-                @php
-                    $totalWeight = 0;
-                    $totalItems = count($requests);
-                @endphp
-                @forelse ($requests as $request)
+        <div class="table-responsive mt-4">
+            <table class="table table-hover table-striped border">
+                <thead class="table-dark">
                     <tr>
-                        <td>{{ $request->model }}</td>
-                        <td>{{ $request->serial_number }}</td>
-                        <td>{{ $request->shop_name }}</td>
-                        <td>{{ $request->kind }}</td>
-                        <td>{{ $request->weight }}</td>
-                        <td>{{ $request->stars }}</td>
-                        <td>{{ $request->gold_color }}</td>
-                        <td>{{ $request->created_at->format('Y-m-d') }}</td>
-                        <td>{{ $request->status }}</td>
+                        <th>Model</th>
+                        <th>Serial Number</th>
+                        <th>Shop Name</th>
+                        <th>Type</th>
+                        <th>Weight</th>
+                        <th>Stars</th>
+                        <th>Gold Color</th>
+                        <th>
+                            <a href="{{ request()->fullUrlWithQuery(['sort' => 'date', 'direction' => request('direction') == 'asc' ? 'desc' : 'asc']) }}" 
+                               class="text-white text-decoration-none">
+                                Date
+                                @if(request('sort') == 'date')
+                                    <i class="fas fa-sort-{{ request('direction') == 'asc' ? 'up' : 'down' }}"></i>
+                                @else
+                                    <i class="fas fa-sort"></i>
+                                @endif
+                            </a>
+                        </th>
+                        <th>Status</th>
                     </tr>
+                </thead>
+                <tbody class="">
                     @php
-                        $totalWeight += $request->weight;
+                        $totalWeight = 0;
+                        $totalItems = count($requests);
                     @endphp
-                @empty
-                    <tr>
-                        <td colspan="9" class="text-center">No requests found.</td>
-                    </tr>
-                @endforelse
-            </tbody>
-            <div class="d-flex justify-content-between mt-4">
-                <strong class="total_items badge bg-danger col-4 fs-6">Total Items: <span
-                        class="fs-6 ">{{ $totalItems }}</span> </strong>
-                <strong class="total_weight badge bg-warning col-4 fs-6">Total Weight: <span
-                        class="fs-6 ">{{ $totalWeight }}</span></strong>
-            </div>
-        </table>
+                    @forelse ($requests as $request)
+                        <tr>
+                            <td>{{ $request->model }}</td>
+                            <td>{{ $request->serial_number }}</td>
+                            <td>{{ $request->shop_name }}</td>
+                            <td>{{ $request->kind }}</td>
+                            <td>{{ $request->weight }}</td>
+                            <td>{{ $request->stars }}</td>
+                            <td>{{ $request->gold_color }}</td>
+                            <td>{{ $request->created_at->format('Y-m-d') }}</td>
+                            <td>{{ $request->status }}</td>
+                        </tr>
+                        @php
+                            $totalWeight += $request->weight;
+                        @endphp
+                    @empty
+                        <tr>
+                            <td colspan="9" class="text-center">No requests found.</td>
+                        </tr>
+                    @endforelse
+                </tbody>
+                <div class="d-flex justify-content-between mt-4">
+                    <div class="total_items badge">Total Items: <span>{{ $totalItems }}</span></div>
+                    <div class="total_weight badge">Total Weight: <span>{{ $totalWeight }}</span></div>
+                </div>
+            </table>
+        </div>
 
         {{-- <div class="mt-3">
                 <button type="button" id="accept-selected" class="btn btn-success">Accept Selected</button>

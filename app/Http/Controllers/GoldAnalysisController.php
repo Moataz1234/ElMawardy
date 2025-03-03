@@ -7,29 +7,44 @@ use App\Models\Shop;
 use PhpOffice\PhpSpreadsheet\Spreadsheet;
 use PhpOffice\PhpSpreadsheet\Writer\Xlsx;
 use Illuminate\Support\Facades\DB;
+
 class GoldAnalysisController extends Controller
 {
     public function index()
     {
-        $shops = Shop::pluck('name', 'id');
-        $selectedShop = request('shop_name');
+        // Get all shops except 'online'
+        $shops = Shop::where('name', '!=', 'online')->get();
 
-        $query = GoldItem::select(
-            'kind',
-            DB::raw('COUNT(*) as total_items'),
-            DB::raw('SUM(weight) as total_weight')
-        )
-        ->whereNotIn('status', ['sold', 'deleted']);
-
-        if ($selectedShop) {
-            $query->where('shop_name', $selectedShop);
-        }
-
-        $statistics = $query->groupBy('kind')
+        // Get statistics for each shop
+        $shopStatistics = [];
+        foreach ($shops as $shop) {
+            $statistics = GoldItem::select(
+                'kind',
+                DB::raw('COUNT(*) as total_items'),
+                DB::raw('SUM(weight) as total_weight')
+            )
+            ->whereNotIn('status', ['sold', 'deleted'])
+            ->where('shop_name', $shop->name)
+            ->groupBy('kind')
             ->orderBy('kind')
             ->get();
 
-        return view('gold-analysis.index', compact('statistics', 'shops', 'selectedShop'));
+            // Only store if shop has any items
+            if ($statistics->isNotEmpty()) {
+                $shopStatistics[$shop->id] = [
+                    'shop' => $shop,
+                    'statistics' => $statistics,
+                    'unique_kinds_count' => $statistics->count() // Count how many different kinds this shop has
+                ];
+            }
+        }
+
+        // Sort shops by number of unique kinds (descending)
+        uasort($shopStatistics, function($a, $b) {
+            return $b['unique_kinds_count'] - $a['unique_kinds_count'];
+        });
+
+        return view('gold-analysis.index', compact('shopStatistics'));
     }
 
     public function export()
