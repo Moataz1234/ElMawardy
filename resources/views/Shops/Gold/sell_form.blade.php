@@ -203,6 +203,31 @@
             sellForm.addEventListener('submit', function(event) {
                 event.preventDefault();
                 
+                // Get form values
+                const firstName = document.getElementById('first_name').value.trim();
+                const lastName = document.getElementById('last_name').value.trim();
+                const phoneNumber = document.getElementById('phone_number').value.trim();
+                const email = document.getElementById('email').value.trim();
+
+                // Validation checks
+                if (!firstName || !lastName) {
+                    Swal.fire({
+                        icon: 'error',
+                        title: 'خطأ',
+                        text: 'يرجى ملء الاسم الأول والأخير'
+                    });
+                    return;
+                }
+
+                if (!phoneNumber && !email) {
+                    Swal.fire({
+                        icon: 'error',
+                        title: 'خطأ',
+                        text: 'يرجى إدخال رقم الهاتف أو البريد الإلكتروني'
+                    });
+                    return;
+                }
+
                 // Disable button immediately
                 submitButton.disabled = true;
                 const originalText = submitButton.innerHTML;
