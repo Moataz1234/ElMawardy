@@ -33,16 +33,13 @@ class GoldAnalysisController extends Controller
             if ($statistics->isNotEmpty()) {
                 $shopStatistics[$shop->id] = [
                     'shop' => $shop,
-                    'statistics' => $statistics,
-                    'unique_kinds_count' => $statistics->count() // Count how many different kinds this shop has
+                    'statistics' => $statistics
                 ];
             }
         }
 
-        // Sort shops by number of unique kinds (descending)
-        uasort($shopStatistics, function($a, $b) {
-            return $b['unique_kinds_count'] - $a['unique_kinds_count'];
-        });
+        // Sort shops by ID
+        ksort($shopStatistics);
 
         return view('gold-analysis.index', compact('shopStatistics'));
     }

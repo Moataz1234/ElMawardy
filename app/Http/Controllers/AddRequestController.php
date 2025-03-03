@@ -32,7 +32,7 @@ class AddRequestController extends Controller
 
         // Filter by date if provided, default to today
         $date = $request->get('date', date('Y-m-d'));
-        $query->whereDate('add_requests.created_at', $date);
+        $query->whereDate('add_requests.rest_since', $date);
 
         // Handle sorting
         $sort = $request->get('sort');

@@ -105,7 +105,7 @@
                             <td>{{ $request->weight }}</td>
                             <td>{{ $request->stars }}</td>
                             <td>{{ $request->gold_color }}</td>
-                            <td>{{ $request->created_at->format('Y-m-d') }}</td>
+                            <td>{{ $request->rest_since }}</td>
                             <td>{{ $request->status }}</td>
                         </tr>
                         @php
