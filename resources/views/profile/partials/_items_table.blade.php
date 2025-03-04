@@ -25,6 +25,7 @@
                 <div class="button-container">
                     <button id="sellItemsButton" class="btn btn-primary">بيع</button>
                     <button id="transferItemsButton" class="btn btn-danger">تحويل</button>
+                    {{-- <button id="workshopButton" class="btn btn-warning">Workshop</button> --}}
                 </div>
                 <table class="table table-striped table-hover">
                     <thead>
@@ -252,6 +253,70 @@
                         $('#poundSaleModal').modal('show');
                     } else {
                         window.location.reload();
+                    }
+                });
+            });
+
+            // Add workshop button handler
+            document.getElementById('workshopButton').addEventListener('click', function() {
+                const selectedItems = document.querySelectorAll('.select-item:checked');
+                if (selectedItems.length === 0) {
+                    alert('Please select items to transfer to workshop');
+                    return;
+                }
+
+                const selectedIds = Array.from(selectedItems).map(checkbox => checkbox.dataset.id);
+
+                Swal.fire({
+                    title: 'Workshop Transfer Request',
+                    html: `
+                        <p>Are you sure you want to request workshop transfer for ${selectedIds.length} items?</p>
+                        <div class="form-group">
+                            <label>Reason for transfer:</label>
+                            <textarea id="transfer-reason" class="form-control" required></textarea>
+                        </div>
+                    `,
+                    showCancelButton: true,
+                    confirmButtonText: 'Submit Request',
+                    cancelButtonText: 'Cancel',
+                    preConfirm: () => {
+                        const reason = document.getElementById('transfer-reason').value;
+                        if (!reason || reason.trim() === '') {
+                            Swal.showValidationMessage('Please enter a reason for transfer');
+                            return false;
+                        }
+                        return reason;
+                    }
+                }).then((result) => {
+                    if (result.isConfirmed) {
+                        // Create form data
+                        const formData = new FormData();
+                        formData.append('items', JSON.stringify(selectedIds));
+                        formData.append('transfer_reason', result.value);
+                        formData.append('_token', '{{ csrf_token() }}');
+
+                        // Send request
+                        fetch('{{ route("workshop.requests.create") }}', {
+                            method: 'POST',
+                            body: formData,
+                        })
+                        .then(response => {
+                            console.log('Response:', response); // Debug log
+                            return response.json();
+                        })
+                        .then(data => {
+                            console.log('Data:', data); // Debug log
+                            if (data.success) {
+                                Swal.fire('Success', 'Workshop transfer request submitted successfully', 'success')
+                                    .then(() => window.location.reload());
+                            } else {
+                                Swal.fire('Error', data.message || 'Failed to submit request', 'error');
+                            }
+                        })
+                        .catch(error => {
+                            console.error('Error:', error); // Debug log
+                            Swal.fire('Error', 'Failed to submit request', 'error');
+                        });
                     }
                 });
             });

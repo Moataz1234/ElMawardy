@@ -24,6 +24,7 @@ class GoldItem extends Model
         'talab',
         'status',
         'rest_since',
+        'source',
         'created_at',
         'updated_at',
     ];

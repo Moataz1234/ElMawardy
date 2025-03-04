@@ -44,13 +44,33 @@ class GoldItemController extends Controller
         $metalTypes = GoldItem::select('metal_type')->distinct()->pluck('metal_type');
         $metalPurities = GoldItem::select('metal_purity')->distinct()->pluck('metal_purity');
         $kinds = GoldItem::select('kind')->distinct()->pluck('kind');
+        
+        // Get sources from both GoldItem and Models tables, combine and sort them
+        $goldItemSources = GoldItem::select('source')
+            ->distinct()
+            ->whereNotNull('source')
+            ->pluck('source');
+        
+        $modelSources = Models::select('source')
+            ->distinct()
+            ->whereNotNull('source')
+            ->pluck('source');
+        
+        // Combine sources, remove duplicates, sort, and remove empty values
+        $sources = $goldItemSources->concat($modelSources)
+            ->unique()
+            ->filter()
+            ->sort()
+            ->values();
+        
         return view('admin.Gold.items.Create_form', compact(
             'shops',
             'models',
             'goldColors',
             'metalTypes',
             'metalPurities',
-            'kinds'
+            'kinds',
+            'sources'
         ));
     }
 
@@ -69,10 +89,13 @@ class GoldItemController extends Controller
             'shops.*.shop_name' => 'required',
             'shops.*.gold_color' => 'required',
             'shops.*.weight' => 'required|numeric',
+            'shops.*.source' => 'nullable|string',
         ]);
 
-        // Get the stars from the Models table
-        $modelStars = Models::where('model', $validatedData['model'])->value('stars');
+        // Get the stars and default source from the Models table
+        $modelDetails = Models::where('model', $validatedData['model'])->first();
+        $modelStars = $modelDetails ? $modelDetails->stars : null;
+        $defaultSource = $modelDetails ? $modelDetails->source : null;
 
         // Get current session items or initialize empty array
         $sessionItems = session()->get('gold_items', []);
@@ -89,8 +112,12 @@ class GoldItemController extends Controller
             'metal_purity' => $validatedData['metal_purity'],
             'quantity' => $validatedData['quantity'],
             'rest_since' => $validatedData['rest_since'],
-            'shops' => $validatedData['shops'],
-            'stars' => $modelStars // Add the stars value
+            'shops' => array_map(function($shop) use ($defaultSource) {
+                // Use provided source or fall back to default source
+                $shop['source'] = !empty($shop['source']) ? $shop['source'] : $defaultSource;
+                return $shop;
+            }, $validatedData['shops']),
+            'stars' => $modelStars
         ];
 
         // Add the item to session
@@ -170,6 +197,7 @@ class GoldItemController extends Controller
                             'talab' => isset($shopData['talab']) ? $shopData['talab'] : false,
                             'status' => 'pending',
                             'rest_since' => $itemData['rest_since'] ?? now()->toDateString(),
+                            'source' => $shopData['source'] ?? null,
                         ];
                         
                         Log::info('Prepared request data', ['requestData' => $requestData]);
@@ -252,6 +280,9 @@ class GoldItemController extends Controller
     {
         $model = $request->query('model');
         
+        // Log the incoming request
+        Log::info('Fetching model details for:', ['model' => $model]);
+        
         // Get existing gold items
         $goldItems = GoldItem::where('model', $model)
             ->whereNotIn('status', ['sold', 'deleted'])
@@ -268,73 +299,21 @@ class GoldItemController extends Controller
                 ];
             });
 
-        // Get pending add requests
-        $pendingRequests = AddRequest::where('model', $model)
-            ->where('status', 'pending')
-            ->get()
-            ->map(function ($request) {
-                return [
-                    'shop_id' => $request->shop_id,
-                    'shop_name' => $request->shop_name,
-                    'gold_color' => $request->gold_color,
-                    'total_weight' => $request->weight,
-                    'count' => $request->quantity,
-                    'serial_numbers' => [$request->serial_number],
-                    'is_pending' => true
-                ];
-            });
-
-        // Group existing items by shop and color
-        $groupedGoldItems = $goldItems->groupBy(function ($item) {
-            return $item['shop_id'] . '-' . $item['gold_color'];
-        })->map(function ($group) {
-            $firstItem = $group->first();
-            return [
-                'shop_id' => $firstItem['shop_id'],
-                'shop_name' => $firstItem['shop_name'],
-                'gold_color' => $firstItem['gold_color'],
-                'total_weight' => $group->sum('total_weight'),
-                'count' => $group->sum('count'),
-                'serial_numbers' => $group->pluck('serial_numbers')->flatten()->toArray(),
-                'is_pending' => false
-            ];
-        });
-
-        // Group pending requests by shop and color
-        $groupedPendingRequests = $pendingRequests->groupBy(function ($item) {
-            return $item['shop_id'] . '-' . $item['gold_color'];
-        })->map(function ($group) {
-            $firstItem = $group->first();
-            return [
-                'shop_id' => $firstItem['shop_id'],
-                'shop_name' => $firstItem['shop_name'],
-                'gold_color' => $firstItem['gold_color'],
-                'total_weight' => $group->sum('total_weight'),
-                'count' => $group->sum('count'),
-                'serial_numbers' => $group->pluck('serial_numbers')->flatten()->toArray(),
-                'is_pending' => true
-            ];
-        });
-
-        // Combine and sort the data
-        $allData = $groupedGoldItems->concat($groupedPendingRequests);
-        
-        // Sort the data according to requirements
-        $sortedData = $allData->sortBy([
-            // First by pending status (non-pending items first)
-            ['is_pending', 'asc'],
-            // Then by count (lower counts first)
-            ['count', 'asc'],
-            // Then by shop_id (lower IDs first)
-            ['shop_id', 'asc']
-        ])->values();
-
-        // Get model details (including image)
+        // Get model details (including source)
         $modelDetails = Models::where('model', $model)->first();
+        Log::info('Found model details:', ['details' => $modelDetails]);
 
-        return response()->json([
-            'shopData' => $sortedData,
-            'modelDetails' => $modelDetails
-        ]);
+        // Make sure we're explicitly including the source in the response
+        $response = [
+            'shopData' => $goldItems,
+            'modelDetails' => $modelDetails ? [
+                'model' => $modelDetails->model,
+                'source' => $modelDetails->source,
+                'scanned_image' => $modelDetails->scanned_image,
+                // ... other model details ...
+            ] : null
+        ];
+
+        return response()->json($response);
     }
 }

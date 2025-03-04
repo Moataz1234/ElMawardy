@@ -29,7 +29,7 @@
                     <a href="{{ route('gold-pounds.admin.index') }}" class="dropdown-item">Gold Pounds</a>
                     <a href="{{ route('admin.inventory') }}" class="dropdown-item">Gold Items</a>
                     <a href="{{ route('admin.sold-items') }}" class="dropdown-item">Sold Items</a>
-                    <a href="{{ route('workshop.items') }}" class="dropdown-item">Did</a>
+                    <a href="{{ route('workshop.items.index') }}" class="dropdown-item">Did</a>
                 </div>
             </li>
             <li class="navbar-item dropdown">
@@ -61,7 +61,7 @@
         @if (auth()->user()->usertype === 'Acc')
             <li class="navbar-item"><a href="{{ route('dashboard') }}" class="navbar-link"> طلبات البيع</a></li>
             {{-- <li class="navbar-item"><a href="{{ route('sell-requests.acc') }}" class="navbar-link"> ط</a></li> --}}
-            <li class="navbar-item"><a href="{{ route('all-sold-items') }}" class="navbar-link">كل طلبات البيع</a></li>
+            <li class="navbar-item"><a href="{{ route('all-sold-items') }}" class="navbar-link">sales analysis</a></li>
             
             {{-- <li class="navbar-item dropdown">
                 <a href="#" class="navbar-link dropdown-toggle">المبيعات</a>
@@ -109,7 +109,7 @@
                     <a href="{{ route('gold-pounds.admin.index') }}" class="dropdown-item">Gold Pounds</a>
                     <a href="{{ route('admin.inventory') }}" class="dropdown-item">Gold Items</a>
                     <a href="{{ route('admin.sold-items') }}" class="dropdown-item">Sold Items</a>
-                    <a href="{{ route('workshop.items') }}" class="dropdown-item">Did</a>
+                    {{-- <a href="{{ route('workshop.items.index') }}" class="dropdown-item">Did</a> --}}
                 </div>
             </li>
             <li class="navbar-item dropdown">

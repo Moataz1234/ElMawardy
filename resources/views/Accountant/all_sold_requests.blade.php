@@ -117,7 +117,7 @@
                     <h5>Total Weight: {{ $soldItemRequests->sum('weight') }}g</h5>
                 </div>
                 <div class="col-md-3">
-                    <h5>Total Price: {{ number_format($soldItemRequests->sum('price')) }} {{ config('app.currency') }}</h5>
+                    <h5>Total Revenue: {{ number_format($soldItemRequests->sum('price')) }} {{ config('app.currency') }}</h5>
                 </div>
                 <div class="col-md-3">
                     <h5>Avg Price/g: {{ $soldItemRequests->avg('weight') > 0 ? 
@@ -152,9 +152,8 @@
                     </td>
                     <td>{{ $request->shop_name }}</td>
                     <td>{{ $request->weight }}g</td>
-                    <td>{{ $request->price }} {{ config('app.currency') }}</td>
-                    <td>{{ $request->weight > 0 ? number_format($request->price / $request->weight, 2) : 0 }} 
-                        {{ config('app.currency') }}/g</td>
+                    <td>{{ $request->price >0 ? number_format($request->price) : 0 }} </td>
+                    <td>{{ $request->weight > 0 ? number_format($request->price / $request->weight, 2) : 0 }} /g</td>
                     <td>{{ $request->payment_method ?? 'N/A' }}</td>
                     <td>
                         <span class="badge badge-{{ $request->status === 'approved' ? 'success' : 

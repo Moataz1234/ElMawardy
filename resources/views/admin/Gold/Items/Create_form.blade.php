@@ -1,324 +1,22 @@
 <!DOCTYPE html>
 <html lang="en">
+
 <head>
     @include('components.navbar')
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Create Gold Item</title>
-    <!-- Bootstrap CSS -->
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
-    <link href="{{ asset('css/app.css') }}" rel="stylesheet">
-    <link href="{{ asset('css/style.css') }}" rel="stylesheet">
-    <link href="{{ asset('css/navbar.css') }}" rel="stylesheet">
+
+    <link href="{{ asset('css/create_form.css') }}" rel="stylesheet">
     <link href="{{ asset('css/checkbox.css') }}" rel="stylesheet">
     <meta name="csrf-token" content="{{ csrf_token() }}">
-    <style>
-        .create-form {
-            background: rgb(133, 132, 132);
-            border-radius: 10px;
-            box-shadow: 0 0 20px rgba(0,0,0,0.1);
-            padding: 2rem;
-            margin: 1rem;
-            
-        }
-
-        .form-group {
-            margin-bottom: 0.5rem;
-        }
-
-        .dynamic-field {
-            display: flex;
-            flex-wrap: nowrap;
-            gap: 1rem;
-            margin-bottom: 1rem;
-        }
-
-        .dynamic-field .form-group {
-            flex: 1;
-            min-width: 150px;
-        }
-
-        .form-control {
-            padding: 0.375rem 0.5rem;
-            font-size: 0.9rem;
-        }
-
-        .shop-weight-row .form-group {
-            flex: 1;
-        }
-
-        .shop-weight-row .form-group:first-child {
-            flex: 2;
-        }
-
-        .table-container {
-            margin: 2rem 1rem;
-        }
-
-        #add-item-btn {
-            background-color: #007bff;
-            color: white;
-            border: none;
-            padding: 0.75rem 1.5rem;
-            border-radius: 5px;
-            transition: all 0.3s ease;
-        }
-
-        #add-item-btn:hover {
-            background-color: #0056b3;
-        }
-
-        #submit-all-items {
-            background-color: #28a745;
-            color: white;
-            border: none;
-            padding: 0.75rem 1.5rem;
-            border-radius: 5px;
-            transition: all 0.3s ease;
-        }
-
-        #submit-all-items:hover {
-            background-color: #218838;
-        }
-
-        .submission-section {
-            margin-top: 1.5rem;
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-        }
-
-        .model-details {
-            background: white;
-            border-radius: 10px;
-            padding: 2rem;
-            margin: 1rem;
-            box-shadow: 0 0 20px rgba(0,0,0,0.1);
-            display: grid;
-            grid-template-rows: auto 1fr;
-            gap: 1.5rem;
-        }
-
-        .model-image-container {
-            text-align: center;
-            padding: 1rem;
-            background: #f8f9fa;
-            border-radius: 8px;
-            border: 1px solid #dee2e6;
-        }
-
-        .model-image-container h3 {
-            margin-bottom: 1rem;
-            color: #333;
-            font-size: 1.2rem;
-        }
-
-        #model-image {
-            height: 200px;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-        }
-
-        #model-image img {
-            max-width: 100%;
-            max-height: 100%;
-            object-fit: contain;
-        }
-
-        #shop-data-table-container {
-            border-radius: 8px;
-            border: 1px solid #dee2e6;
-        }
-
-        #shop-data-table {
-            width: 100%;
-            border-collapse: separate;
-            border-spacing: 0;
-        }
-
-        #shop-data-table th {
-            background: #343a40;
-            color: white;
-            padding: 12px;
-            font-weight: 500;
-            text-align: left;
-            border: none;
-        }
-
-        #shop-data-table td {
-            padding: 12px;
-            border-bottom: 1px solid #dee2e6;
-            background: white;
-            vertical-align: top;
-        }
-
-        /* Column widths */
-        #shop-data-table th:nth-child(1),
-        #shop-data-table td:nth-child(1) {
-            width: 25%;
-        }
-
-        #shop-data-table th:nth-child(2),
-        #shop-data-table td:nth-child(2) {
-            width: 15%;
-        }
-
-        #shop-data-table th:nth-child(3),
-        #shop-data-table td:nth-child(3) {
-            width: 45%;
-            white-space: pre-line;
-            line-height: 1.5;
-            font-family: monospace;
-            font-size: 0.9rem;
-        }
-
-        #shop-data-table th:nth-child(4),
-        #shop-data-table td:nth-child(4) {
-            width: 15%;
-            text-align: center;
-        }
-
-        .pending-request td {
-            background-color: #fff3cd !important;
-        }
-
-        /* Hover effects */
-        #shop-data-table tbody tr:hover td {
-            background-color: #f8f9fa;
-        }
-
-        /* Badge styling */
-        .badge.bg-warning {
-            background-color: #ffc107 !important;
-            color: #000 !important;
-            padding: 0.25em 0.6em;
-            font-size: 0.75rem;
-            font-weight: 500;
-            border-radius: 4px;
-        }
-
-        /* Scrollbar styling */
-        #shop-data-table-container::-webkit-scrollbar {
-            width: 8px;
-            height: 8px;
-        }
-
-        #shop-data-table-container::-webkit-scrollbar-track {
-            background: #f1f1f1;
-            border-radius: 4px;
-        }
-
-        #shop-data-table-container::-webkit-scrollbar-thumb {
-            background: #888;
-            border-radius: 4px;
-        }
-
-        #shop-data-table-container::-webkit-scrollbar-thumb:hover {
-            background: #555;
-        }
-
-        /* Responsive adjustments */
-        @media (max-width: 1200px) {
-            .model-details {
-                height: auto;
-                min-height: 500px;
-            }
-        }
-
-        .model-details img {
-            width: 100%;
-            height: 100%;
-            object-fit: cover;
-        }
-
-        .remove-item {
-            background-color: #dc3545;
-            color: white;
-            border: none;
-            padding: 0.5rem 1rem;
-            border-radius: 5px;
-            transition: all 0.3s ease;
-        }
-
-        .remove-item:hover {
-            background-color: #c82333;
-        }
-
-        .main-container {
-            display: flex;
-            gap: 1rem;
-            margin: 1rem;
-        }
-
-        .form-section, .details-section {
-            flex: 1;
-            min-width: 0;
-        }
-
-        .rating-stars i {
-            color: #ddd;
-            cursor: pointer;
-        }
-        
-        .rating-stars i.active {
-            color: #ffd700;
-        }
-        
-        .shop-input {
-            width: 100%;
-        }
-
-        .form-row {
-            display: flex;
-            gap: 1rem;
-            margin-bottom: 1rem;
-        }
-
-        .form-row .form-group {
-            flex: 1;
-            min-width: 0; /* Prevents flex items from overflowing */
-        }
-
-        .form-control {
-            padding: 0.375rem 0.5rem;
-            font-size: 0.9rem;
-            height: 38px; /* Make all inputs same height */
-        }
-
-        /* Adjust the shop-weight row specifically */
-        .shop-weight-row {
-            display: flex;
-            gap: 1rem;
-        }
-
-        .shop-weight-row .form-group:first-child {
-            flex: 2;
-        }
-
-        .shop-weight-row .form-group:last-child {
-            flex: 1;
-        }
-
-        /* Style for pending requests */
-        .pending-request {
-            background-color: #fff3cd !important;
-        }
-
-        #shop-data-table td:nth-child(3) {
-            /* Serial Numbers column */
-            white-space: pre-line;  /* Allow line breaks */
-            word-break: break-all;  
-            vertical-align: top;    /* Align content to top */
-            padding: 8px;          /* Add some padding */
-        }
-    </style>
 </head>
 
 <body>
     <div class="container-fluid">
         <h3 class="text-center ">Items</h3>
-        
+
         @if (session('error'))
             <div class="alert alert-danger">
                 {{ session('error') }}
@@ -367,7 +65,8 @@
                     <div class="form-row">
                         <div class="form-group">
                             <label for="quantity">Quantity:</label>
-                            <input type="number" name="quantity" id="quantity" value="1" class="form-control" required>
+                            <input type="number" name="quantity" id="quantity" value="1" class="form-control"
+                                required>
                         </div>
                         <div class="form-group">
                             <label for="gold_color">Gold Color:</label>
@@ -379,24 +78,26 @@
                         </div>
                         <div class="form-group">
                             <label for="rest_since">Rest Since:</label>
-                            <input type="date" name="rest_since" id="rest_since" value="<?php echo date('Y-m-d'); ?>" class="form-control" required>
+                            <input type="date" name="rest_since" id="rest_since" value="<?php echo date('Y-m-d'); ?>"
+                                class="form-control" required>
                         </div>
                         <div class="form-group">
                             <label for="talab">Talab:</label>
                             <div>
                                 <input type="hidden" name="shops[0][talab]" value="0">
-                                <input type="checkbox" class="checkboxInput" id="checkboxInput" name="shops[0][talab]" value="1">
+                                <input type="checkbox" class="checkboxInput" id="checkboxInput" name="shops[0][talab]"
+                                    value="1">
                                 <label for="checkboxInput" class="toggleSwitch"></label>
                             </div>
                         </div>
                     </div>
 
-                    <!-- Third Row -->
+                    <!-- Third Row (shop-weight-row) -->
                     <div class="form-row shop-weight-row">
                         <div class="form-group">
                             <label for="shop_id">Shop:</label>
-                            <input list="shops-list" name="shops[0][shop_name]" class="form-control shop-input" required 
-                                   placeholder="Select or type shop name" data-index="0">
+                            <input list="shops-list" name="shops[0][shop_name]" class="form-control shop-input" required
+                                placeholder="Select or type shop name" data-index="0">
                             <datalist id="shops-list">
                                 @foreach ($shops as $shop)
                                     <option value="{{ $shop->name }} (ID: {{ $shop->id }})"></option>
@@ -408,10 +109,20 @@
                             <label for="weight">Weight:</label>
                             <input type="number" step="0.01" name="shops[0][weight]" class="form-control" required>
                         </div>
+                        <div class="form-group">
+                            <label for="source">Source:</label>
+                            <select name="shops[0][source]" class="form-control source-input" id="source">
+                                <option value="">Select Source</option>
+                                @foreach ($sources as $source)
+                                    <option value="{{ $source }}">{{ $source }}</option>
+                                @endforeach
+                            </select>
+                        </div>
                     </div>
 
-                    <button type="button" id="add-item-btn">Add to List</button>
-                    <a class="reset-button btn btn-primary" href="{{ route('models.create') }}">Add New Model</a>
+                    <button class="add-new-model btn btn-primary" type="button" id="add-item-btn">Add to
+                        List</button>
+                    <a class="add-new-model btn btn-warning" href="{{ route('models.create') }}">Add New Model</a>
                 </form>
 
                 <!-- Session Items Table -->
@@ -439,7 +150,8 @@
                                         <td>{{ $item['quantity'] }}</td>
                                         <td>{{ $item['stars'] ?? '' }}</td>
                                         <td>
-                                            <button class="remove-item btn" data-id="{{ $item['id'] }}">Remove</button>
+                                            <button class="remove-item btn"
+                                                data-id="{{ $item['id'] }}">Remove</button>
                                         </td>
                                     </tr>
                                 @endforeach
@@ -516,11 +228,11 @@
 
             $('#add-item-btn').click(function(e) {
                 e.preventDefault();
-                
+
                 // Validate shop selection before submission
                 const shopInput = $('input[name="shops[0][shop_name]"]');
                 const shopIdInput = $('input[name="shops[0][shop_id]"]');
-                
+
                 if (!shopIdInput.val()) {
                     Swal.fire({
                         icon: 'error',
@@ -553,11 +265,13 @@
                             `;
                             $('#items-table tbody').append(newRow);
                             $('#items-count').text(response.total_items);
-                            
+
                             // Clear form fields
                             $('input[name="shops[0][shop_name]"]').val('');
                             $('input[name="shops[0][shop_id]"]').val('');
-                            $('select[name="shops[0][gold_color]"]').val($('select[name="shops[0][gold_color]"] option:first').val());
+                            $('select[name="shops[0][gold_color]"]').val($(
+                                'select[name="shops[0][gold_color]"] option:first')
+                            .val());
                             $('input[name="shops[0][weight]"]').val('');
                             $('input[name="shops[0][talab]"]').prop('checked', false);
                         }
@@ -637,12 +351,42 @@
                                 Swal.fire({
                                     icon: 'error',
                                     title: 'Error',
-                                    text: xhr.responseJSON.message || 'Error submitting items'
+                                    text: xhr.responseJSON.message ||
+                                        'Error submitting items'
                                 });
                             }
                         });
                     }
                 });
+            });
+
+            // When model changes, fetch its details including default source
+            $('input[name="model"]').on('change blur', function() {
+                const model = $(this).val();
+                if (model) {
+                    // Log to check if event is firing
+                    console.log('Model changed to:', model);
+
+                    $.ajax({
+                        url: `/models/${encodeURIComponent(model)}/details`,
+                        method: 'GET',
+                        success: function(data) {
+                            console.log('Received model details:', data); // Debug log
+
+                            if (data.modelDetails && data.modelDetails.source) {
+                                // Set the default source from models table
+                                $('.source-input').each(function() {
+                                    $(this).val(data.modelDetails.source);
+                                    console.log('Setting source to:', data.modelDetails
+                                        .source); // Debug log
+                                });
+                            }
+                        },
+                        error: function(xhr, status, error) {
+                            console.error('Error fetching model details:', error);
+                        }
+                    });
+                }
             });
         });
 
@@ -667,4 +411,5 @@
     </script>
     <script src="{{ asset('js/model_details.js') }}"></script>
 </body>
+
 </html>

@@ -16,6 +16,7 @@ use App\Models\DeletedItemHistory;
 use App\Services\Admin_GoldItemService;
 use Illuminate\Support\Facades\Log;
 use Illuminate\Support\Facades\DB;
+use Illuminate\Support\Facades\Auth;
 
 
 class AdminDashboardController extends Controller
@@ -206,23 +207,62 @@ class AdminDashboardController extends Controller
             ->orderBy('created_at', 'desc')
             ->paginate(20);
 
-        return view('admin.Gold.workshop_requests', compact('requests'));
+        return view('admin.requests.workshop_requests', compact('requests'));
     }
 
     public function handleWorkshopRequest(Request $request, $id)
     {
-        $request->validate([
-            'status' => 'required|in:approved,rejected'
-        ]);
+        try {
+            DB::beginTransaction();
 
-        DB::table('workshop_transfer_requests')
-            ->where('id', $id)
-            ->update([
-                'status' => $request->status,
-                'updated_at' => now()
-            ]);
+            $transferRequest = DB::table('workshop_transfer_requests')
+                ->where('id', $id)
+                ->first();
 
-        return redirect()->back()->with('success', 'Request status updated successfully');
+            if (!$transferRequest) {
+                throw new \Exception('Transfer request not found');
+            }
+
+            if ($request->status === 'approved') {
+                // Get the gold item
+                $goldItem = GoldItem::findOrFail($transferRequest->item_id);
+
+                // Create workshop record
+                DB::table('workshop_items')->insert([
+                    'item_id' => $goldItem->id,
+                    'transferred_by' => $transferRequest->requested_by,
+                    'serial_number' => $goldItem->serial_number,
+                    'shop_name' => $goldItem->shop_name,
+                    'kind' => $goldItem->kind,
+                    'model' => $goldItem->model,
+                    'gold_color' => $goldItem->gold_color,
+                    'metal_purity' => $goldItem->metal_purity,
+                    'weight' => $goldItem->weight,
+                    'transfer_reason' => $transferRequest->reason,
+                    'transferred_at' => now(),
+                    'created_at' => now(),
+                    'updated_at' => now()
+                ]);
+
+                // Delete the original item
+                $goldItem->delete();
+            }
+
+            // Update request status
+            DB::table('workshop_transfer_requests')
+                ->where('id', $id)
+                ->update([
+                    'status' => $request->status,
+                    'updated_at' => now()
+                ]);
+
+            DB::commit();
+            return true;
+        } catch (\Exception $e) {
+            DB::rollBack();
+            Log::error('Workshop request handling failed: ' . $e->getMessage());
+            throw $e;
+        }
     }
     public function update_prices()
     {
@@ -231,30 +271,48 @@ class AdminDashboardController extends Controller
 
     public function createWorkshopRequests(Request $request)
     {
-        $request->validate([
-            'items' => 'required|string', // Changed to string since we're sending JSON
-            'transfer_reason' => 'required|string',
-            'transfer_all_models' => 'required|string'
-        ]);
+        try {
+            $request->validate([
+                'items' => 'required|string', // JSON string of item IDs
+                'transfer_reason' => 'required|string'
+            ]);
 
-        // Decode the JSON items
-        $items = json_decode($request->input('items'), true);
-        $reason = $request->input('transfer_reason');
-        $transferAllModels = $request->input('transfer_all_models') === 'true';
+            DB::beginTransaction(); // Start transaction
 
-        // Add shop_name to each item
-        $items = array_map(function ($item) {
-            $goldItem = GoldItem::find($item['id']);
-            return [
-                'id' => $item['id'],
-                'serial_number' => $item['serial'],
-                'shop_name' => $goldItem->shop_name
-            ];
-        }, $items);
+            // Decode the JSON items
+            $items = json_decode($request->input('items'), true);
+            $reason = $request->input('transfer_reason');
 
-        $this->goldItemService->createWorkshopRequests($items, $reason, $transferAllModels);
+            foreach ($items as $itemId) {
+                $goldItem = GoldItem::findOrFail($itemId);
+                
+                // Create workshop transfer request
+                DB::table('workshop_transfer_requests')->insert([
+                    'item_id' => $itemId,
+                    'shop_name' => $goldItem->shop_name,
+                    'serial_number' => $goldItem->serial_number,
+                    'status' => 'pending',
+                    'reason' => $reason,
+                    'requested_by' => Auth::user()->name,
+                    'created_at' => now(),
+                    'updated_at' => now()
+                ]);
+            }
 
-        return redirect()->back()->with('success', 'Workshop transfer requests created successfully');
+            DB::commit();
+
+            return response()->json([
+                'success' => true,
+                'message' => 'Workshop transfer requests created successfully'
+            ]);
+        } catch (\Exception $e) {
+            DB::rollBack();
+            Log::error('Failed to create workshop requests: ' . $e->getMessage());
+            return response()->json([
+                'success' => false,
+                'message' => 'Failed to create workshop requests: ' . $e->getMessage()
+            ], 500);
+        }
     }
 }
  // public function allSoldItems()

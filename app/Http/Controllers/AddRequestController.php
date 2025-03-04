@@ -94,6 +94,9 @@ class AddRequestController extends Controller
                     $goldItemData = $itemRequest->toArray();
                     unset($goldItemData['id']);
                     $goldItemData['status'] = 'available';
+                    
+                    // Ensure source is transferred from the request to the gold item
+                    $goldItemData['source'] = $itemRequest->source;
 
                     GoldItem::create($goldItemData);
 

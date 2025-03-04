@@ -157,15 +157,10 @@ class ImportSoldItems extends Controller
 
         for ($row = $startRow; $row <= $endRow; $row++) {
             // Get the row data and log it
-            $rowData = $sheet->rangeToArray('A' . $row . ':P' . $row, null, true, false)[0];
+            $rowData = $sheet->rangeToArray('A' . $row . ':Q' . $row, null, true, false)[0]; // Extended to Q for source
             Log::info("Raw row {$row} data:", $rowData);
 
-            // Get serial number cell (Column B)
-            $serialCell = $sheet->getCell('A' . $row);
-            Log::info("Serial number cell value: " . $serialCell->getValue());
-            Log::info("Serial number cell type: " . $serialCell->getDataType());
-
-            // Skip rows where serial_number (column B) is empty
+            // Skip rows where serial_number (column A) is empty
             if (empty($rowData[0])) {
                 Log::info("Skipping row {$row}: serial_number is empty. Raw value: " . var_export($rowData[0], true));
                 continue;
@@ -188,7 +183,8 @@ class ImportSoldItems extends Controller
                 'sold_date' => $this->parseDate(dateValue: $rowData[15]),
                 'stones' => !empty($rowData[7]) ? $rowData[7] : null,
                 'talab' => strtoupper(trim($rowData[5])) === 'YES',
-                'stars' =>trim($rowData[13]),
+                'stars' => trim($rowData[13]),
+                'source' => trim($rowData[16]), // New column Q for source
                 'customer_id' => null,
                 'created_at' => Carbon::now(),
                 'updated_at' => Carbon::now(),
@@ -224,6 +220,66 @@ class ImportSoldItems extends Controller
         } catch (\Exception $e) {
             Log::warning("Failed to parse date: {$dateValue}");
             return null;
+        }
+    }
+
+    // Add new method to update sources
+    public function updateSources(Request $request)
+    {
+        ini_set('max_execution_time', $this->timeLimit);
+        set_time_limit($this->timeLimit);
+
+        $request->validate([
+            'file' => 'required|mimes:xlsx,xls',
+        ]);
+
+        try {
+            $file = $request->file('file');
+            Log::info("Starting source update from file: " . $file->getClientOriginalName());
+
+            $reader = IOFactory::createReaderForFile($file->getPathname());
+            $reader->setReadDataOnly(true);
+            $spreadsheet = $reader->load($file->getPathname());
+            $sheet = $spreadsheet->getActiveSheet();
+            $highestRow = $sheet->getHighestDataRow();
+
+            $updatedCount = 0;
+            $notFoundCount = 0;
+            $skippedCount = 0;
+
+            // Process in batches
+            for ($row = 2; $row <= $highestRow; $row++) {
+                $rowData = $sheet->rangeToArray('A' . $row . ':Q' . $row, null, true, false)[0];
+                
+                // Skip if serial number or source is empty
+                if (empty($rowData[0]) || empty($rowData[16])) {
+                    $skippedCount++;
+                    continue;
+                }
+
+                $serialNumber = trim($rowData[0]);
+                $source = trim($rowData[16]);
+
+                // Try to update in gold_items_sold first
+                $soldItem = GoldItemSold::where('serial_number', $serialNumber)->first();
+                if ($soldItem) {
+                    $soldItem->update(['source' => $source]);
+                    $updatedCount++;
+                    Log::info("Updated source for sold item: {$serialNumber}");
+                } else {
+                    Log::info("Serial number not found: {$serialNumber}");
+                    $notFoundCount++;
+                }
+            }
+
+            $message = "Source update completed. Updated: {$updatedCount}, Not Found: {$notFoundCount}, Skipped: {$skippedCount}";
+            Log::info($message);
+
+            return redirect()->back()->with('success', $message);
+
+        } catch (\Exception $e) {
+            Log::error('Source update failed: ' . $e->getMessage());
+            return redirect()->back()->with('error', 'Source update failed: ' . $e->getMessage());
         }
     }
 }

@@ -224,8 +224,8 @@ Route::middleware(['auth'])->group(function () {
             ->middleware('web');
         Route::get('/deleted-items-history', [AdminDashboardController::class, 'deletedItems'])
             ->name('deleted-items.history');
-        Route::get('/workshop-items', [AdminDashboardController::class, 'workshopItems'])
-            ->name('workshop.items');
+        // Route::get('/workshop-items', [AdminDashboardController::class, 'workshopItems'])
+        //     ->name('workshop.items');
 
         Route::post('/admin/workshop/transfer-requests', [AdminDashboardController::class, 'createWorkshopRequests'])
             ->name('workshop.requests.create');
@@ -367,4 +367,21 @@ Route::prefix('laboratory')->name('laboratory.')->group(function () {
         ->name('operations.update-weights');
     Route::patch('/operations/{operation}/costs', [LaboratoryOperationController::class, 'updateCosts'])
         ->name('operations.update-costs');
+});
+
+Route::post('/import-sold-items/update-sources', [ImportSoldItems::class, 'updateSources'])
+    ->name('import-sold-items.update-sources');
+
+Route::post('/import-gold-items/update-sources', [ImportGoldItems::class, 'updateSources'])
+    ->name('import-gold-items.update-sources');
+
+// Workshop transfer request routes
+Route::middleware(['auth', 'admin'])->group(function () {
+    Route::get('/workshop-requests', [AdminDashboardController::class, 'workshopRequests'])->name('workshop.requests.index');
+    Route::post('/workshop-requests/{id}/handle', [AdminDashboardController::class, 'handleWorkshopRequest'])->name('workshop.requests.handle');
+});
+
+Route::middleware(['auth'])->group(function () {
+    Route::post('/workshop-requests/create', [AdminDashboardController::class, 'createWorkshopRequests'])->name('workshop.requests.create');
+    Route::get('/workshop-items', [AdminDashboardController::class, 'workshopItems'])->name('workshop.items.index');
 });

@@ -28,5 +28,42 @@
     <h2>Download Daily Report </h2>
     <div class="print-section">
         <a href="{{ route('daily.report.pdf') }}" class="btn btn-primary">Download PDF Report</a>
-    </div></body>
+    </div>
+  
+    <div class="container">
+        <!-- Update Sources for Gold Items -->
+        <div class="card mt-4">
+            <div class="card-header">
+                Update Sources for Gold Items
+            </div>
+            <div class="card-body">
+                <form action="{{ route('import-gold-items.update-sources') }}" method="POST" enctype="multipart/form-data">
+                    @csrf
+                    <div class="form-group">
+                        <label for="gold-source-file">Select Excel File</label>
+                        <input type="file" class="form-control" id="gold-source-file" name="file" required>
+                    </div>
+                    <button type="submit" class="btn btn-primary">Update Gold Items Sources</button>
+                </form>
+            </div>
+        </div>
+
+        <!-- Update Sources for Sold Items -->
+        <div class="card mt-4">
+            <div class="card-header">
+                Update Sources for Sold Items
+            </div>
+            <div class="card-body">
+                <form action="{{ route('import-sold-items.update-sources') }}" method="POST" enctype="multipart/form-data">
+                    @csrf
+                    <div class="form-group">
+                        <label for="sold-source-file">Select Excel File</label>
+                        <input type="file" class="form-control" id="sold-source-file" name="file" required>
+                    </div>
+                    <button type="submit" class="btn btn-primary">Update Sold Items Sources</button>
+                </form>
+            </div>
+        </div>
+    </div>
+</body>
 </html>

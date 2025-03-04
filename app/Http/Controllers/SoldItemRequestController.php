@@ -178,7 +178,8 @@ class SoldItemRequestController extends Controller
                                 'price' => $saleRequest->price,
                                 'sold_date' => now(),
                                 'customer_id' => $saleRequest->customer_id,
-                                'stars' => $modelCategory->stars
+                                'stars' => $modelCategory->stars,
+                                'source' => $goldItem->source
                             ]);
 
                             // Delete transfer requests and original item
@@ -301,13 +302,21 @@ class SoldItemRequestController extends Controller
     {
         $query = SaleRequest::with(['goldItem', 'customer']);
 
-        // Apply date filter if provided
-        if ($request->filled('filter_date')) {
-            $query->whereDate('created_at', $request->filter_date);
+        // Apply date range filter
+        if ($request->filled('from_date')) {
+            $query->whereDate('created_at', '>=', $request->from_date);
+        }
+        if ($request->filled('to_date')) {
+            $query->whereDate('created_at', '<=', $request->to_date);
+        }
+
+        // Apply shop filter
+        if ($request->filled('shop_name')) {
+            $query->where('shop_name', $request->shop_name);
         }
 
         // Apply status filter
-        $status = $request->get('status', 'pending');
+        $status = $request->get('status', 'approved');
         if ($status !== 'all') {
             $query->where('status', $status);
         }
@@ -343,14 +352,31 @@ class SoldItemRequestController extends Controller
         // Add data
         $row = 2;
         foreach ($sales as $sale) {
-            $weight = $sale->item_type === 'pound' ? $sale->weight : ($sale->goldItem->weight ?? 0);
+            // Get weight based on item type
+            if ($sale->item_type === 'pound') {
+                $poundSold = GoldPoundSold::where('serial_number', $sale->item_serial_number)->first();
+                $poundInventory = GoldPoundInventory::where('serial_number', $sale->item_serial_number)->first();
+                $pound = GoldPound::find($poundInventory ? $poundInventory->gold_pound_id : ($poundSold ? $poundSold->gold_pound_id : null));
+                $weight = $pound ? $pound->weight : 0;
+            } else {
+                $soldItem = GoldItemSold::where('serial_number', $sale->item_serial_number)->first();
+                $weight = $soldItem ? $soldItem->weight : 0;
+            }
+
             $pricePerGram = $weight > 0 ? round($sale->price / $weight, 2) : 0;
 
+            // Format cells properly for numerical calculations
             $sheet->setCellValue('A' . $row, $sale->item_serial_number);
             $sheet->setCellValue('B' . $row, $sale->shop_name);
-            $sheet->setCellValue('C' . $row, $weight . 'g');
-            $sheet->setCellValue('D' . $row, $sale->price . ' ' . config('app.currency'));
-            $sheet->setCellValue('E' . $row, $pricePerGram . ' ' . config('app.currency') . '/g');
+            $sheet->setCellValue('C' . $row, $weight); // Remove 'g' suffix from the cell value
+            $sheet->getStyle('C' . $row)->getNumberFormat()->setFormatCode('0.00"g"'); // Format with 'g' suffix
+            
+            $sheet->setCellValue('D' . $row, $sale->price); // Store as number
+            $sheet->getStyle('D' . $row)->getNumberFormat()->setFormatCode('#,##0.00'); // Format with thousands separator
+            
+            $sheet->setCellValue('E' . $row, $pricePerGram); // Store as number
+            $sheet->getStyle('E' . $row)->getNumberFormat()->setFormatCode('#,##0.00" ' . config('app.currency') . '/g"');
+            
             $sheet->setCellValue('F' . $row, $sale->payment_method ?? 'N/A');
             $sheet->setCellValue('G' . $row, ucfirst($sale->status));
             $sheet->setCellValue('H' . $row, $sale->customer ? $sale->customer->first_name . ' ' . $sale->customer->last_name : 'N/A');
@@ -362,8 +388,12 @@ class SoldItemRequestController extends Controller
         // Add totals row
         $lastRow = $row - 1;
         $sheet->setCellValue('B' . $row, 'Totals:');
-        $sheet->setCellValue('C' . $row, '=SUM(C2:C' . $lastRow . ')');
+        $sheet->setCellValue('C' . $row, '=SUM(C2:C' . $lastRow . ')'); // Simple SUM function now works
+        $sheet->getStyle('C' . $row)->getNumberFormat()->setFormatCode('0.00"g"');
+        
         $sheet->setCellValue('D' . $row, '=SUM(D2:D' . $lastRow . ')');
+        $sheet->getStyle('D' . $row)->getNumberFormat()->setFormatCode('#,##0.00');
+        
         $sheet->getStyle('B' . $row . ':D' . $row)->getFont()->setBold(true);
 
         // Auto size columns
@@ -371,9 +401,32 @@ class SoldItemRequestController extends Controller
             $sheet->getColumnDimension($column)->setAutoSize(true);
         }
 
-        // Create writer and save file
+        // Create writer
         $writer = new Xlsx($spreadsheet);
-        $fileName = 'sales_report_' . date('Y-m-d') . '.xlsx';
+        
+        // Generate file name based on filters
+        $fileName = 'sales_report';
+        
+        if ($request->filled('shop_name')) {
+            $fileName .= '_' . $request->shop_name;
+        }
+        
+        if ($request->filled('from_date') || $request->filled('to_date')) {
+            if ($request->filled('from_date')) {
+                $fileName .= '_from_' . $request->from_date;
+            }
+            if ($request->filled('to_date')) {
+                $fileName .= '_to_' . $request->to_date;
+            }
+        } else {
+            // Only add today's date if no date filter is applied
+            $fileName .= '_' . date('Y-m-d');
+        }
+        
+        $fileName .= '.xlsx';
+        
+        // Clean the filename by removing any special characters
+        $fileName = preg_replace('/[^A-Za-z0-9._-]/', '_', $fileName);
 
         header('Content-Type: application/vnd.openxmlformats-officedocument.spreadsheetml.sheet');
         header('Content-Disposition: attachment; filename="' . urlencode($fileName) . '"');

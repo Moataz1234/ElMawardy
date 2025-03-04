@@ -339,4 +339,57 @@ class Admin_GoldItemService
                     ->paginate(20)
                     ->appends($request->all());
     }
+
+    public function handleWorkshopRequest(Request $request, $id)
+    {
+        try {
+            DB::transaction(function () use ($request, $id) {
+                $transferRequest = DB::table('workshop_transfer_requests')
+                    ->where('id', $id)
+                    ->first();
+
+                if (!$transferRequest) {
+                    throw new \Exception('Transfer request not found');
+                }
+
+                if ($request->status === 'approved') {
+                    // Get the gold item
+                    $goldItem = GoldItem::findOrFail($transferRequest->item_id);
+
+                    // Create workshop record
+                    DB::table('workshop_items')->insert([
+                        'item_id' => $goldItem->id,
+                        'transferred_by' => $transferRequest->requested_by,
+                        'serial_number' => $goldItem->serial_number,
+                        'shop_name' => $goldItem->shop_name,
+                        'kind' => $goldItem->kind,
+                        'model' => $goldItem->model,
+                        'gold_color' => $goldItem->gold_color,
+                        'metal_purity' => $goldItem->metal_purity,
+                        'weight' => $goldItem->weight,
+                        'transfer_reason' => $transferRequest->reason,
+                        'transferred_at' => now(),
+                        'created_at' => now(),
+                        'updated_at' => now()
+                    ]);
+
+                    // Delete the original item
+                    $goldItem->delete();
+                }
+
+                // Update request status
+                DB::table('workshop_transfer_requests')
+                    ->where('id', $id)
+                    ->update([
+                        'status' => $request->status,
+                        'updated_at' => now()
+                    ]);
+            });
+
+            return true;
+        } catch (\Exception $e) {
+            Log::error('Workshop request handling failed: ' . $e->getMessage());
+            throw $e;
+        }
+    }
 }

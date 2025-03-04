@@ -64,6 +64,15 @@ document.addEventListener('DOMContentLoaded', function () {
             })
             .then(data => {
                 console.log('Received data:', data); // Debug log
+                
+                // Set the default source from models table
+                if (data.modelDetails && data.modelDetails.source) {
+                    const sourceInputs = document.querySelectorAll('.source-input');
+                    sourceInputs.forEach(input => {
+                        input.value = data.modelDetails.source;
+                    });
+                }
+
                 console.log('Shop data:', data.shopData); // Additional debug log
                 tableBody.innerHTML = '';
                 modelImageDiv.innerHTML = '';

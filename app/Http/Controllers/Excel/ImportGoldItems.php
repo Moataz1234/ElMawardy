@@ -11,6 +11,7 @@ use Illuminate\Support\Facades\Log;
 use Carbon\Carbon;
 use PhpOffice\PhpSpreadsheet\Worksheet\Worksheet;
 use Illuminate\Database\QueryException;
+use App\Models\Models;
 
 class ImportGoldItems extends Controller
 {
@@ -104,7 +105,7 @@ class ImportGoldItems extends Controller
         $records = [];
         
         for ($row = $startRow; $row <= $endRow; $row++) {
-            $rowData = $sheet->rangeToArray('A' . $row . ':N' . $row, null, true, false)[0];
+            $rowData = $sheet->rangeToArray('A' . $row . ':O' . $row, null, true, false)[0];
             
             // Skip empty rows
             if (empty(array_filter($rowData))) {
@@ -112,6 +113,9 @@ class ImportGoldItems extends Controller
             }
             $rest_since = $this->parseDate($rowData[13]); // Column N in Excel
 
+            // Get default source from Models table
+            $defaultSource = Models::where('model', $rowData[5])->value('source');
+            
             $records[] = [
                 'model' => $rowData[5], //F
                 'serial_number' => $rowData[1],//B
@@ -127,6 +131,7 @@ class ImportGoldItems extends Controller
                 'talab' => $rowData[6] === 'YES',
                 'status' => 'available',
                 'rest_since' => $rest_since,
+                'source' => $rowData[14] ?: $defaultSource, // Column O in Excel, fallback to default source if empty
                 'created_at' => Carbon::now(),
                 'updated_at' => Carbon::now(),
             ];
@@ -148,5 +153,65 @@ class ImportGoldItems extends Controller
     
         // If the date is invalid or empty, return null
         return null;
+    }
+
+    // Add new method to update sources for GoldItems
+    public function updateSources(Request $request)
+    {
+        ini_set('max_execution_time', $this->timeLimit);
+        set_time_limit($this->timeLimit);
+
+        $request->validate([
+            'file' => 'required|mimes:xlsx,xls',
+        ]);
+
+        try {
+            $file = $request->file('file');
+            Log::info("Starting source update from file: " . $file->getClientOriginalName());
+
+            $reader = IOFactory::createReaderForFile($file->getPathname());
+            $reader->setReadDataOnly(true);
+            $spreadsheet = $reader->load($file->getPathname());
+            $sheet = $spreadsheet->getActiveSheet();
+            $highestRow = $sheet->getHighestDataRow();
+
+            $updatedCount = 0;
+            $notFoundCount = 0;
+            $skippedCount = 0;
+
+            // Process in batches
+            for ($row = 2; $row <= $highestRow; $row++) {
+                $rowData = $sheet->rangeToArray('A' . $row . ':O' . $row, null, true, false)[0];
+                
+                // Skip if serial number or source is empty
+                if (empty($rowData[1]) || empty($rowData[14])) { // Column B for serial number, O for source
+                    $skippedCount++;
+                    continue;
+                }
+
+                $serialNumber = trim($rowData[1]); // Column B
+                $source = trim($rowData[14]); // Column O
+
+                // Try to update in gold_items
+                $goldItem = GoldItem::where('serial_number', $serialNumber)->first();
+                if ($goldItem) {
+                    $goldItem->update(['source' => $source]);
+                    $updatedCount++;
+                    Log::info("Updated source for gold item: {$serialNumber}");
+                } else {
+                    Log::info("Serial number not found: {$serialNumber}");
+                    $notFoundCount++;
+                }
+            }
+
+            $message = "Source update completed. Updated: {$updatedCount}, Not Found: {$notFoundCount}, Skipped: {$skippedCount}";
+            Log::info($message);
+
+            return redirect()->back()->with('success', $message);
+
+        } catch (\Exception $e) {
+            Log::error('Source update failed: ' . $e->getMessage());
+            return redirect()->back()->with('error', 'Source update failed: ' . $e->getMessage());
+        }
     }
 }
