@@ -84,7 +84,7 @@
                         </select>
                     </div>
                 </div>
-                <div class="col-md-3">
+                {{-- <div class="col-md-3">
                     <div class="form-group">
                         <label>Status:</label>
                         <select class="form-control" name="status">
@@ -94,7 +94,7 @@
                             <option value="rejected" {{ request('status') == 'rejected' ? 'selected' : '' }}>Rejected</option>
                         </select>
                     </div>
-                </div>
+                </div> --}}
                 <div class="col-12 mt-3">
                     <button type="submit" class="btn btn-primary">Filter</button>
                     <button type="button" id="exportExcel" class="btn btn-success ml-2">Export to Excel</button>
@@ -138,7 +138,7 @@
                 <th>Price</th>
                 <th>Price/Gram</th>
                 <th>Payment Method</th>
-                <th>Status</th>
+                <th>Customer Name</th>
                 <th>Date</th>
             </tr>
         </thead>
@@ -146,22 +146,17 @@
             @foreach ($soldItemRequests as $request)
                 <tr>
                     <td>
-                        <a href="#" class="item-details text-primary" data-serial="{{ $request->item_serial_number }}">
-                            {{ $request->item_serial_number }}
+                        <a href="#" class="item-details text-primary" data-serial="{{ $request->serial_number }}">
+                            {{ $request->serial_number }}
                         </a>
                     </td>
                     <td>{{ $request->shop_name }}</td>
                     <td>{{ $request->weight }}g</td>
-                    <td>{{ $request->price >0 ? number_format($request->price) : 0 }} </td>
+                    <td>{{ $request->price > 0 ? number_format($request->price) : 0 }} </td>
                     <td>{{ $request->weight > 0 ? number_format($request->price / $request->weight, 2) : 0 }} /g</td>
-                    <td>{{ $request->payment_method ?? 'N/A' }}</td>
-                    <td>
-                        <span class="badge badge-{{ $request->status === 'approved' ? 'success' : 
-                            ($request->status === 'pending' ? 'warning' : 'danger') }}">
-                            {{ ucfirst($request->status) }}
-                        </span>
-                    </td>
-                    <td>{{ $request->created_at->format('Y-m-d H:i') }}</td>
+                    <td>{{ $request->customer ? $request->customer->payment_method : 'N/A' }}</td>
+                    <td>{{ $request->customer ? $request->customer->first_name . ' ' . $request->customer->last_name : 'N/A' }}</td>
+                    <td>{{ $request->sold_date }}</td>
                 </tr>
             @endforeach
         </tbody>

@@ -18,8 +18,8 @@ class Customer extends Model
         'payment_method',
     ];
 
-    public function goldItemSold()
+    public function goldItemsSold()
     {
-        return $this->hasOne(GoldItemSold::class);
+        return $this->hasMany(GoldItemSold::class, 'customer_id');
     }
 }

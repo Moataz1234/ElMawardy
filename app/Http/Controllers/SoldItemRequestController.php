@@ -300,25 +300,19 @@ class SoldItemRequestController extends Controller
 
     public function exportSales(Request $request)
     {
-        $query = SaleRequest::with(['goldItem', 'customer']);
+        $query = GoldItemSold::with('customer');
 
         // Apply date range filter
         if ($request->filled('from_date')) {
-            $query->whereDate('created_at', '>=', $request->from_date);
+            $query->whereDate('sold_date', '>=', $request->from_date);
         }
         if ($request->filled('to_date')) {
-            $query->whereDate('created_at', '<=', $request->to_date);
+            $query->whereDate('sold_date', '<=', $request->to_date);
         }
 
         // Apply shop filter
         if ($request->filled('shop_name')) {
             $query->where('shop_name', $request->shop_name);
-        }
-
-        // Apply status filter
-        $status = $request->get('status', 'approved');
-        if ($status !== 'all') {
-            $query->where('status', $status);
         }
 
         $sales = $query->get();
@@ -335,13 +329,12 @@ class SoldItemRequestController extends Controller
             'Price',
             'Price/Gram',
             'Payment Method',
-            'Status',
             'Customer Name',
             'Customer Phone',
             'Date'
         ];
 
-        foreach (range('A', 'J') as $key => $column) {
+        foreach (range('A', 'I') as $key => $column) {
             $sheet->setCellValue($column . '1', $headers[$key]);
             $sheet->getStyle($column . '1')->getFont()->setBold(true);
             $sheet->getStyle($column . '1')->getFill()
@@ -352,43 +345,31 @@ class SoldItemRequestController extends Controller
         // Add data
         $row = 2;
         foreach ($sales as $sale) {
-            // Get weight based on item type
-            if ($sale->item_type === 'pound') {
-                $poundSold = GoldPoundSold::where('serial_number', $sale->item_serial_number)->first();
-                $poundInventory = GoldPoundInventory::where('serial_number', $sale->item_serial_number)->first();
-                $pound = GoldPound::find($poundInventory ? $poundInventory->gold_pound_id : ($poundSold ? $poundSold->gold_pound_id : null));
-                $weight = $pound ? $pound->weight : 0;
-            } else {
-                $soldItem = GoldItemSold::where('serial_number', $sale->item_serial_number)->first();
-                $weight = $soldItem ? $soldItem->weight : 0;
-            }
-
-            $pricePerGram = $weight > 0 ? round($sale->price / $weight, 2) : 0;
+            $pricePerGram = $sale->weight > 0 ? round($sale->price / $sale->weight, 2) : 0;
 
             // Format cells properly for numerical calculations
-            $sheet->setCellValue('A' . $row, $sale->item_serial_number);
+            $sheet->setCellValue('A' . $row, $sale->serial_number);
             $sheet->setCellValue('B' . $row, $sale->shop_name);
-            $sheet->setCellValue('C' . $row, $weight); // Remove 'g' suffix from the cell value
-            $sheet->getStyle('C' . $row)->getNumberFormat()->setFormatCode('0.00"g"'); // Format with 'g' suffix
+            $sheet->setCellValue('C' . $row, $sale->weight);
+            $sheet->getStyle('C' . $row)->getNumberFormat()->setFormatCode('0.00"g"');
             
-            $sheet->setCellValue('D' . $row, $sale->price); // Store as number
-            $sheet->getStyle('D' . $row)->getNumberFormat()->setFormatCode('#,##0.00'); // Format with thousands separator
+            $sheet->setCellValue('D' . $row, $sale->price);
+            $sheet->getStyle('D' . $row)->getNumberFormat()->setFormatCode('#,##0.00');
             
-            $sheet->setCellValue('E' . $row, $pricePerGram); // Store as number
+            $sheet->setCellValue('E' . $row, $pricePerGram);
             $sheet->getStyle('E' . $row)->getNumberFormat()->setFormatCode('#,##0.00" ' . config('app.currency') . '/g"');
             
-            $sheet->setCellValue('F' . $row, $sale->payment_method ?? 'N/A');
-            $sheet->setCellValue('G' . $row, ucfirst($sale->status));
-            $sheet->setCellValue('H' . $row, $sale->customer ? $sale->customer->first_name . ' ' . $sale->customer->last_name : 'N/A');
-            $sheet->setCellValue('I' . $row, $sale->customer ? $sale->customer->phone_number : 'N/A');
-            $sheet->setCellValue('J' . $row, $sale->created_at->format('Y-m-d H:i'));
+            $sheet->setCellValue('F' . $row, $sale->customer ? $sale->customer->payment_method : 'N/A');
+            $sheet->setCellValue('G' . $row, $sale->customer ? $sale->customer->first_name . ' ' . $sale->customer->last_name : 'N/A');
+            $sheet->setCellValue('H' . $row, $sale->customer ? $sale->customer->phone_number : 'N/A');
+            $sheet->setCellValue('I' . $row, $sale->sold_date);
             $row++;
         }
 
         // Add totals row
         $lastRow = $row - 1;
         $sheet->setCellValue('B' . $row, 'Totals:');
-        $sheet->setCellValue('C' . $row, '=SUM(C2:C' . $lastRow . ')'); // Simple SUM function now works
+        $sheet->setCellValue('C' . $row, '=SUM(C2:C' . $lastRow . ')');
         $sheet->getStyle('C' . $row)->getNumberFormat()->setFormatCode('0.00"g"');
         
         $sheet->setCellValue('D' . $row, '=SUM(D2:D' . $lastRow . ')');
@@ -397,7 +378,7 @@ class SoldItemRequestController extends Controller
         $sheet->getStyle('B' . $row . ':D' . $row)->getFont()->setBold(true);
 
         // Auto size columns
-        foreach (range('A', 'J') as $column) {
+        foreach (range('A', 'I') as $column) {
             $sheet->getColumnDimension($column)->setAutoSize(true);
         }
 
@@ -419,7 +400,6 @@ class SoldItemRequestController extends Controller
                 $fileName .= '_to_' . $request->to_date;
             }
         } else {
-            // Only add today's date if no date filter is applied
             $fileName .= '_' . date('Y-m-d');
         }
         
@@ -433,17 +413,17 @@ class SoldItemRequestController extends Controller
         $writer->save('php://output');
         exit;
     }
-
+    
     public function viewAllSoldItems(Request $request)
     {
-        $query = SaleRequest::with(['goldItem', 'customer']);
+        $query = GoldItemSold::with('customer');
 
-        // Apply date range filter
+        // Apply date range filter using sold_date
         if ($request->filled('from_date')) {
-            $query->whereDate('created_at', '>=', $request->from_date);
+            $query->whereDate('sold_date', '>=', $request->from_date);
         }
         if ($request->filled('to_date')) {
-            $query->whereDate('created_at', '<=', $request->to_date);
+            $query->whereDate('sold_date', '<=', $request->to_date);
         }
 
         // Apply shop filter
@@ -451,20 +431,14 @@ class SoldItemRequestController extends Controller
             $query->where('shop_name', $request->shop_name);
         }
 
-        // Apply status filter, default to 'approved' if no status is specified
-        $status = $request->get('status', 'approved');
-        if ($status !== 'all') {
-            $query->where('status', $status);
-        }
-
         // Get unique shop names for the dropdown
-        $shops = SaleRequest::distinct('shop_name')->pluck('shop_name');
+        $shops = GoldItemSold::distinct('shop_name')->pluck('shop_name');
 
         // Get paginated results with 50 items per page
-        $soldItemRequests = $query->orderBy('created_at', 'desc')
+        $soldItemRequests = $query->orderBy('sold_date', 'desc')
             ->paginate(50)
             ->withQueryString(); // This preserves the filter parameters
 
-        return view('Accountant.all_sold_requests', compact('soldItemRequests', 'shops'));
+        return view('Accountant.all_sold_items', compact('soldItemRequests', 'shops'));
     }
 }
