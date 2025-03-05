@@ -11,6 +11,25 @@
     <link href="{{ asset('css/create_form.css') }}" rel="stylesheet">
     <link href="{{ asset('css/checkbox.css') }}" rel="stylesheet">
     <meta name="csrf-token" content="{{ csrf_token() }}">
+    <style>
+        #shop-data-table td:nth-child(4) {  /* Serial Numbers column */
+            min-width: 200px;
+            width: 40%;
+            white-space: pre-line;
+            font-family: monospace;
+        }
+
+        #shop-data-table {
+            table-layout: fixed;
+            width: 100%;
+        }
+
+        #shop-data-table th:nth-child(1) { width: 20%; }  /* Shop column */
+        #shop-data-table th:nth-child(2) { width: 10%; }  /* Color column */
+        #shop-data-table th:nth-child(3) { width: 20%; }  /* Total Weight column */
+        #shop-data-table th:nth-child(4) { width: 40%; }  /* Serial Numbers column */
+        #shop-data-table th:nth-child(5) { width: 10%; }  /* Count column */
+    </style>
 </head>
 
 <body>
@@ -177,7 +196,8 @@
                         <table id="shop-data-table" class="table table-striped">
                             <thead class="table-dark">
                                 <tr>
-                                    <th>Shop & Color</th>
+                                    <th>Shop</th>
+                                    <th>Color</th>
                                     <th>Total Weight</th>
                                     <th>Serial Numbers</th>
                                     <th>Count</th>

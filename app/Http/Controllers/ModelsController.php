@@ -211,33 +211,33 @@ class ModelsController extends Controller
 
         return redirect()->route('models.index')->with('success', 'Model deleted successfully.');
     }
-    public function getModelDetails(Request $request)
-    {
-        $model = $request->input('model');
-        $isTalabat = $request->boolean('is_talabat');
+    // public function getModelDetails(Request $request)
+    // {
+    //     $model = $request->input('model');
+    //     $isTalabat = $request->boolean('is_talabat');
 
-        try {
-            $items = GoldItem::where($isTalabat ? 'talabat' : 'model', $model)->get();
+    //     try {
+    //         $items = GoldItem::where($isTalabat ? 'talabat' : 'model', $model)->get();
 
-            if ($isTalabat) {
-                $talabatDetails = Talabat::where('model', $model)->first();
-                return response()->json([
-                    'talabatDetails' => $talabatDetails,
-                    'items' => $items
-                ]);
-            } else {
-                $modelDetails = Models::where('model', $model)->first();
-                return response()->json([
-                    'modelDetails' => $modelDetails,
-                    'items' => $items
-                ]);
-            }
-        } catch (\Exception $e) {
-            return response()->json([
-                'error' => 'Error fetching model details: ' . $e->getMessage()
-            ], 500);
-        }
-    }
+    //         if ($isTalabat) {
+    //             $talabatDetails = Talabat::where('model', $model)->first();
+    //             return response()->json([
+    //                 'talabatDetails' => $talabatDetails,
+    //                 'items' => $items
+    //             ]);
+    //         } else {
+    //             $modelDetails = Models::where('model', $model)->first();
+    //             return response()->json([
+    //                 'modelDetails' => $modelDetails,
+    //                 'items' => $items
+    //             ]);
+    //         }
+    //     } catch (\Exception $e) {
+    //         return response()->json([
+    //             'error' => 'Error fetching model details: ' . $e->getMessage()
+    //         ], 500);
+    //     }
+    // }
     public function generateModel(Request $request)
 {
     $prefix = $request->query('prefix');

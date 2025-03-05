@@ -280,40 +280,79 @@ class GoldItemController extends Controller
     {
         $model = $request->query('model');
         
-        // Log the incoming request
         Log::info('Fetching model details for:', ['model' => $model]);
         
-        // Get existing gold items
-        $goldItems = GoldItem::where('model', $model)
-            ->whereNotIn('status', ['sold', 'deleted'])
-            ->get()
-            ->map(function ($item) {
-                return [
-                    'shop_id' => $item->shop_id,
-                    'shop_name' => $item->shop_name,
-                    'gold_color' => $item->gold_color,
-                    'total_weight' => $item->weight,
-                    'count' => $item->quantity,
-                    'serial_numbers' => [$item->serial_number],
-                    'is_pending' => false
-                ];
-            });
+        try {
+            // For pending requests
+            $pendingRequests = AddRequest::where('model', $model)
+                ->where('status', 'pending')
+                ->get()
+                ->map(function ($request) {
+                    return [
+                        'shop_id' => $request->shop_id,
+                        'shop_name' => $request->shop_name,
+                        'gold_color' => $request->gold_color,
+                        'total_weight' => $request->weight,
+                        'weights' => [$request->weight], // Individual weight
+                        'count' => $request->quantity,
+                        'serial_numbers' => [$request->serial_number],
+                        'is_pending' => true
+                    ];
+                });
 
-        // Get model details (including source)
-        $modelDetails = Models::where('model', $model)->first();
-        Log::info('Found model details:', ['details' => $modelDetails]);
+            // For gold items
+            $goldItems = GoldItem::where('model', $model)
+                ->whereNotIn('status', ['sold', 'deleted'])
+                ->get()
+                ->groupBy(function($item) {
+                    return $item->shop_name . '_' . $item->gold_color;
+                })
+                ->map(function ($group) {
+                    $firstItem = $group->first();
+                    return [
+                        'shop_id' => $firstItem->shop_id,
+                        'shop_name' => $firstItem->shop_name,
+                        'gold_color' => $firstItem->gold_color,
+                        'total_weight' => $group->sum('weight'),
+                        'weights' => $group->pluck('weight')->toArray(), // Individual weights
+                        'count' => $group->sum('quantity'),
+                        'serial_numbers' => $group->pluck('serial_number')->toArray(),
+                        'is_pending' => false
+                    ];
+                })
+                ->values()
+                ->sortBy([
+                    ['count', 'asc'],
+                    ['shop_id', 'asc']
+                ])
+                ->values();
 
-        // Make sure we're explicitly including the source in the response
-        $response = [
-            'shopData' => $goldItems,
-            'modelDetails' => $modelDetails ? [
-                'model' => $modelDetails->model,
-                'source' => $modelDetails->source,
-                'scanned_image' => $modelDetails->scanned_image,
-                // ... other model details ...
-            ] : null
-        ];
+            // Get model details
+            $modelDetails = Models::where('model', $model)->first();
 
-        return response()->json($response);
+            // Combine pending requests and existing items
+            $allItems = $pendingRequests->concat($goldItems);
+
+            Log::info('Mapped gold items:', [
+                'pendingRequests' => $pendingRequests->toArray(),
+                'goldItems' => $goldItems->toArray()
+            ]);
+
+            return response()->json([
+                'shopData' => $allItems,
+                'modelDetails' => $modelDetails ? [
+                    'model' => $modelDetails->model,
+                    'source' => $modelDetails->source,
+                    'scanned_image' => $modelDetails->scanned_image,
+                ] : null
+            ]);
+
+        } catch (\Exception $e) {
+            Log::error('Error in getModelDetails:', [
+                'error' => $e->getMessage(),
+                'trace' => $e->getTraceAsString()
+            ]);
+            return response()->json(['error' => 'Error fetching model details'], 500);
+        }
     }
 }

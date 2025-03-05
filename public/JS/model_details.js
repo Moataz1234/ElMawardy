@@ -63,17 +63,7 @@ document.addEventListener('DOMContentLoaded', function () {
                 return response.json();
             })
             .then(data => {
-                console.log('Received data:', data); // Debug log
-                
-                // Set the default source from models table
-                if (data.modelDetails && data.modelDetails.source) {
-                    const sourceInputs = document.querySelectorAll('.source-input');
-                    sourceInputs.forEach(input => {
-                        input.value = data.modelDetails.source;
-                    });
-                }
-
-                console.log('Shop data:', data.shopData); // Additional debug log
+                console.log('Received data:', data);
                 tableBody.innerHTML = '';
                 modelImageDiv.innerHTML = '';
 
@@ -88,48 +78,18 @@ document.addEventListener('DOMContentLoaded', function () {
                     modelImageDiv.innerHTML = '<p>No image available for this model</p>';
                 }
 
-                // Display the sorted shop data
-                if (data.shopData && Array.isArray(data.shopData) && data.shopData.length > 0) {
-                    data.shopData.forEach(item => {
-                        console.log('Processing item:', item); // Debug log for each item
-                        
-                        if (!item || !item.shop_name) {
-                            console.warn('Invalid item data:', item);
-                            return;
-                        }
+                // Display the shop data (regular items first, then pending requests)
+                if (data.shopData && Array.isArray(data.shopData)) {
+                    // First show regular items
+                    data.shopData
+                        .filter(item => !item.is_pending)
+                        .forEach(item => addTableRow(item, false));
 
-                        const row = document.createElement('tr');
-                        
-                        // Add pending status styling if needed
-                        if (item.is_pending) {
-                            row.classList.add('pending-request');
-                        }
-
-                        try {
-                            // Format serial numbers with proper spacing
-                            const formattedSerialNumbers = Array.isArray(item.serial_numbers) 
-                                ? item.serial_numbers
-                                    .map(serial => serial.trim())
-                                    .filter(serial => serial) // Remove empty strings
-                                    .join('\n')
-                                : '';
-
-                            row.innerHTML = `
-                                <td>
-                                    ${item.shop_name} (${item.gold_color || 'N/A'})
-                                    ${item.is_pending ? '<span class="badge bg-warning text-dark ms-2">Pending</span>' : ''}
-                                </td>
-                                <td>${item.total_weight ? parseFloat(item.total_weight).toFixed(2) : '0.00'}</td>
-                                <td>${formattedSerialNumbers}</td>
-                                <td>${item.count || 0}</td>
-                            `;
-                            tableBody.appendChild(row);
-                        } catch (error) {
-                            console.error('Error creating row:', error, item);
-                        }
-                    });
+                    // Then show pending requests
+                    data.shopData
+                        .filter(item => item.is_pending)
+                        .forEach(item => addTableRow(item, true));
                 } else {
-                    console.log('No shop data available or invalid format:', data.shopData);
                     tableBody.innerHTML = '<tr><td colspan="4">No items found for this model</td></tr>';
                 }
             })
@@ -138,6 +98,47 @@ document.addEventListener('DOMContentLoaded', function () {
                 tableBody.innerHTML = '<tr><td colspan="4">Error fetching data</td></tr>';
                 modelImageDiv.innerHTML = '<p>Error loading model details</p>';
             });
+    }
+
+    function addTableRow(item, isPending) {
+        if (!item || !item.shop_name) {
+            console.warn('Invalid item data:', item);
+            return;
+        }
+
+        console.log('Item data:', {
+            serialNumbers: item.serial_numbers,
+            weights: item.weights,
+            item: item
+        });
+
+        const row = document.createElement('tr');
+        if (isPending) {
+            row.classList.add('pending-request');
+            row.style.backgroundColor = 'rgb(44, 40, 25)';
+        }
+
+        // Create arrays to store serial numbers and their corresponding weights
+        const serialNumbers = Array.isArray(item.serial_numbers) ? item.serial_numbers : [];
+        const weights = Array.isArray(item.weights) ? item.weights : [];
+
+        // Format serial numbers and weights to be in one line each
+        const formattedItems = serialNumbers.map((serial, index) => {
+            const weight = weights[index] ? parseFloat(weights[index]).toFixed(2) : '0.00';
+            return `${serial.trim()}: ${weight}g`;
+        }).join('\n');
+
+        row.innerHTML = `
+            <td>
+                ${item.shop_name} (ID: ${item.shop_id})
+                ${isPending ? '<span class="badge bg-warning text-dark ms-2">Pending</span>' : ''}
+            </td>
+            <td>${item.gold_color || 'N/A'}</td>
+            <td>${item.total_weight ? parseFloat(item.total_weight).toFixed(2) : '0.00'}</td>
+            <td style="white-space: pre-line; font-family: monospace;">${formattedItems}</td>
+            <td>${item.count || 0}</td>
+        `;
+        tableBody.appendChild(row);
     }
 
     // Event Listeners - Only add if elements exist
@@ -298,4 +299,32 @@ document.addEventListener('DOMContentLoaded', function () {
             }
         });
     }
+
+    // Add this CSS at the top of your file
+    const styles = `
+        #shop-data-table td:nth-child(4) {  /* Serial Numbers column */
+            min-width: 200px;
+            width: 40%;
+            white-space: pre-line;
+            font-family: monospace;  /* Use monospace font for better alignment */
+        }
+
+        #shop-data-table {
+            table-layout: fixed;
+            width: 100%;
+        }
+
+        #shop-data-table th:nth-child(1) { width: 20%; }  /* Shop column */
+        #shop-data-table th:nth-child(2) { width: 10%; }  /* Color column */
+        #shop-data-table th:nth-child(3) { width: 15%; }  /* Total Weight column */
+        #shop-data-table th:nth-child(4) { width: 40%; }  /* Serial Numbers column */
+        #shop-data-table th:nth-child(5) { width: 15%; }  /* Count column */
+    `;
+
+    // Add the styles to the document
+    document.addEventListener('DOMContentLoaded', function() {
+        const styleSheet = document.createElement("style");
+        styleSheet.textContent = styles;
+        document.head.appendChild(styleSheet);
+    });
 });
