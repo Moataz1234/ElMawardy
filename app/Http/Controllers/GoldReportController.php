@@ -39,7 +39,7 @@ class GoldReportController extends Controller
             // Step 1: Get all items for the model from GoldItems and GoldItemsSold
             $inventoryItems = GoldItem::where('model', $model)->get();
             $soldItemsForModel = GoldItemSold::where('model', $model)->get();
-            
+
             Log::info("Model: $model - Inventory Items: " . $inventoryItems->count());
             Log::info("Model: $model - Sold Items: " . $soldItemsForModel->count());
 
@@ -99,11 +99,14 @@ class GoldReportController extends Controller
                 'remaining' => GoldItem::where('model', $model)->count(),
                 'total_production' => GoldItem::where('model', $model)->count() + GoldItemSold::where('model', $model)->count(),
                 'total_sold' => GoldItemSold::where('model', $model)->count(),
-                'first_sale' => $modelInfo ? $modelInfo->first_production : $items->first()->first_production,
-                'last_sale' => $items->max('sold_date'),
+                // 'first_sale' => $modelInfo ? $modelInfo->first_production : $items->first()->first_production,
+                // 'last_sale' => $items->max('sold_date'),
                 'shop' => $items->pluck('shop_name')->unique()->implode(' / '),
                 'pieces_sold_today' => $items->count(),
                 'shops_data' => $this->getShopDistribution($model),
+                'first_production' => $modelInfo && $modelInfo->first_production
+                    ? $modelInfo->first_production
+                    : 'Old',
                 'last_production' => $lastProductionDisplay
             ];
         }
@@ -117,8 +120,15 @@ class GoldReportController extends Controller
     private function getShopDistribution($model)
     {
         $shops = [
-            'Mohandessin Shop', 'Mall of Arabia', 'Nasr City', 'Zamalek',
-            'Mall of Egypt', 'EL Guezira Shop', 'Arkan', 'District 5', 'U Venues'
+            'Mohandessin Shop',
+            'Mall of Arabia',
+            'Nasr City',
+            'Zamalek',
+            'Mall of Egypt',
+            'EL Guezira Shop',
+            'Arkan',
+            'District 5',
+            'U Venues'
         ];
 
         $shopDistribution = [];
@@ -163,14 +173,14 @@ class GoldReportController extends Controller
                 'recipients' => $recipients,
                 'isPdf' => true  // This flag will hide web-only elements
             ]);
-            
+
             $pdf->setPaper('A4', 'landscape');
 
             try {
                 // Send email with the PDF attachment
                 Mail::to($recipients)
                     ->send(new DailyReportMail($reportsData, $pdf, $formattedDate));
-                
+
                 Log::info('Email sent successfully to recipients for date: ' . $formattedDate);
             } catch (\Exception $e) {
                 Log::error('Mail sending failed: ' . $e->getMessage());
@@ -181,7 +191,6 @@ class GoldReportController extends Controller
                 'success' => true,
                 'message' => 'Report sent successfully for ' . $formattedDate
             ]);
-
         } catch (\Exception $e) {
             Log::error('Error in sendDailyReport: ' . $e->getMessage());
             return response()->json([

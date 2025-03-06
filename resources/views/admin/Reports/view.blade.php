@@ -185,16 +185,16 @@ tr:nth-child(even) {
 }
 
 .report-container {
-    height: 1000px;
-    /* Height of A4 page in pixels (297mm) */
+    height: 1000px; /* Keep original height */
+    width: {{ $isPdf ? '90%' : '800px' }}; /* A4-like width for web view */
     page-break-inside: avoid;
-    /* Prevent page breaks inside the container */
     margin-bottom: 20px;
+    margin-left: auto; 
+    margin-right: auto; 
     border: 5px solid #6A6458;
     border-radius: 10px;
     padding: 20px;
     overflow: hidden;
-    /* Prevent content from overflowing */
 }
 
 .pdf-only {
@@ -218,6 +218,28 @@ tr:nth-child(even) {
     .report-container:first-child {
         page-break-before: avoid;
         /* Prevent page break before the first report */
+    }
+}
+
+@media screen {
+
+    .header-section {
+        display: flex;
+        justify-content: space-between;
+        align-items: flex-start;
+    }
+
+    .image-section {
+        width: 50%;
+    }
+
+    .info-section {
+        width: 45%;
+    }
+
+    .image-section img {
+        max-width: 100%;
+        height: auto;
     }
 }
 
@@ -395,7 +417,7 @@ tr:nth-child(even) {
                                 <th>Sold Pieces</th>
                             </tr>
                             <tr>
-                                <td>{{ $data['first_sale'] }}</td>
+                                <td>{{ $data['first_production'] }}</td>
                                 <td>{{ $data['last_production'] }}</td>
                                 <td>{{ $data['shop'] }}</td>
                                 <td>{{ $data['pieces_sold_today'] }}</td>
@@ -405,18 +427,18 @@ tr:nth-child(even) {
                         <table>
                             <tr>
                                 <th>Shop</th>
-                                <th>All Rests</th>
-                                <th>White Gold</th>
                                 <th>Yellow Gold</th>
+                                <th>White Gold</th>
                                 <th>Rose Gold</th>
+                                <th>All Rests</th>
                             </tr>
                             @foreach ($data['shops_data'] as $shop => $counts)
                                 <tr>
                                     <td class="shop-name">{{ $shop }}</td>
-                                    <td>{{ $counts['all_rests'] }}</td>
-                                    <td>{{ $counts['white_gold'] }}</td>
                                     <td>{{ $counts['yellow_gold'] }}</td>
+                                    <td>{{ $counts['white_gold'] }}</td>
                                     <td>{{ $counts['rose_gold'] }}</td>
+                                    <td>{{ $counts['all_rests'] }}</td>
                                 </tr>
                             @endforeach
                         </table>

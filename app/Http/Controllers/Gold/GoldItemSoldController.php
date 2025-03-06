@@ -197,19 +197,20 @@ class GoldItemSoldController extends Controller
                 'workshop_count' => $items->where('shop_name', 'Workshop')->count(),
                 'order_date' => $date,
                 'gold_color' => $items->first()->gold_color,
-                'source' => $modelInfo ? $modelInfo->source : $items->first()->source, // Get source from Models
-                'stars' => $modelInfo ? $modelInfo->stars : $items->first()->stars, // Get source from Models
-                'image_path' => $modelInfo ? $modelInfo->scanned_image : null, // Get image from Models
+                'source' => $items->first()->source, // Get source directly from GoldItemSold
+                'stars' => $modelInfo ? $modelInfo->stars : $items->first()->stars,
+                'image_path' => $modelInfo ? $modelInfo->scanned_image : null,
                 'model' => $model,
                 'remaining' => GoldItem::where('model', $model)->count(),
                 'total_production' => GoldItem::where('model', $model)->count() + GoldItemSold::where('model', $model)->count(),
                 'total_sold' => GoldItemSold::where('model', $model)->count(),
-                'first_sale' =>$modelInfo ? $modelInfo->first_production : $items->first()->first_production, // Get source from Models
-                'last_sale' => $items->max('sold_date'),
+                'first_production' => $modelInfo && $modelInfo->first_production 
+                    ? $modelInfo->first_production 
+                    : 'Old',
                 'shop' => $items->pluck('shop_name')->unique()->implode(' / '),
                 'pieces_sold_today' => $items->count(),
-                'shops_data' => $this->getShopDistribution($model), // Helper method to get shop distribution
-                'last_production' => $lastProductionDisplay, // Changed from 'last_production_display'
+                'shops_data' => $this->getShopDistribution($model),
+                'last_production' => $lastProductionDisplay,
             ];
         }
     
