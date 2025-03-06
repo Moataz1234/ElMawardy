@@ -25,10 +25,10 @@
         }
 
         #shop-data-table th:nth-child(1) { width: 20%; }  /* Shop column */
-        #shop-data-table th:nth-child(2) { width: 10%; }  /* Color column */
+        #shop-data-table th:nth-child(2) { width: 15%; }  /* Color column */
         #shop-data-table th:nth-child(3) { width: 20%; }  /* Total Weight column */
-        #shop-data-table th:nth-child(4) { width: 40%; }  /* Serial Numbers column */
-        #shop-data-table th:nth-child(5) { width: 10%; }  /* Count column */
+        #shop-data-table th:nth-child(4) { width: 30%; }  /* Serial Numbers column */
+        #shop-data-table th:nth-child(5) { width: 15%; }  /* Count column */
     </style>
 </head>
 

@@ -145,89 +145,115 @@ class GoldPoundController extends Controller
     public function store(Request $request)
     {
         try {
-            $goldPound = GoldPound::findOrFail($request->pound_type);
-            
             $validator = Validator::make($request->all(), [
-                'pound_type' => 'required|exists:gold_pounds,id',
+                'pound_type' => 'required',
                 'quantity' => 'required|integer|min:1',
                 'shop_name' => 'required|exists:shops,name',
                 'serial_number' => 'required_if:type,in_item|string|nullable',
                 'type' => 'required|in:standalone,in_item',
-                'custom_weight' => 'required_if:kind,pound_varient,bar_varient|numeric|nullable|min:0',
-                'custom_purity' => 'required_if:kind,pound_varient,bar_varient|numeric|nullable|min:0|max:999',
+                'custom_kind' => 'required_if:pound_type,custom|string|max:255|nullable',
+                'custom_weight' => 'required_if:pound_type,custom|numeric|min:0|nullable',
+                'custom_purity' => 'required_if:pound_type,custom|numeric|min:0|max:999|nullable',
                 'image' => 'nullable|image|mimes:jpeg,png,jpg,gif|max:2048'
             ]);
-
+    
             if ($validator->fails()) {
                 return response()->json([
                     'success' => false,
-                    'message' => 'فشل التحقق من البيانات',
+                    'message' => 'Validation failed',
                     'errors' => $validator->errors()->all()
                 ], 422);
             }
-
-            DB::transaction(function () use ($request, $goldPound) {
-                $isVariant = in_array($goldPound->kind, ['pound_varient', 'bar_varient']);
-                
-                // Debug logging
-                Log::info('Request data:', [
-                    'custom_weight' => $request->custom_weight,
-                    'is_variant' => $isVariant,
-                    'pound_kind' => $goldPound->kind
-                ]);
-
-                // Set weight and purity based on type
-                $weight = $isVariant ? floatval($request->custom_weight) : $goldPound->weight;
-                $purity = $isVariant ? intval($request->custom_purity) : $goldPound->purity;
-                
-                // Handle image upload
+    
+            DB::transaction(function () use ($request) {
+                if ($request->pound_type === 'custom') {
+                    $goldPound = GoldPound::create([
+                        'kind' => $request->custom_kind,
+                        'weight' => $request->custom_weight,
+                        'purity' => $request->custom_purity,
+                        'quantity' => $request->quantity,
+                    ]);
+                } else {
+                    $goldPound = GoldPound::findOrFail($request->pound_type);
+                }
+    
+                $isCustomOrVariant = in_array($goldPound->kind, ['pound_varient', 'bar_varient']) || $request->pound_type === 'custom';
+                $weight = $isCustomOrVariant ? floatval($request->custom_weight ?? $goldPound->weight) : $goldPound->weight;
+                $purity = $isCustomOrVariant ? intval($request->custom_purity ?? $goldPound->purity) : $goldPound->purity;
+    
                 $imagePath = null;
                 if ($request->hasFile('image')) {
                     $imagePath = $request->file('image')->store('pound-images', 'public');
                 }
-                
-                // Create multiple requests based on quantity
-                for ($i = 0; $i < $request->quantity; $i++) {
+    
+                // Pre-generate unique serial numbers for standalone type
+                $serialNumbers = [];
+                if ($request->type === 'standalone') {
+                    $lastSerial = max(
+                        PoundRequest::orderBy('serial_number', 'desc')
+                            ->where('serial_number', 'like', 'P-%')
+                            ->value('serial_number'),
+                        GoldPoundInventory::orderBy('serial_number', 'desc')
+                            ->where('serial_number', 'like', 'P-%')
+                            ->value('serial_number')
+                    );
+                    $lastNumber = $lastSerial ? intval(substr($lastSerial, 2)) : 0;
+    
+                    for ($i = 0; $i < $request->quantity; $i++) {
+                        $serialNumbers[] = 'P-' . str_pad($lastNumber + $i + 1, 4, '0', STR_PAD_LEFT);
+                    }
+                } else {
+                    // For in_item, use the provided serial number for all
+                    $serialNumbers = array_fill(0, $request->quantity, $request->serial_number);
+                }
+    
+                // Create individual requests with pre-generated serial numbers
+                foreach ($serialNumbers as $serialNumber) {
                     PoundRequest::create([
-                        'serial_number' => $request->type === 'in_item' 
-                            ? $request->serial_number 
-                            : $this->generateNextPoundSerialNumber(),
+                        'serial_number' => $serialNumber,
                         'gold_pound_id' => $goldPound->id,
                         'shop_name' => $request->shop_name,
                         'type' => $request->type,
                         'weight' => $weight,
-                        'custom_weight' => $isVariant ? $weight : null,  // Store custom_weight explicitly
-                        'custom_purity' => $isVariant ? $purity : null,  // Store custom_purity explicitly
+                        'custom_weight' => $isCustomOrVariant ? $weight : null,
+                        'custom_purity' => $isCustomOrVariant ? $purity : null,
                         'image_path' => $imagePath,
                         'quantity' => 1,
                         'status' => 'pending'
                     ]);
                 }
             });
-
+    
             return response()->json([
                 'success' => true,
-                'message' => 'تم إنشاء طلب السبيكة بنجاح'
+                'message' => 'Pound request created successfully'
             ]);
-
         } catch (\Exception $e) {
             Log::error('Failed to create pound request: ' . $e->getMessage());
             return response()->json([
                 'success' => false,
-                'message' => 'حدث خطأ أثناء إنشاء الطلب: ' . $e->getMessage()
+                'message' => 'Error creating request: ' . $e->getMessage()
             ], 500);
         }
     }
     private function generateNextPoundSerialNumber()
     {
-        $lastSerial = GoldPoundInventory::orderBy('serial_number', 'desc')
+        // Check both PoundRequest and GoldPoundInventory for the latest serial number
+        $lastSerialFromRequests = PoundRequest::orderBy('serial_number', 'desc')
             ->where('serial_number', 'like', 'P-%')
             ->value('serial_number');
-
+    
+        $lastSerialFromInventory = GoldPoundInventory::orderBy('serial_number', 'desc')
+            ->where('serial_number', 'like', 'P-%')
+            ->value('serial_number');
+    
+        // Determine the latest serial number
+        $lastSerial = max($lastSerialFromRequests, $lastSerialFromInventory);
+    
         if (!$lastSerial) {
             return 'P-0001';
         }
-
+    
         $number = intval(substr($lastSerial, 2)) + 1;
         return 'P-' . str_pad($number, 4, '0', STR_PAD_LEFT);
     }

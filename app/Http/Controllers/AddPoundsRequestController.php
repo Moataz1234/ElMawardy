@@ -25,7 +25,7 @@ class AddPoundsRequestController extends Controller
     {
         $request->validate([
             'selected_requests' => 'required|array',
-            'selected_requests.*' => 'exists:add_pound_requests,id'
+            'selected_requests.*' => 'exists:pound_requests,id'
         ]);
 
         try {
@@ -36,52 +36,46 @@ class AddPoundsRequestController extends Controller
                     ->get();
 
                 foreach ($requests as $poundRequest) {
-                    // Update request status
                     $poundRequest->update(['status' => 'approved']);
 
-                    // Get the correct weight and purity based on pound type
-                    $weight = in_array($poundRequest->goldPound->kind, ['pound_varient', 'bar_varient']) 
-                        ? $poundRequest->custom_weight 
+                    $weight = in_array($poundRequest->goldPound->kind, ['pound_varient', 'bar_varient']) || $poundRequest->custom_weight
+                        ? $poundRequest->custom_weight
                         : $poundRequest->weight;
 
-                    $purity = in_array($poundRequest->goldPound->kind, ['pound_varient', 'bar_varient'])
+                    $purity = in_array($poundRequest->goldPound->kind, ['pound_varient', 'bar_varient']) || $poundRequest->custom_purity
                         ? $poundRequest->custom_purity
                         : $poundRequest->goldPound->purity;
 
-                    // Check if there's an existing inventory item for standalone pounds
                     if ($poundRequest->type === 'standalone') {
                         $inventory = GoldPoundInventory::where([
                             'gold_pound_id' => $poundRequest->gold_pound_id,
                             'shop_name' => $poundRequest->shop_name,
                             'type' => 'standalone',
-                            'weight' => $weight,  // Add weight to the query
-                            'purity' => $purity   // Add purity to the query
+                            'weight' => $weight,
+                            'purity' => $purity
                         ])->first();
 
                         if ($inventory) {
-                            // Update existing inventory
                             $inventory->increment('quantity', 1);
                         } else {
-                            // Create new inventory entry
                             GoldPoundInventory::create([
                                 'gold_pound_id' => $poundRequest->gold_pound_id,
                                 'shop_name' => $poundRequest->shop_name,
                                 'type' => 'standalone',
                                 'serial_number' => $poundRequest->serial_number,
-                                'weight' => $weight,     // Store custom weight
-                                'purity' => $purity,     // Store custom purity
+                                'weight' => $weight,
+                                'purity' => $purity,
                                 'quantity' => 1
                             ]);
                         }
                     } else {
-                        // For in_item pounds
                         GoldPoundInventory::create([
                             'gold_pound_id' => $poundRequest->gold_pound_id,
                             'serial_number' => $poundRequest->serial_number,
                             'shop_name' => $poundRequest->shop_name,
                             'type' => 'in_item',
-                            'weight' => $weight,     // Store custom weight
-                            'purity' => $purity,     // Store custom purity
+                            'weight' => $weight,
+                            'purity' => $purity,
                             'quantity' => 1
                         ]);
                     }
@@ -90,12 +84,12 @@ class AddPoundsRequestController extends Controller
 
             return response()->json([
                 'success' => true,
-                'message' => 'تم قبول الطلبات بنجاح'
+                'message' => 'Requests approved successfully'
             ]);
         } catch (\Exception $e) {
             return response()->json([
                 'success' => false,
-                'message' => 'حدث خطأ أثناء قبول الطلبات: ' . $e->getMessage()
+                'message' => 'Error approving requests: ' . $e->getMessage()
             ], 500);
         }
     }

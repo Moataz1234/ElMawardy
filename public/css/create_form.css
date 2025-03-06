@@ -126,57 +126,79 @@
     width: 100%;
     border-collapse: separate;
     border-spacing: 0;
+    border: 2px solid #343a40;
+    border-radius: 8px;
+    overflow: hidden;
 }
 
 #shop-data-table th {
     background: #343a40;
     color: white;
-    padding: 12px;
-    font-weight: 500;
-    text-align: left;
-    border: none;
+    padding: 15px 12px;
+    font-weight: 600;
+    text-align: center;
+    border-bottom: 2px solid #dee2e6;
+    border-right: 2px solid #4a4f53;
+    font-family: 'Arial', sans-serif;
+    text-transform: uppercase;
+    font-size: 0.9rem;
+    letter-spacing: 0.5px;
+    white-space: nowrap;
 }
 
 #shop-data-table td {
     padding: 12px;
-    border-bottom: 1px solid #dee2e6;
+    border-bottom: 2px solid #dee2e6;
+    border-right: 2px solid #dee2e6;
     background: white;
-    vertical-align: top;
 }
 
-/* Column widths */
+#shop-data-table td:last-child,
+#shop-data-table th:last-child {
+    border-right: none;
+}
+
+#shop-data-table tr:last-child td {
+    border-bottom: none;
+}
+
+/* Column specific styles */
 #shop-data-table th:nth-child(1),
-#shop-data-table td:nth-child(1) {
-    width: 25%;
+#shop-data-table td:nth-child(1) { 
+    width: 20%; 
 }
 
 #shop-data-table th:nth-child(2),
-#shop-data-table td:nth-child(2) {
-    width: 15%;
+#shop-data-table td:nth-child(2) { 
+    width: 10%; 
 }
 
 #shop-data-table th:nth-child(3),
-#shop-data-table td:nth-child(3) {
-    width: 45%;
-    white-space: pre-line;
-    line-height: 1.5;
-    font-family: monospace;
-    font-size: 0.9rem;
+#shop-data-table td:nth-child(3) { 
+    width: 100px;
+    white-space: normal;
+    line-height: 1.2;
 }
 
 #shop-data-table th:nth-child(4),
-#shop-data-table td:nth-child(4) {
+#shop-data-table td:nth-child(4) { 
+    width: 45%;
+}
+
+#shop-data-table th:nth-child(5),
+#shop-data-table td:nth-child(5) { 
     width: 15%;
     text-align: center;
 }
 
-.pending-request td {
-    background-color: #fff3cd !important;
-}
-
-/* Hover effects */
+/* Hover effect */
 #shop-data-table tbody tr:hover td {
     background-color: #f8f9fa;
+}
+
+/* Pending request styling */
+.pending-request td {
+    background-color: #fff3cd !important;
 }
 
 /* Badge styling */

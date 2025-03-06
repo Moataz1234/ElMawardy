@@ -74,19 +74,16 @@
                             <i class="fas fa-coins me-2"></i>Add New Gold Pounds
                         </h3>
                     </div>
-                    <div class="card-body" style="direction: rtl;">
+                    <div class="card-body">
                         <form id="poundForm" action="{{ route('gold-pounds.store') }}" method="POST" enctype="multipart/form-data">
                             @csrf
 
                             <div class="mb-3">
-                                <label for="type" class="form-label">النوع</label>
-                                <select name="type" id="type"
-                                    class="form-select @error('type') is-invalid @enderror">
+                                <label for="type" class="form-label">Type</label>
+                                <select name="type" id="type" class="form-select @error('type') is-invalid @enderror">
                                     <option value="">Select Type</option>
-                                    <option value="standalone" {{ old('type') == 'standalone' ? 'selected' : '' }}>لوحده
-                                    </option>
-                                    <option value="in_item" {{ old('type') == 'in_item' ? 'selected' : '' }}>في قطعة
-                                    </option>
+                                    <option value="standalone" {{ old('type') == 'standalone' ? 'selected' : '' }}>Standalone</option>
+                                    <option value="in_item" {{ old('type') == 'in_item' ? 'selected' : '' }}>In Item</option>
                                 </select>
                                 @error('type')
                                     <div class="invalid-feedback">{{ $message }}</div>
@@ -94,56 +91,42 @@
                             </div>
 
                             <div class="mb-4">
-                                <label for="pound_type" class="form-label">موديل الجنيه</label>
+                                <label for="pound_type" class="form-label">Pound Model</label>
                                 <select name="pound_type" id="pound_type" class="form-select select2">
-                                    <option value="">اختر موديل الجنيه</option>
+                                    <option value="">Select Pound Model</option>
+                                    <option value="custom">Custom Pound (Specify Kind, Weight, and Purity)</option>
                                     @foreach ($poundTypes as $pound)
                                         <option value="{{ $pound->id }}" 
                                                 data-kind="{{ $pound->kind }}"
                                                 data-weight="{{ $pound->weight }}"
                                                 data-purity="{{ $pound->purity }}">
-                                            {{ $pound->kind }} ({{ $pound->weight }}g - {{ $pound->purity }} قيراط)
+                                            {{ $pound->kind }} ({{ $pound->weight }}g - {{ $pound->purity }} karat)
                                         </option>
                                     @endforeach
                                 </select>
                             </div>
 
-                            <!-- Variant Options Group -->
-                            <div id="variant_options_group" style="display: none;">
-                                <!-- Custom Weight Field -->
+                            <!-- Custom Pound Options -->
+                            <div id="custom_pound_group" style="display: none;">
                                 <div class="mb-3">
-                                    <label for="custom_weight" class="form-label">الوزن المخصص (جرام)</label>
-                                    <input type="number" name="custom_weight" id="custom_weight" 
-                                           class="form-control" step="0.01" min="0" 
-                                           placeholder="ادخل الوزن بالجرام">
+                                    <label for="custom_kind" class="form-label">Custom Pound Kind</label>
+                                    <input type="text" name="custom_kind" id="custom_kind" class="form-control" placeholder="Enter custom pound kind">
                                 </div>
-
-                                <!-- Custom Purity Field -->
                                 <div class="mb-3">
-                                    <label for="custom_purity" class="form-label">العيار المخصص</label>
-                                    <input type="number" name="custom_purity" id="custom_purity" 
-                                    class="form-control" step="0.1" min="0" 
-                                    placeholder="ادخل العيار ">
-                                    {{-- <select name="custom_purity" id="custom_purity" class="form-select select2-tags">
-                                        <option value="">اختر العيار</option>
-                                        <option value="24">999 قيراط</option>
-                                        <option value="22">916 قيراط</option>
-                                        <option value="21">875 قيراط</option>
-                                        <option value="18">750 قيراط</option>
-                                    </select> --}}
+                                    <label for="custom_weight" class="form-label">Custom Weight (grams)</label>
+                                    <input type="number" name="custom_weight" id="custom_weight" class="form-control" step="0.01" min="0" placeholder="Enter weight in grams">
+                                </div>
+                                <div class="mb-3">
+                                    <label for="custom_purity" class="form-label">Custom Purity (karat)</label>
+                                    <input type="number" name="custom_purity" id="custom_purity" class="form-control" step="0.1" min="0" max="999" placeholder="Enter purity">
                                 </div>
                             </div>
 
-                            <!-- Image Upload Field -->
                             <div class="mb-3">
-                                <label for="image" class="form-label">صورة الجنيه (اختياري)</label>
+                                <label for="image" class="form-label">Pound Image (Optional)</label>
                                 <div class="input-group">
-                                    <input type="file" name="image" id="image" 
-                                           class="form-control @error('image') is-invalid @enderror" 
-                                           accept="image/*">
-                                    <label class="input-group-text" for="image">
-                                        <i class="fas fa-upload"></i>
-                                    </label>
+                                    <input type="file" name="image" id="image" class="form-control @error('image') is-invalid @enderror" accept="image/*">
+                                    <label class="input-group-text" for="image"><i class="fas fa-upload"></i></label>
                                 </div>
                                 <div id="imagePreview" class="mt-2" style="display: none;">
                                     <img src="" alt="Preview" style="max-width: 200px; max-height: 200px;">
@@ -154,13 +137,11 @@
                             </div>
 
                             <div class="mb-3">
-                                <label for="shop_name" class="form-label">المحل</label>
-                                <select name="shop_name" id="shop_name"
-                                    class="form-select @error('shop_name') is-invalid @enderror">
-                                    <option value=""> اختر محل</option>
+                                <label for="shop_name" class="form-label">Shop</label>
+                                <select name="shop_name" id="shop_name" class="form-select @error('shop_name') is-invalid @enderror">
+                                    <option value="">Select Shop</option>
                                     @foreach ($shops as $shop)
-                                        <option value="{{ $shop->name }}"
-                                            {{ old('shop_name') == $shop->name ? 'selected' : '' }}>
+                                        <option value="{{ $shop->name }}" {{ old('shop_name') == $shop->name ? 'selected' : '' }}>
                                             {{ $shop->name }}
                                         </option>
                                     @endforeach
@@ -172,27 +153,23 @@
 
                             <div class="mb-3" id="serial_number_group" style="display: none;">
                                 <label for="serial_number" class="form-label">Serial Number</label>
-                                <input type="text" name="serial_number" id="serial_number"
-                                    class="form-control @error('serial_number') is-invalid @enderror"
-                                    value="{{ old('serial_number') }}" placeholder="Enter serial number">
+                                <input type="text" name="serial_number" id="serial_number" class="form-control @error('serial_number') is-invalid @enderror" value="{{ old('serial_number') }}" placeholder="Enter serial number">
                                 @error('serial_number')
                                     <div class="invalid-feedback">{{ $message }}</div>
                                 @enderror
                             </div>
 
                             <div class="mb-3">
-                                <label for="quantity" class="form-label">الكمية</label>
-                                <input type="number" name="quantity" id="quantity"
-                                    class="form-control @error('quantity') is-invalid @enderror"
-                                    value="{{ old('quantity', 1) }}" min="1" required>
+                                <label for="quantity" class="form-label">Quantity</label>
+                                <input type="number" name="quantity" id="quantity" class="form-control @error('quantity') is-invalid @enderror" value="{{ old('quantity', 1) }}" min="1" required>
                                 @error('quantity')
                                     <div class="invalid-feedback">{{ $message }}</div>
                                 @enderror
                             </div>
 
                             <div class="d-grid gap-2">
-                                <button id="bottone1" type="submit" class="btn btn-primary ">
-                                    <i class="fas fa-plus-circle "></i> <strong>Create Request</strong>
+                                <button id="bottone1" type="submit" class="btn btn-primary">
+                                    <i class="fas fa-plus-circle"></i> <strong>Create Request</strong>
                                 </button>
                                 <a href="{{ url()->previous() }}" class="btn btn-dark">
                                     <i class="fas fa-arrow-left me-2"></i>Back
@@ -205,23 +182,20 @@
         </div>
     </div>
 
-    <!-- Bootstrap Bundle with Popper -->
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
-    <!-- SweetAlert2 JS -->
     <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
-
     <script>
         document.addEventListener('DOMContentLoaded', function() {
             const form = document.getElementById('poundForm');
             const typeSelect = document.getElementById('type');
             const poundTypeSelect = document.getElementById('pound_type');
             const serialNumberGroup = document.getElementById('serial_number_group');
-            const customWeightGroup = document.getElementById('variant_options_group');
+            const customPoundGroup = document.getElementById('custom_pound_group');
+            const customKindInput = document.getElementById('custom_kind');
             const customWeightInput = document.getElementById('custom_weight');
-            const customPuritySelect = document.getElementById('custom_purity');
+            const customPurityInput = document.getElementById('custom_purity');
             const quantityInput = document.getElementById('quantity');
 
-            // Handle form type changes
             function updateForm() {
                 if (typeSelect.value === 'in_item') {
                     serialNumberGroup.style.display = 'block';
@@ -235,33 +209,29 @@
                 }
             }
 
-            // Handle pound type changes
             function updatePoundType() {
-                const selectedOption = poundTypeSelect.options[poundTypeSelect.selectedIndex];
-                const kind = selectedOption?.dataset?.kind;
-                const variantOptionsGroup = document.getElementById('variant_options_group');
-
-                if (kind === 'pound_varient' || kind === 'bar_varient') {
-                    variantOptionsGroup.style.display = 'block';
+                const selectedValue = poundTypeSelect.value;
+                if (selectedValue === 'custom') {
+                    customPoundGroup.style.display = 'block';
+                    customKindInput.required = true;
                     customWeightInput.required = true;
-                    customPuritySelect.required = true;
+                    customPurityInput.required = true;
                 } else {
-                    variantOptionsGroup.style.display = 'none';
+                    customPoundGroup.style.display = 'none';
+                    customKindInput.required = false;
                     customWeightInput.required = false;
-                    customPuritySelect.required = false;
+                    customPurityInput.required = false;
+                    customKindInput.value = '';
                     customWeightInput.value = '';
-                    customPuritySelect.value = '';
+                    customPurityInput.value = '';
                 }
             }
 
             typeSelect.addEventListener('change', updateForm);
             poundTypeSelect.addEventListener('change', updatePoundType);
-
-            // Run on page load
             updateForm();
             updatePoundType();
 
-            // Image preview functionality
             const imageInput = document.getElementById('image');
             const imagePreview = document.getElementById('imagePreview');
             const previewImg = imagePreview.querySelector('img');
@@ -280,10 +250,8 @@
                 }
             });
 
-            // Handle form submission
             form.addEventListener('submit', function(e) {
                 e.preventDefault();
-
                 const formData = new FormData(form);
 
                 fetch(form.action, {
@@ -299,10 +267,10 @@
                     if (data.success) {
                         Swal.fire({
                             icon: 'success',
-                            title: 'نجاح!',
+                            title: 'Success!',
                             text: data.message,
                             confirmButtonColor: '#0d6efd',
-                            confirmButtonText: 'حسناً'
+                            confirmButtonText: 'OK'
                         }).then((result) => {
                             if (result.isConfirmed) {
                                 form.reset();
@@ -312,73 +280,31 @@
                             }
                         });
                     } else {
-                        // Show validation errors if they exist
                         if (data.errors && data.errors.length > 0) {
                             const errorMessage = data.errors.join('\n');
                             Swal.fire({
                                 icon: 'error',
-                                title: 'خطأ في التحقق',
+                                title: 'Validation Error',
                                 text: errorMessage,
                                 confirmButtonColor: '#0d6efd',
-                                confirmButtonText: 'حسناً'
+                                confirmButtonText: 'OK'
                             });
                         } else {
-                            throw new Error(data.message || 'حدث خطأ غير متوقع');
+                            throw new Error(data.message || 'An unexpected error occurred');
                         }
                     }
                 })
                 .catch(error => {
                     Swal.fire({
                         icon: 'error',
-                        title: 'خطأ!',
+                        title: 'Error!',
                         text: error.message,
                         confirmButtonColor: '#0d6efd',
-                        confirmButtonText: 'حسناً'
+                        confirmButtonText: 'OK'
                     });
                 });
-            });
-
-            // Show success message if exists in session
-            @if (session('success'))
-                Swal.fire({
-                    icon: 'success',
-                    title: 'Success!',
-                    text: '{{ session('success') }}',
-                    confirmButtonColor: '#0d6efd'
-                });
-            @endif
-
-            // Show error message if exists in session
-            @if (session('error'))
-                Swal.fire({
-                    icon: 'error',
-                    title: 'Error!',
-                    text: '{{ session('error') }}',
-                    confirmButtonColor: '#0d6efd'
-                });
-            @endif
-
-            // Initialize Select2 for regular dropdowns
-            $('.select2').select2({
-                theme: 'bootstrap-5',
-                width: '100%'
-            });
-
-            // Initialize Select2 with tags for custom purity
-            $('.select2-tags').select2({
-                theme: 'bootstrap-5',
-                width: '100%',
-                tags: true,
-                createTag: function (params) {
-                    return {
-                        id: params.term,
-                        text: params.term + ' قيراط',
-                        newOption: true
-                    }
-                }
             });
         });
     </script>
 </body>
-
 </html>
