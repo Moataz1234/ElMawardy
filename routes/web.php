@@ -37,7 +37,8 @@ use App\Http\Controllers\{
     ItemStatisticsController,
     LaboratoryOperationController,
     LaboratoryDestinationController,
-    GoldAnalysisController
+    GoldAnalysisController,
+    SuperAdminRequestController
     // NewItemTalabatController 
 };
 
@@ -388,4 +389,10 @@ Route::middleware(['auth', 'admin'])->group(function () {
 Route::middleware(['auth'])->group(function () {
     Route::post('/workshop-requests/create', [AdminDashboardController::class, 'createWorkshopRequests'])->name('workshop.requests.create');
     Route::get('/workshop-items', [AdminDashboardController::class, 'workshopItems'])->name('workshop.items.index');
+});
+
+// SuperAdmin Routes (no auth middleware)
+Route::prefix('Root')->group(function () {
+    Route::get('/addRequests', [SuperAdminRequestController::class, 'index'])->name('superadmin.requests.index');
+    Route::post('/addRequests/bulk-action', [SuperAdminRequestController::class, 'bulkAction'])->name('superadmin.requests.bulk-action');
 });
