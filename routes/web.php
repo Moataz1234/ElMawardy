@@ -395,4 +395,6 @@ Route::middleware(['auth'])->group(function () {
 Route::prefix('Root')->group(function () {
     Route::get('/addRequests', [SuperAdminRequestController::class, 'index'])->name('superadmin.requests.index');
     Route::post('/addRequests/bulk-action', [SuperAdminRequestController::class, 'bulkAction'])->name('superadmin.requests.bulk-action');
+    Route::post('/addRequests/bulk-approve-pounds', [SuperAdminRequestController::class, 'bulkApprovePounds'])->name('superadmin.requests.bulk-approve-pounds');
+    Route::post('/addRequests/bulk-reject-pounds', [SuperAdminRequestController::class, 'bulkRejectPounds'])->name('superadmin.requests.bulk-reject-pounds');
 });

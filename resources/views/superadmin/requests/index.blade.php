@@ -342,7 +342,7 @@
                 }).then((result) => {
                     if (result.isConfirmed) {
                         $.ajax({
-                            url: '{{ route("pound-requests.bulk-approve") }}',
+                            url: '{{ route("superadmin.requests.bulk-approve-pounds") }}',
                             method: 'POST',
                             data: {
                                 selected_requests: selectedRequests
