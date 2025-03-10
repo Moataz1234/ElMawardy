@@ -25,7 +25,7 @@ class AddPoundsRequestController extends Controller
     {
         $request->validate([
             'selected_requests' => 'required|array',
-            'selected_requests.*' => 'exists:pound_requests,id'
+            'selected_requests.*' => 'exists:add_pound_requests,id'
         ]);
 
         try {
@@ -46,39 +46,16 @@ class AddPoundsRequestController extends Controller
                         ? $poundRequest->custom_purity
                         : $poundRequest->goldPound->purity;
 
-                    if ($poundRequest->type === 'standalone') {
-                        $inventory = GoldPoundInventory::where([
-                            'gold_pound_id' => $poundRequest->gold_pound_id,
-                            'shop_name' => $poundRequest->shop_name,
-                            'type' => 'standalone',
-                            'weight' => $weight,
-                            'purity' => $purity
-                        ])->first();
-
-                        if ($inventory) {
-                            $inventory->increment('quantity', 1);
-                        } else {
-                            GoldPoundInventory::create([
-                                'gold_pound_id' => $poundRequest->gold_pound_id,
-                                'shop_name' => $poundRequest->shop_name,
-                                'type' => 'standalone',
-                                'serial_number' => $poundRequest->serial_number,
-                                'weight' => $weight,
-                                'purity' => $purity,
-                                'quantity' => 1
-                            ]);
-                        }
-                    } else {
-                        GoldPoundInventory::create([
-                            'gold_pound_id' => $poundRequest->gold_pound_id,
-                            'serial_number' => $poundRequest->serial_number,
-                            'shop_name' => $poundRequest->shop_name,
-                            'type' => 'in_item',
-                            'weight' => $weight,
-                            'purity' => $purity,
-                            'quantity' => 1
-                        ]);
-                    }
+                    // Create a new inventory entry for each request
+                    GoldPoundInventory::create([
+                        'gold_pound_id' => $poundRequest->gold_pound_id,
+                        'shop_name' => $poundRequest->shop_name,
+                        'type' => $poundRequest->type,
+                        'serial_number' => $poundRequest->serial_number,
+                        'weight' => $weight,
+                        'purity' => $purity,
+                        'quantity' => 1
+                    ]);
                 }
             });
 

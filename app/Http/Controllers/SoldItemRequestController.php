@@ -71,15 +71,53 @@ class SoldItemRequestController extends Controller
     }
 
 
-    public function viewSaleRequests()
+    public function viewSaleRequests(Request $request)
     {
-        $soldItemRequests = SaleRequest::where('status', 'pending')->get();
+        $query = SaleRequest::with(['goldItem', 'customer'])
+        ->where(function ($q) {
+            // Include all items (item_type != 'pound')
+            $q->where('item_type', '!=', 'pound')
+              // Include standalone pounds (item_type = 'pound' AND related_item_serial is null)
+              ->orWhere(function ($q) {
+                  $q->where('item_type', 'pound')
+                    ->whereNull('related_item_serial');
+              });
+        });
+
+    // Apply date filter if provided
+    if ($request->has('filter_date')) {
+        $query->whereDate('created_at', $request->filter_date);
+    }
+
+    // Apply status filter, default to 'pending'
+    $status = $request->get('status', 'pending');
+    if ($status !== 'all') {
+        $query->where('status', $status);
+    }
+
+    $soldItemRequests = $query->orderBy('created_at', 'desc')->get();
+
+    // For items, load associated pound requests if they exist (for display or approval logic)
+    $soldItemRequests = $soldItemRequests->map(function ($request) {
+        if ($request->item_type !== 'pound') {
+            $request->associatedPound = SaleRequest::where('related_item_serial', $request->item_serial_number)
+                ->where('item_type', 'pound')
+                ->first();
+        }
+        return $request;
+    });
+
+
         return view('admin.Requests.sold_requests', compact('soldItemRequests'));
     }
     public function viewAllSaleRequests()
     {
-        $soldItemRequests = SaleRequest::all();
-        return view('shops.all_sale_requests', compact('soldItemRequests'));
+        // Only get approved requests
+        $soldItemRequests = SaleRequest::where('status', 'approved')
+            ->orderBy('created_at', 'desc')
+            ->get();
+
+        return view('admin.Requests.all_sale_requests', compact('soldItemRequests'));
     }
     public function bulkApprove(Request $request)
     {
@@ -434,11 +472,23 @@ class SoldItemRequestController extends Controller
         // Get unique shop names for the dropdown
         $shops = GoldItemSold::distinct('shop_name')->pluck('shop_name');
 
+        // Calculate totals from the entire filtered dataset before pagination
+        $totals = (clone $query)->selectRaw('
+            COUNT(*) as total_items,
+            SUM(weight) as total_weight,
+            SUM(price) as total_revenue,
+            CASE 
+                WHEN SUM(weight) > 0 
+                THEN SUM(price) / SUM(weight) 
+                ELSE 0 
+            END as avg_price_per_gram
+        ')->first();
+
         // Get paginated results with 50 items per page
         $soldItemRequests = $query->orderBy('sold_date', 'desc')
             ->paginate(50)
             ->withQueryString(); // This preserves the filter parameters
 
-        return view('Accountant.all_sold_items', compact('soldItemRequests', 'shops'));
+        return view('Accountant.all_sold_items', compact('soldItemRequests', 'shops', 'totals'));
     }
 }

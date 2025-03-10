@@ -41,7 +41,7 @@
                                     <div class=" mb-3">
                                         <label for="phone_number">رقم التليفون</label>
                                         <input type="number" class="form-control" id="phone_number"
-                                            name="phone_number">
+                                            name="phone_number" required>
                                     </div>
                                 </div>
                                 <div class="col-md-6">

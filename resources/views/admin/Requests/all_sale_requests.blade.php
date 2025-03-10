@@ -6,41 +6,22 @@
     @include('components.navbar')
 </head>
 <div class="container mt-4">
+    <h2 class="mb-4">Approved Sales History</h2>
     <div class="row mb-4">
         <div class="col-md-12">
-            <form class="form-inline" id="filterForm">
-                <div class="form-group mx-2">
-                    <label for="filter_date" class="mr-2">Select Date:</label>
-                    <input type="date" class="form-control" id="filter_date" name="filter_date" 
-                           value="{{ request('filter_date', date('Y-m-d')) }}">
-                </div>
-                <div class="form-group mx-2">
-                    <label for="status" class="mr-2">Status:</label>
-                    <select class="form-control" id="status" name="status">
-                        <option value="pending" {{ request('status', 'pending') === 'pending' ? 'selected' : '' }}> Pending Sale</option>
-                        {{-- <option value="approved" {{ request('status') === 'approved' ? 'selected' : '' }}>Approved </option> --}}
-                        <option value="rejected" {{ request('status') === 'rejected' ? 'selected' : '' }}>Rejected </option>
-                        {{-- <option value="all" {{ request('status') === 'all' ? 'selected' : '' }}>All</option> --}}
-                    </select>
-                </div>
-                <button type="submit" class="btn btn-primary mx-2">Filter</button>
-                <button type="button" id="exportExcel" class="btn btn-success">Export to Excel</button>
-            </form>
+            <button type="button" id="exportExcel" class="btn btn-success">Export to Excel</button>
         </div>
     </div>
     <table class="table table-striped table-hover">
         <thead class="thead-dark">
             <tr>
-                <th><input type="checkbox" id="selectAll" /></th>
                 <th>Serial Number</th>
                 <th>Shop Name</th>
                 <th>Weight</th>
                 <th>Price</th>
                 <th>Price/Gram</th>
                 <th>Payment Method</th>
-                <th>Status</th>
                 <th>Date</th>
-                <th>Actions</th>
             </tr>
         </thead>
         <tbody>
@@ -195,133 +176,18 @@
                     <td>{{ $request->price }} {{ config('app.currency') }}</td>
                     <td>{{ $pricePerGram }} {{ config('app.currency') }}/g</td>
                     <td>{{ $request->payment_method ?? 'N/A' }}</td>
-                    <td>
-                        @if($request->status === 'pending')
-                            <span class="badge badge-warning p-2">Pending Sale</span>
-                        @elseif($request->status === 'approved')
-                            <span class="badge badge-success p-2">Approved</span>
-                        @elseif($request->status === 'rejected')
-                            <span class="badge badge-danger p-2">Rejected</span>
-                        @endif
-                    </td>
                     <td>{{ $request->created_at->format('Y-m-d H:i') }}</td>
-                    <td>
-                        @if ($request->status === 'pending')
-                            {{-- <button class="btn btn-success btn-sm approve-btn" data-request-id="{{ $request->id }}">
-                                Approve
-                            </button> --}}
-                            <button class="btn btn-danger btn-sm reject-btn" data-request-id="{{ $request->id }}">
-                                Reject
-                            </button>
-                        @endif
-                    </td>
                 </tr>
             @endforeach
         </tbody>
     </table>
-    <button type="button" id="approveAll" class="btn btn-success mx-2">Approve Selected</button>
 </div>
 
 <script>
 $(document).ready(function() {
-    // Filter form submission
-    $('#filterForm').on('submit', function(e) {
-        e.preventDefault();
-        let filterDate = $('#filter_date').val();
-        let status = $('#status').val();
-        window.location.href = `${window.location.pathname}?filter_date=${filterDate}&status=${status}`;
-    });
-
     // Export to Excel
     $('#exportExcel').click(function() {
-        let filterDate = $('#filter_date').val();
-        let status = $('#status').val();
-        window.location.href = `/export-sales?filter_date=${filterDate}&status=${status}`;
+        window.location.href = '/export-sales';
     });
 });
-</script>
-<script>
-    $(document).ready(function() {
-        // Existing code for filter and export
-    
-        // Checkbox for selecting all
-        $('#selectAll').on('click', function() {
-            $('.request-checkbox').prop('checked', this.checked);
-        });
-    
-        // Single approval
-        $('.approve-btn').on('click', function(e) {
-            e.preventDefault();
-            const requestId = $(this).data('request-id');
-            
-            console.log('Approving request:', requestId);
-            
-            approveRequests([requestId]);
-        });
-
-        // Bulk approval
-        $('#approveAll').on('click', function() {
-            var selectedRequests = [];
-
-            $('.request-checkbox:checked').each(function() {
-                const row = $(this).closest('tr');
-                selectedRequests.push($(this).val());
-            });
-
-            console.log('Selected requests:', selectedRequests);
-
-            if (selectedRequests.length > 0) {
-                approveRequests(selectedRequests);
-            } else {
-                alert('Please select at least one request to approve.');
-            }
-        });
-
-        function approveRequests(requestIds) {
-            console.log('Sending approval request:', { requests: requestIds });
-
-            $.ajax({
-                url: "{{ route('sell-requests.bulk-approve') }}",
-                type: 'POST',
-                data: {
-                    _token: '{{ csrf_token() }}',
-                    requests: requestIds
-                },
-                success: function(response) {
-                    console.log('Approval response:', response);
-                    if (response.success) {
-                        alert('Selected requests have been approved.');
-                        location.reload();
-                    } else {
-                        alert('Error: ' + response.message);
-                    }
-                },
-                error: function(xhr) {
-                    console.error('Approval error:', xhr.responseText);
-                    alert('An error occurred while approving requests.');
-                }
-            });
-        }
-
-        // Add reject functionality
-        $('.reject-btn').on('click', function() {
-            const requestId = $(this).data('request-id');
-            if (confirm('Are you sure you want to reject this request?')) {
-                $.ajax({
-                    url: `/Acc_sell_requests/${requestId}/reject`,
-                    type: 'POST',
-                    data: {
-                        _token: '{{ csrf_token() }}'
-                    },
-                    success: function(response) {
-                        alert('Request rejected successfully');
-                        location.reload();
-                    },
-                    error: function(xhr) {
-                        alert('Error rejecting request');
-                    }
-                });
-            }
-        });
-    });
 </script>

@@ -319,6 +319,10 @@ Route::middleware(['auth'])->group(function () {
     });
 
     // Common Routes for All Authenticated Users
+    Route::post('/pound-requests/bulk-approve', [AddPoundsRequestController::class, 'bulkApprove'])
+        ->name('pound-requests.bulk-approve');
+    Route::post('/pound-requests/bulk-reject', [AddPoundsRequestController::class, 'bulkReject'])
+        ->name('pound-requests.bulk-reject');
 });
 
 require __DIR__ . '/auth.php';

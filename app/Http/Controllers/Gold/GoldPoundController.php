@@ -95,31 +95,38 @@ class GoldPoundController extends Controller
     {
         $syncResult = $this->syncGoldPoundsInventory(); 
         Log::info('Sync Result:', ['result' => $syncResult]);
+        
+        $shops = Shop::all();
+        $poundTypes = GoldPound::select('kind')->distinct()->get();
+        
         $shopPounds = GoldPoundInventory::with(['goldPound', 'goldItem.modelCategory'])
-        ->get();
-        return view('admin.Gold.pounds.index', compact('shopPounds'));
+            ->when(request('shop'), function($query) {
+                return $query->where('shop_name', request('shop'));
+            })
+            ->when(request('kind'), function($query) {
+                return $query->whereHas('goldPound', function($q) {
+                    $q->where('kind', request('kind'));
+                });
+            })
+            ->paginate(30);
+        
+        return view('admin.Gold.pounds.index', compact('shopPounds', 'shops', 'poundTypes'));
     }
     public function index()
     {
         try {
-            // First sync the inventory
             $syncResult = $this->syncGoldPoundsInventory();
             
-            // Log the current shop name
-            Log::info('Fetching inventory for shop:', ['shop_name' => Auth::user()->shop_name]);
+            // Get all shops and pound types for filters
+            $shops = Shop::all();
+            $poundTypes = GoldPound::select('kind')->distinct()->get();
 
             // Get all pound inventory items
             $shopPounds = GoldPoundInventory::with(['goldPound', 'goldItem.modelCategory'])
                 ->where('shop_name', Auth::user()->shop_name)
                 ->get();
 
-            // Log the found inventory items
-            Log::info('Found inventory items:', [
-                'count' => $shopPounds->count(),
-                'items' => $shopPounds->pluck('serial_number')->toArray()
-            ]);
-
-            return view('Shops.Pounds.index', compact('shopPounds'));
+            return view('Shops.Pounds.index', compact('shopPounds', 'shops', 'poundTypes'));
         } catch (\Exception $e) {
             Log::error('Error in index method:', [
                 'error' => $e->getMessage(),
@@ -415,6 +422,16 @@ class GoldPoundController extends Controller
                 $query->where('shop_name', Auth::user()->shop_name);
             }
             
+            if ($request->filled('shop')) {
+                $query->where('shop_name', $request->shop);
+            }
+
+            if ($request->filled('kind')) {
+                $query->whereHas('goldPound', function($q) use ($request) {
+                    $q->where('kind', $request->kind);
+                });
+            }
+            
             if ($request->filled('search')) {
                 $searchTerm = $request->search;
                 $query->where(function($q) use ($searchTerm) {
@@ -427,15 +444,23 @@ class GoldPoundController extends Controller
                 });
             }
 
-            $shopPounds = $query->get();
+            $shopPounds = $query->paginate(30);
 
             if ($request->ajax()) {
-                $html = view('admin.Gold.pounds._table_body', compact('shopPounds'))->render();
+                Log::info('Search request received', [
+                    'filters' => $request->all(),
+                    'results_count' => $shopPounds->total()
+                ]);
+
+                // Return only the table content
+                $html = view('admin.Gold.pounds._table_body', [
+                    'shopPounds' => $shopPounds
+                ])->render();
                 
                 return response()->json([
                     'success' => true,
                     'html' => $html,
-                    'count' => $shopPounds->count()
+                    'count' => $shopPounds->total()
                 ]);
             }
 
@@ -449,10 +474,22 @@ class GoldPoundController extends Controller
         }
     }
 
-    public function export()
+    public function export(Request $request)
     {
-        $shopPounds = GoldPoundInventory::with(['goldPound', 'goldItem'])
-            ->get();
+        $query = GoldPoundInventory::with(['goldPound', 'goldItem']);
+        
+        // Apply filters to export
+        if ($request->filled('shop')) {
+            $query->where('shop_name', $request->shop);
+        }
+
+        if ($request->filled('kind')) {
+            $query->whereHas('goldPound', function($q) use ($request) {
+                $q->where('kind', $request->kind);
+            });
+        }
+
+        $shopPounds = $query->get();
 
         // Create CSV headers
         $headers = [

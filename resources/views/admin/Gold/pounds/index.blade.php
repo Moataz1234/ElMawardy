@@ -28,6 +28,97 @@
         .badge {
             padding: 0.5em 0.75em;
         }
+
+        /* Reset and override all pagination styles */
+        .custom-pagination-container nav,
+        .custom-pagination-container .pagination,
+        .custom-pagination-container .page-item,
+        .custom-pagination-container .page-link {
+            all: unset !important;
+        }
+
+        .custom-pagination-container {
+            width: 100% !important;
+            display: flex !important;
+            justify-content: center !important;
+            margin: 20px 0 !important;
+        }
+
+        .custom-pagination-container nav {
+            display: block !important;
+            width: auto !important;
+        }
+
+        .custom-pagination-container .pagination {
+            display: flex !important;
+            gap: 5px !important;
+            background: white !important;
+            padding: 10px !important;
+            border-radius: 8px !important;
+            box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1) !important;
+        }
+
+        .custom-pagination-container .page-item {
+            display: block !important;
+        }
+
+        .custom-pagination-container .page-link {
+            display: flex !important;
+            align-items: center !important;
+            justify-content: center !important;
+            min-width: 40px !important;
+            height: 40px !important;
+            padding: 0 15px !important;
+            border-radius: 6px !important;
+            background-color: white !important;
+            border: 1px solid #e2e8f0 !important;
+            color: #4a5568 !important;
+            font-weight: 500 !important;
+            cursor: pointer !important;
+            transition: all 0.2s ease !important;
+        }
+
+        .custom-pagination-container .page-link:hover {
+            background-color: #f7fafc !important;
+            border-color: #3182ce !important;
+            color: #3182ce !important;
+        }
+
+        .custom-pagination-container .page-item.active .page-link {
+            background-color: #3182ce !important;
+            border-color: #3182ce !important;
+            color: white !important;
+        }
+
+        .custom-pagination-container .page-item.disabled .page-link {
+            background-color: #f7fafc !important;
+            border-color: #e2e8f0 !important;
+            color: #a0aec0 !important;
+            cursor: not-allowed !important;
+        }
+
+        /* Navigation arrows */
+        .custom-pagination-container .page-item:first-child .page-link,
+        .custom-pagination-container .page-item:last-child .page-link {
+            font-size: 20px !important;
+            font-weight: bold !important;
+        }
+
+        /* Remove focus outline */
+        .custom-pagination-container .page-link:focus {
+            outline: none !important;
+            box-shadow: none !important;
+        }
+
+        /* Responsive adjustments */
+        @media (max-width: 640px) {
+            .custom-pagination-container .page-link {
+                min-width: 35px !important;
+                height: 35px !important;
+                padding: 0 10px !important;
+                font-size: 14px !important;
+            }
+        }
     </style>
 </head>
 
@@ -47,7 +138,7 @@
                 </nav>
             </div>
             <div class="d-flex gap-2">
-                <a href="{{ route('gold-pounds.export') }}" class="btn btn-outline-primary">
+                <a href="#" id="exportButton" class="btn btn-outline-primary">
                     <i class="fas fa-file-export me-1"></i> Export
                 </a>
                 <button class="btn btn-outline-success" onclick="window.location.reload()">
@@ -56,17 +147,6 @@
             </div>
         </div>
 
-        <!-- Update the search input -->
-        {{-- <div class="input-group mb-3" style="width: 300px;">
-            <input type="text" class="form-control" id="searchInput" placeholder="Search inventory...">
-            <button class="btn btn-outline-secondary" type="button" id="searchButton">
-                <i class="fas fa-search"></i>
-            </button>
-        </div> --}}
-
-        <!-- Add this right after your table -->
-        <div id="searchError" class="alert alert-danger mt-3" style="display: none;"></div>
-
         <!-- Inventory Card -->
         <div class="card">
             <div class="card-header py-3">
@@ -74,6 +154,24 @@
                     <h5 class="card-title mb-0">
                         <i class="fas fa-box-open me-2"></i>Current Inventory
                     </h5>
+                    <!-- Add filters -->
+                    <div class="d-flex gap-3">
+                        <select class="form-select" id="shopFilter" style="width: auto;">
+                            <option value="">All Shops</option>
+                            @foreach($shops as $shop)
+                                <option value="{{ $shop->name }}">{{ $shop->name }}</option>
+                            @endforeach
+                        </select>
+                        <select class="form-select" id="kindFilter" style="width: auto;">
+                            <option value="">All Types</option>
+                            @foreach($poundTypes as $type)
+                                <option value="{{ $type->kind }}">{{ ucfirst(str_replace('_', ' ', $type->kind)) }}</option>
+                            @endforeach
+                        </select>
+                        <button class="btn btn-primary" id="applyFilters">
+                            <i class="fas fa-filter me-1"></i> Apply Filters
+                        </button>
+                    </div>
                 </div>
             </div>
             
@@ -84,11 +182,11 @@
                         <table class="table table-hover">
                             <thead>
                                 <tr>
-                                    {{-- <th width="5%">Select</th> --}}
                                     <th>Serial Number</th>
                                     <th>Related Item Serial</th>
                                     <th>Type</th>
                                     <th>Weight (g)</th>
+                                    <th>Shop Name</th>
                                     <th>Linked Item</th>
                                     <th>Status</th>
                                 </tr>
@@ -96,22 +194,11 @@
                             <tbody>
                                 @foreach ($shopPounds as $pound)
                                     <tr>
-                                        {{-- <td>
-                                            @if ($pound->status === 'pending_sale' || $pound->status === 'pending')
-                                                <span class="badge bg-warning">Pending</span>
-                                            @else
-                                                <div class="form-check">
-                                                    <input type="checkbox" class="form-check-input pound-checkbox"
-                                                        name="selected_pounds[]"
-                                                        value="{{ $pound->serial_number }}"
-                                                        data-serial="{{ $pound->serial_number }}">
-                                                </div>
-                                            @endif
-                                        </td> --}}
                                         <td><span class="fw-medium">{{ $pound->serial_number }}</span></td>
                                         <td>{{ $pound->related_item_serial ?? 'N/A' }}</td>
                                         <td>{{ $pound->goldPound ? ucfirst(str_replace('_', ' ', $pound->goldPound->kind)) : 'N/A' }}</td>
                                         <td>{{ $pound->goldPound ? $pound->goldPound->weight : 'N/A' }}</td>
+                                        <td>{{ $pound->shop_name }}</td>
                                         <td>
                                             @if($pound->goldItem)
                                                 <span class="badge bg-success">Yes</span>
@@ -131,131 +218,142 @@
                             </tbody>
                         </table>
                     </div>
-                    
-                    {{-- <div class="d-flex justify-content-between align-items-center mt-4">
-                        <div>
-                            <span class="text-muted">Selected items: </span>
-                            <span id="selectedCount" class="badge bg-primary">0</span>
-                        </div>
-                        <button type="button" id="sellSelectedBtn" class="btn btn-primary" disabled>
-                            <i class="fas fa-shopping-cart me-1"></i> Sell Selected Pounds
-                        </button>
-                    </div> --}}
                 </form>
             </div>
+        </div>
+
+        <!-- Manual Pagination Section -->
+        <div class="custom-pagination-container">
+            <nav>
+                <ul class="pagination">
+                    {{-- Previous Page Link --}}
+                    <li class="page-item {{ ($shopPounds->currentPage() == 1) ? 'disabled' : '' }}">
+                        <a class="page-link" href="{{ $shopPounds->url($shopPounds->currentPage() - 1) }}" aria-label="Previous">
+                            <span aria-hidden="true">&laquo;</span>
+                        </a>
+                    </li>
+
+                    {{-- First Page --}}
+                    @if($shopPounds->currentPage() > 3)
+                        <li class="page-item">
+                            <a class="page-link" href="{{ $shopPounds->url(1) }}">1</a>
+                        </li>
+                        @if($shopPounds->currentPage() > 4)
+                            <li class="page-item disabled">
+                                <span class="page-link">...</span>
+                            </li>
+                        @endif
+                    @endif
+
+                    {{-- Pagination Elements --}}
+                    @for($i = max(1, $shopPounds->currentPage() - 2); $i <= min($shopPounds->lastPage(), $shopPounds->currentPage() + 2); $i++)
+                        <li class="page-item {{ ($shopPounds->currentPage() == $i) ? 'active' : '' }}">
+                            <a class="page-link" href="{{ $shopPounds->url($i) }}">{{ $i }}</a>
+                        </li>
+                    @endfor
+
+                    {{-- Last Page --}}
+                    @if($shopPounds->currentPage() < $shopPounds->lastPage() - 2)
+                        @if($shopPounds->currentPage() < $shopPounds->lastPage() - 3)
+                            <li class="page-item disabled">
+                                <span class="page-link">...</span>
+                            </li>
+                        @endif
+                        <li class="page-item">
+                            <a class="page-link" href="{{ $shopPounds->url($shopPounds->lastPage()) }}">{{ $shopPounds->lastPage() }}</a>
+                        </li>
+                    @endif
+
+                    {{-- Next Page Link --}}
+                    <li class="page-item {{ ($shopPounds->currentPage() == $shopPounds->lastPage()) ? 'disabled' : '' }}">
+                        <a class="page-link" href="{{ $shopPounds->url($shopPounds->currentPage() + 1) }}" aria-label="Next">
+                            <span aria-hidden="true">&raquo;</span>
+                        </a>
+                    </li>
+                </ul>
+            </nav>
         </div>
     </div>
 
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
     <script>
-        document.addEventListener('DOMContentLoaded', function() {
-            const checkboxes = document.querySelectorAll('.pound-checkbox');
-            const sellButton = document.getElementById('sellSelectedBtn');
-            const selectedCount = document.getElementById('selectedCount');
+    document.addEventListener('DOMContentLoaded', function() {
+        const shopFilter = document.getElementById('shopFilter');
+        const kindFilter = document.getElementById('kindFilter');
+        const applyFiltersBtn = document.getElementById('applyFilters');
+        const exportButton = document.getElementById('exportButton');
 
-            function updateSellButton() {
-                const checkedBoxes = document.querySelectorAll('.pound-checkbox:checked');
-                sellButton.disabled = checkedBoxes.length === 0;
-                selectedCount.textContent = checkedBoxes.length;
-            }
+        // Function to handle pagination and filters
+        function handlePagination(page) {
+            const shop = shopFilter.value;
+            const kind = kindFilter.value;
+            
+            const url = new URL(window.location.href);
+            
+            // Set the page parameter
+            url.searchParams.set('page', page);
+            
+            // Set or remove filter parameters
+            if (shop) url.searchParams.set('shop', shop);
+            else url.searchParams.delete('shop');
+            
+            if (kind) url.searchParams.set('kind', kind);
+            else url.searchParams.delete('kind');
+            
+            // Navigate to the new URL
+            window.location.href = url.toString();
+        }
 
-            checkboxes.forEach(checkbox => {
-                checkbox.addEventListener('change', function() {
-                    updateSellButton();
-                    // Debug: Log when checkbox changes
-                    console.log('Checkbox changed:', this.dataset.serial, 'Checked:', this.checked);
-                });
-            });
-
-            sellButton.addEventListener('click', function() {
-                const selectedPounds = Array.from(document.querySelectorAll('.pound-checkbox:checked'))
-                    .map(cb => cb.dataset.serial);
-
-                // Debug: Log selected pounds before redirect
-                console.log('Selected pounds before redirect:', selectedPounds);
-
-                if (selectedPounds.length > 0) {
-                    const params = new URLSearchParams();
-                    selectedPounds.forEach(serialNumber => {
-                        params.append('selected_pounds[]', serialNumber);
-                    });
-
-                    const url = '{{ route('gold-pounds.sell-form') }}?' + params.toString();
-                    // Debug: Log the final URL
-                    console.log('Redirect URL:', url);
-
-                    window.location.href = url;
-                }
-            });
-
-            // Search functionality
-            const searchInput = document.getElementById('searchInput');
-            const searchButton = document.getElementById('searchButton');
-            const tableBody = document.querySelector('tbody');
-            const searchError = document.getElementById('searchError');
-
-            function performSearch() {
-                const searchTerm = searchInput.value;
-                searchError.style.display = 'none';
-                
-                // Show loading state
-                tableBody.innerHTML = '<tr><td colspan="7" class="text-center">Loading...</td></tr>';
-                
-                fetch(`{{ route('gold-pounds.search') }}?search=${encodeURIComponent(searchTerm)}`, {
-                    headers: {
-                        'X-Requested-With': 'XMLHttpRequest',
-                        'Accept': 'application/json'
-                    }
-                })
-                .then(response => {
-                    if (!response.ok) {
-                        throw new Error('Network response was not ok');
-                    }
-                    return response.json();
-                })
-                .then(data => {
-                    if (data.success) {
-                        tableBody.innerHTML = data.html;
-                        initializeCheckboxes();
-                        
-                        // If no results found
-                        if (data.count === 0) {
-                            tableBody.innerHTML = '<tr><td colspan="7" class="text-center">No results found</td></tr>';
-                        }
-                    } else {
-                        throw new Error(data.message || 'An error occurred while searching');
-                    }
-                })
-                .catch(error => {
-                    console.error('Error:', error);
-                    searchError.textContent = error.message || 'An error occurred while performing the search';
-                    searchError.style.display = 'block';
-                    tableBody.innerHTML = ''; // Clear loading state
-                });
-            }
-
-            // Search on button click
-            searchButton.addEventListener('click', performSearch);
-
-            // Search on enter key
-            searchInput.addEventListener('keypress', function(e) {
-                if (e.key === 'Enter') {
+        // Initialize pagination click handlers
+        function initializePagination() {
+            document.querySelectorAll('.pagination a').forEach(link => {
+                link.addEventListener('click', function(e) {
                     e.preventDefault();
-                    performSearch();
-                }
-            });
-
-            // Initialize checkbox listeners
-            function initializeCheckboxes() {
-                const checkboxes = document.querySelectorAll('.pound-checkbox');
-                checkboxes.forEach(checkbox => {
-                    checkbox.addEventListener('change', updateSellButton);
+                    const page = this.href.split('page=')[1] || 1;
+                    handlePagination(page);
                 });
-            }
+            });
+        }
 
-            // Initial checkbox setup
-            initializeCheckboxes();
-        });
+        // Apply filters function
+        function applyFilters() {
+            handlePagination(1); // Reset to page 1 when applying filters
+        }
+
+        // Update export URL function
+        function updateExportUrl() {
+            const shop = shopFilter.value;
+            const kind = kindFilter.value;
+            const baseUrl = '{{ route('gold-pounds.export') }}';
+            const params = new URLSearchParams();
+            
+            if (shop) params.append('shop', shop);
+            if (kind) params.append('kind', kind);
+            
+            exportButton.href = `${baseUrl}?${params.toString()}`;
+        }
+
+        // Set initial filter values from URL
+        const urlParams = new URLSearchParams(window.location.search);
+        if (urlParams.has('shop')) {
+            shopFilter.value = urlParams.get('shop');
+        }
+        if (urlParams.has('kind')) {
+            kindFilter.value = urlParams.get('kind');
+        }
+
+        // Event listeners
+        if (applyFiltersBtn) {
+            applyFiltersBtn.addEventListener('click', applyFilters);
+        }
+
+        shopFilter.addEventListener('change', updateExportUrl);
+        kindFilter.addEventListener('change', updateExportUrl);
+
+        // Initialize
+        updateExportUrl();
+        initializePagination();
+    });
     </script>
 </body>
 

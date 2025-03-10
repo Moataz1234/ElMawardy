@@ -111,18 +111,16 @@
         <div class="card-body">
             <div class="row">
                 <div class="col-md-3">
-                    <h5>Total Items: {{ $soldItemRequests->count() }}</h5>
+                    <h5>Total Items: {{ $totals->total_items }}</h5>
                 </div>
                 <div class="col-md-3">
-                    <h5>Total Weight: {{ $soldItemRequests->sum('weight') }}g</h5>
+                    <h5>Total Weight: {{ number_format($totals->total_weight, 2) }}g</h5>
                 </div>
                 <div class="col-md-3">
-                    <h5>Total Revenue: {{ number_format($soldItemRequests->sum('price')) }} {{ config('app.currency') }}</h5>
+                    <h5>Total Revenue: {{ number_format($totals->total_revenue) }} {{ config('app.currency') }}</h5>
                 </div>
                 <div class="col-md-3">
-                    <h5>Avg Price/g: {{ $soldItemRequests->avg('weight') > 0 ? 
-                        number_format($soldItemRequests->sum('price') / $soldItemRequests->sum('weight'), 2) : 0 }} 
-                        {{ config('app.currency') }}/g</h5>
+                    <h5>Avg Price/g: {{ number_format($totals->avg_price_per_gram, 2) }} {{ config('app.currency') }}/g</h5>
                 </div>
             </div>
         </div>

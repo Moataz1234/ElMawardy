@@ -251,6 +251,13 @@
 
         // Pounds tab functionality
         $(document).ready(function() {
+            // Add CSRF token to all AJAX requests
+            $.ajaxSetup({
+                headers: {
+                    'X-CSRF-TOKEN': '{{ csrf_token() }}'
+                }
+            });
+
             const selectAllPounds = $('#selectAllPounds');
             const poundCheckboxes = $('.pound-checkbox');
             const approveBtn = $('#approveSelectedPounds');
@@ -277,7 +284,14 @@
                     return this.value;
                 }).get();
 
-                if (selectedRequests.length === 0) return;
+                if (selectedRequests.length === 0) {
+                    Swal.fire({
+                        title: 'تنبيه',
+                        text: 'الرجاء اختيار طلب واحد على الأقل',
+                        icon: 'warning'
+                    });
+                    return;
+                }
 
                 Swal.fire({
                     title: 'تأكيد',
@@ -291,25 +305,33 @@
                 }).then((result) => {
                     if (result.isConfirmed) {
                         $.ajax({
-                            url: '/pound-requests/bulk-approve',
+                            url: '{{ route("pound-requests.bulk-approve") }}',
                             method: 'POST',
                             data: {
-                                _token: '{{ csrf_token() }}',
                                 selected_requests: selectedRequests
                             },
                             success: function(response) {
-                                Swal.fire({
-                                    title: 'نجاح!',
-                                    text: response.message,
-                                    icon: 'success'
-                                }).then(() => {
-                                    location.reload();
-                                });
+                                if (response.success) {
+                                    Swal.fire({
+                                        title: 'تم!',
+                                        text: response.message,
+                                        icon: 'success'
+                                    }).then(() => {
+                                        location.reload();
+                                    });
+                                } else {
+                                    Swal.fire({
+                                        title: 'خطأ!',
+                                        text: response.message,
+                                        icon: 'error'
+                                    });
+                                }
                             },
                             error: function(xhr) {
+                                const errorMessage = xhr.responseJSON?.message || 'حدث خطأ أثناء معالجة الطلب';
                                 Swal.fire({
                                     title: 'خطأ!',
-                                    text: xhr.responseJSON?.message || 'حدث خطأ ما',
+                                    text: errorMessage,
                                     icon: 'error'
                                 });
                             }

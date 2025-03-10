@@ -255,6 +255,23 @@
 
             // Initial checkbox setup
             initializeCheckboxes();
+
+            const shopFilter = document.getElementById('shopFilter');
+            const kindFilter = document.getElementById('kindFilter');
+            const applyFiltersBtn = document.getElementById('applyFilters');
+
+            applyFiltersBtn.addEventListener('click', function() {
+                const shop = shopFilter.value;
+                const kind = kindFilter.value;
+                
+                // Build the URL with filter parameters
+                let url = new URL(window.location.href);
+                url.searchParams.set('shop', shop);
+                url.searchParams.set('kind', kind);
+                
+                // Redirect to the filtered URL
+                window.location.href = url.toString();
+            });
         });
     </script>
 </body>
