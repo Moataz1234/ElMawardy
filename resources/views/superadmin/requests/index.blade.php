@@ -58,6 +58,11 @@
                     Pound Requests
                 </button>
             </li>
+            <li class="nav-item" role="presentation">
+                <button class="nav-link" id="all-tab" data-bs-toggle="tab" data-bs-target="#all" type="button">
+                    All Requests
+                </button>
+            </li>
         </ul>
 
         <!-- Tab Content -->
@@ -116,144 +121,193 @@
                     </div>
                 </form>
             </div>
-  <!-- Pounds Requests Tab -->
-  <div class="tab-pane fade" id="pounds" role="tabpanel">
-    <!-- Add Filters -->
-    <div class="row mb-3">
-        <div class="col-md-4">
-            <div class="input-group">
-                <span class="input-group-text">المتجر</span>
-                <select class="form-select" id="shopFilter">
-                    <option value="">الكل</option>
-                    @php
-                        $uniqueShops = $poundRequests->pluck('shop_name')->unique();
-                    @endphp
-                    @foreach($uniqueShops as $shop)
-                        <option value="{{ $shop }}">{{ $shop }}</option>
-                    @endforeach
-                </select>
-            </div>
-        </div>
-        <div class="col-md-4">
-            <div class="input-group">
-                <span class="input-group-text">نوع السبيكة</span>
-                <select class="form-select" id="kindFilter">
-                    <option value="">الكل</option>
-                    @php
-                        $uniqueKinds = $poundRequests->pluck('goldPound.kind')->unique();
-                    @endphp
-                    @foreach($uniqueKinds as $kind)
-                        <option value="{{ $kind }}">{{ $kind }}</option>
-                    @endforeach
-                </select>
-            </div>
-        </div>
-    </div>
 
-    <div class="table-responsive">
-        <table class="table table-hover">
-            <thead>
-                <tr>
-                    <th>
-                        <div class="form-check">
-                            <input type="checkbox" class="form-check-input" id="selectAllPounds">
+            <!-- Pounds Requests Tab -->
+            <div class="tab-pane fade" id="pounds" role="tabpanel">
+                <!-- Filters -->
+                <div class="row mb-3">
+                    <div class="col-md-4">
+                        <div class="input-group">
+                            <span class="input-group-text">Shop</span>
+                            <select class="form-select" id="shopFilter">
+                                <option value="">All</option>
+                                @php
+                                    $uniqueShops = $poundRequests->pluck('shop_name')->unique();
+                                @endphp
+                                @foreach($uniqueShops as $shop)
+                                    <option value="{{ $shop }}">{{ $shop }}</option>
+                                @endforeach
+                            </select>
                         </div>
-                    </th>
-                    <th>المتجر</th>
-                    <th>الرقم التسلسلي</th>
-                    <th>نوع السبيكة</th>
-                    <th>النوع</th>
-                    <th>الوزن</th>
-                    <th>العيار</th>
-                    <th>الكمية</th>
-                    <th>الصورة</th>
-                    <th>تاريخ الطلب</th>
-                    <th>الحالة</th>
-                </tr>
-            </thead>
-            <tbody>
-                @forelse($poundRequests as $request)
-                    <tr>
-                        <td>
-                            <div class="form-check">
-                                <input type="checkbox" class="form-check-input pound-checkbox" 
-                                    value="{{ $request->id }}"
-                                    {{ $request->status !== 'pending' ? 'disabled' : '' }}>
-                            </div>
-                        </td>
-                        <td>{{ $request->shop_name }}</td>
-                        <td>{{ $request->serial_number }}</td>
-                        <td>{{ $request->goldPound->kind }}</td>
-                        <td>{{ $request->type === 'standalone' ? 'منفرد' : 'في قطعة' }}</td>
-                        <td>
-                            @if(in_array($request->goldPound->kind, ['pound_varient', 'bar_varient']))
-                                {{ $request->custom_weight ?? $request->weight }}g
-                            @else
-                                {{ $request->weight }}g
-                            @endif
-                        </td>
-                        <td>
-                            @if(in_array($request->goldPound->kind, ['pound_varient', 'bar_varient']))
-                                {{ $request->custom_purity ?? $request->goldPound->purity }} قيراط
-                            @else
-                                {{ $request->goldPound->purity }} قيراط
-                            @endif
-                        </td>
-                        <td>{{ $request->quantity }}</td>
-                        <td>
-                            @if($request->image_path)
-                                <img src="{{ asset('storage/' . $request->image_path) }}" 
-                                     alt="صورة السبيكة" 
-                                     class="pound-image"
-                                     onclick="showImageModal(this.src)">
-                            @else
-                                <span class="text-muted">لا توجد صورة</span>
-                            @endif
-                        </td>
-                        <td>{{ $request->created_at->format('Y-m-d H:i') }}</td>
-                        <td>
-                            <span class="badge bg-{{ $request->status === 'pending' ? 'warning' : ($request->status === 'approved' ? 'success' : 'danger') }}">
-                                {{ $request->status === 'pending' ? 'قيد الانتظار' : ($request->status === 'approved' ? 'مقبول' : 'مرفوض') }}
-                            </span>
-                        </td>
-                    </tr>
-                @empty
-                    <tr>
-                        <td colspan="11" class="text-center">لا توجد طلبات حالياً</td>
-                    </tr>
-                @endforelse
-            </tbody>
-        </table>
-    </div>
-    <div class="mt-3">
-        <button id="approveSelectedPounds" class="btn btn-success" disabled>
-            <i class="fas fa-check me-1"></i> قبول المحدد
-        </button>
-    </div>
-</div>
-</div>
-</div>
+                    </div>
+                    <div class="col-md-4">
+                        <div class="input-group">
+                            <span class="input-group-text">Kind</span>
+                            <select class="form-select" id="kindFilter">
+                                <option value="">All</option>
+                                @php
+                                    $uniqueKinds = $poundRequests->pluck('goldPound.kind')->unique();
+                                @endphp
+                                @foreach($uniqueKinds as $kind)
+                                    <option value="{{ $kind }}">{{ $kind }}</option>
+                                @endforeach
+                            </select>
+                        </div>
+                    </div>
+                </div>
 
-<!-- Confirmation Modals -->
-@include('components.confirmation-modal')
+                <div class="table-responsive">
+                    <table class="table table-hover">
+                        <thead>
+                            <tr>
+                                <th>
+                                    <div class="form-check">
+                                        <input type="checkbox" class="form-check-input" id="selectAllPounds">
+                                    </div>
+                                </th>
+                                <th>Shop</th>
+                                <th>Serial Number</th>
+                                <th>Kind</th>
+                                <th>Type</th>
+                                <th>Weight</th>
+                                <th>Purity</th>
+                                <th>Quantity</th>
+                                <th>Image</th>
+                                <th>Request Date</th>
+                                <th>Status</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            @forelse($poundRequests as $request)
+                                <tr>
+                                    <td>
+                                        <div class="form-check">
+                                            <input type="checkbox" class="form-check-input pound-checkbox" 
+                                                value="{{ $request->id }}"
+                                                {{ $request->status !== 'pending' ? 'disabled' : '' }}>
+                                        </div>
+                                    </td>
+                                    <td>{{ $request->shop_name }}</td>
+                                    <td>{{ $request->serial_number }}</td>
+                                    <td>{{ $request->goldPound->kind }}</td>
+                                    <td>{{ $request->type === 'standalone' ? 'Standalone' : 'In Item' }}</td>
+                                    <td>
+                                        @if(in_array($request->goldPound->kind, ['pound_varient', 'bar_varient']))
+                                            {{ $request->custom_weight ?? $request->weight }}g
+                                        @else
+                                            {{ $request->weight }}g
+                                        @endif
+                                    </td>
+                                    <td>
+                                        @if(in_array($request->goldPound->kind, ['pound_varient', 'bar_varient']))
+                                            {{ $request->custom_purity ?? $request->goldPound->purity }} K
+                                        @else
+                                            {{ $request->goldPound->purity }} K
+                                        @endif
+                                    </td>
+                                    <td>{{ $request->quantity }}</td>
+                                    <td>
+                                        @if($request->image_path)
+                                            <img src="{{ asset('storage/' . $request->image_path) }}" 
+                                                 alt="Pound Image" 
+                                                 class="pound-image"
+                                                 onclick="showImageModal(this.src)">
+                                        @else
+                                            <span class="text-muted">No Image</span>
+                                        @endif
+                                    </td>
+                                    <td>{{ $request->created_at->format('Y-m-d H:i') }}</td>
+                                    <td>
+                                        <span class="badge bg-{{ $request->status === 'pending' ? 'warning' : ($request->status === 'approved' ? 'success' : 'danger') }}">
+                                            {{ ucfirst($request->status) }}
+                                        </span>
+                                    </td>
+                                </tr>
+                            @empty
+                                <tr>
+                                    <td colspan="11" class="text-center">No requests found</td>
+                                </tr>
+                            @endforelse
+                        </tbody>
+                    </table>
+                </div>
+                <div class="mt-3">
+                    <button id="approveSelectedPounds" class="btn btn-success" disabled>
+                        <i class="fas fa-check me-1"></i> Accept Selected
+                    </button>
+                </div>
+            </div>
 
-<!-- Image Modal -->
-<div class="modal fade" id="imageModal" tabindex="-1">
-<div class="modal-dialog modal-lg modal-dialog-centered">
-<div class="modal-content">
-    <div class="modal-header">
-        <h5 class="modal-title">صورة السبيكة</h5>
-        <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+            <!-- All Requests Tab -->
+            <div class="tab-pane fade" id="all" role="tabpanel">
+                <div class="table-responsive">
+                    <table class="table table-hover">
+                        <thead>
+                            <tr>
+                                <th>Request Type</th>
+                                <th>Shop</th>
+                                <th>Serial Number</th>
+                                <th>Type/Model</th>
+                                <th>Weight</th>
+                                <th>Status</th>
+                                <th>Request Date</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            @foreach($itemRequests as $request)
+                                <tr>
+                                    <td>Item</td>
+                                    <td>{{ $request->shop_name }}</td>
+                                    <td>{{ $request->serial_number }}</td>
+                                    <td>{{ $request->model }}</td>
+                                    <td>{{ $request->weight }}g</td>
+                                    <td>
+                                        <span class="badge bg-{{ $request->status === 'pending' ? 'warning' : ($request->status === 'approved' ? 'success' : 'danger') }}">
+                                            {{ ucfirst($request->status) }}
+                                        </span>
+                                    </td>
+                                    <td>{{ $request->created_at->format('Y-m-d H:i') }}</td>
+                                </tr>
+                            @endforeach
+                            @foreach($poundRequests as $request)
+                                <tr>
+                                    <td>Pound</td>
+                                    <td>{{ $request->shop_name }}</td>
+                                    <td>{{ $request->serial_number }}</td>
+                                    <td>{{ $request->goldPound->kind }}</td>
+                                    <td>{{ $request->weight }}g</td>
+                                    <td>
+                                        <span class="badge bg-{{ $request->status === 'pending' ? 'warning' : ($request->status === 'approved' ? 'success' : 'danger') }}">
+                                            {{ ucfirst($request->status) }}
+                                        </span>
+                                    </td>
+                                    <td>{{ $request->created_at->format('Y-m-d H:i') }}</td>
+                                </tr>
+                            @endforeach
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        </div>
     </div>
-    <div class="modal-body text-center">
-        <img src="" alt="صورة السبيكة" class="modal-image">
-    </div>
-</div>
-</div>
-</div>
 
-    <!-- Include the same modals and scripts as in the original view -->
-    <!-- ... -->
+    <!-- Confirmation Modals -->
+    @include('components.confirmation-modal')
+
+    <!-- Image Modal -->
+    <div class="modal fade" id="imageModal" tabindex="-1">
+        <div class="modal-dialog modal-lg modal-dialog-centered">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title">Pound Image</h5>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+                </div>
+                <div class="modal-body text-center">
+                    <img src="" alt="Pound Image" class="modal-image">
+                </div>
+            </div>
+        </div>
+    </div>
 
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
     <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
@@ -432,6 +486,5 @@
             modal.show();
         }
     </script>
-
 </body>
 </html> 
