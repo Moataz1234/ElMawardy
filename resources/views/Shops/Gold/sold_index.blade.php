@@ -1,8 +1,63 @@
 @extends('layouts.sold_table')
 
 @section('content')
-    {{-- @include('profile.partials._price_table') --}}
-    @include('profile.partials.sold_list')
+    <div class="tabs-container">
+        <div class="tabs">
+            <button class="tab-button active" data-tab="items">Gold Items</button>
+            <button class="tab-button" data-tab="pounds">Gold Pounds</button>
+        </div>
+
+        <div class="tab-content" id="items-tab">
+            @include('profile.partials.sold_list')
+        </div>
+
+        <div class="tab-content" id="pounds-tab" style="display: none;">
+            @include('profile.partials.pounds_sold_list')
+        </div>
+    </div>
+
+    <style>
+        .tabs-container {
+            padding: 20px;
+        }
+        .tabs {
+            margin-bottom: 20px;
+        }
+        .tab-button {
+            padding: 10px 20px;
+            margin-right: 10px;
+            border: none;
+            background: #f0f0f0;
+            cursor: pointer;
+        }
+        .tab-button.active {
+            background: #007bff;
+            color: white;
+        }
+    </style>
+
+    <script>
+        document.addEventListener('DOMContentLoaded', function() {
+            const tabs = document.querySelectorAll('.tab-button');
+            tabs.forEach(tab => {
+                tab.addEventListener('click', function() {
+                    // Remove active class from all tabs
+                    tabs.forEach(t => t.classList.remove('active'));
+                    // Add active class to clicked tab
+                    this.classList.add('active');
+                    
+                    // Hide all tab contents
+                    document.querySelectorAll('.tab-content').forEach(content => {
+                        content.style.display = 'none';
+                    });
+                    
+                    // Show selected tab content
+                    const tabId = this.getAttribute('data-tab');
+                    document.getElementById(tabId + '-tab').style.display = 'block';
+                });
+            });
+        });
+    </script>
 @endsection
 
 @push('modals')

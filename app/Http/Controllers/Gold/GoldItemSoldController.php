@@ -10,6 +10,7 @@ use App\Models\Models;
 use App\Models\Customer;
 use App\Models\GoldItem;
 use App\Services\GoldItemSoldService;
+use App\Services\GoldPoundSoldService;
 use Carbon\Carbon;
 use Illuminate\Support\Facades\Log;
 use Barryvdh\DomPDF\Facade\Pdf;
@@ -19,15 +20,20 @@ use Barryvdh\DomPDF\Facade\Pdf;
 class GoldItemSoldController extends Controller
 {
     protected $goldItemSoldService;
+    protected $goldPoundSoldService;
 
-    public function __construct(GoldItemSoldService $goldItemSoldService)
-    {
+    public function __construct(
+        GoldItemSoldService $goldItemSoldService,
+        GoldPoundSoldService $goldPoundSoldService
+    ) {
         $this->goldItemSoldService = $goldItemSoldService;
+        $this->goldPoundSoldService = $goldPoundSoldService;
     }
 
     public function index(Request $request)
     {
         $goldItems = $this->goldItemSoldService->getGoldItemsSold($request);
+        $goldPounds = $this->goldPoundSoldService->getGoldPoundsSold($request);
 
         // Get unique values for filters
         $gold_color = GoldItemSold::distinct()->pluck('gold_color')->filter();
@@ -35,6 +41,7 @@ class GoldItemSoldController extends Controller
 
         return view('Shops.Gold.sold_index', [
             'goldItems' => $goldItems,
+            'goldPounds' => $goldPounds,
             'search' => $request->input('search'),
             'sort' => $request->input('sort', 'serial_number'),
             'direction' => $request->input('direction', 'asc'),

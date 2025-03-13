@@ -146,7 +146,7 @@
                 <div class="dropdown-menu">
                     <a href="{{ route('orders.create') }}" class="dropdown-item">عمل طلب </a>
                     <a href="{{ route('orders.index') }}" class="dropdown-item"> الطلبات</a>
-                    <a href="{{ route('orders.history') }}" class="dropdown-item">الطلبات السابقة</a>
+                    {{-- <a href="{{ route('orders.history') }}" class="dropdown-item">الطلبات السابقة</a> --}}
                 </div>
             </li>
             <li class="navbar-item dropdown">

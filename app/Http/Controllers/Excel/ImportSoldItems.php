@@ -282,6 +282,67 @@ class ImportSoldItems extends Controller
             return redirect()->back()->with('error', 'Source update failed: ' . $e->getMessage());
         }
     }
+
+    public function updatePrices(Request $request)
+    {
+        ini_set('max_execution_time', $this->timeLimit);
+        set_time_limit($this->timeLimit);
+
+        $request->validate([
+            'file' => 'required|mimes:xlsx,xls',
+        ]);
+
+        try {
+            $file = $request->file('file');
+            Log::info("Starting price update from file: " . $file->getClientOriginalName());
+
+            $reader = IOFactory::createReaderForFile($file->getPathname());
+            $reader->setReadDataOnly(true);
+            $spreadsheet = $reader->load($file->getPathname());
+            $sheet = $spreadsheet->getActiveSheet();
+            $highestRow = $sheet->getHighestDataRow();
+
+            $updatedCount = 0;
+            $notFoundCount = 0;
+            $skippedCount = 0;
+
+            // Process each row
+            for ($row = 2; $row <= $highestRow; $row++) {
+                // Get only columns A and B
+                $rowData = $sheet->rangeToArray('A' . $row . ':B' . $row, null, true, false)[0];
+                
+                // Skip if serial number or price is empty
+                if (empty($rowData[0]) || !isset($rowData[1])) {
+                    $skippedCount++;
+                    continue;
+                }
+
+                $serialNumber = trim($rowData[0]);
+                $newPrice = (float)str_replace(',', '', $rowData[1]);
+
+                // Try to update the price
+                $updated = GoldItemSold::where('serial_number', $serialNumber)
+                    ->update(['price' => $newPrice]);
+
+                if ($updated) {
+                    $updatedCount++;
+                    Log::info("Updated price for item: {$serialNumber} to {$newPrice}");
+                } else {
+                    $notFoundCount++;
+                    Log::info("Serial number not found: {$serialNumber}");
+                }
+            }
+
+            $message = "Price update completed. Updated: {$updatedCount}, Not Found: {$notFoundCount}, Skipped: {$skippedCount}";
+            Log::info($message);
+
+            return redirect()->back()->with('success', $message);
+
+        } catch (\Exception $e) {
+            Log::error('Price update failed: ' . $e->getMessage());
+            return redirect()->back()->with('error', 'Price update failed: ' . $e->getMessage());
+        }
+    }
 }
 
 // Custom read filter for chunk reading

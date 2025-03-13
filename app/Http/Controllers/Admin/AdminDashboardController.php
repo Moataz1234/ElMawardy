@@ -98,9 +98,11 @@ class AdminDashboardController extends Controller
     public function Sold(Request $request)
     {
         $goldItems = $this->goldItemService->getGoldItemsSold($request);
+        $goldPounds = $this->goldItemService->getGoldPoundsSold($request);
 
         return view('Admin.Gold.sold_index', [
             'goldItems' => $goldItems,
+            'goldPounds' => $goldPounds,
         ]);
     }
 

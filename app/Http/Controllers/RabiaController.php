@@ -3,7 +3,7 @@
 namespace App\Http\Controllers;
 use App\Models\Order;
 use App\Models\OrderItem;
-
+use App\Models\GoldItem;
 use Illuminate\Support\Facades\Log;
 use App\Services\OrderService;
 use App\Http\Requests\OrderUpdateRequest;
@@ -70,25 +70,23 @@ public function updateStatusBulk(Request $request)
 }
     public function show($id)
     {
-    
-        // Show the order details
-        $order = Order::findOrFail($id); // Fetch the order or fail with a 404
-        
-        // $this->authorize('view', $order);
-        return view('rabea.orders-show', compact('order')); // Pass the order to the view}
+        $order = Order::with('items')->findOrFail($id);
+        return view('rabea.orders-show', compact('order'));
     }
     public function edit($id)
     {
         // Show the order details
         $order = Order::findOrFail($id); // Fetch the order or fail with a 404
         
-        $kinds = OrderItem::distinct()->pluck('order_kind');
+        // $kinds = OrderItem::distinct()->pluck('order_kind');
+        $kinds = GoldItem::select('kind')->distinct()->pluck('kind');
+
     
         // Retrieve all unique gold colors if needed (adjust according to your app's needs)
-        $gold_colors = OrderItem::distinct()->pluck('gold_color');
+        // $gold_colors = OrderItem::distinct()->pluck('gold_color');
     
         // $this->authorize('view', $order);
-        return view('rabea.orders-edit', compact('order', 'kinds', 'gold_colors')); // Pass the order to the view}
+        return view('rabea.orders-edit', compact('order', 'kinds')); // Pass the order to the view}
     }
     public function update(Request $request, $id)
     {
@@ -115,9 +113,9 @@ public function updateStatusBulk(Request $request)
             $item = $order->items()->get()[$index];
             
             $item->order_kind = $orderKind;
-            $item->order_fix_type = $request->order_fix_type[$index];
+            // $item->order_fix_type = $request->order_fix_type[$index];
             $item->weight = $request->weight[$index];
-            $item->gold_color = $request->gold_color[$index];
+            // $item->gold_color = $request->gold_color[$index];
             $item->order_type = $request->order_type[$index];
             $item->save();
         }
@@ -136,8 +134,10 @@ public function updateStatusBulk(Request $request)
 
     public function requests()
     {
-        // $this->authorize('viewAny', Order::class);
-        $orders = $this->orderRepository->getPendingOrders();
+        // Get pending orders with their items
+        $orders = Order::with('items')
+            ->where('status', 'pending')
+            ->get();
         
         return view('Rabea.orders-requests', compact('orders'));
     }
@@ -211,9 +211,14 @@ public function accept(Request $request)
         return redirect()->back()->with('error', 'No orders selected.');
     }
 
-    // Update the status of selected orders to 'reviewing'
-    Order::whereIn('id', $orderIds)->update(['status' => 'تم الاستلام']);
+    try {
+        // Update the status of selected orders to 'تم الاستلام'
+        Order::whereIn('id', $orderIds)->update(['status' => 'تم الاستلام']);
 
-    return redirect()->back()->with('success', 'Selected orders have been marked for review.');
+        return redirect()->back()->with('success', 'تم استلام الطلبات المحددة بنجاح');
+    } catch (\Exception $e) {
+        Log::error('Error accepting orders: ' . $e->getMessage());
+        return redirect()->back()->with('error', 'حدث خطأ أثناء استلام الطلبات');
+    }
 }
 }

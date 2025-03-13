@@ -19,35 +19,67 @@ document.getElementById('add-item').addEventListener('click', function() {
         radio.name = `order_type[${itemIndex}]`;
         radio.id = `${radio.value}_${itemIndex}`;
         // Update associated label's 'for' attribute
-        const label = radio.nextElementSibling;
+        const label = radio.nextElementSibling.nextElementSibling;
         if (label) {
             label.setAttribute('for', radio.id);
         }
     });
+
+    // Update checkbox ID
+    const checkbox = template.querySelector('.toggleLabel');
+    checkbox.id = `sample_${itemIndex}`;
+    const checkboxLabel = checkbox.nextElementSibling.nextElementSibling;
+    if (checkboxLabel) {
+        checkboxLabel.setAttribute('for', checkbox.id);
+    }
+
+    // Add event listeners for the new item
+    initializeItemEventListeners(template);
 
     // Append the new item
     document.getElementById('order-items').appendChild(template);
 
     // Increase item index
     itemIndex++;
+});
 
-    // Add event listener for toggle label visibility in the new item
-    template.querySelector('.toggleLabel').addEventListener('click', function() {
+// Function to initialize event listeners for an item
+function initializeItemEventListeners(item) {
+    // Add checkbox click event
+    const checkbox = item.querySelector('.toggleLabel');
+    checkbox.addEventListener('change', function() {
         toggleLabelVisibility(this);
     });
 
-    // Remove item on clicking the remove button
-    template.querySelector('.remove-item').addEventListener('click', function() {
-        template.remove();
+    // Add checkbox-square click event
+    const checkboxSquare = item.querySelector('.checkbox-square');
+    if (checkboxSquare) {
+        checkboxSquare.addEventListener('click', function() {
+            const checkbox = this.previousElementSibling;
+            checkbox.checked = !checkbox.checked;
+            toggleLabelVisibility(checkbox);
+            checkbox.dispatchEvent(new Event('change'));
+        });
+    }
+
+    // Add radio-circle click events
+    const radioCircles = item.querySelectorAll('.radio-circle');
+    radioCircles.forEach(function(circle) {
+        circle.addEventListener('click', function() {
+            const radio = this.previousElementSibling;
+            radio.checked = true;
+            radio.dispatchEvent(new Event('change'));
+        });
     });
-});
-document.addEventListener('DOMContentLoaded', function() {
-    // Add event listener to show ring size input when "ring" is selected
-    const typeDropdown = template.querySelector('select[name="order_kind[]"]');
-    typeDropdown.addEventListener('change', function() {
-        toggleRingSizeVisibility(this);
-    });
-});
+
+    // Add remove item event
+    const removeButton = item.querySelector('.remove-item');
+    if (removeButton) {
+        removeButton.addEventListener('click', function() {
+            item.remove();
+        });
+    }
+}
 
 function toggleRingSizeVisibility(dropdown) {
     const itemContainer = dropdown.closest('.order-item');
@@ -66,8 +98,8 @@ function toggleLabelVisibility(checkbox) {
     const image_field = itemContainer.querySelector('.image_field');
 
     if (checkbox.checked) {
-        weight_field.style.display = "inline";
-        image_field.style.display = "inline";
+        weight_field.style.display = "block";
+        image_field.style.display = "block";
     } else {
         weight_field.style.display = "none";
         image_field.style.display = "none";
@@ -125,18 +157,16 @@ document.addEventListener('DOMContentLoaded', function() {
     form.addEventListener('submit', function(e) {
         e.preventDefault();
         
-        // Get required fields
+        // Validation logic...
         const customerName = form.querySelector('input[name="customer_name"]').value.trim();
         const sellerName = form.querySelector('input[name="seller_name"]').value.trim();
-        const orderDetails = form.querySelector('textarea[name="order_details"]').value.trim();
         const orderItems = document.querySelectorAll('#order-items .order-item').length;
 
-        // Validate required fields
-        if (!customerName || !sellerName || !orderDetails) {
+        if (!customerName || !sellerName) {
             Swal.fire({
                 icon: 'error',
                 title: 'خطأ في البيانات',
-                text: 'برجاء ملء جميع الحقول المطلوبة (اسم العميل، البائع، موضوع الطلب)',
+                text: 'برجاء ملء جميع الحقول المطلوبة (اسم العميل، البائع)',
                 confirmButtonText: 'حسناً'
             });
             return;
@@ -152,25 +182,9 @@ document.addEventListener('DOMContentLoaded', function() {
             return;
         }
 
-        // Create a new FormData object
+        // Form submission logic...
         const formData = new FormData(form);
 
-        // Remove template item data from FormData
-        const templateInputs = document.getElementById('order-item-template').querySelectorAll('input, select');
-        templateInputs.forEach(input => {
-            if (input.name) {
-                // Get all values for this input name
-                const values = formData.getAll(input.name);
-                // Remove the last value (template value)
-                values.pop();
-                // Remove all values for this name
-                formData.delete(input.name);
-                // Add back all values except the template
-                values.forEach(value => formData.append(input.name, value));
-            }
-        });
-
-        // If validation passes, submit the form
         fetch(form.action, {
             method: 'POST',
             body: formData
@@ -184,7 +198,6 @@ document.addEventListener('DOMContentLoaded', function() {
                 confirmButtonText: 'حسناً'
             }).then((result) => {
                 if (result.isConfirmed) {
-                    // Optionally redirect or reset form
                     form.reset();
                     window.location.reload();
                 }
@@ -197,28 +210,6 @@ document.addEventListener('DOMContentLoaded', function() {
                 text: 'حدث خطأ أثناء حفظ البيانات',
                 confirmButtonText: 'حسناً'
             });
-        });
-    });
-
-    // Add click event listener to checkbox-square
-    document.querySelectorAll('.checkbox-square').forEach(function(span) {
-        span.addEventListener('click', function() {
-            const checkbox = this.previousElementSibling; // Get the checkbox
-            checkbox.checked = !checkbox.checked; // Toggle the checkbox
-
-            // Trigger the toggleLabelVisibility function
-            toggleLabelVisibility(checkbox);
-
-            checkbox.dispatchEvent(new Event('change')); // Trigger change event
-        });
-    });
-
-    // Add click event listener to radio-circle
-    document.querySelectorAll('.radio-circle').forEach(function(span) {
-        span.addEventListener('click', function() {
-            const radio = this.previousElementSibling; // Get the radio input
-            radio.checked = true; // Check the radio input
-            radio.dispatchEvent(new Event('change')); // Trigger change event
         });
     });
 });

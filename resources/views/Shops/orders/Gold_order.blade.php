@@ -22,15 +22,25 @@
             border-radius: 15px;
             box-shadow: 0 0 20px rgba(0,0,0,0.1);
             margin: 2rem auto;
-            max-width: 1200px;
+            width: 95%; /* Increased width */
+            max-width: 1800px; /* Increased max-width */
             direction: rtl;
         }
-        .order-item {
-            background-color: #f8f9fa;
-            padding: 1.5rem;
-            border-radius: 10px;
-            margin-bottom: 1rem;
-            border: 1px solid #dee2e6;
+        .form-control, .form-select {
+            height: 40px; /* Smaller input fields */
+            font-size: 0.9rem;
+        }
+        .order-sections {
+            display: flex;
+            gap: 2rem;
+        }
+        .customer-section {
+            flex: 1;
+            padding-left: 2rem;
+            border-left: 1px solid #dee2e6;
+        }
+        .items-section {
+            flex: 1;
         }
         .section-header {
             background-color: #6c757d;
@@ -39,6 +49,29 @@
             border-radius: 5px;
             margin-bottom: 1.5rem;
             text-align: center;
+            font-size: 1.1rem;
+        }
+        .order-item {
+            background-color: #f8f9fa;
+            padding: 1.5rem;
+            border-radius: 10px;
+            margin-bottom: 1rem;
+            border: 1px solid #dee2e6;
+        }
+        .form-label {
+            font-size: 0.9rem;
+            margin-bottom: 0.3rem;
+        }
+        .custom-control-group {
+            gap: 1rem; /* Reduced gap */
+            padding: 0.3rem;
+        }
+        .custom-control {
+            min-width: 100px; /* Smaller minimum width */
+            padding: 0.3rem 0.8rem;
+        }
+        textarea.form-control {
+            height: auto;
         }
         .remove-item {
             background-color: #dc3545;
@@ -193,101 +226,97 @@
     </style>
 </head>
 <body>
-    <div class="container">
+    <div class="container-fluid">
         <form class="custom-form" action="{{ route('orders.store') }}" method="POST" enctype="multipart/form-data">
             @csrf
             
-            <!-- Customer Information -->
-            <div class="section-header mb-4">
-                <i class="fas fa-user me-2"></i>معلومات العميل
-            </div>
-            
-            <div class="row mb-4">
-                <div class="col-md-6 mb-3">
-                    <label class="form-label">
-                        <i class="fas fa-user me-2"></i>اسم العميل
-                    </label>
-                    <input type="text" class="form-control" name="customer_name" >
+            <div class="order-sections">
+                <!-- Customer Information - Right Side -->
+                <div class="customer-section">
+                    <div class="section-header">
+                        <i class="fas fa-user me-2"></i>معلومات العميل
+                    </div>
+                    
+                    <!-- First Row: Customer Name and Seller Name -->
+                    <div class="row mb-3">
+                        <div class="col-md-6">
+                            <label class="form-label">
+                                <i class="fas fa-user me-2"></i>اسم العميل
+                            </label>
+                            <input type="text" class="form-control" name="customer_name" required>
+                        </div>
+                        <div class="col-md-6">
+                            <label class="form-label">
+                                <i class="fas fa-user-tie me-2"></i>اسم البائع
+                            </label>
+                            <input type="text" class="form-control" name="seller_name" required>
+                        </div>
+                    </div>
+                    
+                    <!-- Second Row: Phone and Order Date -->
+                    <div class="row mb-3">
+                        <div class="col-md-6">
+                            <label class="form-label">
+                                <i class="fas fa-phone me-2"></i>تليفون العميل
+                            </label>
+                            <input type="number" class="form-control" name="customer_phone" maxlength="11" required>
+                        </div>
+                        <div class="col-md-6">
+                            <label class="form-label">
+                                <i class="fas fa-calendar me-2"></i>تاريخ الطلب
+                            </label>
+                            <input type="date" class="form-control" name="order_date" value="{{ date('Y-m-d') }}">
+                        </div>
+                    </div>
+                    
+                    <!-- Third Row: Payment Method, Deposit, and Rest -->
+                    <div class="row mb-3">
+                        <div class="col-md-4">
+                            <label class="form-label">
+                                <i class="fas fa-credit-card me-2"></i>طريقة الدفع
+                            </label>
+                            <select class="form-select" name="payment_method">
+                                <option value="">لا يوجد</option>
+                                <option value="visa">Visa</option>
+                                <option value="value">Value</option>
+                                <option value="cash">Cash</option>
+                                <option value="instapay">Instapay</option>
+                            </select>
+                        </div>
+                        <div class="col-md-4">
+                            <label class="form-label">
+                                <i class="fas fa-money-bill-wave me-2"></i>المدفوع
+                            </label>
+                            <input type="number" class="form-control" name="deposit" step="0.01">
+                        </div>
+                        <div class="col-md-4">
+                            <label class="form-label">
+                                <i class="fas fa-money-bill-alt me-2"></i>الباقي
+                            </label>
+                            <input type="number" class="form-control" name="rest_of_cost" step="0.01">
+                        </div>
+                    </div>
                 </div>
-                <div class="col-md-6 mb-3">
-                    <label class="form-label">
-                        <i class="fas fa-phone me-2"></i>تليفون العميل
-                    </label>
-                    <input type="number" class="form-control" name="customer_phone" maxlength="11" >
+
+                <!-- Order Items - Left Side -->
+                <div class="items-section">
+                    <div class="section-header">
+                        <i class="fas fa-list me-2"></i>تفاصيل القطع
+                    </div>
+                    
+                    <div id="order-items">
+                        <!-- Order items will be added here dynamically -->
+                    </div>
+
+                    <button type="button" id="add-item" class="btn btn-success">
+                        <i class="fas fa-plus me-2"></i>إضافة قطعة
+                    </button>
                 </div>
             </div>
 
-            <!-- Order Details -->
-            <div class="row mb-4">
-                <div class="col-md-6 mb-3">
-                    <label class="form-label">
-                        <i class="fas fa-user-tie me-2"></i>البائع
-                    </label>
-                    <input type="text" class="form-control" name="seller_name" >
-                </div>
-                <div class="col-md-6 mb-3">
-                    <label class="form-label">
-                        <i class="fas fa-credit-card me-2"></i>طريقة الدفع
-                    </label>
-                    <select class="form-select" name="payment_method">
-                        <option value="">لا يوجد</option>
-                        <option value="visa">Visa</option>
-                        <option value="value">Value</option>
-                        <option value="cash">Cash</option>
-                        <option value="instapay">Instapay</option>
-                    </select>
-                </div>
-            </div>
-
-            <!-- Payment Details -->
-            <div class="row mb-4">
-                <div class="col-md-6 mb-3">
-                    <label class="form-label">
-                        <i class="fas fa-money-bill-wave me-2"></i>المدفوع
-                    </label>
-                    <input type="number" class="form-control" name="deposit" step="0.01">
-                </div>
-                <div class="col-md-6 mb-3">
-                    <label class="form-label">
-                        <i class="fas fa-money-bill-alt me-2"></i>الباقي
-                    </label>
-                    <input type="number" class="form-control" name="rest_of_cost" step="0.01">
-                </div>
-            </div>
-
-            <!-- Dates -->
-            <div class="row mb-4">
-                <div class="col-md-6 mb-3">
-                    <label class="form-label">
-                        <i class="fas fa-calendar me-2"></i>تاريخ الطلب
-                    </label>
-                    <input type="date" class="form-control" name="order_date" value="{{ date('Y-m-d') }}">
-                </div>
-            </div>
-
-            <!-- Order Description -->
-            <div class="mb-4">
-                <label class="form-label">
-                    <i class="fas fa-file-alt me-2"></i>موضوع الطلب
-                </label>
-                <textarea class="form-control" name="order_details" rows="4"></textarea>
-            </div>
-
-            <!-- Order Items -->
-            <div class="section-header mb-4">
-                <i class="fas fa-list me-2"></i>تفاصيل الطلب
-            </div>
-
-            <div id="order-items">
-                
-            </div>
-
-            <!-- Buttons -->
-            <div class="d-flex justify-content-between mt-4">
-                <button type="button" id="add-item" class="btn btn-success">
-                    <i class="fas fa-plus me-2"></i>إضافة عنصر
-                </button>
-                <button type="submit" class="btn btn-primary">
+            <!-- Submit Button -->
+            <div class="text-center mt-4">
+                <button type="submit" class="btn btn-primary btn-lg">
                     <i class="fas fa-save me-2"></i>حفظ الطلب
                 </button>
             </div>
@@ -298,63 +327,72 @@
     <div class="order-item" id="order-item-template" style="display: none">
         <div class="row mb-3">
             <div class="col-md-6">
-                <label class="form-label">النوع</label>
+                <label class="form-label">نوع القطعة</label>
+                <select name="item_type[]" class="form-select">
+                    <option value="دهب">دهب</option>
+                    <option value="الماظ">الماظ</option>
+                </select>
+            </div>
+            <div class="col-md-6">
+                <label class="form-label">الصنف</label>
                 <select name="order_kind[]" class="form-select">
                     @foreach ($kinds as $kind)
                         <option value="{{ $kind }}">{{ $kind }}</option>
                     @endforeach
                 </select>
             </div>
-            <div class="col-md-6">
-                <label class="form-label">المشكلة</label>
-                <select name="order_fix_type[]" class="form-select">
-                    <option value="اوردر جديد">اوردر جديد</option>
-                    <option value="تصليح">تصليح</option>
-                    <option value="عمل مقاس">عمل مقاس</option>
-                    <option value="تلميع">تلميع</option>
-                </select>
-            </div>
+        </div>
+
+        <div class="mb-3">
+            <label class="form-label">موضوع الطلب</label>
+            <textarea class="form-control" name="order_details[]" rows="3" required></textarea>
         </div>
 
         <div class="custom-control-group">
-            <div class="d-flex justify-content-between">
-            <div class="custom-radio by-shop">
-                <input type="radio" class="order-type-radio" 
-                       name="order_type[]" 
-                       value="by_shop" 
-                       id="by_shop_template">
-                <span class="radio-circle"></span>
-                <label for="by_shop_template">خاص بالمحل</label>
-            </div>
-            
-            <div class="custom-radio by-customer">
-                <input type="radio" class="order-type-radio" 
-                       name="order_type[]" 
-                       value="by_customer" 
-                       id="by_customer_template" required>
-                <span class="radio-circle"></span>
-                <label for="by_customer_template">خاص بالعميل</label>
-            </div>
-            </div>
-            <div class="custom-checkbox">
-                <input type="checkbox" class="toggleLabel" id="sample_template">
-                <span class="checkbox-square"></span>
-                <label for="sample_template">عينة  </label>
+            <div class="d-flex gap-3">
+                <div class="custom-radio by-shop">
+                    <input type="radio" class="order-type-radio" 
+                           name="order_type[]" 
+                           value="by_shop" 
+                           id="by_shop_template">
+                    <span class="radio-circle"></span>
+                    <label for="by_shop_template">خاص بالمحل</label>
+                </div>
+                
+                <div class="custom-radio by-customer">
+                    <input type="radio" class="order-type-radio" 
+                           name="order_type[]" 
+                           value="by_customer" 
+                           id="by_customer_template" required>
+                    <span class="radio-circle"></span>
+                    <label for="by_customer_template">خاص بالعميل</label>
+                </div>
+                
+                <div class="custom-checkbox">
+                    <input type="checkbox" class="toggleLabel" id="sample_template">
+                    <span class="checkbox-square"></span>
+                    <label for="sample_template">عينة</label>
+                </div>
             </div>
         </div>
 
-        <div class="weight_field" style="display: none">
-            <label class="form-label">الوزن</label>
-            <input type="number" class="form-control" name="weight[]" step="0.001">
-        </div>
-
-        <div class="image_field" style="display: none">
-            <label class="form-label">صورة المنتج</label>
-            <input type="file" class="form-control" name="image_link[]">
+        <div class="row">
+            <div class="col-md-6">
+                <div class="weight_field" style="display: none">
+                    <label class="form-label">الوزن</label>
+                    <input type="number" class="form-control" name="weight[]" step="0.001">
+                </div>
+            </div>
+            <div class="col-md-6">
+                <div class="image_field" style="display: none">
+                    <label class="form-label">صورة المنتج</label>
+                    <input type="file" class="form-control" name="image_link[]">
+                </div>
+            </div>
         </div>
 
         <button type="button" class="btn btn-danger remove-item mt-3">
-            <i class="fas fa-trash me-2"></i>حذف العنصر
+            <i class="fas fa-trash me-2"></i>حذف القطعة
         </button>
     </div>
 

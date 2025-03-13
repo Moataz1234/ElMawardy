@@ -64,6 +64,23 @@
                 </form>
             </div>
         </div>
+
+        <!-- Update Prices for Sold Items -->
+        <div class="card mt-4">
+            <div class="card-header">
+                Update Prices for Sold Items
+            </div>
+            <div class="card-body">
+                <form action="{{ route('import-sold-items.update-prices') }}" method="POST" enctype="multipart/form-data">
+                    @csrf
+                    <div class="form-group">
+                        <label for="price-update-file">Select Excel File (Column A: Serial Number, Column B: New Price)</label>
+                        <input type="file" class="form-control" id="price-update-file" name="file" required>
+                    </div>
+                    <button type="submit" class="btn btn-primary">Update Prices</button>
+                </form>
+            </div>
+        </div>
     </div>
 </body>
 </html>

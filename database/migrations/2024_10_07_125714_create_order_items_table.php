@@ -16,11 +16,13 @@ return new class extends Migration
             $table->foreignId('order_id')->constrained('orders')->onDelete('cascade'); // Linking item with order
             $table->integer('quantity')->nullable(); // Corrected quantity field
             $table->string('order_kind')->nullable(); 
-            $table->string('order_fix_type')->nullable();
+            $table->string('item_type')->nullable();
             $table->integer('ring_size')->nullable(); // Use integer for sizes
             $table->string('weight')->nullable();
-            $table->string('gold_color')->nullable();
+            // $table->string('gold_color')->nullable();
             $table->string('image_link')->nullable();
+            $table->string('order_details')->nullable();
+            $table->string('order_type')->nullable();
             $table->timestamps();
         });
     }

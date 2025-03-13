@@ -21,6 +21,11 @@ class GoldPoundSold extends Model
         return $this->belongsTo(GoldPoundInventory::class, 'serial_number', 'serial_number');
     }
 
+    public function goldPound()
+    {
+        return $this->belongsTo(GoldPound::class, 'gold_pound_id');
+    }
+
     public function customer()
     {
         return $this->belongsTo(Customer::class);

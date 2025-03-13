@@ -15,11 +15,13 @@ class OrderItem extends Model
         'order_id',   // Foreign key for linking to the orders table
         'quantity',
         'order_kind',
-        'order_fix_type',
+        'item_type',  // Changed from order_fix_type
         'ring_size',
         'weight',
         'gold_color',
-        'order_type',
+        'image_link',
+        'order_details',
+        'order_type'
     ];
 
     /**

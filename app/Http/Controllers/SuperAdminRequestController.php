@@ -24,7 +24,7 @@ class SuperAdminRequestController extends Controller
             ->where('status', 'pending')
             ->get();
 
-        return view('superadmin.requests.index', compact('itemRequests', 'poundRequests'));
+        return view('super_Admin.Requests.Add_requests.index', compact('itemRequests', 'poundRequests'));
     }
 
     public function bulkAction(Request $request)

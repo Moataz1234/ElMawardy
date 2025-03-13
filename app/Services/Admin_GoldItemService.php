@@ -20,6 +20,7 @@ use Illuminate\Support\Facades\Log;
 
 use Illuminate\Support\Facades\Storage;
 use Illuminate\Http\Request;
+use App\Models\GoldPoundSold;
 
 
 class Admin_GoldItemService
@@ -391,5 +392,32 @@ class Admin_GoldItemService
             Log::error('Workshop request handling failed: ' . $e->getMessage());
             throw $e;
         }
+    }
+
+    public function getGoldPoundsSold($request)
+    {
+        $query = GoldPoundSold::query()
+            ->with(['goldPound', 'customer']); // Eager load relationships
+
+        // Apply search filter if provided
+        if ($search = $request->input('search')) {
+            $query->where('serial_number', 'like', "%{$search}%");
+        }
+
+        // Apply shop name filter if provided
+        if ($shopName = $request->input('shop_name')) {
+            $query->whereIn('shop_name', $shopName);
+        }
+
+        // Define sortable fields
+        $sortableFields = ['serial_number', 'price', 'created_at'];
+        $sortField = in_array($request->input('sort'), $sortableFields) 
+            ? $request->input('sort') 
+            : 'created_at';
+        $sortDirection = $request->input('direction') === 'asc' ? 'asc' : 'desc';
+
+        return $query->orderBy($sortField, $sortDirection)
+                    ->paginate(20)
+                    ->appends($request->all());
     }
 }

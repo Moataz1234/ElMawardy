@@ -5,9 +5,7 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>تعديل طلب العميل</title>
-    <!-- Bootstrap RTL CSS -->
     <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.rtl.min.css">
-    <!-- Font Awesome -->
     <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet">
     <link href="{{ asset('css/style.css') }}" rel="stylesheet">
     <link href="{{ asset('css/order-details.css') }}" rel="stylesheet">
@@ -15,6 +13,7 @@
     <style>
         body {
             font-family: 'Cairo', sans-serif;
+            background-color: #f5f5f5;
         }
         .form-section {
             background-color: #fff;
@@ -31,12 +30,13 @@
             border-bottom: 2px solid #e9ecef;
         }
         .order-item {
-            background-color: #f8f9fa;
-            border: 1px solid #dee2e6;
+            background-color: #f8d7da; /* Light red background */
             border-radius: 8px;
             padding: 20px;
             margin-bottom: 15px;
             position: relative;
+            max-height: 300px;
+            overflow-y: auto;
         }
         .form-floating > label {
             right: 0;
@@ -50,9 +50,43 @@
             background-position: left 0.75rem center;
             padding-right: 1rem;
         }
+        .item-header {
+            background: rgba(255, 255, 255, 0.9);
+            padding: 12px;
+            border-radius: 8px;
+            margin-bottom: 15px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+        .order-type-container {
+            background: rgba(255, 255, 255, 0.9);
+            padding: 12px;
+            border-radius: 8px;
+            margin-bottom: 15px;
+        }
+        .order-type-label {
+            font-size: 1rem;
+            font-weight: 600;
+            margin-bottom: 8px;
+        }
+        .radio-group {
+            display: flex;
+            gap: 20px;
+        }
+        .custom-radio {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            cursor: pointer;
+        }
+        .custom-radio input {
+            width: 18px;
+            height: 18px;
+        }
     </style>
 </head>
-<body class="bg-light">
+<body>
     <div class="container py-4">
         <form action="{{ route('orders.update', $order->id) }}" method="POST" enctype="multipart/form-data">
             @csrf
@@ -140,68 +174,69 @@
                         <div class="order-item">
                             <input type="hidden" name="order_item_id[]" value="{{ $item->id }}">
                             
+                            <div class="item-header">
+                                <h5 class="mb-0">القطعة {{ $index + 1 }}</h5>
+                            </div>
+
                             <div class="row g-3">
-                                <div class="col-md-4">
+                                <div class="col-md-6">
                                     <div class="form-group">
-                                        <label for="order_kind_{{ $index }}">النوع</label>
+                                        <label>النوع</label>
+                                        <select name="item_type[]" class="form-select">
+                                            <option value="Gold" {{ $item->item_type == 'Gold' ? 'selected' : '' }}>Gold</option>
+                                            <option value="Diamond" {{ $item->item_type == 'Diamond' ? 'selected' : '' }}>Diamond</option>
+                                        </select>
+                                    </div>
+                                </div>
+
+                                <div class="col-md-6">
+                                    <div class="form-group">
+                                        <label>الصنف</label>
                                         <select name="order_kind[]" class="form-select">
                                             @foreach ($kinds as $kind)
-                                                <option value="{{ $kind }}" {{ $item->order_kind == $kind ? 'selected' : '' }}>{{ $kind }}</option>
+                                                <option value="{{ $kind }}">{{ $kind }}</option>
                                             @endforeach
                                         </select>
                                     </div>
                                 </div>
 
-                                <div class="col-md-4">
+                                <div class="col-md-6">
                                     <div class="form-group">
-                                        <label for="weight_{{ $index }}">الوزن</label>
+                                        <label>الوزن</label>
                                         <input type="number" class="form-control" name="weight[]" value="{{ $item->weight }}" step="0.01">
                                     </div>
                                 </div>
-
-                                <div class="col-md-4">
+{{-- 
+                                <div class="col-md-6">
                                     <div class="form-group">
-                                        <label for="order_fix_type_{{ $index }}">المشكلة</label>
-                                        <select name="order_fix_type[]" class="form-select">
-                                            <option value="اوردر جديد" {{ $item->order_fix_type == 'اوردر جديد' ? 'selected' : '' }}>اوردر جديد</option>
-                                            <option value="تصليح" {{ $item->order_fix_type == 'تصليح' ? 'selected' : '' }}>تصليح</option>
-                                            <option value="عمل مقاس" {{ $item->order_fix_type == 'عمل مقاس' ? 'selected' : '' }}>عمل مقاس</option>
-                                            <option value="تلميع" {{ $item->order_fix_type == 'تلميع' ? 'selected' : '' }}>تلميع</option>
-                                        </select>
+                                        <label>مقاس الخاتم</label>
+                                        <input type="number" class="form-control" name="ring_size[]" value="{{ $item->ring_size }}">
+                                    </div>
+                                </div> --}}
+
+                                <div class="col-12">
+                                    <div class="form-group">
+                                        <label>تفاصيل القطعة</label>
+                                        <textarea class="form-control" name="order_details[]" rows="2">{{ $item->order_details }}</textarea>
                                     </div>
                                 </div>
 
-                                <div class="col-md-4">
-                                    <div class="form-group">
-                                        <label for="gold_color_{{ $index }}">اللون</label>
-                                        <select name="gold_color[]" class="form-select">
-                                            <option value="yellow" {{ $item->gold_color == 'yellow' ? 'selected' : '' }}>ذهبي</option>
-                                            <option value="white" {{ $item->gold_color == 'white' ? 'selected' : '' }}>فضي</option>
-                                            <option value="rose" {{ $item->gold_color == 'rose' ? 'selected' : '' }}>روز</option>
-                                        </select>
-                                    </div>
-                                </div>
-
-                                <div class="col-md-4">
-                                    <div class="form-group">
-                                        <label>نوع الطلب</label>
-                                        <div class="d-flex gap-3">
-                                            <div class="form-check">
-                                                <input type="radio" class="form-check-input" 
-                                                       name="order_type[{{ $index }}]" 
+                                <div class="col-12">
+                                    <div class="order-type-container">
+                                        <div class="order-type-label">نوع الطلب</div>
+                                        <div class="radio-group">
+                                            <label class="custom-radio">
+                                                <input type="radio" name="order_type[{{ $index }}]" 
                                                        value="by_customer" 
-                                                       id="by_customer_{{ $index }}"
                                                        {{ $item->order_type === 'by_customer' ? 'checked' : '' }} required>
-                                                <label class="form-check-label" for="by_customer_{{ $index }}">طلب العميل</label>
-                                            </div>
-                                            <div class="form-check">
-                                                <input type="radio" class="form-check-input" 
-                                                       name="order_type[{{ $index }}]" 
+                                                طلب العميل
+                                            </label>
+                                            <label class="custom-radio">
+                                                <input type="radio" name="order_type[{{ $index }}]" 
                                                        value="by_shop" 
-                                                       id="by_shop_{{ $index }}"
                                                        {{ $item->order_type === 'by_shop' ? 'checked' : '' }}>
-                                                <label class="form-check-label" for="by_shop_{{ $index }}">طلب المحل</label>
-                                            </div>
+                                                طلب المحل
+                                            </label>
                                         </div>
                                     </div>
                                 </div>
@@ -219,7 +254,6 @@
         </form>
     </div>
 
-    <!-- Bootstrap Bundle with Popper -->
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
     <script src="{{ asset('js/order_details.js') }}"></script>
 </body>

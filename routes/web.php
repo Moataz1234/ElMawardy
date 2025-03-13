@@ -398,3 +398,6 @@ Route::prefix('Root')->group(function () {
     Route::post('/addRequests/bulk-approve-pounds', [SuperAdminRequestController::class, 'bulkApprovePounds'])->name('superadmin.requests.bulk-approve-pounds');
     Route::post('/addRequests/bulk-reject-pounds', [SuperAdminRequestController::class, 'bulkRejectPounds'])->name('superadmin.requests.bulk-reject-pounds');
 });
+
+Route::post('/import-sold-items/update-prices', [ImportSoldItems::class, 'updatePrices'])
+    ->name('import-sold-items.update-prices');
