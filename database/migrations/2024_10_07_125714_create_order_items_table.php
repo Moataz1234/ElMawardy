@@ -14,10 +14,12 @@ return new class extends Migration
         Schema::create('order_items', function (Blueprint $table) {
             $table->id();
             $table->foreignId('order_id')->constrained('orders')->onDelete('cascade'); // Linking item with order
-            $table->integer('quantity')->nullable(); // Corrected quantity field
+            // $table->integer('quantity')->nullable(); // Corrected quantity field
             $table->string('order_kind')->nullable(); 
             $table->string('item_type')->nullable();
-            $table->integer('ring_size')->nullable(); // Use integer for sizes
+            $table->string('model')->nullable(); // New field
+            $table->string('serial_number')->nullable(); // New field
+            // $table->integer('ring_size')->nullable(); // Use integer for sizes
             $table->string('weight')->nullable();
             // $table->string('gold_color')->nullable();
             $table->string('image_link')->nullable();

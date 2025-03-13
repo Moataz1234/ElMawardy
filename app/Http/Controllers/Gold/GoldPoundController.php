@@ -19,6 +19,7 @@ use App\Models\Customer;
 use Illuminate\Support\Facades\Validator;
 use App\Models\PoundRequest;
 use Illuminate\Support\Facades\Response;
+use App\Models\TransferRequest;
 
 class GoldPoundController extends Controller
 {
@@ -33,8 +34,8 @@ class GoldPoundController extends Controller
     {
         try {
             // Simple arrays of pound models
-            $onePoundModels = ['5-1416', '1-1068', '5-1338-C', '2-1928', '5-1290','1-1095'];
-            $halfPoundModels = ['2-1899', '5-1369', '1-1291', '5-1338-B','7-1013-B'];
+            $onePoundModels = ['5-1416', '1-1068', '5-1338-C', '5-1290','1-1095'];
+            $halfPoundModels = ['2-1899', '5-1369', '1-1291', '5-1338-B','7-1013-B','2-1928'];
             $quarterPoundModels = ['9-0194', '7-1329', '7-1013-A', '4-0854', '5-1370', '7-1386', '5-1338-A'];
 
             // Get all gold items that match these models
@@ -532,6 +533,74 @@ class GoldPoundController extends Controller
         ];
 
         return Response::stream($callback, 200, $headers);
+    }
+
+    public function showBulkTransferForm(Request $request)
+    {
+        $selectedPounds = $request->input('selected_pounds', []);
+        
+        // Filter out any null values
+        $selectedPounds = array_filter($selectedPounds, function($value) {
+            return !is_null($value) && $value !== '';
+        });
+
+        if (empty($selectedPounds)) {
+            return redirect()->route('gold-pounds.index')
+                ->with('error', 'No valid pounds selected for transfer.');
+        }
+
+        $pounds = GoldPoundInventory::with(['goldPound'])
+            ->whereIn('serial_number', $selectedPounds)
+            ->where('shop_name', Auth::user()->shop_name)
+            ->where('status', '!=', 'pending')
+            ->get();
+
+        if ($pounds->isEmpty()) {
+            return redirect()->route('gold-pounds.index')
+                ->with('error', 'No valid pounds available for transfer.');
+        }
+
+        $shops = Shop::where('name', '!=', Auth::user()->shop_name)
+            ->pluck('name');
+
+        return view('shops.pounds.transfer_form', compact('pounds', 'shops'));
+    }
+
+    public function bulkTransfer(Request $request)
+    {
+        try {
+            $validated = $request->validate([
+                'pound_ids' => 'required|array',
+                'pound_ids.*' => 'exists:gold_pounds_inventory,id',
+                'shop_name' => 'required|exists:shops,name'
+            ]);
+
+            DB::transaction(function () use ($validated) {
+                foreach ($validated['pound_ids'] as $poundId) {
+                    $pound = GoldPoundInventory::findOrFail($poundId);
+                    
+                    // Create transfer request with explicit type and pound_id
+                    TransferRequest::create([
+                        'pound_id' => $pound->id,  // Make sure we're using the correct ID
+                        'gold_item_id' => null,    // Explicitly set to null for pounds
+                        'from_shop_name' => Auth::user()->shop_name,
+                        'to_shop_name' => $validated['shop_name'],
+                        'status' => 'pending',
+                        'type' => 'pound'          // Explicitly set type to 'pound'
+                    ]);
+
+                    // Update pound status
+                    $pound->update(['status' => 'pending']);
+                }
+            });
+
+            return redirect()->route('dashboard')
+                ->with('success', 'Transfer requests sent successfully. Pounds will be transferred after acceptance.');
+        } catch (\Exception $e) {
+            Log::error('Pound transfer error: ' . $e->getMessage());  // Add logging
+            return redirect()->back()
+                ->with('error', 'Failed to create transfer requests: ' . $e->getMessage());
+        }
     }
 }
 

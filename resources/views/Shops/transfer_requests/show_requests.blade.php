@@ -45,7 +45,14 @@
                                 <div class="d-flex justify-content-between align-items-center">
                                     <h5 class="card-title mb-0">
                                         <i class="bi bi-upc-scan me-2"></i>
-                                        Serial Number: {{ $request->goldItem->serial_number }}
+                                        Serial Number: 
+                                        @if($request->type == 'pound')
+                                            {{ $request->pound->serial_number ?? 'N/A' }}
+                                            <span class="badge bg-warning text-dark ms-2">Pound</span>
+                                        @else
+                                            {{ $request->goldItem->serial_number ?? 'N/A' }}
+                                            <span class="badge bg-info text-dark ms-2">Item</span>
+                                        @endif
                                     </h5>
                                     <span class="badge bg-light text-primary">
                                         Request #{{ $request->id }}
@@ -55,25 +62,45 @@
                             
                             <div class="card-body p-4">
                                 <div class="row g-4">
-                                    <!-- Item Details -->
+                                    <!-- Item/Pound Details -->
                                     <div class="col-md-6">
                                         <div class="p-3 bg-light rounded-3">
                                             <h6 class="text-primary mb-3">
-                                                <i class="bi bi-info-circle me-2"></i>Item Details
+                                                <i class="bi bi-info-circle me-2"></i>
+                                                @if($request->type == 'pound')
+                                                    Pound Details
+                                                @else
+                                                    Item Details
+                                                @endif
                                             </h6>
                                             <ul class="list-unstyled mb-0">
-                                                <li class="mb-2">
-                                                    <strong>Weight:</strong> 
-                                                    {{ $request->goldItem->weight ?? 'N/A' }} g
-                                                </li>
-                                                <li class="mb-2">
-                                                    <strong>Model:</strong> 
-                                                    {{ $request->goldItem->model ?? 'N/A' }}
-                                                </li>
-                                                <li class="mb-2">
-                                                    <strong>Gold Color:</strong> 
-                                                    {{ $request->goldItem->gold_color ?? 'N/A' }}
-                                                </li>
+                                                @if($request->type == 'pound')
+                                                    <li class="mb-2">
+                                                        <strong>Weight:</strong> 
+                                                        {{ $request->pound->goldPound->weight ?? 'N/A' }} g
+                                                    </li>
+                                                    <li class="mb-2">
+                                                        <strong>Kind:</strong> 
+                                                        {{ $request->pound->goldPound->kind ?? 'N/A' }}
+                                                    </li>
+                                                    <li class="mb-2">
+                                                        <strong>Purity:</strong> 
+                                                        {{ $request->pound->goldPound->purity ?? 'N/A' }}
+                                                    </li>
+                                                @else
+                                                    <li class="mb-2">
+                                                        <strong>Weight:</strong> 
+                                                        {{ $request->goldItem->weight ?? 'N/A' }} g
+                                                    </li>
+                                                    <li class="mb-2">
+                                                        <strong>Model:</strong> 
+                                                        {{ $request->goldItem->model ?? 'N/A' }}
+                                                    </li>
+                                                    <li class="mb-2">
+                                                        <strong>Gold Color:</strong> 
+                                                        {{ $request->goldItem->gold_color ?? 'N/A' }}
+                                                    </li>
+                                                @endif
                                             </ul>
                                         </div>
                                     </div>
@@ -141,7 +168,14 @@
                                 <div class="d-flex justify-content-between align-items-center">
                                     <h5 class="card-title mb-0">
                                         <i class="bi bi-upc-scan me-2"></i>
-                                        Serial Number: {{ $request->goldItem->serial_number }}
+                                        Serial Number: 
+                                        @if($request->type == 'pound')
+                                            {{ $request->pound->serial_number ?? 'N/A' }}
+                                            <span class="badge bg-warning text-dark ms-2">Pound</span>
+                                        @else
+                                            {{ $request->goldItem->serial_number ?? 'N/A' }}
+                                            <span class="badge bg-info text-dark ms-2">Item</span>
+                                        @endif
                                     </h5>
                                     <span class="badge bg-light text-primary">
                                         Request #{{ $request->id }}
@@ -151,25 +185,45 @@
                             
                             <div class="card-body p-4">
                                 <div class="row g-4">
-                                    <!-- Item Details -->
+                                    <!-- Item/Pound Details -->
                                     <div class="col-md-6">
                                         <div class="p-3 bg-light rounded-3">
                                             <h6 class="text-primary mb-3">
-                                                <i class="bi bi-info-circle me-2"></i>Item Details
+                                                <i class="bi bi-info-circle me-2"></i>
+                                                @if($request->type == 'pound')
+                                                    Pound Details
+                                                @else
+                                                    Item Details
+                                                @endif
                                             </h6>
                                             <ul class="list-unstyled mb-0">
-                                                <li class="mb-2">
-                                                    <strong>Weight:</strong> 
-                                                    {{ $request->goldItem->weight ?? 'N/A' }} g
-                                                </li>
-                                                <li class="mb-2">
-                                                    <strong>Model:</strong> 
-                                                    {{ $request->goldItem->model ?? 'N/A' }}
-                                                </li>
-                                                <li class="mb-2">
-                                                    <strong>Gold Color:</strong> 
-                                                    {{ $request->goldItem->gold_color ?? 'N/A' }}
-                                                </li>
+                                                @if($request->type == 'pound')
+                                                    <li class="mb-2">
+                                                        <strong>Weight:</strong> 
+                                                        {{ $request->pound->goldPound->weight ?? 'N/A' }} g
+                                                    </li>
+                                                    <li class="mb-2">
+                                                        <strong>Kind:</strong> 
+                                                        {{ $request->pound->goldPound->kind ?? 'N/A' }}
+                                                    </li>
+                                                    <li class="mb-2">
+                                                        <strong>Purity:</strong> 
+                                                        {{ $request->pound->goldPound->purity ?? 'N/A' }}
+                                                    </li>
+                                                @else
+                                                    <li class="mb-2">
+                                                        <strong>Weight:</strong> 
+                                                        {{ $request->goldItem->weight ?? 'N/A' }} g
+                                                    </li>
+                                                    <li class="mb-2">
+                                                        <strong>Model:</strong> 
+                                                        {{ $request->goldItem->model ?? 'N/A' }}
+                                                    </li>
+                                                    <li class="mb-2">
+                                                        <strong>Gold Color:</strong> 
+                                                        {{ $request->goldItem->gold_color ?? 'N/A' }}
+                                                    </li>
+                                                @endif
                                             </ul>
                                         </div>
                                     </div>

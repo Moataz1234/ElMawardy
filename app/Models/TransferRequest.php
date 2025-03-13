@@ -11,14 +11,21 @@ class TransferRequest extends Model
 
     protected $fillable = [
         'gold_item_id',
+        'pound_id',
         'from_shop_name',  // Changed from from_shop_id
         'to_shop_name',    // Changed from to_shop_id
         'status',
+        'type'
     ];
 
     public function goldItem()
     {
         return $this->belongsTo(GoldItem::class, 'gold_item_id');
+    }
+
+    public function pound()
+    {
+        return $this->belongsTo(GoldPoundInventory::class, 'pound_id');
     }
 
     // Update relationships to use User model instead of Shop

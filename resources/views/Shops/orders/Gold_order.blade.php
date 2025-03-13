@@ -327,70 +327,97 @@
     <div class="order-item" id="order-item-template" style="display: none">
         <div class="row mb-3">
             <div class="col-md-6">
-                <label class="form-label">نوع القطعة</label>
-                <select name="item_type[]" class="form-select">
-                    <option value="دهب">دهب</option>
-                    <option value="الماظ">الماظ</option>
-                </select>
+                {{-- <label class="form-label">نوع القطعة</label> --}}
+                <div class="d-flex gap-3">
+                    <div class="custom-radio">
+                        <input type="radio" class="item-type-radio" 
+                               name="item_type[]" 
+                               value="دهب" 
+                               id="gold_template">
+                        <span class="radio-circle"></span>
+                        <label for="gold_template">دهب</label>
+                    </div>
+                    <div class="custom-radio">
+                        <input type="radio" class="item-type-radio" 
+                               name="item_type[]" 
+                               value="الماظ" 
+                               id="diamond_template">
+                        <span class="radio-circle"></span>
+                        <label for="diamond_template">الماظ</label>
+                    </div>
+                </div>
             </div>
-            <div class="col-md-6">
-                <label class="form-label">الصنف</label>
-                <select name="order_kind[]" class="form-select">
-                    @foreach ($kinds as $kind)
-                        <option value="{{ $kind }}">{{ $kind }}</option>
-                    @endforeach
-                </select>
+        </div>
+
+        <div class="hidden-fields" style="display: none">
+            <!-- First Row: Order Kind and Order Type -->
+            <div class="row mb-3">
+                <div class="col-md-4">
+                    <label class="form-label">النوع</label>
+                    <select name="order_kind[]" class="form-select">
+                        @foreach ($kinds as $kind)
+                            <option value="{{ $kind }}">{{ $kind }}</option>
+                        @endforeach
+                    </select>
+                </div>
+                <div class="col-md-4">
+                    <label class="form-label">الوزن</label>
+                    <input type="number" class="form-control" name="weight[]" step="0.001">
+                </div>
+                <div class="col-md-4">
+                    <div class="custom-control-group flex-column">
+                        <div class="d-flex gap-3 flex-column">
+                            <div class="custom-radio by-shop">
+                                <input type="radio" class="order-type-radio" 
+                                       name="order_type[]" 
+                                       value="by_shop" 
+                                       id="by_shop_template">
+                                <span class="radio-circle"></span>
+                                <label for="by_shop_template"> المحل</label>
+                            </div>
+                            
+                            <div class="custom-radio by-customer">
+                                <input type="radio" class="order-type-radio" 
+                                       name="order_type[]" 
+                                       value="by_customer" 
+                                       id="by_customer_template" required>
+                                <span class="radio-circle"></span>
+                                <label for="by_customer_template"> العميل</label>
+                            </div>
+                        </div>
+                    </div>
+                </div>
             </div>
+
+            <!-- Second Row: Weight -->
+            <div class="row mb-3">
+              
+            </div>
+
+            <!-- Shop-specific fields (hidden by default) -->
+            <div class="shop-specific-fields" style="display: none">
+                <div class="row mb-3">
+                    <div class="col-md-4">
+                        <label class="form-label">الموديل</label>
+                        <input type="text" class="form-control" name="model[]">
+                    </div>
+                    <div class="col-md-4">
+                        <label class="form-label">رقم القطعة</label>
+                        <input type="text" class="form-control" name="serial_number[]">
+                    </div>
+                    <div class="col-md-4">
+                        <label class="form-label">صورة المنتج</label>
+                        <input type="file" class="form-control" name="image_link[]">
+                    </div>
+                </div>
+            </div>
+
         </div>
 
         <div class="mb-3">
             <label class="form-label">موضوع الطلب</label>
             <textarea class="form-control" name="order_details[]" rows="3" required></textarea>
         </div>
-
-        <div class="custom-control-group">
-            <div class="d-flex gap-3">
-                <div class="custom-radio by-shop">
-                    <input type="radio" class="order-type-radio" 
-                           name="order_type[]" 
-                           value="by_shop" 
-                           id="by_shop_template">
-                    <span class="radio-circle"></span>
-                    <label for="by_shop_template">خاص بالمحل</label>
-                </div>
-                
-                <div class="custom-radio by-customer">
-                    <input type="radio" class="order-type-radio" 
-                           name="order_type[]" 
-                           value="by_customer" 
-                           id="by_customer_template" required>
-                    <span class="radio-circle"></span>
-                    <label for="by_customer_template">خاص بالعميل</label>
-                </div>
-                
-                <div class="custom-checkbox">
-                    <input type="checkbox" class="toggleLabel" id="sample_template">
-                    <span class="checkbox-square"></span>
-                    <label for="sample_template">عينة</label>
-                </div>
-            </div>
-        </div>
-
-        <div class="row">
-            <div class="col-md-6">
-                <div class="weight_field" style="display: none">
-                    <label class="form-label">الوزن</label>
-                    <input type="number" class="form-control" name="weight[]" step="0.001">
-                </div>
-            </div>
-            <div class="col-md-6">
-                <div class="image_field" style="display: none">
-                    <label class="form-label">صورة المنتج</label>
-                    <input type="file" class="form-control" name="image_link[]">
-                </div>
-            </div>
-        </div>
-
         <button type="button" class="btn btn-danger remove-item mt-3">
             <i class="fas fa-trash me-2"></i>حذف القطعة
         </button>

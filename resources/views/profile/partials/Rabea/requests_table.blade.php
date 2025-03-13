@@ -161,8 +161,9 @@ function showOrderDetails(orderId) {
                     <div><strong>النوع:</strong> ${item.item_type} - ${item.order_kind}</div>
                     <div><strong>موضوع الطلب:</strong> ${item.order_details}</div>
                     ${item.weight ? `<div><strong>الوزن:</strong> ${item.weight}</div>` : ''}
-                    ${item.gold_color ? `<div><strong>لون الذهب:</strong> ${item.gold_color}</div>` : ''}
-                    <div><strong>نوع الطلب:</strong> ${item.order_type}</div>
+                    ${item.model ? `<div><strong>الموديل:</strong> ${item.model}</div>` : ''}
+                    ${item.serial_number ? `<div><strong>رقم القطعة:</strong> ${item.serial_number}</div>` : ''}
+                    <div><strong>نوع الطلب:</strong> ${item.order_type === 'by_customer' ? 'طلب العميل' : 'طلب المحل'}</div>
                 </div>
             `;
         });

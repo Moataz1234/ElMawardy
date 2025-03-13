@@ -30,13 +30,11 @@
             border-bottom: 2px solid #e9ecef;
         }
         .order-item {
-            background-color: #f8d7da; /* Light red background */
+            background-color: #f8d7da;
             border-radius: 8px;
             padding: 20px;
             margin-bottom: 15px;
             position: relative;
-            max-height: 300px;
-            overflow-y: auto;
         }
         .form-floating > label {
             right: 0;
@@ -84,6 +82,14 @@
             width: 18px;
             height: 18px;
         }
+        .compact-textarea {
+            /* height: 20px !important; */
+            resize: none !important;
+            padding-top: 0 !important;
+            padding-bottom: 0 !important;
+            line-height: 20px !important;
+            min-height: 20px !important;
+        }
     </style>
 </head>
 <body>
@@ -97,7 +103,7 @@
                 <div class="section-header">
                     <h4 class="mb-0"><i class="fas fa-user ms-2"></i>بيانات العميل</h4>
                 </div>
-                <div class="row g-3">
+                <div class="d-flex g-3 gap-2">
                     <div class="col-md-4">
                         <div class="form-floating">
                             <input type="text" class="form-control" name="customer_name" id="customer_name" value="{{ $order->customer_name }}" required>
@@ -119,25 +125,19 @@
                 </div>
             </div>
 
-            <!-- Order Details Section -->
+            <!-- Payment Information Section -->
             <div class="form-section">
                 <div class="section-header">
-                    <h4 class="mb-0"><i class="fas fa-file-invoice ms-2"></i>تفاصيل الطلب</h4>
+                    <h4 class="mb-0"><i class="fas fa-money-bill ms-2"></i>بيانات الدفع</h4>
                 </div>
-                <div class="row g-3">
-                    <div class="col-12">
-                        <div class="form-floating">
-                            <textarea class="form-control" name="order_details" id="order_details" style="height: 100px">{{ $order->order_details }}</textarea>
-                            <label for="order_details">موضوع الطلب</label>
-                        </div>
-                    </div>
-                    <div class="col-md-3">
+                <div class="d-flex gap-5">
+                    <div class="col-md-2">
                         <div class="form-floating">
                             <input type="number" class="form-control" name="deposit" id="deposit" value="{{ $order->deposit }}" step="0.01">
                             <label for="deposit">المدفوع</label>
                         </div>
                     </div>
-                    <div class="col-md-3">
+                    <div class="col-md-2">
                         <div class="form-floating">
                             <input type="number" class="form-control" name="rest_of_cost" id="rest_of_cost" value="{{ $order->rest_of_cost }}" step="0.01">
                             <label for="rest_of_cost">الباقي</label>
@@ -178,10 +178,10 @@
                                 <h5 class="mb-0">القطعة {{ $index + 1 }}</h5>
                             </div>
 
-                            <div class="row g-3">
-                                <div class="col-md-6">
+                            <div class="d-flex flex-wrap gap-3 g-3">
+                                <div class="col-md-2">
                                     <div class="form-group">
-                                        <label>النوع</label>
+                                        <label></label>
                                         <select name="item_type[]" class="form-select">
                                             <option value="Gold" {{ $item->item_type == 'Gold' ? 'selected' : '' }}>Gold</option>
                                             <option value="Diamond" {{ $item->item_type == 'Diamond' ? 'selected' : '' }}>Diamond</option>
@@ -189,42 +189,48 @@
                                     </div>
                                 </div>
 
-                                <div class="col-md-6">
+                                <div class="col-md-2">
                                     <div class="form-group">
-                                        <label>الصنف</label>
+                                        <label>النوع</label>
                                         <select name="order_kind[]" class="form-select">
                                             @foreach ($kinds as $kind)
-                                                <option value="{{ $kind }}">{{ $kind }}</option>
+                                                <option value="{{ $kind }}" {{ $item->order_kind == $kind ? 'selected' : '' }}>{{ $kind }}</option>
                                             @endforeach
                                         </select>
                                     </div>
                                 </div>
 
-                                <div class="col-md-6">
+                                <div class="col-md-2">
                                     <div class="form-group">
                                         <label>الوزن</label>
                                         <input type="number" class="form-control" name="weight[]" value="{{ $item->weight }}" step="0.01">
                                     </div>
                                 </div>
-{{-- 
-                                <div class="col-md-6">
-                                    <div class="form-group">
-                                        <label>مقاس الخاتم</label>
-                                        <input type="number" class="form-control" name="ring_size[]" value="{{ $item->ring_size }}">
-                                    </div>
-                                </div> --}}
 
-                                <div class="col-12">
+                                <div class="col-md-2">
                                     <div class="form-group">
-                                        <label>تفاصيل القطعة</label>
-                                        <textarea class="form-control" name="order_details[]" rows="2">{{ $item->order_details }}</textarea>
+                                        <label>الموديل</label>
+                                        <input type="text" class="form-control" name="model[]" value="{{ $item->model }}">
                                     </div>
                                 </div>
 
-                                <div class="col-12">
-                                    <div class="order-type-container">
-                                        <div class="order-type-label">نوع الطلب</div>
-                                        <div class="radio-group">
+                                <div class="col-md-2">
+                                    <div class="form-group">
+                                        <label>رقم القطعة</label>
+                                        <input type="text" class="form-control" name="serial_number[]" value="{{ $item->serial_number }}">
+                                    </div>
+                                </div>
+                                
+                                <div class="col-md-8">
+                                    <div class="form-group">
+                                        <label>موضوع الطلب</label>
+                                        <textarea class="form-control compact-textarea" rows="2" name="order_details[]">{{ $item->order_details }}</textarea>
+                                    </div>
+                                </div>
+                                <div class="col-md-3">
+                                    <div class="form-group">
+                                        <label></label>
+                                        <div class="radio-group d-flex flex-column gap-2">
                                             <label class="custom-radio">
                                                 <input type="radio" name="order_type[{{ $index }}]" 
                                                        value="by_customer" 
@@ -240,6 +246,7 @@
                                         </div>
                                     </div>
                                 </div>
+
                             </div>
                         </div>
                     @endforeach

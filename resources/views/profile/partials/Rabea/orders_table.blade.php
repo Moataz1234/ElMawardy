@@ -150,7 +150,9 @@ const orders = {
                         item_type: "{{ $item->item_type }}",
                         order_kind: "{{ $item->order_kind }}",
                         weight: "{{ $item->weight }}",
-                        ring_size: "{{ $item->ring_size }}",
+                        // ring_size: "{{ $item->ring_size }}",
+                        model: "{{ $item->model }}",
+                        serial_number: "{{ $item->serial_number }}",
                         order_details: "{{ $item->order_details }}",
                         order_type: "{{ $item->order_type }}"
                     },
@@ -177,6 +179,8 @@ function showOrderDetails(orderId) {
                     <div><strong>الصنف:</strong> ${item.order_kind}</div>
                     ${item.weight ? `<div><strong>الوزن:</strong> ${item.weight}</div>` : ''}
                     ${item.ring_size ? `<div><strong>مقاس الخاتم:</strong> ${item.ring_size}</div>` : ''}
+                    ${item.model ? `<div><strong>الموديل:</strong> ${item.model}</div>` : ''}
+                    ${item.serial_number ? `<div><strong>رقم القطعة:</strong> ${item.serial_number}</div>` : ''}
                     <div><strong>التفاصيل:</strong> ${item.order_details}</div>
                     <div><strong>نوع الطلب:</strong> ${item.order_type === 'by_customer' ? 'طلب العميل' : 'طلب المحل'}</div>
                 </div>

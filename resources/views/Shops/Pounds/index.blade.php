@@ -76,7 +76,14 @@
                     </h5>
                 </div>
             </div>
-            
+            <div>
+                <button type="button" id="sellSelectedBtn" class="btn btn-primary me-2" disabled>
+                    <i class="fas fa-shopping-cart me-1"></i> بيع
+                </button>
+                <button type="button" id="transferSelectedBtn" class="btn btn-warning" disabled>
+                    <i class="fas fa-exchange-alt me-1"></i> تحويل
+                </button>
+            </div>
             <div class="card-body">
                 <form id="sellForm" action="{{ route('gold-pounds.create-sale-request') }}" method="POST">
                     @csrf
@@ -137,9 +144,7 @@
                             <span class="text-muted">Selected items: </span>
                             <span id="selectedCount" class="badge bg-primary">0</span>
                         </div>
-                        <button type="button" id="sellSelectedBtn" class="btn btn-primary" disabled>
-                            <i class="fas fa-shopping-cart me-1"></i> Sell Selected Pounds
-                        </button>
+                       
                     </div>
                 </form>
             </div>
@@ -151,11 +156,13 @@
         document.addEventListener('DOMContentLoaded', function() {
             const checkboxes = document.querySelectorAll('.pound-checkbox');
             const sellButton = document.getElementById('sellSelectedBtn');
+            const transferButton = document.getElementById('transferSelectedBtn');
             const selectedCount = document.getElementById('selectedCount');
 
             function updateSellButton() {
                 const checkedBoxes = document.querySelectorAll('.pound-checkbox:checked');
                 sellButton.disabled = checkedBoxes.length === 0;
+                transferButton.disabled = checkedBoxes.length === 0;
                 selectedCount.textContent = checkedBoxes.length;
             }
 
@@ -184,6 +191,21 @@
                     // Debug: Log the final URL
                     console.log('Redirect URL:', url);
 
+                    window.location.href = url;
+                }
+            });
+
+            transferButton.addEventListener('click', function() {
+                const selectedPounds = Array.from(document.querySelectorAll('.pound-checkbox:checked'))
+                    .map(cb => cb.dataset.serial);
+
+                if (selectedPounds.length > 0) {
+                    const params = new URLSearchParams();
+                    selectedPounds.forEach(serialNumber => {
+                        params.append('selected_pounds[]', serialNumber);
+                    });
+
+                    const url = '{{ route('gold-pounds.transfer-form') }}?' + params.toString();
                     window.location.href = url;
                 }
             });

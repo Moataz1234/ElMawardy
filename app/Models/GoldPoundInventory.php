@@ -9,20 +9,20 @@ class GoldPoundInventory extends Model
     protected $table = 'gold_pounds_inventory';
 
     protected $fillable = [
-        'gold_pound_id',
         'serial_number',
-        'related_item_serial',
+        'gold_pound_id',
         'shop_name',
+        'status',
         'type',
-        'quantity',
         'weight',
         'purity',
-        'status'
+        'quantity',
+        'related_item_serial'
     ];
 
     public function goldPound()
     {
-        return $this->belongsTo(GoldPound::class, 'gold_pound_id', 'id');
+        return $this->belongsTo(GoldPound::class, 'gold_pound_id');
     }
 
     public function goldItem()

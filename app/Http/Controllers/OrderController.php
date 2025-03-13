@@ -95,6 +95,8 @@ class OrderController extends Controller
                         'weight' => $request->weight[$index] ?? null,
                         'image_link' => $imagePath,
                         'order_type' => $request->order_type[$index],
+                        'model' => $request->model[$index] ?? null,
+                        'serial_number' => $request->serial_number[$index] ?? null,
                     ]);
 
                     Log::info('Order item created successfully', [

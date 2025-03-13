@@ -329,15 +329,27 @@
                             </div>
                             @endif
 
-                            @if($item->ring_size)
+                            @if($item->model)
                             <div class="detail-row">
-                                <i class="fas fa-ring"></i>
+                                <i class="fas fa-cube"></i>
                                 <div>
-                                    <strong>مقاس الخاتم:</strong>
-                                    <span>{{ $item->ring_size }}</span>
+                                    <strong>الموديل:</strong>
+                                    <span>{{ $item->model }}</span>
                                 </div>
                             </div>
                             @endif
+
+                            @if($item->serial_number)
+                            <div class="detail-row">
+                                <i class="fas fa-barcode"></i>
+                                <div>
+                                    <strong>رقم القطعة:</strong>
+                                    <span>{{ $item->serial_number }}</span>
+                                </div>
+                            </div>
+                            @endif
+
+                          
                         </div>
 
                         <div class="item-description">

@@ -12,7 +12,7 @@ class CheckShop
     public function handle(Request $request, Closure $next): Response
     {
         {
-            if (Auth::user() && Auth::user()->usertype === 'user') {
+            if (Auth::user() && Auth::user()->usertype === 'user' || Auth::user()->usertype === 'admin' || Auth::user()->usertype === 'rabea' || Auth::user()->usertype === 'Acc') {
                 return $next($request);
             }
             return redirect('/dashboard'); // Redirect if not admin

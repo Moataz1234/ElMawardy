@@ -12,87 +12,88 @@ use App\Models\TransferRequestHistory;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Log;
 use Illuminate\Database\Eloquent\Collection;
+use Illuminate\Support\Facades\DB;
 
 class TransferService
 {
 
-public function handleTransfer(string $requestId, string $status): void
+public function handleTransfer($requestId, $status)
 {
-    try {
-        Log::info('Handling transfer request:', ['request_id' => $requestId, 'status' => $status]);
-
-        $transferRequest = TransferRequest::findOrFail($requestId);
-        Log::info('Transfer request found:', ['transfer_request' => $transferRequest]);
+    return DB::transaction(function () use ($requestId, $status) {
+        // Load both relationships explicitly
+        $request = TransferRequest::with(['goldItem', 'pound.goldPound'])
+            ->findOrFail($requestId);
+        
+        Log::info('Processing transfer request', [
+            'request_id' => $requestId,
+            'type' => $request->type,
+            'status' => $status,
+            'pound_id' => $request->pound_id,
+            'item_id' => $request->gold_item_id
+        ]);
 
         if ($status === 'accepted') {
-            $toShop = Shop::where('name', $transferRequest->to_shop_name)
-                         ->firstOrFail();
-            Log::info('To shop found:', ['to_shop' => $toShop]);
-
-            $goldItem = $transferRequest->goldItem;
-            Log::info('Gold item found:', ['gold_item' => $goldItem]);
-            $modelDetails = Models::where('model', $goldItem->model)->first();  
-            // Create transfer history record
-            TransferRequestHistory::create([
-                'from_shop_name' => $transferRequest->from_shop_name,
-                'to_shop_name' => $transferRequest->to_shop_name,
-                'status' => 'accepted',
-                'serial_number' => $goldItem->serial_number,
-                'model' => $goldItem->model,
-                'kind' => $goldItem->kind,
-                'weight' => $goldItem->weight,
-                'gold_color' => $goldItem->gold_color,
-                'metal_type' => $goldItem->metal_type,
-                'metal_purity' => $goldItem->metal_purity,
-                'quantity' => $goldItem->quantity,
-                'stones' => $goldItem->stones,
-                'talab' => $goldItem->talab,
-                'transfer_completed_at' => now(),
-                'stars' => $modelDetails ? $modelDetails->stars : null,
-                'scanned_image' => $modelDetails ? $modelDetails->scanned_image : null
-            ]);
-
-            Log::info('Transfer history record created');
-
-            // Update gold item shop
-            $goldItem->update([
-                'shop_name' => $toShop->name,
-                'shop_id' => $toShop->id
-            ]);
-            Log::info('Gold item updated:', ['gold_item' => $goldItem]);
-
-            // Delete the transfer request
-            $transferRequest->delete();
-            Log::info('Transfer request deleted');
+            if ($request->type == 'pound') {
+                $pound = $request->pound;
+                if ($pound) {
+                    Log::info('Updating pound location', [
+                        'pound_id' => $pound->id,
+                        'new_shop' => $request->to_shop_name
+                    ]);
+                    
+                    $pound->update([
+                        'shop_name' => $request->to_shop_name,
+                        'status' => 'active'
+                    ]);
+                } else {
+                    Log::error('Pound not found for transfer request', [
+                        'request_id' => $requestId,
+                        'pound_id' => $request->pound_id
+                    ]);
+                }
+            } else {
+                if ($request->goldItem) {
+                    $request->goldItem->update([
+                        'shop_name' => $request->to_shop_name,
+                        'status' => 'available'
+                    ]);
+                }
+            }
         } else {
-            // If rejected, just update the status
-            $transferRequest->update(['status' => $status]);
-            Log::info('Transfer request updated:', ['transfer_request' => $transferRequest]);
+            // If rejected, reset the status
+            if ($request->type == 'pound') {
+                if ($request->pound) {
+                    $request->pound->update(['status' => 'active']);
+                }
+            } else {
+                if ($request->goldItem) {
+                    $request->goldItem->update(['status' => 'available']);
+                }
+            }
         }
 
-    } catch (\Exception $e) {
-        Log::error('Transfer handling failed:', [
-            'error' => $e->getMessage(),
+        $request->update(['status' => $status]);
+        
+        Log::info('Transfer request completed', [
             'request_id' => $requestId,
-            'status' => $status
+            'final_status' => $status
         ]);
-        throw $e;
-    }
+        
+        return $request;
+    });
 }
 
-    public function getPendingTransfers(): array
+    public function getPendingTransfers()
     {
-        $shopName = Auth::user()->shop_name;
-
-        // Get incoming transfers
-        $incomingRequests = TransferRequest::with('goldItem')
-            ->where('to_shop_name', $shopName)
+        $user = Auth::user();
+        
+        $incomingRequests = TransferRequest::with(['goldItem', 'pound'])
+            ->where('to_shop_name', $user->shop_name)
             ->where('status', 'pending')
             ->get();
 
-        // Get outgoing transfers
-        $outgoingRequests = TransferRequest::with('goldItem')
-            ->where('from_shop_name', $shopName)
+        $outgoingRequests = TransferRequest::with(['goldItem', 'pound'])
+            ->where('from_shop_name', $user->shop_name)
             ->get();
 
         return [

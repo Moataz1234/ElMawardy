@@ -401,3 +401,6 @@ Route::prefix('Root')->group(function () {
 
 Route::post('/import-sold-items/update-prices', [ImportSoldItems::class, 'updatePrices'])
     ->name('import-sold-items.update-prices');
+
+Route::get('/gold-pounds/transfer-form', [GoldPoundController::class, 'showBulkTransferForm'])->name('gold-pounds.transfer-form');
+Route::post('/gold-pounds/bulk-transfer', [GoldPoundController::class, 'bulkTransfer'])->name('gold-pounds.bulk-transfer');

@@ -90,11 +90,9 @@ public function updateStatusBulk(Request $request)
     }
     public function update(Request $request, $id)
     {
-        // dd('Form submitted!', $request->all());
-    
         // Find the order by ID
         $order = Order::findOrFail($id);
-    
+
         Log::info($request->all());
         // Update order data
         $order->customer_name = $request->customer_name;
@@ -106,16 +104,18 @@ public function updateStatusBulk(Request $request)
         $order->payment_method = $request->payment_method;
         $order->order_date = $request->order_date;
         $order->save();
-        // dd($request->all());
-    
+
         // Update order items (loop through and update each item)
         foreach ($request->order_kind as $index => $orderKind) {
             $item = $order->items()->get()[$index];
             
             $item->order_kind = $orderKind;
-            // $item->order_fix_type = $request->order_fix_type[$index];
+            $item->item_type = $request->item_type[$index];
             $item->weight = $request->weight[$index];
-            // $item->gold_color = $request->gold_color[$index];
+            // Add the new fields
+            $item->model = $request->model[$index];
+            $item->serial_number = $request->serial_number[$index];
+            $item->order_details = $request->order_details[$index];
             $item->order_type = $request->order_type[$index];
             $item->save();
         }

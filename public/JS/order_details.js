@@ -25,14 +25,6 @@ document.getElementById('add-item').addEventListener('click', function() {
         }
     });
 
-    // Update checkbox ID
-    const checkbox = template.querySelector('.toggleLabel');
-    checkbox.id = `sample_${itemIndex}`;
-    const checkboxLabel = checkbox.nextElementSibling.nextElementSibling;
-    if (checkboxLabel) {
-        checkboxLabel.setAttribute('for', checkbox.id);
-    }
-
     // Add event listeners for the new item
     initializeItemEventListeners(template);
 
@@ -45,22 +37,27 @@ document.getElementById('add-item').addEventListener('click', function() {
 
 // Function to initialize event listeners for an item
 function initializeItemEventListeners(item) {
-    // Add checkbox click event
-    const checkbox = item.querySelector('.toggleLabel');
-    checkbox.addEventListener('change', function() {
-        toggleLabelVisibility(this);
+    // Add radio button change event for item type
+    const typeRadios = item.querySelectorAll('.item-type-radio');
+    typeRadios.forEach(function(radio) {
+        radio.addEventListener('change', function() {
+            const hiddenFields = item.querySelector('.hidden-fields');
+            if (this.checked) {
+                hiddenFields.style.display = 'block';
+            }
+        });
     });
 
-    // Add checkbox-square click event
-    const checkboxSquare = item.querySelector('.checkbox-square');
-    if (checkboxSquare) {
-        checkboxSquare.addEventListener('click', function() {
-            const checkbox = this.previousElementSibling;
-            checkbox.checked = !checkbox.checked;
-            toggleLabelVisibility(checkbox);
-            checkbox.dispatchEvent(new Event('change'));
+    // Add radio button change event for order type
+    const orderTypeRadios = item.querySelectorAll('.order-type-radio');
+    orderTypeRadios.forEach(function(radio) {
+        radio.addEventListener('change', function() {
+            const shopSpecificFields = item.querySelector('.shop-specific-fields');
+            if (this.checked) {
+                shopSpecificFields.style.display = this.value === 'by_shop' ? 'block' : 'none';
+            }
         });
-    }
+    });
 
     // Add radio-circle click events
     const radioCircles = item.querySelectorAll('.radio-circle');
@@ -81,31 +78,6 @@ function initializeItemEventListeners(item) {
     }
 }
 
-function toggleRingSizeVisibility(dropdown) {
-    const itemContainer = dropdown.closest('.order-item');
-    const ringSizeField = itemContainer.querySelector('.ring-size');
-
-    if (dropdown.value === 'Ring') { // Replace 'ring' with the exact value for "ring" option in your dropdown
-        ringSizeField.style.display = 'block';
-    } else {
-        ringSizeField.style.display = 'none';
-    }
-}
-
-function toggleLabelVisibility(checkbox) {
-    const itemContainer = checkbox.closest('.order-item');
-    const weight_field = itemContainer.querySelector('.weight_field');
-    const image_field = itemContainer.querySelector('.image_field');
-
-    if (checkbox.checked) {
-        weight_field.style.display = "block";
-        image_field.style.display = "block";
-    } else {
-        weight_field.style.display = "none";
-        image_field.style.display = "none";
-    }
-}
-
 function toggleCustomerDetails() {
     var textArea = document.getElementById("order_detail");
     var byCustomer = document.getElementById("by_customer").checked;
@@ -117,6 +89,7 @@ function toggleCustomerDetails() {
         textArea.style.display = "block";
     }
 }
+
 document.addEventListener('DOMContentLoaded', function() {
     const orderCheckboxes = document.querySelectorAll('.order-checkbox');
     const maxSelections = 5;

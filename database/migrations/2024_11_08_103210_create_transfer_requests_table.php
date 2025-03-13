@@ -13,10 +13,12 @@ return new class extends Migration
     {
         Schema::create('transfer_requests', function (Blueprint $table) {
             $table->id();
-            $table->foreignId('gold_item_id')->constrained('gold_items');
+            $table->foreignId('gold_item_id')->nullable()->constrained('gold_items');
+            $table->foreignId('pound_id')->nullable()->constrained('gold_pounds_inventory');
             $table->string('from_shop_name');
             $table->string('to_shop_name');
             $table->enum('status', ['pending', 'accepted', 'rejected'])->default('pending');
+            $table->enum('type', ['item', 'pound'])->default('item');
             $table->timestamps();
         });
     }
