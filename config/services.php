@@ -16,10 +16,11 @@ return [
  'asgardeo' => [
     'client_id' => env('ASGARDEO_CLIENT_ID'),
     'client_secret' => env('ASGARDEO_CLIENT_SECRET'),
-    'redirect' => env('ASGARDEO_REDIRECT_URI'), // This will be overridden by middleware
-    'authorize_url' => env('ASGARDEO_AUTHORIZE_URL', 'https://asgardeo.io/oauth2/authorize'),
-    'token_url' => env('ASGARDEO_TOKEN_URL', 'https://asgardeo.io/oauth2/token'),
-    'userinfo_url' => env('ASGARDEO_USERINFO_URL', 'https://asgardeo.io/oauth2/userinfo'),
+    'redirect' => env('ASGARDEO_REDIRECT_URI'),
+    'authorize_url' => env('ASGARDEO_AUTHORIZE_URL'),
+    'token_url' => env('ASGARDEO_TOKEN_URL'),
+    'userinfo_url' => env('ASGARDEO_USERINFO_URL'),
+    'logout_url' => env('ASGARDEO_LOGOUT_URL'),
 ],
 
     'passport' => [

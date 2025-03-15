@@ -1,5 +1,9 @@
 <?php
+require base_path('routes/api.php');
 
+// ===================================
+// Package Imports & Use Statements
+// ===================================
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Route;
 use Illuminate\Support\Facades\Http;
@@ -18,7 +22,7 @@ use App\Http\Controllers\{
     Auth\AsgardeoAuthController,
     OuterController,
     GoldCatalogController,
-    ExcelImportController,
+    Excel\ExcelImportController,
     Excel\ImportGoldItems,
     Excel\ImportSoldItems,
     Excel\ImportModels,
@@ -42,10 +46,10 @@ use App\Http\Controllers\{
     // NewItemTalabatController 
 };
 
-// Add this near the top of the file, after the use statements
+// ===================================
+// Utility Routes
+// ===================================
 Route::view('/loader-component', 'components.loader')->name('loader.component');
-
-// Test SMTP Route
 Route::get('/test-smtp', function () {
     try {
         $transport = new \Symfony\Component\Mailer\Transport\Smtp\EsmtpTransport(
@@ -62,12 +66,19 @@ Route::get('/test-smtp', function () {
     }
 });
 
+// ===================================
+// Authentication Routes
+// ===================================
 Route::middleware('guest')->group(function () {
     Route::get('login', [AsgardeoAuthController::class, 'redirectToAsgardeo'])->name('login');
     Route::get('callback', [AsgardeoAuthController::class, 'handleAsgardeoCallback'])->name('auth.callback');
 });
-// Authenticated Routes
+
+// ===================================
+// Main Authenticated Routes Group
+// ===================================
 Route::middleware(['auth'])->group(function () {
+    // Dashboard Route
     Route::get('/dashboard', function () {
         try {
             $user = Auth::user();
@@ -119,34 +130,45 @@ Route::middleware(['auth'])->group(function () {
         }
     })->name('dashboard');
 
-    // Add this inside the authenticated routes group
+    // ===================================
+    // Accountant (ACC) Routes
+    // ===================================
     Route::middleware(['auth', 'acc'])->group(function () {
         Route::get('/Acc_sell_requests', [SoldItemRequestController::class, 'viewSaleRequestsAcc'])->name('sell-requests.acc');
         Route::post('/Acc_sell_requests/{id}/approve', [SoldItemRequestController::class, 'approveSaleRequest'])->name('sell-requests.approve');
         Route::post('/Acc_sell_requests/{id}/reject', [SoldItemRequestController::class, 'rejectSaleRequest'])->name('sell-requests.reject');
         Route::get('/all-sold-items', [SoldItemRequestController::class, 'viewAllSoldItems'])
             ->name('all-sold-items');
-            
+            Route::post('/sell-requests/bulk-approve', [SoldItemRequestController::class, 'bulkApprove'])->name('sell-requests.bulk-approve');
+
 
     });
 
-    // sell requests for acc
-    Route::get('/item-details/{serial_number}', [ShopsController::class, 'getItemDetails'])->name('item.details');
-    Route::post('/sell-requests/bulk-approve', [SoldItemRequestController::class, 'bulkApprove'])->name('sell-requests.bulk-approve');
-    // Import Excels
+    // ===================================
+    // Excel Import Routes
+    // ===================================
     Route::get('/excel', [ImportGoldItems::class, 'showForm']);
     Route::post('/import-excel', [ImportGoldItems::class, 'import'])->name('import.excel');
     Route::post('/import-excel-sold', [ImportSoldItems::class, 'import'])->name('import.excel-sold');
     Route::post('/import-excel-models', [ImportModels::class, 'import'])->name('import.excel-models');
+
+    // ===================================
+    // Gold Items & Pricing Routes
+    // ===================================
     Route::get('/gold-items', [ShopsController::class, 'getAllItems'])->name('gold-items.index');
     Route::get('/update_prices', [GoldPriceController::class, 'Create'])->name('gold_prices.create');
     Route::post('/update_prices/store', [GoldPriceController::class, 'store'])->name('gold_prices.store');
     Route::get('/gold-items/same-model', [ShopsController::class, 'getItemsByModel']);
 
-    // Notifications
+    // ===================================
+    // Notification Routes
+    // ===================================
     Route::get('/notifications/stream', [NotificationController::class, 'stream'])->name('notifications.stream');
     Route::get('/notifications/clear', [NotificationController::class, 'clear'])->name('notifications.clear');
-    // Add Requestsadmin/add_requests
+
+    // ===================================
+    // Request Management Routes
+    // ===================================
     Route::get('/admin/add_requests', [AddRequestController::class, 'allRequests'])->name('admin.add.requests');
 
     Route::get('/shop/addRequests', [AddRequestController::class, 'index'])->name('add-requests.index');
@@ -175,8 +197,11 @@ Route::middleware(['auth'])->group(function () {
         ->name('gold-pounds.create-sale-request');
     Route::post('gold-pounds/sell', [GoldPoundController::class, 'sell'])->name('gold-pounds.sell');
 
+    // ===================================
     // Admin Routes
+    // ===================================
     Route::middleware('admin')->group(function () {
+        // Gold Item Management
         Route::post('/gold-items/add-to-session', [GoldItemController::class, 'addItemToSession'])->name('gold-items.add-to-session');
         Route::delete('/gold-items/remove-session-item', [GoldItemController::class, 'removeSessionItem'])->name('gold-items.remove-session-item');
         Route::post('/gold-items/submit-all', [GoldItemController::class, 'submitAllItems'])->name('gold-items.submit-all');
@@ -267,12 +292,17 @@ Route::middleware(['auth'])->group(function () {
         // Add these new routes inside the admin middleware group
     });
 
+    // ===================================
     // Shop Routes
+    // ===================================
     Route::middleware('user')->group(function () {
+        // Shop Requests
         Route::get('/shop/requests', [ShopsController::class, 'showAdminRequests'])
             ->name('shop.requests.index');
         Route::patch('/shop/requests/{itemRequest}', [ShopsController::class, 'updateAdminRequests'])
             ->name('shop.requests.update');
+
+        // Shop Dashboard & Items
         Route::get('/shop/dashboard', [ShopsController::class, 'showShopItems'])->name('shop-dashboard');
         Route::get('/gold-catalog', [GoldCatalogController::class, 'ThreeView'])->name('gold-catalog');
         Route::get('/dashboard/{id}/edit', [ShopsController::class, 'edit'])->name('shop-items.edit');
@@ -300,7 +330,9 @@ Route::middleware(['auth'])->group(function () {
         Route::post('/import', [ExcelImportController::class, 'import'])->name('excel.import');
     });
 
+    // ===================================
     // Rabea Routes
+    // ===================================
     Route::middleware('rabea')->group(function () {
         Route::get('/orders/rabea', [RabiaController::class, 'indexForRabea'])->name('orders.rabea.index');
         
@@ -319,15 +351,48 @@ Route::middleware(['auth'])->group(function () {
         Route::get('/orders/completed', [RabiaController::class, 'completed'])->name('orders.completed');
     });
 
-    // Common Routes for All Authenticated Users
+    // ===================================
+    // Common Authenticated Routes
+    // ===================================
     Route::post('/pound-requests/bulk-approve', [AddPoundsRequestController::class, 'bulkApprove'])
         ->name('pound-requests.bulk-approve');
     Route::post('/pound-requests/bulk-reject', [AddPoundsRequestController::class, 'bulkReject'])
         ->name('pound-requests.bulk-reject');
 });
 
-require __DIR__ . '/auth.php';
+// ===================================
+// Laboratory Operations Routes
+// ===================================
+Route::prefix('laboratory')->name('laboratory.')->group(function () {
+    Route::resource('operations', LaboratoryOperationController::class);
+    Route::post('operations/{operation}/add-output', [LaboratoryOperationController::class, 'addOutput'])
+         ->name('operations.add-output');
+    Route::post('operations/{operation}/add-input', [LaboratoryOperationController::class, 'addInput'])
+         ->name('operations.add-input');
+    Route::patch('operations/{operation}/close', [LaboratoryOperationController::class, 'closeOperation'])
+         ->name('operations.close');
+    Route::get('operations/{operation}/edit', [LaboratoryOperationController::class, 'edit'])
+         ->name('operations.edit');
+    Route::patch('/operations/{operation}/weights', [LaboratoryOperationController::class, 'updateWeights'])
+        ->name('operations.update-weights');
+    Route::patch('/operations/{operation}/costs', [LaboratoryOperationController::class, 'updateCosts'])
+        ->name('operations.update-costs');
+});
 
+// ===================================
+// SuperAdmin Routes
+// ===================================
+Route::prefix('Root')->group(function () {
+    Route::get('/addRequests', [SuperAdminRequestController::class, 'index'])->name('superadmin.requests.index');
+    Route::post('/addRequests/bulk-action', [SuperAdminRequestController::class, 'bulkAction'])->name('superadmin.requests.bulk-action');
+    Route::post('/addRequests/bulk-approve-pounds', [SuperAdminRequestController::class, 'bulkApprovePounds'])->name('superadmin.requests.bulk-approve-pounds');
+    Route::post('/addRequests/bulk-reject-pounds', [SuperAdminRequestController::class, 'bulkRejectPounds'])->name('superadmin.requests.bulk-reject-pounds');
+});
+
+// ===================================
+// Miscellaneous Routes
+// ===================================
+require __DIR__ . '/auth.php';
 Route::get('/export-sales', [SoldItemRequestController::class, 'exportSales'])->name('export.sales');
 // rabea pounds
 Route::get('/gold-items-sold', [GoldItemSoldController::class, 'index'])->name('gold-items.sold');
@@ -343,7 +408,7 @@ Route::post('/orders/store', [OrderController::class, 'store'])
     ->name('orders.store')
     ->middleware(['auth', 'web']);
 
-Route::post('/api/pound-sale', [ShopsController::class, 'submitPoundPrice'])->name('pound.submit-price');
+Route::post('/pound-sale', [ShopsController::class, 'submitPoundPrice'])->name('pound.submit-price');
 
 Route::post('/check-associated-pounds', [ShopsController::class, 'checkAssociatedPounds'])->name('check-associated-pounds');
 
@@ -391,16 +456,11 @@ Route::middleware(['auth'])->group(function () {
     Route::get('/workshop-items', [AdminDashboardController::class, 'workshopItems'])->name('workshop.items.index');
 });
 
-// SuperAdmin Routes (no auth middleware)
-Route::prefix('Root')->group(function () {
-    Route::get('/addRequests', [SuperAdminRequestController::class, 'index'])->name('superadmin.requests.index');
-    Route::post('/addRequests/bulk-action', [SuperAdminRequestController::class, 'bulkAction'])->name('superadmin.requests.bulk-action');
-    Route::post('/addRequests/bulk-approve-pounds', [SuperAdminRequestController::class, 'bulkApprovePounds'])->name('superadmin.requests.bulk-approve-pounds');
-    Route::post('/addRequests/bulk-reject-pounds', [SuperAdminRequestController::class, 'bulkRejectPounds'])->name('superadmin.requests.bulk-reject-pounds');
-});
-
 Route::post('/import-sold-items/update-prices', [ImportSoldItems::class, 'updatePrices'])
     ->name('import-sold-items.update-prices');
 
 Route::get('/gold-pounds/transfer-form', [GoldPoundController::class, 'showBulkTransferForm'])->name('gold-pounds.transfer-form');
 Route::post('/gold-pounds/bulk-transfer', [GoldPoundController::class, 'bulkTransfer'])->name('gold-pounds.bulk-transfer');
+
+// Make sure this route exists and is named 'login'
+Route::get('/login', [AsgardeoAuthController::class, 'redirectToAsgardeo'])->name('login');
