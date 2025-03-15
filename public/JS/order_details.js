@@ -42,22 +42,36 @@ function initializeItemEventListeners(item) {
     typeRadios.forEach(function(radio) {
         radio.addEventListener('change', function() {
             const hiddenFields = item.querySelector('.hidden-fields');
+            const shopSpecificFields = item.querySelector('.shop-specific-fields');
+            const modelLabel = shopSpecificFields.querySelector('.model-label');
+            const modelInput = shopSpecificFields.querySelector('.model-input');
+
             if (this.checked) {
                 hiddenFields.style.display = 'block';
+                shopSpecificFields.style.display = 'block';
+
+                // Change label and placeholder based on item type
+                if (this.value === 'الماظ') {
+                    modelLabel.textContent = 'رقم القطعة';
+                    // modelInput.placeholder = 'ادخل رقم القطعة';
+                } else {
+                    modelLabel.textContent = 'الموديل';
+                    modelInput.placeholder = '';
+                }
             }
         });
     });
 
     // Add radio button change event for order type
-    const orderTypeRadios = item.querySelectorAll('.order-type-radio');
-    orderTypeRadios.forEach(function(radio) {
-        radio.addEventListener('change', function() {
-            const shopSpecificFields = item.querySelector('.shop-specific-fields');
-            if (this.checked) {
-                shopSpecificFields.style.display = this.value === 'by_shop' ? 'block' : 'none';
-            }
-        });
-    });
+    // const orderTypeRadios = item.querySelectorAll('.order-type-radio');
+    // orderTypeRadios.forEach(function(radio) {
+    //     radio.addEventListener('change', function() {
+    //         const shopSpecificFields = item.querySelector('.shop-specific-fields');
+    //         if (this.checked) {
+    //             shopSpecificFields.style.display = this.value === 'by_shop' ? 'block' : 'none';
+    //         }
+    //     });
+    // });
 
     // Add radio-circle click events
     const radioCircles = item.querySelectorAll('.radio-circle');

@@ -223,6 +223,14 @@
             white-space: nowrap;
             transition: color 0.3s ease;
         }
+
+        .shop-specific-fields {
+            transition: all 0.3s ease;
+        }
+        
+        .model-label, .model-input {
+            transition: all 0.3s ease;
+        }
     </style>
 </head>
 <body>
@@ -395,14 +403,14 @@
             </div>
 
             <!-- Shop-specific fields (hidden by default) -->
-            <div class="shop-specific-fields" style="display: none">
+            <div class="shop-specific-fields">
                 <div class="row mb-3">
                     <div class="col-md-4">
-                        <label class="form-label">الموديل</label>
-                        <input type="text" class="form-control" name="model[]">
+                        <label class="form-label model-label">الموديل</label>
+                        <input type="text" class="form-control model-input" name="model[]">
                     </div>
                     <div class="col-md-4">
-                        <label class="form-label">رقم القطعة</label>
+                        <label class="form-label"> barcode</label>
                         <input type="text" class="form-control" name="serial_number[]">
                     </div>
                     <div class="col-md-4">
