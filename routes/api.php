@@ -8,6 +8,8 @@ use App\Http\Controllers\UserController;
 use App\Http\Controllers\RabiaController;
 use App\Http\Controllers\Api\RabiaApiController;
 use App\Http\Controllers\Api\ModelsController;
+use App\Http\Controllers\Api\ShopifyCustomersController;
+use App\Http\Controllers\Api\GoldItemsController;
 
 // Public auth routes
 Route::prefix('auth')->group(function () {
@@ -39,7 +41,32 @@ Route::middleware(['auth'])->group(function () {
         Route::get('/orders/{id}', [RabiaApiController::class, 'getOrder']);
         Route::put('/orders/{id}', [RabiaApiController::class, 'updateOrder']);
     });
+
+ 
 });
 
 // Models API Routes
-Route::apiResource('models', ModelsController::class);
+Route::apiResource('models', ModelsController::class)->names([
+    'index' => 'api.models.index',
+    'store' => 'api.models.store',
+    'show' => 'api.models.show',
+    'update' => 'api.models.update',
+    'destroy' => 'api.models.destroy',
+]);
+Route::prefix('shopify')->group(function () {
+    // Customers Routes
+    Route::get('/customers', [ShopifyCustomersController::class, 'index']);
+    Route::get('/customers/search', [ShopifyCustomersController::class, 'search']);
+    Route::get('/customers/all', [ShopifyCustomersController::class, 'getAllCustomers']);
+    Route::get('/customers/page/{page}', [ShopifyCustomersController::class, 'getCustomersByPage']);
+    Route::get('/customers/{customerId}', [ShopifyCustomersController::class, 'show']);
+});
+
+// Gold Items API Routes
+Route::apiResource('gold-items', GoldItemsController::class)->names([
+    'index' => 'api.gold-items.index',
+    'store' => 'api.gold-items.store',
+    'show' => 'api.gold-items.show',
+    'update' => 'api.gold-items.update',
+    'destroy' => 'api.gold-items.destroy',
+]);

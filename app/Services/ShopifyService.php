@@ -698,4 +698,260 @@ public function updateVariantPricesAndWeight($variantGid, $price, $compareAtPric
         ];
     }
 }
+
+public function getCustomers($limit = 50, $since_id = null)
+{
+    try {
+        $query = [
+            'limit' => $limit
+        ];
+
+        if ($since_id) {
+            $query['since_id'] = $since_id;
+        }
+
+        $response = $this->client->get('customers.json', [
+            'query' => $query
+        ]);
+
+        $customersData = json_decode($response->getBody()->getContents(), true)['customers'];
+        
+        $processedCustomers = [];
+        foreach ($customersData as $customer) {
+            $processedCustomers[] = [
+                'id' => $customer['id'] ?? null,
+                'email' => $customer['email'] ?? null,
+                'email_status' => ($customer['verified_email'] ?? false) ? 'Verified' : 'Unverified',
+                'first_name' => $customer['first_name'] ?? '',
+                'last_name' => $customer['last_name'] ?? '',
+                'full_name' => trim(($customer['first_name'] ?? '') . ' ' . ($customer['last_name'] ?? '')),
+                'phone' => $customer['phone'] ?? 'N/A',
+                'total_spent' => number_format($customer['total_spent'] ?? 0, 2),
+                'orders_count' => $customer['orders_count'] ?? 0,
+                'addresses' => array_map(function($address) {
+                    return [
+                        'id' => $address['id'] ?? null,
+                        'address1' => $address['address1'] ?? '',
+                        'city' => $address['city'] ?? '',
+                        'province' => $address['province'] ?? '',
+                        'country' => $address['country'] ?? '',
+                        'zip' => $address['zip'] ?? ''
+                    ];
+                }, $customer['addresses'] ?? []),
+                'tags' => $customer['tags'] ?? '',
+                'marketing_consent' => ($customer['accepts_marketing'] ?? false) ? 'Subscribed' : 'Unsubscribed',
+                'account_status' => $customer['state'] ?? 'active',
+                'created_at' => isset($customer['created_at']) ? 
+                    \Carbon\Carbon::parse($customer['created_at'])->format('M d, Y H:i') : null
+            ];
+        }
+
+        return $processedCustomers;
+    } catch (\Exception $e) {
+        Log::error('Error fetching Shopify customers: ' . $e->getMessage());
+        return [];
+    }
+}
+
+public function getCustomerCount()
+{
+    try {
+        $response = $this->client->get('customers/count.json');
+        $count = json_decode($response->getBody()->getContents(), true)['count'];
+        return $count;
+    } catch (\Exception $e) {
+        Log::error('Error fetching Shopify customer count: ' . $e->getMessage());
+        return 0;
+    }
+}
+
+public function searchCustomers($query, $limit = 50)
+{
+    try {
+        $searchParams = [
+            'limit' => $limit,
+            'query' => $query
+        ];
+
+        $response = $this->client->get('customers.json', [
+            'query' => $searchParams
+        ]);
+
+        $customers = json_decode($response->getBody()->getContents(), true)['customers'];
+        
+        $processedCustomers = array_map(function($customer) {
+            return [
+                'id' => $customer['id'],
+                'email' => $customer['email'],
+                'name' => trim($customer['first_name'] . ' ' . $customer['last_name']),
+                'total_spent' => $customer['total_spent'] ?? 0,
+                'orders_count' => $customer['orders_count'] ?? 0,
+                'created_at' => $customer['created_at']
+            ];
+        }, $customers);
+
+        return $processedCustomers;
+    } catch (\Exception $e) {
+        Log::error('Error searching Shopify customers: ' . $e->getMessage());
+        return [];
+    }
+}
+
+public function getCustomer($customerId)
+{
+    try {
+        $response = $this->client->get("customers/{$customerId}.json");
+        return json_decode($response->getBody()->getContents(), true)['customer'];
+    } catch (\Exception $e) {
+        Log::error('Error fetching Shopify customer: ' . $e->getMessage());
+        return null;
+    }
+}
+
+public function getAllCustomersWithoutLimit()
+{
+    try {
+        $allCustomers = [];
+        $since_id = null;
+        $chunk_size = 250; // Maximum allowed by Shopify
+        $page_count = 0;
+        $max_pages = ceil($this->getCustomerCount() / $chunk_size); // Calculate total pages needed
+        
+        do {
+            $query = ['limit' => $chunk_size];
+            if ($since_id) {
+                $query['since_id'] = $since_id;
+            }
+
+            Log::info("Fetching customers page " . ($page_count + 1) . " of approximately " . $max_pages);
+
+            $response = $this->client->get('customers.json', [
+                'query' => $query,
+                'timeout' => 30,
+                'connect_timeout' => 30
+            ]);
+
+            $customersData = json_decode($response->getBody()->getContents(), true)['customers'];
+            
+            if (empty($customersData)) {
+                break;
+            }
+
+            foreach ($customersData as $customer) {
+                $allCustomers[] = $this->formatCustomerData($customer);
+            }
+
+            $since_id = end($customersData)['id'];
+            $page_count++;
+
+            // Add logging to track progress
+            Log::info("Processed " . count($allCustomers) . " customers so far");
+
+            // Add a small delay between requests to prevent rate limiting
+            usleep(500000); // 0.5 second delay
+
+        } while (!empty($customersData) && $page_count < $max_pages);
+
+        Log::info("Finished processing. Total customers retrieved: " . count($allCustomers));
+        return $allCustomers;
+    } catch (\Exception $e) {
+        Log::error('Error fetching all Shopify customers: ' . $e->getMessage());
+        return [];
+    }
+}
+
+public function getCustomersByPageNumber($page, $limit = 50)
+{
+    try {
+        // Validate page number
+        if ($page < 1) {
+            Log::error("Invalid page number: {$page}");
+            return [];
+        }
+
+        $allCustomers = [];
+        $since_id = null;
+        $totalCustomers = $this->getCustomerCount();
+        $totalPages = ceil($totalCustomers / $limit);
+
+        // Check if requested page exists
+        if ($page > $totalPages) {
+            Log::error("Page {$page} exceeds total pages {$totalPages}");
+            return [];
+        }
+
+        Log::info("Fetching customers for page {$page} of {$totalPages}");
+
+        // Fetch all customers up to the requested page
+        $requestsNeeded = ceil(($page * $limit) / 250);
+        
+        for ($i = 0; $i < $requestsNeeded; $i++) {
+            $query = ['limit' => 250]; // Maximum limit per request
+            if ($since_id) {
+                $query['since_id'] = $since_id;
+            }
+
+            $response = $this->client->get('customers.json', [
+                'query' => $query,
+                'timeout' => 30,
+                'connect_timeout' => 30
+            ]);
+
+            $customersData = json_decode($response->getBody()->getContents(), true)['customers'];
+            
+            if (empty($customersData)) {
+                break;
+            }
+
+            $allCustomers = array_merge($allCustomers, $customersData);
+            $since_id = end($customersData)['id'];
+
+            // Add a small delay to prevent rate limiting
+            usleep(500000);
+        }
+
+        // Calculate the slice for the requested page
+        $offset = ($page - 1) * $limit;
+        $pageCustomers = array_slice($allCustomers, $offset, $limit);
+        
+        $formattedCustomers = array_map([$this, 'formatCustomerData'], $pageCustomers);
+
+        Log::info("Retrieved " . count($formattedCustomers) . " customers for page {$page}");
+        return $formattedCustomers;
+
+    } catch (\Exception $e) {
+        Log::error("Error fetching Shopify customers for page {$page}: " . $e->getMessage());
+        return [];
+    }
+}
+
+private function formatCustomerData($customer)
+{
+    return [
+        'id' => $customer['id'] ?? null,
+        'email' => $customer['email'] ?? null,
+        'email_status' => ($customer['verified_email'] ?? false) ? 'Verified' : 'Unverified',
+        'first_name' => $customer['first_name'] ?? '',
+        'last_name' => $customer['last_name'] ?? '',
+        'full_name' => trim(($customer['first_name'] ?? '') . ' ' . ($customer['last_name'] ?? '')),
+        'phone' => $customer['phone'] ?? 'N/A',
+        'total_spent' => number_format($customer['total_spent'] ?? 0, 2),
+        'orders_count' => $customer['orders_count'] ?? 0,
+        'addresses' => array_map(function($address) {
+            return [
+                'id' => $address['id'] ?? null,
+                'address1' => $address['address1'] ?? '',
+                'city' => $address['city'] ?? '',
+                'province' => $address['province'] ?? '',
+                'country' => $address['country'] ?? '',
+                'zip' => $address['zip'] ?? ''
+            ];
+        }, $customer['addresses'] ?? []),
+        'tags' => $customer['tags'] ?? '',
+        'marketing_consent' => ($customer['accepts_marketing'] ?? false) ? 'Subscribed' : 'Unsubscribed',
+        'account_status' => $customer['state'] ?? 'active',
+        'created_at' => isset($customer['created_at']) ? 
+            \Carbon\Carbon::parse($customer['created_at'])->format('M d, Y H:i') : null
+    ];
+}
 }

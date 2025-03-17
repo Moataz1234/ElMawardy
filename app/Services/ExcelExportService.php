@@ -61,8 +61,20 @@ class ExcelExportService
         // Add data
         $row = 2;
         foreach ($requests as $request) {
-            // Calculate to_print value
-            $toPrint = empty($request->source) ? '' : substr($request->source, 0, 1);
+            // Get source - check models table if request source is null
+            $source = $request->source;
+            if ($source === null && $request->modelCategory) {
+                $source = $request->modelCategory->source;
+            }
+
+            // Calculate to_print value - updated logic
+            $toPrint = '';
+            if ($source && !in_array($source, ['production', 'Returned'])) {
+                $toPrint = substr($source, 0, 1);
+            }
+            
+            // Format talab value
+            $talabValue = $request->talab == 1 ? 'Yes' : 'No';
             
             // Calculate net_weight
             $netWeight = $request->weight - ($request->modelCategory ? $request->modelCategory->average_of_stones : 0);
@@ -72,7 +84,7 @@ class ExcelExportService
             $this->sheet->setCellValue('C' . $row, $request->shop_id);
             $this->sheet->setCellValue('D' . $row, $request->kind);
             $this->sheet->setCellValue('E' . $row, $request->model);
-            $this->sheet->setCellValue('F' . $row, $request->talab ?? 'No');
+            $this->sheet->setCellValue('F' . $row, $talabValue);
             $this->sheet->setCellValue('G' . $row, $request->gold_color);
             $this->sheet->setCellValue('H' . $row, $request->stones);
             $this->sheet->setCellValue('I' . $row, $request->metal_type);
@@ -80,7 +92,7 @@ class ExcelExportService
             $this->sheet->setCellValue('K' . $row, $request->quantity);
             $this->sheet->setCellValue('L' . $row, $request->weight);
             $this->sheet->setCellValue('M' . $row, $request->rest_since);
-            $this->sheet->setCellValue('N' . $row, $request->source);
+            $this->sheet->setCellValue('N' . $row, $source);  // Using the determined source
             $this->sheet->setCellValue('O' . $row, $toPrint);
             $this->sheet->setCellValue('P' . $row, $request->stars);
             $this->sheet->setCellValue('Q' . $row, $request->semi_or_no);
@@ -95,9 +107,9 @@ class ExcelExportService
             $this->sheet->getColumnDimension($column)->setAutoSize(true);
         }
 
-        // Create the excel file
+        // Create the excel file with date in filename
         $writer = new Xlsx($this->spreadsheet);
-        $filename = 'add_requests_' . date('Y-m-d_His') . '.xlsx';
+        $filename = 'add_requests_' . ($date ?? date('Y-m-d')) . '.xlsx';
         $path = storage_path('app/public/' . $filename);
         
         // Save the file
