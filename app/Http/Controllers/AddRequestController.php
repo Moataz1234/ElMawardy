@@ -10,6 +10,8 @@ use App\Models\AddRequest;
 use App\Models\PoundRequest;
 use Illuminate\Support\Facades\Log;
 use Illuminate\Support\Facades\Auth;
+use App\Services\ExcelExportService;
+use Symfony\Component\HttpFoundation\StreamedResponse;
 
 class AddRequestController extends Controller
 {
@@ -154,5 +156,43 @@ class AddRequestController extends Controller
         } catch (\Exception $e) {
             return redirect()->back()->with('error', 'An error occurred: ' . $e->getMessage());
         }
+    }
+
+    public function export(Request $request)
+    {
+        $query = AddRequest::query()
+            ->leftJoin('models', 'add_requests.model', '=', 'models.model')
+            ->select('add_requests.*', 'models.stars', 'models.average_of_stones');
+
+        // Apply filters
+        if ($status = $request->get('status')) {
+            $query->where('add_requests.status', $status);
+        }
+
+        if ($request->has('shop_name') && $request->shop_name != '') {
+            $query->where('add_requests.shop_name', $request->shop_name);
+        }
+
+        if ($date = $request->get('date')) {
+            $query->whereDate('add_requests.rest_since', $date);
+        }
+
+        if ($sort = $request->get('sort')) {
+            $direction = $request->get('direction', 'desc');
+            $query->orderBy('add_requests.created_at', $direction);
+        }
+
+        $requests = $query->with('modelCategory')->get();
+
+        // Create and export excel
+        $excelService = new ExcelExportService();
+        $filename = $excelService->exportAddRequests($requests);
+
+        // Return file download response
+        return response()->download(
+            storage_path('app/public/' . $filename),
+            $filename,
+            ['Content-Type' => 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet']
+        )->deleteFileAfterSend(true);
     }
 }

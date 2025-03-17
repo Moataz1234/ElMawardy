@@ -28,10 +28,10 @@
             max-height: 80vh;
         }
     </style>
+    @include('components.navbar')
 </head>
 
 <body>
-    @include('components.navbar')
     <div class="container mt-5">
         <h1 class="text-center mb-4">طلبات الاضافة</h1>
         @if (session('success'))

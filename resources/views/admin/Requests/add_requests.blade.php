@@ -9,11 +9,11 @@
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@4.6.0/dist/css/bootstrap.min.css" rel="stylesheet">
     <link href="{{ url('css/addRequests.css') }}" rel="stylesheet">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
+    @include('components.navbar')
 
 </head>
 
 <body>
-    @include('components.navbar')
     <div class="container mt-5">
         <h1 class="text-center mb-4">Add Requests</h1>
 
@@ -62,6 +62,10 @@
                 <div class="col-auto">
                     <button type="submit" class="btn btn-primary">Filter</button>
                     <button type="reset" class="btn btn-secondary">Reset</button>
+                    <a href="{{ route('admin.add.requests.export') }}?{{ http_build_query(request()->all()) }}" 
+                       class="btn btn-success">
+                        <i class="fas fa-file-excel"></i> Export to Excel
+                    </a>
                 </div>
             </form>
         </div>

@@ -13,17 +13,17 @@ class OrderItem extends Model
     // Specify the fields that are mass assignable
     protected $fillable = [
         'order_id',   // Foreign key for linking to the orders table
-        // 'quantity',
         'order_kind',
         'item_type',  // Changed from order_fix_type
         'model',           // New field
         'serial_number',   // New field
-        // 'ring_size',
         'weight',
-        // 'gold_color',
         'image_link',
         'order_details',
         'order_type'
+        // 'quantity',
+        // 'gold_color',
+        // 'ring_size',
     ];
 
     /**

@@ -464,3 +464,6 @@ Route::post('/gold-pounds/bulk-transfer', [GoldPoundController::class, 'bulkTran
 
 // Make sure this route exists and is named 'login'
 Route::get('/login', [AsgardeoAuthController::class, 'redirectToAsgardeo'])->name('login');
+
+Route::get('/admin/add-requests/export', [AddRequestController::class, 'export'])
+    ->name('admin.add.requests.export');
