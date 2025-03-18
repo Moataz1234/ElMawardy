@@ -33,16 +33,28 @@ public function handleTransfer($requestId, $status)
         ]);
 
         if ($status === 'accepted') {
+            // Get the destination shop's ID
+            $toShop = Shop::where('name', $request->to_shop_name)->first();
+            
+            if (!$toShop) {
+                Log::error('Destination shop not found', [
+                    'shop_name' => $request->to_shop_name
+                ]);
+                throw new \Exception('Destination shop not found');
+            }
+
             if ($request->type == 'pound') {
                 $pound = $request->pound;
                 if ($pound) {
                     Log::info('Updating pound location', [
                         'pound_id' => $pound->id,
-                        'new_shop' => $request->to_shop_name
+                        'new_shop' => $request->to_shop_name,
+                        'new_shop_id' => $toShop->id
                     ]);
                     
                     $pound->update([
                         'shop_name' => $request->to_shop_name,
+                        'shop_id' => $toShop->id,
                         'status' => 'active'
                     ]);
                 } else {
@@ -55,6 +67,7 @@ public function handleTransfer($requestId, $status)
                 if ($request->goldItem) {
                     $request->goldItem->update([
                         'shop_name' => $request->to_shop_name,
+                        'shop_id' => $toShop->id,
                         'status' => 'available'
                     ]);
                 }

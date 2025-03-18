@@ -123,12 +123,12 @@ class ImportGoldItems extends Controller
                 'shop_name' => $rowData[2], //C
                 'shop_id' => $rowData[3],//D
                 'weight' => $rowData[12], //M
-                'gold_color' => $rowData[7],
-                'metal_type' => $rowData[9],
-                'metal_purity' => $rowData[10],
-                'quantity' => $rowData[11],
-                'stones' => $rowData[8],
-                'talab' => $rowData[6] === 'YES',
+                'gold_color' => $rowData[7], //H
+                'metal_type' => $rowData[9], //J
+                'metal_purity' => $rowData[10], //K
+                'quantity' => $rowData[11], //L
+                'stones' => $rowData[8], //I
+                'talab' => $rowData[6] === 'YES', // G
                 'status' => 'available',
                 'rest_since' => $rest_since,
                 'source' => $rowData[14] ?: $defaultSource, // Column O in Excel, fallback to default source if empty

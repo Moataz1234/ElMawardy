@@ -45,10 +45,10 @@ Route::prefix('shopify')->group(function () {
 });
 
 // Gold Items API Routes
-Route::apiResource('gold-items', GoldItemsController::class)->names([
-    'index' => 'api.gold-items.index',
-    'store' => 'api.gold-items.store',
-    'show' => 'api.gold-items.show',
-    'update' => 'api.gold-items.update',
-    'destroy' => 'api.gold-items.destroy',
-]);
+// Route::apiResource('gold-items', GoldItemsController::class)->names([
+//     'index' => 'api.gold-items.index',
+//     'store' => 'api.gold-items.store',
+//     'show' => 'api.gold-items.show',
+//     'update' => 'api.gold-items.update',
+//     'destroy' => 'api.gold-items.destroy',
+// ]);
