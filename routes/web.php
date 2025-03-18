@@ -158,7 +158,8 @@ Route::middleware(['auth'])->group(function () {
     Route::get('/gold-items', [ShopsController::class, 'getAllItems'])->name('gold-items.index');
     Route::get('/update_prices', [GoldPriceController::class, 'Create'])->name('gold_prices.create');
     Route::post('/update_prices/store', [GoldPriceController::class, 'store'])->name('gold_prices.store');
-    Route::get('/gold-items/same-model', [ShopsController::class, 'getItemsByModel']);
+    Route::get('/item-details/{serial_number}', [ShopsController::class, 'getItemDetails'])->name('item.details');
+    Route::post('/sell-requests/bulk-approve', [SoldItemRequestController::class, 'bulkApprove'])->name('sell-requests.bulk-approve');
 
     // ===================================
     // Notification Routes
@@ -467,3 +468,4 @@ Route::get('/login', [AsgardeoAuthController::class, 'redirectToAsgardeo'])->nam
 
 Route::get('/admin/add-requests/export', [AddRequestController::class, 'export'])
     ->name('admin.add.requests.export');
+    

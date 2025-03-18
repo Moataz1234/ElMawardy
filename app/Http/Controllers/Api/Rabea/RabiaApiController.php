@@ -1,11 +1,10 @@
 <?php
 
-namespace App\Http\Controllers\Api;
+namespace App\Http\Controllers\Api\Rabea;
 
 use App\Http\Controllers\Controller;
 use App\Models\Order;
 use App\Models\OrderItem;
-use App\Models\GoldItem;
 use Illuminate\Support\Facades\Log;
 use App\Services\OrderService;
 use App\Http\Requests\OrderUpdateRequest;

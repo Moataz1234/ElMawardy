@@ -74,8 +74,8 @@
             <table class="table table-hover table-striped border">
                 <thead class="table-dark">
                     <tr>
-                        <th>Model</th>
                         <th>Serial Number</th>
+                        <th>Model</th>
                         <th>Shop Name</th>
                         <th>Type</th>
                         <th>Weight</th>
@@ -102,8 +102,8 @@
                     @endphp
                     @forelse ($requests as $request)
                         <tr>
-                            <td>{{ $request->model }}</td>
                             <td>{{ $request->serial_number }}</td>
+                            <td>{{ $request->model }}</td>
                             <td>{{ $request->shop_name }}</td>
                             <td>{{ $request->kind }}</td>
                             <td>{{ $request->weight }}</td>
