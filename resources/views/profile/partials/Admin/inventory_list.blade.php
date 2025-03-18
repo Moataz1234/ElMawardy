@@ -22,10 +22,10 @@
                             'kind' => 'Kind',
                             'model' => 'Model',
                             'gold_color' => 'Gold Color',
-                            // 'stones' => 'Stones',
-                            // 'metal_type' => 'Metal Type',
+                            'stones' => 'Stones',
+                            'metal_type' => 'Metal Type',
                             'metal_purity' => 'Metal Purity',
-                            // 'quantity' => 'Quantity',
+                            'quantity' => 'Quantity',
                             'weight' => 'Weight',
                             'stars' => 'stars',
                             // 'source' => 'Source',
@@ -64,10 +64,10 @@
                                 data-model="{{ $item->model }}">{{ $item->model }}</a>
                         </td>
                         <td>{{ $item->gold_color }}</td>
-                        {{-- <td>{{ $item->stones }}</td> --}}
-                        {{-- <td>{{ $item->metal_type }}</td> --}}
+                        <td>{{ $item->stones }}</td>
+                        <td>{{ $item->metal_type }}</td>
                         <td>{{ $item->metal_purity }}</td>
-                        {{-- <td>{{ $item->quantity }}</td> --}}
+                        <td>{{ $item->quantity }}</td>
                         <td>{{ $item->weight }}</td>
                         <td>{{ $item->modelCategory->stars ?? 'No stars' }}</td>
                         <td>

@@ -68,7 +68,7 @@ class OrderController extends Controller
                 'customer_phone' => $request->customer_phone,
                 'order_date' => $request->order_date,
                 'payment_method' => $request->payment_method,
-                'status' => 'pending',
+                'status' => 'في انتظار الموافقة',
             ]);
 
             Log::info('Order created successfully', ['order_id' => $order->id]);
@@ -161,7 +161,6 @@ class OrderController extends Controller
 
         // Build the query to exclude pending orders
         $query = Order::where('shop_id', $shop->id) // Filter by the shop ID associated with the user
-        ->where('status', '<>', 'pending') // Exclude pending orders
         ->where('status', '<>', 'خلص');   // Exclude finished orders
 
         // Apply search conditions if a search term is provided

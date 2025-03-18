@@ -359,6 +359,10 @@ Route::middleware(['auth'])->group(function () {
         ->name('pound-requests.bulk-approve');
     Route::post('/pound-requests/bulk-reject', [AddPoundsRequestController::class, 'bulkReject'])
         ->name('pound-requests.bulk-reject');
+
+    // Add this route inside the authenticated routes group
+    Route::get('/gold-items/same-model', [ShopsController::class, 'getItemsByModel'])
+        ->name('gold-items.same-model');
 });
 
 // ===================================

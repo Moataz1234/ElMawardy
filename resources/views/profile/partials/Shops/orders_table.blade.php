@@ -55,6 +55,12 @@
         color: #007bff;
         margin-bottom: 5px;
     }
+    .status-cell {
+        padding: 5px 10px;
+        font-size: 14px;
+        font-weight: bold;
+        color: #000;
+    }
 </style>
 
 <table class="table">
@@ -83,9 +89,10 @@
                 </td>
                 <td>
                     <div class="status-box status-cell" 
+                        class="status-cell"
                          data-status="{{ $order->status }}"
                          style="background-color: {{ 
-                            $order->status == 'خلص' ? 'rgb(179, 5, 121)' : 
+                            $order->status == 'في انتظار الموافقة' ? 'rgb(200, 50, 50)' : 
                             ($order->status == 'في الدمغة' ? 'rgba(64, 152, 199, 0.862)' : 
                             ($order->status == 'في الورشة' ? 'rgb(200, 151, 5)' : 
                             ($order->status == 'تم الإستلام' ? 'rgba(104, 180, 22, 0.971)' : ''))) 
