@@ -28,13 +28,13 @@ Route::prefix('auth')->group(function () {
 // });
 
 // Models API Routes
-Route::apiResource('models', ModelsController::class)->names([
-    'index' => 'api.models.index',
-    'store' => 'api.models.store',
-    'show' => 'api.models.show',
-    'update' => 'api.models.update',
-    'destroy' => 'api.models.destroy',
-]);
+// Route::apiResource('models', ModelsController::class)->names([
+//     'index' => 'api.models.index',
+//     'store' => 'api.models.store',
+//     'show' => 'api.models.show',
+//     'update' => 'api.models.update',
+//     'destroy' => 'api.models.destroy',
+// ]);
 Route::prefix('shopify')->group(function () {
     // Customers Routes
     Route::get('/customers', [ShopifyCustomersController::class, 'index']);
