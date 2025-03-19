@@ -34,7 +34,7 @@
                 <th>Stars</th>
                 <th>Sold Price</th>
                 <th>Sold Date</th>
-                {{-- <th>Actions</th> --}}
+                <th>Actions</th>
             </tr>
         </thead>
         <tbody id="table-body">
@@ -62,13 +62,13 @@
                     <td>{{ $item->stars ?? 'No Stars' }}</td>
                     <td>{{ $item->price }}</td>
                     <td>{{ $item->sold_date }}</td>
-                    {{-- <td>
-                        <form action="{{ route('gold-items-sold.markAsRest', $item->id) }}" method="POST"
-                            style="display:inline;">
+                    <td>
+                        <a href="{{ route('gold-items-sold.edit', $item->id) }}" class="btn btn-primary btn-sm">Edit</a>
+                        {{-- <form action="{{ route('gold-items-sold.markAsRest', $item->id) }}" method="POST" style="display:inline;">
                             @csrf
-                            <button type="submit" class="btn btn-warning">Return to Stock</button>
-                        </form>
-                    </td> --}}
+                            <button type="submit" class="btn btn-warning btn-sm">Return to Stock</button>
+                        </form> --}}
+                    </td>
                 </tr>
             @endforeach
         </tbody>

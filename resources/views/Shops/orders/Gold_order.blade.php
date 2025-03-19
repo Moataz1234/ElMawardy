@@ -285,11 +285,18 @@
                             </label>
                             <select class="form-select" name="payment_method">
                                 <option value="">لا يوجد</option>
-                                <option value="visa">Visa</option>
-                                <option value="value">Value</option>
-                                <option value="cash">Cash</option>
-                                <option value="instapay">Instapay</option>
-                            </select>
+                                
+                                <option value="value">فاليو</option>
+                                <option value="cash">كاش</option>
+                                <option value="instapay">انستاباي</option>
+                                <option value="visa">فيزا (بنك مصر مواردي)</option>
+                                <option value="visa">فيزا (بنك مصر بوليون فاروز)</option>
+                                <option value="visa">فيزا (العربي الافريقي ماوردي)</option>
+                                <option value="visa">فيزا (العربي الافريقي بوليون فاروز)</option>
+                                <option value="visa">فيزا (CIB)</option>
+                                <option value="visa">فيزا (جيديا)</option>
+
+                                </select>
                         </div>
                         <div class="col-md-4">
                             <label class="form-label">
@@ -363,9 +370,15 @@
                 <div class="col-md-4">
                     <label class="form-label">النوع</label>
                     <select name="order_kind[]" class="form-select">
-                        @foreach ($kinds as $kind)
-                            <option value="{{ $kind }}">{{ $kind }}</option>
-                        @endforeach
+                        <option value="">لا يوجد</option>
+                        <option value="تعليفة">تعليفة</option>
+                        <option value="اسورة">اسورة</option>
+                        <option value="حلق">حلق</option>
+                        <option value="كوليه">كوليه</option>
+                        <option value="خاتم">خاتم</option>
+                        <option value="بروش">بروش</option>
+                        <option value="ميدالية">ميدالية</option>
+                        <option value="زرار ">زرار</option>
                     </select>
                 </div>
                 <div class="col-md-4">
@@ -388,7 +401,7 @@
                                 <input type="radio" class="order-type-radio" 
                                        name="order_type[]" 
                                        value="by_customer" 
-                                       id="by_customer_template" required>
+                                       id="by_customer_template" >
                                 <span class="radio-circle"></span>
                                 <label for="by_customer_template"> العميل</label>
                             </div>

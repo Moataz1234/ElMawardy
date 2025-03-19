@@ -16,7 +16,7 @@
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
 </head>
 
-<body class="bg-light"  >
+<body class="bg-light">
     <div class="container py-5">
         <div class="row justify-content-center" dir="rtl">
             <div class="col-12">
@@ -24,7 +24,7 @@
                     <div class="card-body p-4">
                         <!-- Customer Details Section -->
                         <h2 class="card-title text-center mb-4" style="color: #28a745">بيانات الزبون</h2>
-                        <form  class="item-details-form" action="{{ route('shop-items.bulkSell') }}" method="POST">
+                        <form class="item-details-form" action="{{ route('shop-items.bulkSell') }}" method="POST">
                             @csrf
                             <div class="row g-3">
                                 <div class="col-md-6">
@@ -64,12 +64,19 @@
                                     <div class=" mb-3">
                                         <label for="payment_method">طريقة الدفع</label>
 
-                                        <select class="form-select" id="payment_method" name="payment_method">
-                                            <option value="cash">كاش</option>
-                                            <option value="visa">فيزا</option>
+                                        <select class="form-select" name="payment_method">
+                                            <option value="">لا يوجد</option>
+
                                             <option value="value">فاليو</option>
-                                            <option value="mogo">موجو</option>
-                                            <option value="instapay">انستا باي</option>
+                                            <option value="cash">كاش</option>
+                                            <option value="instapay">انستاباي</option>
+                                            <option value="visa">فيزا (بنك مصر مواردي)</option>
+                                            <option value="visa">فيزا (بنك مصر بوليون فاروز)</option>
+                                            <option value="visa">فيزا (العربي الافريقي ماوردي)</option>
+                                            <option value="visa">فيزا (العربي الافريقي بوليون فاروز)</option>
+                                            <option value="visa">فيزا (CIB)</option>
+                                            <option value="visa">فيزا (جيديا)</option>
+
                                         </select>
                                     </div>
                                 </div>
@@ -114,44 +121,47 @@
                                         </div>
                                         <div class="form-floating mt-3">
                                             <input type="number" class="form-control" id="price_{{ $item->id }}"
-                                                   name="prices[{{ $item->id }}]" step="0.01" required>
-                                            <label for="price_{{ $item->id }}">السعر للقطعة ({{ $item->serial_number }})</label>
+                                                name="prices[{{ $item->id }}]" step="0.01" required>
+                                            <label for="price_{{ $item->id }}">السعر للقطعة
+                                                ({{ $item->serial_number }})</label>
                                         </div>
                                     </div>
-                        
+
                                     @if ($pound = $associatedPounds->get($item->id))
-                                    <div class="col-md-6">
-                                        <div class="card h-100 border-warning">
-                                            <div class="card-header bg-warning text-dark">
-                                                <h5 class="mb-0">الجنيه المرتبط</h5>
-                                            </div>
-                                            <div class="card-body">
-                                                <div class="mb-2 d-flex justify-content-between">
-                                                    <strong>الرقم التسلسلي: </strong>
-                                                    <span>{{ $pound->serial_number }}</span>
+                                        <div class="col-md-6">
+                                            <div class="card h-100 border-warning">
+                                                <div class="card-header bg-warning text-dark">
+                                                    <h5 class="mb-0">الجنيه المرتبط</h5>
                                                 </div>
-                                                <div class="mb-2 d-flex justify-content-between">
-                                                    <strong>النوع: </strong>
-                                                    <span>{{ ucfirst(str_replace('_', ' ', $pound->goldPound->kind)) }}</span>
-                                                </div>
-                                                <div class="mb-2 d-flex justify-content-between">
-                                                    <strong>الوزن: </strong>
-                                                    <span>{{ $pound->goldPound->weight }}g</span>
-                                                </div>
-                                                <div class="mb-2 d-flex justify-content-between">
-                                                    <strong>العيار: </strong>
-                                                    <span>{{ $pound->goldPound->purity }}K</span>
-                                                </div>
-                                                <div class="form-floating mt-3">
-                                                    <input type="number" class="form-control" 
-                                                           id="pound_price_{{ $pound->serial_number }}"
-                                                           name="pound_prices[{{ $pound->serial_number }}]" step="0.01" required>
-                                                    <label for="pound_price_{{ $pound->serial_number }}">سعر الجنيه</label>
+                                                <div class="card-body">
+                                                    <div class="mb-2 d-flex justify-content-between">
+                                                        <strong>الرقم التسلسلي: </strong>
+                                                        <span>{{ $pound->serial_number }}</span>
+                                                    </div>
+                                                    <div class="mb-2 d-flex justify-content-between">
+                                                        <strong>النوع: </strong>
+                                                        <span>{{ ucfirst(str_replace('_', ' ', $pound->goldPound->kind)) }}</span>
+                                                    </div>
+                                                    <div class="mb-2 d-flex justify-content-between">
+                                                        <strong>الوزن: </strong>
+                                                        <span>{{ $pound->goldPound->weight }}g</span>
+                                                    </div>
+                                                    <div class="mb-2 d-flex justify-content-between">
+                                                        <strong>العيار: </strong>
+                                                        <span>{{ $pound->goldPound->purity }}K</span>
+                                                    </div>
+                                                    <div class="form-floating mt-3">
+                                                        <input type="number" class="form-control"
+                                                            id="pound_price_{{ $pound->serial_number }}"
+                                                            name="pound_prices[{{ $pound->serial_number }}]"
+                                                            step="0.01" required>
+                                                        <label for="pound_price_{{ $pound->serial_number }}">سعر
+                                                            الجنيه</label>
+                                                    </div>
                                                 </div>
                                             </div>
                                         </div>
-                                    </div>
-                                @endif
+                                    @endif
                                 </div>
                             </div>
                         </div>
@@ -202,7 +212,7 @@
 
             sellForm.addEventListener('submit', function(event) {
                 event.preventDefault();
-                
+
                 // Get form values
                 const firstName = document.getElementById('first_name').value.trim();
                 const lastName = document.getElementById('last_name').value.trim();
@@ -234,41 +244,42 @@
                 submitButton.innerHTML = '<i class="fas fa-spinner fa-spin me-2"></i> جاري المعالجة...';
 
                 fetch(sellForm.action, {
-                    method: 'POST',
-                    body: new FormData(sellForm),
-                    headers: {
-                        'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]').content,
-                        'Accept': 'application/json'
-                    }
-                })
-                .then(response => response.json())
-                .then(data => {
-                    if (data.success) {
+                        method: 'POST',
+                        body: new FormData(sellForm),
+                        headers: {
+                            'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]').content,
+                            'Accept': 'application/json'
+                        }
+                    })
+                    .then(response => response.json())
+                    .then(data => {
+                        if (data.success) {
+                            Swal.fire({
+                                icon: 'success',
+                                title: 'تم بنجاح!',
+                                text: 'تم إرسال طلب البيع بنجاح.',
+                                showConfirmButton: false,
+                                timer: 1500
+                            }).then(() => {
+                                localStorage.removeItem('selectedItems');
+                                window.location.href = '{{ route('gold-items.shop') }}';
+                            });
+                        } else {
+                            throw new Error(data.message || 'فشل في إرسال الطلب');
+                        }
+                    })
+                    .catch(error => {
+                        console.error('Error:', error);
                         Swal.fire({
-                            icon: 'success',
-                            title: 'تم بنجاح!',
-                            text: 'تم إرسال طلب البيع بنجاح.',
-                            showConfirmButton: false,
-                            timer: 1500
-                        }).then(() => {
-                            localStorage.removeItem('selectedItems');
-                            window.location.href = '{{ route("gold-items.shop") }}';
+                            icon: 'error',
+                            title: 'خطأ',
+                            text: error.message ||
+                                'حدث خطأ أثناء إرسال الطلب. يرجى المحاولة مرة أخرى.',
                         });
-                    } else {
-                        throw new Error(data.message || 'فشل في إرسال الطلب');
-                    }
-                })
-                .catch(error => {
-                    console.error('Error:', error);
-                    Swal.fire({
-                        icon: 'error',
-                        title: 'خطأ',
-                        text: error.message || 'حدث خطأ أثناء إرسال الطلب. يرجى المحاولة مرة أخرى.',
+                        // Re-enable button on error
+                        submitButton.disabled = false;
+                        submitButton.innerHTML = originalText;
                     });
-                    // Re-enable button on error
-                    submitButton.disabled = false;
-                    submitButton.innerHTML = originalText;
-                });
             });
         });
     </script>

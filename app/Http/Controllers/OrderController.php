@@ -33,18 +33,17 @@ class OrderController extends Controller
                 'order_date' => 'required|date',
                 'payment_method' => 'nullable|string',
                 
-                'order_kind' => 'required|array',
-                'order_kind.*' => 'required|string',
-                'item_type' => 'required|array',
-                'item_type.*' => 'required|string',
-                'order_details' => 'required|array',
-                'order_details.*' => 'required|string',
+                'order_kind' => 'nullable|array',
+                'order_kind.*' => 'nullable|string',
+                'item_type' => 'nullable|array',
+                'item_type.*' => 'nullable|string',
+                'order_details' => 'nullable|array',
+                'order_details.*' => 'nullable|string',
                 'quantity.*' => 'nullable|integer',
-                'ring_size.*' => 'nullable|integer',
                 'gold_color.*' => 'nullable|string',
                 'weight.*' => 'nullable|numeric',
                 'image_link.*' => 'nullable|file|mimes:jpeg,png,jpg,gif,svg|max:2048',
-                'order_type.*' => 'required|in:by_customer,by_shop',
+                'order_type.*' => 'nullable|in:by_customer,by_shop',
             ]);
 
             // Get the logged-in user's shop ID
@@ -86,15 +85,15 @@ class OrderController extends Controller
                     // Save the order item
                     $orderItem = OrderItem::create([
                         'order_id' => $order->id,
-                        'order_kind' => $kind,
+                        'order_kind' => $kind ?? null,
                         // 'order_fix_type' => $request->order_fix_type[$index],
-                        'order_details' => $request->order_details[$index],
+                        'order_details' => $request->order_details[$index] ?? null,
                         'quantity' => $request->quantity[$index] ?? null,
                         'ring_size' => $request->ring_size[$index] ?? null,
                         'item_type' => $request->item_type[$index] ?? null,
                         'weight' => $request->weight[$index] ?? null,
-                        'image_link' => $imagePath,
-                        'order_type' => $request->order_type[$index],
+                        'image_link' => $imagePath ?? null,
+                        'order_type' => $request->order_type[$index] ?? null,
                         'model' => $request->model[$index] ?? null,
                         'serial_number' => $request->serial_number[$index] ?? null,
                     ]);
@@ -161,7 +160,9 @@ class OrderController extends Controller
 
         // Build the query to exclude pending orders
         $query = Order::where('shop_id', $shop->id) // Filter by the shop ID associated with the user
-        ->where('status', '<>', 'خلص');   // Exclude finished orders
+        ->where('status', '<>', 'خلص');
+        
+        // Exclude finished orders
 
         // Apply search conditions if a search term is provided
         if ($search) {

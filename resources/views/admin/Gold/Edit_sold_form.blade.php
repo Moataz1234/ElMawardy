@@ -4,81 +4,186 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Edit Sold Gold Item</title>
-    <link href="{{ asset('css/app.css') }}" rel="stylesheet">
-    <link href="{{ url('css/style.css') }}" rel="stylesheet">
+    <!-- Bootstrap CSS -->
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+    <!-- Custom CSS -->
+    <style>
+        body {
+            background-color: #f8f9fa;
+            padding: 20px 0;
+        }
+        .form-container {
+            background-color: white;
+            border-radius: 10px;
+            box-shadow: 0 0 20px rgba(0,0,0,0.1);
+            padding: 30px;
+            margin-bottom: 20px;
+        }
+        .page-title {
+            color: #2c3e50;
+            margin-bottom: 30px;
+            padding-bottom: 15px;
+            border-bottom: 2px solid #eee;
+        }
+        .form-group {
+            margin-bottom: 20px;
+        }
+        .form-label {
+            font-weight: 600;
+            color: #34495e;
+            margin-bottom: 8px;
+        }
+        .form-control {
+            border-radius: 5px;
+            border: 1px solid #ddd;
+            padding: 10px;
+        }
+        .form-control:focus {
+            border-color: #3498db;
+            box-shadow: 0 0 0 0.2rem rgba(52,152,219,0.25);
+        }
+        .btn-section {
+            margin-top: 30px;
+            padding-top: 20px;
+            border-top: 1px solid #eee;
+        }
+        .btn-primary {
+            background-color: #3498db;
+            border: none;
+            padding: 10px 25px;
+        }
+        .btn-secondary {
+            background-color: #95a5a6;
+            border: none;
+            padding: 10px 25px;
+        }
+        .btn-warning {
+            background-color: #f1c40f;
+            border: none;
+            padding: 10px 25px;
+            color: #fff;
+        }
+        .form-grid {
+            display: grid;
+            grid-template-columns: repeat(3, 1fr);
+            gap: 20px;
+        }
+        @media (max-width: 992px) {
+            .form-grid {
+                grid-template-columns: repeat(2, 1fr);
+            }
+        }
+        @media (max-width: 768px) {
+            .form-grid {
+                grid-template-columns: 1fr;
+            }
+        }
+    </style>
 </head>
 <body>
-    <form class="custom-form" action="{{ route('gold-items-sold.update', $goldItemSold->id) }}" method="POST" enctype="multipart/form-data">
-        @csrf
-        @method('PUT')
+    <div class="container">
+        <div class="form-container">
+            <h2 class="page-title">Edit Sold Gold Item</h2>
+            
+            <form action="{{ route('gold-items-sold.update', $goldItemSold->id) }}" method="POST">
+                @csrf
+                @method('PUT')
 
-        <label for="serial_number">Serial Number:</label>
-        <input type="text" name="serial_number" id="serial_number" value="{{ $goldItemSold->serial_number }}"><br>
+                <div class="form-grid">
+                    <!-- Basic Information -->
+                    <div class="form-group">
+                        <label class="form-label" for="serial_number">Serial Number</label>
+                        <input type="text" class="form-control" name="serial_number" value="{{ $goldItemSold->serial_number }}" required>
+                    </div>
 
-        <label for="shop_name">Shop Name:</label>
-        <input type="text" name="shop_name" id="shop_name" value="{{ $goldItemSold->shop_name }}"><br>
+                    <div class="form-group">
+                        <label class="form-label" for="shop_name">Shop Name</label>
+                        <input type="text" class="form-control" name="shop_name" value="{{ $goldItemSold->shop_name }}" required>
+                    </div>
 
-        <label for="shop_id">Shop ID:</label>
-        <input type="number" name="shop_id" id="shop_id" value="{{ $goldItemSold->shop_id }}"><br>
+                    <div class="form-group">
+                        <label class="form-label" for="kind">Kind</label>
+                        <input type="text" class="form-control" name="kind" value="{{ $goldItemSold->kind }}">
+                    </div>
 
-        <label for="kind">Kind:</label>
-        <input type="text" name="kind" id="kind" value="{{ $goldItemSold->kind }}"><br>
+                    <!-- Product Details -->
+                    <div class="form-group">
+                        <label class="form-label" for="model">Model</label>
+                        <input type="text" class="form-control" name="model" value="{{ $goldItemSold->model }}" required>
+                    </div>
 
-        <label for="model">Model:</label>
-        <input type="text" name="model" id="model" value="{{ $goldItemSold->model }}"><br>
+                    <div class="form-group">
+                        <label class="form-label" for="gold_color">Gold Color</label>
+                        <select class="form-control" name="gold_color">
+                            <option value="Yellow" {{ $goldItemSold->gold_color == 'Yellow' ? 'selected' : '' }}>Yellow</option>
+                            <option value="White" {{ $goldItemSold->gold_color == 'White' ? 'selected' : '' }}>White</option>
+                            <option value="Rose" {{ $goldItemSold->gold_color == 'Rose' ? 'selected' : '' }}>Rose</option>
+                        </select>
+                    </div>
 
-        <label for="talab">Talab:</label>
-        <input type="text" name="talab" id="talab" value="{{ $goldItemSold->talab }}"><br>
+                    <div class="form-group">
+                        <label class="form-label" for="stones">Stones</label>
+                        <input type="text" class="form-control" name="stones" value="{{ $goldItemSold->stones }}">
+                    </div>
 
-        <label for="gold_color">Gold Color:</label>
-        <input type="text" name="gold_color" id="gold_color" value="{{ $goldItemSold->gold_color }}"><br>
+                    <!-- Specifications -->
+                    <div class="form-group">
+                        <label class="form-label" for="metal_type">Metal Type</label>
+                        <input type="text" class="form-control" name="metal_type" value="{{ $goldItemSold->metal_type }}">
+                    </div>
 
-        <label for="stones">Stones:</label>
-        <input type="text" name="stones" id="stones" value="{{ $goldItemSold->stones }}"><br>
+                    <div class="form-group">
+                        <label class="form-label" for="metal_purity">Metal Purity</label>
+                        <input type="text" class="form-control" name="metal_purity" value="{{ $goldItemSold->metal_purity }}">
+                    </div>
 
-        <label for="metal_type">Metal Type:</label>
-        <input type="text" name="metal_type" id="metal_type" value="{{ $goldItemSold->metal_type }}"><br>
+                    <div class="form-group">
+                        <label class="form-label" for="quantity">Quantity</label>
+                        <input type="number" class="form-control" name="quantity" value="{{ $goldItemSold->quantity }}" required>
+                    </div>
 
-        <label for="metal_purity">Metal Purity:</label>
-        <input type="text" name="metal_purity" id="metal_purity" value="{{ $goldItemSold->metal_purity }}"><br>
+                    <!-- Measurements -->
+                    <div class="form-group">
+                        <label class="form-label" for="weight">Weight (g)</label>
+                        <input type="number" class="form-control" name="weight" step="0.01" value="{{ $goldItemSold->weight }}" required>
+                    </div>
 
-        <label for="quantity">Quantity:</label>
-        <input type="number" name="quantity" id="quantity" value="{{ $goldItemSold->quantity }}"><br>
+                    <div class="form-group">
+                        <label class="form-label" for="price">Price</label>
+                        <input type="number" class="form-control" name="price" step="0.01" value="{{ $goldItemSold->price }}" required>
+                    </div>
 
-        <label for="weight">Weight:</label>
-        <input type="number" name="weight" step="0.01" id="weight" value="{{ $goldItemSold->weight }}"><br>
+                    <div class="form-group">
+                        <label class="form-label" for="stars">Stars</label>
+                        <input type="text" class="form-control" name="stars" value="{{ $goldItemSold->stars }}">
+                    </div>
 
-        <label for="add_date">Add Date:</label>
-        <input type="date" name="add_date" id="add_date" value="{{ $goldItemSold->add_date }}"><br>
+                    <!-- Additional Information -->
+                    <div class="form-group">
+                        <label class="form-label" for="source">Source</label>
+                        <input type="text" class="form-control" name="source" value="{{ $goldItemSold->source }}">
+                    </div>
 
-        <label for="source">Source:</label>
-        <input type="text" name="source" id="source" value="{{ $goldItemSold->source }}"><br>
+                    <div class="form-group">
+                        <label class="form-label" for="sold_date">Sold Date</label>
+                        <input type="date" class="form-control" name="sold_date" value="{{ $goldItemSold->sold_date }}" required>
+                    </div>
+                </div>
 
-        <label for="to_print">To Print:</label>
-        <input type="checkbox" name="to_print" id="to_print" value="1" {{ $goldItemSold->to_print ? 'checked' : '' }}><br>
+                <div class="btn-section">
+                    <button type="submit" class="btn btn-primary">Update Item</button>
+                    <a href="{{ route('admin.sold-items') }}" class="btn btn-secondary">Cancel</a>
+                    
+                    {{-- <form action="{{ route('gold-items-sold.markAsRest', $goldItemSold->id) }}" method="POST" style="display: inline-block;">
+                        @csrf
+                        <button type="submit" class="btn btn-warning">Return to Stock</button>
+                    </form> --}}
+                </div>
+            </form>
+        </div>
+    </div>
 
-        <label for="price">Price:</label>
-        <input type="number" name="price" step="0.01" id="price" value="{{ $goldItemSold->price }}"><br>
-
-        <label for="semi_or_no">Semi or no:</label>
-        <input type="text" name="semi_or_no" id="semi_or_no" value="{{ $goldItemSold->semi_or_no }}"><br>
-
-        <label for="average_of_stones">Average of Stones:</label>
-        <input type="number" name="average_of_stones" step="0.01" id="average_of_stones" value="{{ $goldItemSold->average_of_stones }}"><br>
-
-        <label for="net_weight">Net Weight:</label>
-        <input type="number" name="net_weight" step="0.01" id="net_weight" value="{{ $goldItemSold->net_weight }}"><br>
-
-        <label for="sold_date">Sold Date:</label>
-        <input type="date" name="sold_date" id="sold_date" value="{{ $goldItemSold->sold_date }}"><br>
-
-        <button type="submit">Update</button>
-        
-    
-    </form>
-    <form action="{{ route('gold-items-sold.markAsRest', $goldItemSold->id) }}" method="POST" style="display:inline;">
-        @csrf
-        <button class="rest_button" type="submit">Rest</button>
-    </form> 
+    <!-- Bootstrap JS and dependencies -->
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
 </body>
 </html>

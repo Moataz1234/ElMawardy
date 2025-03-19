@@ -136,7 +136,7 @@ public function updateStatusBulk(Request $request)
     {
         // Get pending orders with their items
         $orders = Order::with('items')
-            ->where('status', 'pending')
+            ->where('status', 'في انتظار الموافقة')
             ->get();
         
         return view('Rabea.orders-requests', compact('orders'));
