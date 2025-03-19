@@ -3,91 +3,477 @@
 
 <head>
     <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.7.2/font/bootstrap-icons.css" rel="stylesheet">
+    <style>
+        /* Reset and base styles */
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif;
+            line-height: 1.6;
+            color: #333;
+            background: #f5f5f5;
+        }
+
+        /* Table container styles */
+        .table-container {
+            margin: 20px;
+            background: white;
+            border-radius: 8px;
+            box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
+            overflow: hidden;
+            position: relative;
+        }
+
+        /* Table wrapper styles - this enables the horizontal scroll */
+        .table-wrapper {
+            width: 100%;
+            overflow-x: auto;
+            -webkit-overflow-scrolling: touch;
+            scrollbar-width: thin;
+            position: relative;
+        }
+
+        /* Customize scrollbar appearance */
+        .table-wrapper::-webkit-scrollbar {
+            height: 8px;
+        }
+
+        .table-wrapper::-webkit-scrollbar-track {
+            background: #f1f1f1;
+            border-radius: 4px;
+        }
+
+        .table-wrapper::-webkit-scrollbar-thumb {
+            background: #888;
+            border-radius: 4px;
+        }
+
+        .table-wrapper::-webkit-scrollbar-thumb:hover {
+            background: #555;
+        }
+
+        /* Keep the table header fixed */
+        .table thead {
+            position: sticky;
+            top: 0;
+            z-index: 1;
+            background-color: #f8f9fa;
+        }
+
+        /* Ensure the table takes up enough width to be scrollable */
+        .table {
+            width: 100%;
+            min-width: 100%;
+            margin: 0;
+            border-collapse: collapse;
+            white-space: nowrap;
+            background: white;
+            line-height: 1.4;
+            table-layout: fixed;
+        }
+
+        /* Header styles */
+        .table th {
+            padding: 10px;
+            text-align: left;
+            font-weight: 600;
+            color: #2c3e50;
+            border-bottom: 2px solid #edf2f7;
+            font-size: 13px;
+        }
+
+        /* Cell styles */
+        .table td {
+            padding: 2px 4px;  /* Reduced padding */
+            font-size: 11px;   /* Smaller font size */
+            height: 40px;      /* Reduced row height */
+            vertical-align: middle;
+            white-space: nowrap;
+        }
+
+        /* Row hover effect */
+        .table tbody tr:hover {
+            background-color: #f8fafc;
+        }
+
+        /* Checkbox styles */
+        input[type="checkbox"] {
+            width: 12px;
+            height: 12px;
+            cursor: pointer;
+        }
+
+        /* Image styles */
+       
+
+        /* Link styles */
+        .model-link {
+            color: #3182ce;
+            text-decoration: none;
+            font-weight: 500;
+        }
+
+        .model-link:hover {
+            text-decoration: underline;
+        }
+
+        .action_button {
+            display: inline-block;
+            padding: 2px 4px;
+            background-color: #4299e1;
+            color: white;
+            text-decoration: none;
+            border-radius: 4px;
+            font-size: 10px;
+            transition: background-color 0.2s;
+        }
+
+        .action_button:hover {
+            background-color: #3182ce;
+        }
+
+        /* Button container styles */
+        .button-container {
+            position: sticky;
+            left: 0;
+            background: white;
+            z-index: 1;
+            padding: 10px;
+            border-top: 1px solid #edf2f7;
+            display: flex;
+            gap: 10px;
+        }
+
+        /* Button styles */
+        .button-container button {
+            padding: 6px 12px;
+            border: none;
+            border-radius: 4px;
+            cursor: pointer;
+            font-size: 13px;
+            font-weight: 500;
+            transition: background-color 0.2s;
+        }
+
+        .request_btn {
+            background-color: #4299e1;
+            color: white;
+        }
+
+        .request_btn:hover {
+            background-color: #3182ce;
+        }
+
+        .workshop_btn {
+            background-color: #48bb78;
+            color: white;
+        }
+
+        .workshop_btn:hover {
+            background-color: #38a169;
+        }
+
+        /* Modal styles */
+        .modal {
+            display: none;
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background-color: rgba(0, 0, 0, 0.5);
+            z-index: 1000;
+        }
+
+        .modal-content {
+            background-color: white;
+            margin: 10% auto;
+            padding: 20px;
+            border-radius: 8px;
+            width: 80%;
+            max-width: 800px;
+        }
+
+        .modal-header {
+            padding-bottom: 15px;
+            border-bottom: 1px solid #edf2f7;
+            margin-bottom: 15px;
+        }
+
+        .modal-title {
+            font-size: 18px;
+            font-weight: 600;
+            color: #2d3748;
+        }
+
+        .modal-body {
+            margin-bottom: 15px;
+        }
+
+        .modal-footer {
+            padding-top: 15px;
+            border-top: 1px solid #edf2f7;
+            text-align: right;
+        }
+
+        .btn-secondary {
+            padding: 8px 16px;
+            background-color: #718096;
+            color: white;
+            border: none;
+            border-radius: 4px;
+            cursor: pointer;
+            transition: background-color 0.2s;
+        }
+
+        .btn-secondary:hover {
+            background-color: #4a5568;
+        }
+
+        /* Responsive adjustments */
+        @media (max-width: 768px) {
+            .table-container {
+                margin: 10px;
+            }
+
+            .button-container {
+                flex-direction: column;
+            }
+
+            .button-container button {
+                width: 100%;
+            }
+        }
+
+        /* Base table cell styles */
+        .table td, .table th {
+            padding: 2px 4px;  /* Reduced padding */
+            font-size: 11px;   /* Smaller font size */
+            height: 40px;      /* Reduced row height */
+            vertical-align: middle;
+            white-space: nowrap;
+        }
+         .table img {
+            width: 50px;  /* Increased from 40px to 100px */
+            height: 40px;  /* Kept height at 40px */
+            /* object-fit: cover; */
+            border-radius: 2px;
+        }
+
+        /* Image column */
+        .table td:nth-child(2),
+        .table th:nth-child(2) {
+            padding: 0;
+            width: 60px;  /* Increased from 40px to 100px */
+        }
+
+        /* Serial number column */
+        .table td:nth-child(3), 
+        .table th:nth-child(3) {
+            width: 60px;       /* Serial number */
+        }
+
+        /* Shop name column */
+        .table td:nth-child(4), 
+        .table th:nth-child(4) {
+            width: 80px;       /* Shop name */
+        }
+
+        /* Kind column */
+        .table td:nth-child(5), 
+        .table th:nth-child(5) {
+            width: 60px;       /* Kind */
+        }
+
+        /* Model column */
+        .table td:nth-child(6), 
+        .table th:nth-child(6) {
+            width: 70px;       /* Model */
+        }
+
+        /* Gold color column */
+        .table td:nth-child(7), 
+        .table th:nth-child(7) {
+            width: 50px;       /* Gold color */
+        }
+
+        /* Metal type & purity columns */
+        .table td:nth-child(8),
+        .table td:nth-child(9),
+        .table th:nth-child(8),
+        .table th:nth-child(9) {
+            width: 60px;       /* Metal type & purity */
+        }
+
+        /* Quantity column */
+        .table td:nth-child(10), 
+        .table th:nth-child(10) {
+            width: 40px;       /* Quantity */
+        }
+
+        /* Weight column */
+        .table td:nth-child(11), 
+        .table th:nth-child(11) {
+            width: 50px;       /* Weight */
+        }
+
+        /* Stars column */
+        .table td:nth-child(12), 
+        .table th:nth-child(12) {
+            width: 40px;       /* Stars */
+        }
+
+        /* Stones column */
+        .table td:nth-child(13), 
+        .table th:nth-child(13) {
+            width: 60px;       /* Stones */
+        }
+
+        /* Source column */
+        .table td:nth-child(14), 
+        .table th:nth-child(14) {
+            width: 40px;       /* Source */
+        }
+
+        /* Average of stones column */
+        .table td:nth-child(15), 
+        .table th:nth-child(15) {
+            width: 20px;       /* Average of stones */
+        }
+
+        /* Actions column */
+        .table td:last-child, 
+        .table th:last-child {
+            width: 40px;       /* Actions */
+        }
+
+        /* Checkbox column */
+        .table td:first-child,
+        .table th:first-child {
+            width: 50px;       /* Increased width to fit both elements */
+            white-space: nowrap;
+            padding: 2px 4px;
+        }
+
+        /* Ensure text doesn't wrap */
+        .table td {
+            overflow: hidden;
+            text-overflow: ellipsis;
+        }
+
+        /* Style for the actions container */
+        .actions-container {
+            display: flex;
+            align-items: center;
+            gap: 8px;         /* Space between checkbox and icon */
+        }
+
+        /* Style for edit icon */
+        .edit-icon {
+            color: #3182ce;   /* Blue color */
+            font-size: 13px;  /* Slightly smaller */
+            display: inline-flex;
+            align-items: center;
+            padding: 2px;
+            transition: color 0.2s;
+        }
+
+        .edit-icon:hover {
+            color: #2c5282;   /* Darker blue on hover */
+        }
+
+        /* Remove box around icon */
+        .bi-pencil {
+            line-height: 1;
+        }
+    </style>
 </head>
 
 <body>
-    <form method="POST" action="{{ route('bulk-action') }}" id="bulkActionForm">
-        @csrf
-        <input type="hidden" name="action" value="delete">
-        <table class="table">
-            <thead>
-                <tr>
-                    <th><input type="checkbox" id="select-all" /></th>
-                    <th>Image</th>
-                    @php
-                        // Array of columns with their display names
-                        $columns = [
-                            'serial_number' => 'Serial Number',
-                            'shop_name' => 'Shop Name',
-                            'kind' => 'Kind',
-                            'model' => 'Model',
-                            'gold_color' => 'Gold Color',
-                            'stones' => 'Stones',
-                            'metal_type' => 'Metal Type',
-                            'metal_purity' => 'Metal Purity',
-                            'quantity' => 'Quantity',
-                            'weight' => 'Weight',
-                            'stars' => 'stars',
-                            // 'source' => 'Source',
-                            // 'average_of_stones' => 'Average of Stones',
-                            // 'net_weight' => 'Net Weight',
-                        ];
-                    @endphp
+    <div class="table-container">
+        <form method="POST" action="{{ route('bulk-action') }}" id="bulkActionForm">
+            @csrf
+            <input type="hidden" name="action" value="delete">
+            <div class="table-wrapper">
+                <table class="table">
+                    <thead>
+                        <tr>
+                            <th>Actions</th>
+                            <th>Image</th>
+                            @php
+                                // Array of columns with their display names
+                                $columns = [
+                                    'serial_number' => 'Serial Number',
+                                    'shop_name' => 'Shop Name',
+                                    'kind' => 'Kind',
+                                    'model' => 'Model',
+                                    'gold_color' => 'Gold Color',
+                                    'metal_type' => 'Metal Type',
+                                    'metal_purity' => 'Metal Purity',
+                                    'quantity' => 'Quantity',
+                                    'weight' => 'Weight',
+                                    'stars' => 'stars',
+                                    'source' => 'Source',
+                                    'stones' => 'Stones',
+                                    'average_of_stones' => 'Avg',
+                                    // 'net_weight' => 'Net Weight',
+                                ];
+                            @endphp
 
-                    @foreach ($columns as $field => $label)
-                        <th>
-                            {{ $label }}
-                        </th>
-                    @endforeach
-                    <th>Actions</th>
-                </tr>
-            </thead>
-            <tbody>
-                @foreach ($goldItems as $item)
-                    <tr>
-                        <td><input type="checkbox" name="selected_items[]" value="{{ $item->id }}" /></td>
-                        <td>
-                            @if ($item->modelCategory)
-                                @if ($item->modelCategory->scanned_image)
-                                    <img src="{{ asset('storage/' . $item->modelCategory->scanned_image) }}"
-                                        alt="Scanned Image" width="50">
-                                @endif
-                            @else
-                                No matching model found
-                            @endif
-                        </td>
-                        <td>{{ $item->serial_number }}</td>
-                        <td>{{ $item->shop_name ?? 'Admin' }}</td>
-                        <td>{{ $item->kind }}</td>
-                        <td>
-                            <a href="#" class="model-link"
-                                data-model="{{ $item->model }}">{{ $item->model }}</a>
-                        </td>
-                        <td>{{ $item->gold_color }}</td>
-                        <td>{{ $item->stones }}</td>
-                        <td>{{ $item->metal_type }}</td>
-                        <td>{{ $item->metal_purity }}</td>
-                        <td>{{ $item->quantity }}</td>
-                        <td>{{ $item->weight }}</td>
-                        <td>{{ $item->modelCategory->stars ?? 'No stars' }}</td>
-                        <td>
-                            <a class="action_button" href="{{ route('gold-items.edit', $item->id) }}">Edit</a>
-                        </td>
-                        {{-- <td>{{ $item->source }}</td> --}}
-                        {{-- <td>{{ $item->average_of_stones }}</td> --}}
-                        {{-- <td>{{ $item->net_weight }}</td> --}}
-                        {{-- <td>
-                        <a class="action_button" href="{{ route('gold-items.edit', $item->id) }}" >Edit</a> --}}
-                    </tr>
-                @endforeach
-            </tbody>
-        </table>
-        <div class="button-container">
-            <button class="delete_btn" type="button" name="action" value="delete" form="bulkActionForm">Delete</button>
-            <button class="request_btn" type="submit" name="action" value="request">Request Item</button>
-            <button class="workshop_btn" type="button" name="action" value="workshop" form="bulkActionForm"> Did</button>
-        </div>
-    </form>
+                            @foreach ($columns as $field => $label)
+                                <th>{{ $label }}</th>
+                            @endforeach
+                        </tr>
+                    </thead>
+                    <tbody>
+                        @foreach ($goldItems as $item)
+                            <tr>
+                                <td>
+                                    <div class="actions-container">
+                                        <input type="checkbox" name="selected_items[]" value="{{ $item->id }}" />
+                                        <a href="{{ route('gold-items.edit', $item->id) }}" class="edit-icon">
+                                            <i class="bi bi-pencil"></i>
+                                        </a>
+                                    </div>
+                                </td>
+                                <td>
+                                    @if ($item->modelCategory && $item->modelCategory->scanned_image)
+                                        <img src="{{ asset('storage/' . $item->modelCategory->scanned_image) }}" alt="Scanned Image">
+                                    @endif
+                                </td>
+                                <td>{{ $item->serial_number }}</td>
+                                <td>{{ $item->shop_name ?? 'Admin' }}</td>
+                                <td>{{ $item->kind }}</td>
+                                <td>
+                                    <a href="#" class="model-link"
+                                        data-model="{{ $item->model }}">{{ $item->model }}</a>
+                                </td>
+                                <td>{{ $item->gold_color }}</td>
+                                <td>{{ $item->metal_type }}</td>
+                                <td>{{ $item->metal_purity }}</td>
+                                <td>{{ $item->quantity }}</td>
+                                <td>{{ $item->weight }}</td>
+                                <td>{{ $item->modelCategory->stars ?? 'No stars' }}</td>
+                                <td>{{ $item->source }}</td>
+                                <td>{{ $item->stones }}</td>
+                                <td>{{ $item->modelCategory->average_of_stones?? 'No avg' }}</td>
+                            </tr>
+                        @endforeach
+                    </tbody>
+                </table>
+            </div>
+            <div class="button-container">
+                {{-- <button class="delete_btn" type="button" name="action" value="delete" form="bulkActionForm">Delete</button> --}}
+                <button class="request_btn" type="submit" name="action" value="request">Request Item</button>
+                <button class="workshop_btn" type="button" name="action" value="workshop" form="bulkActionForm"> Did</button>
+            </div>
+        </form>
+    </div>
     <!-- Model Details Modal -->
     <div class="modal" id="modelDetailsModal" tabindex="-1" role="dialog" aria-labelledby="modelDetailsModalLabel"
         aria-hidden="true">
