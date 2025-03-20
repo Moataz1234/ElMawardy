@@ -7,7 +7,7 @@ use App\Models\Shop;
 use App\Models\AddRequest;
 use Illuminate\Http\Request;
 use PhpOffice\PhpSpreadsheet\Spreadsheet;
-use PhpOffice\PhpSpreadsheet\Writer\Xlsx;
+use PhpOffice\PhpSpreadsheet\Writer\Xls; // Changed from Xlsx to Xls
 use Illuminate\Support\Str;
 use Illuminate\Support\Facades\Log;
 use Carbon\Carbon;
@@ -22,9 +22,6 @@ class BarcodeController extends Controller
         if ($request->filled('shop_id')) {
             $query->where('shop_id', $request->shop_id);
         }
-        // if ($request->filled('serial_number')) {
-        //     $query->where('serial_number', $request->serial_number);
-        // }
     
         // Filter by a specific date or date range
         if ($request->filled('date')) {
@@ -35,8 +32,6 @@ class BarcodeController extends Controller
             // Default to today's date if no other filters are applied
             $query->whereDate('rest_since', Carbon::today());
         }
-
-        
 
         $goldItems = $query->get();
 
@@ -55,7 +50,6 @@ class BarcodeController extends Controller
         $sheet = $spreadsheet->getActiveSheet();
 
         // Set headers for two items side by side (8 columns total)
-
         $headers = [
             'A1' => 'Serial Number',
             'B1' => 'Shop',
@@ -84,9 +78,6 @@ class BarcodeController extends Controller
         if ($request->filled('shop_id')) {
             $query->where('shop_id', $request->shop_id);
         }
-        // if ($request->filled('serial_number')) {
-        //     $query->where('serial_number', $request->serial_number);
-        // }
         // Add date filtering logic
         if ($request->filled('date')) {
             $query->whereDate('rest_since', $request->date);
@@ -102,47 +93,37 @@ class BarcodeController extends Controller
             foreach ($items as $i => $item) {
                 // Set values for the first item in the row
                 if ($i % 2 == 0) {
-                    // New row for every first item in a pair or single item
                     $sheet->setCellValue('A' . $row, $item->serial_number);
                     $sheet->setCellValue('B' . $row, $item->shop_id ?? 'Admin');
                     $sheet->setCellValue('C' . $row, $item->model);
                     $sheet->setCellValue('D' . $row, $item->weight);
 
-                    // New fields for first item
                     $source = optional($item->modelCategory)->source;
                     $sheet->setCellValue('E' . $row, $this->modifySource($source));
-
                     $sheet->setCellValue('F' . $row, optional($item->modelCategory)->stars);
                 }
 
                 if (isset($items[$i + 1])) {
-                    // Set values for the second item if it exists
                     $item2 = $items[$i + 1];
                     if ($i % 2 == 0) {
-                        // Fill only when it's a new row for two items
                         $sheet->setCellValue('G' . $row, $item2->serial_number);
                         $sheet->setCellValue('H' . $row, $item2->shop_id ?? 'Admin');
                         $sheet->setCellValue('I' . $row, $item2->model);
                         $sheet->setCellValue('J' . $row, $item2->weight);
 
-                        // New fields for second item
                         $source2 = optional($item2->modelCategory)->source;
                         $sheet->setCellValue('K' . $row, $this->modifySource($source2));
                         $sheet->setCellValue('L' . $row, optional($item2->modelCategory)->stars);
                     }
                 } else {
-                    // If no second item exists, leave cells empty or handle as needed
                     if ($i % 2 == 0) {
-                        // Only fill empty cells when it's a new row for one item
                         for ($col = 'G'; $col <= 'L'; ++$col) {
                             $sheet->setCellValue($col . $row, '');
                         }
                     }
                 }
 
-                // Move to the next row after processing two items or one item alone
                 if ($i % 2 == 1 || !isset($items[$i + 1])) {
-                    // Increment row only after processing two items or a single item alone
                     ++$row;
                 }
             }
@@ -154,26 +135,10 @@ class BarcodeController extends Controller
         }
 
         // Create writer and prepare response
-        $writer = new Xlsx($spreadsheet);
+        $writer = new Xls($spreadsheet); // Changed from Xlsx to Xls
 
-        // Generate filename with shop name if filtered
-        $filename = 'barcode';
-        if ($request->filled('shop_id')) {
-            $shop = Shop::find($request->shop_id);
-            if ($shop) {
-                $filename .= '-' . Str::slug($shop->name);
-            }
-        }
-
-    
-        // Add date filter to filename if provided
-        // if ($request->filled('date')) {
-        //     $filename .= '-date-' . $request->date;
-        // } elseif ($request->filled('start_date') && $request->filled('end_date')) {
-        //     $filename .= '-from-' . $request->start_date . '-to-' . $request->end_date;
-        // }
-
-        $filename .= '-' . date('Y-m-d') . '.xlsx';
+        // Set fixed filename
+        $filename = 'System barcode.xls'; // Changed extension to .xls
 
         // Buffer the output
         ob_start();
@@ -182,17 +147,18 @@ class BarcodeController extends Controller
         ob_end_clean();
 
         return response($content)
-            ->header('Content-Type', 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet')
+            ->header('Content-Type', 'application/vnd.ms-excel') // Changed MIME type for .xls
             ->header('Content-Disposition', 'attachment;filename="' . $filename . '"')
             ->header('Cache-Control', 'max-age=0');
     }
+
     private function modifySource($source)
     {
         if ($source === 'Production') {
             return '';
         }
         else{
-        return strtoupper(substr($source, 0, 1));
+            return strtoupper(substr($source, 0, 1));
         }
     }
 }
