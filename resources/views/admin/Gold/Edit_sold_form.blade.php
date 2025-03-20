@@ -79,6 +79,7 @@
             }
         }
     </style>
+    @include('components.navbar')
 </head>
 <body>
     <div class="container">
@@ -100,18 +101,22 @@
                         <label class="form-label" for="shop_name">Shop Name</label>
                         <input type="text" class="form-control" name="shop_name" value="{{ $goldItemSold->shop_name }}" required>
                     </div>
-
+                    
                     <div class="form-group">
                         <label class="form-label" for="kind">Kind</label>
                         <input type="text" class="form-control" name="kind" value="{{ $goldItemSold->kind }}">
                     </div>
-
+                    
                     <!-- Product Details -->
                     <div class="form-group">
                         <label class="form-label" for="model">Model</label>
                         <input type="text" class="form-control" name="model" value="{{ $goldItemSold->model }}" required>
                     </div>
-
+                    
+                    <div class="form-group">
+                        <label class="form-label" for="weight">Weight (g)</label>
+                        <input type="number" class="form-control" name="weight" step="0.01" value="{{ $goldItemSold->weight }}" required>
+                    </div>
                     <div class="form-group">
                         <label class="form-label" for="gold_color">Gold Color</label>
                         <select class="form-control" name="gold_color">
@@ -121,10 +126,7 @@
                         </select>
                     </div>
 
-                    <div class="form-group">
-                        <label class="form-label" for="stones">Stones</label>
-                        <input type="text" class="form-control" name="stones" value="{{ $goldItemSold->stones }}">
-                    </div>
+                   
 
                     <!-- Specifications -->
                     <div class="form-group">
@@ -137,33 +139,38 @@
                         <input type="text" class="form-control" name="metal_purity" value="{{ $goldItemSold->metal_purity }}">
                     </div>
 
-                    <div class="form-group">
-                        <label class="form-label" for="quantity">Quantity</label>
-                        <input type="number" class="form-control" name="quantity" value="{{ $goldItemSold->quantity }}" required>
-                    </div>
-
+                    
                     <!-- Measurements -->
-                    <div class="form-group">
-                        <label class="form-label" for="weight">Weight (g)</label>
-                        <input type="number" class="form-control" name="weight" step="0.01" value="{{ $goldItemSold->weight }}" required>
-                    </div>
-
-                    <div class="form-group">
-                        <label class="form-label" for="price">Price</label>
-                        <input type="number" class="form-control" name="price" step="0.01" value="{{ $goldItemSold->price }}" required>
-                    </div>
-
+                    
                     <div class="form-group">
                         <label class="form-label" for="stars">Stars</label>
                         <input type="text" class="form-control" name="stars" value="{{ $goldItemSold->stars }}">
                     </div>
-
-                    <!-- Additional Information -->
+                    
+                    
+                  
                     <div class="form-group">
                         <label class="form-label" for="source">Source</label>
                         <input type="text" class="form-control" name="source" value="{{ $goldItemSold->source }}">
                     </div>
-
+                    <div class="form-group">
+                        <label class="form-label" for="stones">Stones</label>
+                        <input type="text" class="form-control" name="stones" value="{{ $goldItemSold->stones }}">
+                    </div>
+                    <div class="form-group">
+                        <label class="form-label" for="talab">Talab</label>
+                        <input type="text" class="form-control" name="talab" value="{{ $goldItemSold->talab }}"  >
+                    </div>
+                    <div class="form-group">
+                        <label class="form-label" for="quantity">Quantity</label>
+                        <input type="number" class="form-control" name="quantity" value="{{ $goldItemSold->quantity }}" required>
+                    </div>
+                    <div class="form-group">
+                        <label class="form-label" for="price">Price</label>
+                        <input type="number" class="form-control" name="price" step="0.01" value="{{ $goldItemSold->price }}" required>
+                    </div>
+                    
+                    
                     <div class="form-group">
                         <label class="form-label" for="sold_date">Sold Date</label>
                         <input type="date" class="form-control" name="sold_date" value="{{ $goldItemSold->sold_date }}" required>

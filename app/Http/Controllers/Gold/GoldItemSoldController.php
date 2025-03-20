@@ -94,7 +94,7 @@ class GoldItemSoldController extends Controller
 
         $goldItemSold->update($validated);
 
-        return redirect()->route('gold-items.sold')->with('success', 'Sold gold item updated successfully.');
+        return redirect()->route('admin.sold-items')->with('success', 'Sold gold item updated successfully.');
     }
 
     /**
