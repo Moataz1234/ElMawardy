@@ -234,6 +234,8 @@ Route::middleware(['auth'])->group(function () {
         Route::get('/gold-items/model-details', [GoldItemController::class, 'getModelDetails']);
         Route::get('/barcode', [BarcodeController::class, 'index'])->name('barcode.view');
         Route::get('/barcode/export', [BarcodeController::class, 'export'])->name('barcode.export');
+        Route::get('/admin/barcode/export-barcode', [BarcodeController::class, 'exportBarcode'])->name('barcode.exportBarcode');
+        Route::get('/generate-qr', [BarcodeController::class, 'generate'])->name('barcode.generate');
 
         Route::put('/gold-items-sold/{id}', [GoldItemSoldController::class, 'update'])->name('gold-items-sold.update');
         Route::get('/warehouse', [WarehouseController::class, 'index'])->name('admin.warehouse.index');

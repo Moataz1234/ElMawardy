@@ -1,16 +1,27 @@
 <?php
+
 namespace App\Http\Controllers\Admin;
 
 use App\Http\Controllers\Controller;
-use App\Models\GoldItem;
-use App\Models\Shop;
 use App\Models\AddRequest;
+use App\Models\Shop;
 use Illuminate\Http\Request;
 use PhpOffice\PhpSpreadsheet\Spreadsheet;
-use PhpOffice\PhpSpreadsheet\Writer\Xls; // Changed from Xlsx to Xls
-use Illuminate\Support\Str;
+use PhpOffice\PhpSpreadsheet\Writer\Xls;
 use Illuminate\Support\Facades\Log;
 use Carbon\Carbon;
+// use chillerlan\QRCode\QRCode; // Add QRCode library
+// use chillerlan\QRCode\QROptions; // Add QROptions for configuration
+use Barryvdh\DomPDF\Facade\Pdf;
+use SimpleSoftwareIO\QrCode\Facades\QrCode;
+use chillerlan\QRCode\QRCode as chillerQRCode;
+use chillerlan\QRCode\QROptions as chillerQROptions;
+use Endroid\QrCode\Builder\Builder;
+use Endroid\QrCode\Encoding\Encoding;
+use Endroid\QrCode\ErrorCorrectionLevel;
+use Endroid\QrCode\RoundBlockSizeMode;
+use Endroid\QrCode\Writer\PngWriter;
+
 
 class BarcodeController extends Controller
 {
@@ -22,7 +33,7 @@ class BarcodeController extends Controller
         if ($request->filled('shop_id')) {
             $query->where('shop_id', $request->shop_id);
         }
-    
+
         // Filter by a specific date or date range
         if ($request->filled('date')) {
             $query->whereDate('rest_since', $request->date);
@@ -151,13 +162,80 @@ class BarcodeController extends Controller
             ->header('Content-Disposition', 'attachment;filename="' . $filename . '"')
             ->header('Cache-Control', 'max-age=0');
     }
+    // public function generate()
+    // {
+    //     $qr =  QrCode::format('png')
+    //     ->size(300)
+    //     ->generate('tel:+1234567890');
+    //     return response($qr)->header('Content-Type', 'image/png');
+    // }
+    public function exportBarcode(Request $request)
+    {
+        $query = AddRequest::query();
 
+        // Apply filters...
+        if ($request->filled('shop_id')) {
+            $query->where('shop_id', $request->shop_id);
+        }
+        
+        if ($request->filled('date')) {
+            $query->whereDate('rest_since', $request->date);
+        } elseif ($request->filled('start_date') && $request->filled('end_date')) {
+            $query->whereBetween('rest_since', [$request->start_date, $request->end_date]);
+        } else {
+            $query->whereDate('rest_since', Carbon::today());
+        }
+
+        $goldItems = $query->with('modelCategory')->orderBy('shop_id')->get();
+
+        if ($goldItems->isEmpty()) {
+            return redirect()->back()->with('error', 'No items found for the selected filters.');
+        }
+
+        // Generate QR codes and prepare data
+        $barcodeData = [];
+
+        foreach ($goldItems as $item) {
+            try {
+                // Use QR Server API instead of Google Charts
+                $qrCodeUrl = 'https://api.qrserver.com/v1/create-qr-code/?size=200x200&data=' . urlencode($item->serial_number);
+                
+                // Get shop ID
+                $shopId = $item->shop_id ?? 'Admin';
+                
+                // Get stars from model
+                $stars = '';
+                if ($item->modelCategory && $item->modelCategory->stars) {
+                    $stars = $item->modelCategory->stars;
+                }
+                
+                // Add to data array
+                $barcodeData[] = [
+                    'serial_number' => $item->serial_number,
+                    'model' => $item->model,
+                    'weight' => $item->weight,
+                    'shop_id' => $shopId,
+                    'stars' => $stars,
+                    'barcode_image' => $qrCodeUrl,
+                ];
+                
+                Log::info('Generated QR code URL for: ' . $item->serial_number);
+            } catch (\Exception $e) {
+                Log::error('QR Code Error: ' . $e->getMessage() . ' for ' . $item->serial_number);
+                continue;
+            }
+        }
+
+        // Return direct HTML view for printing
+        return view('admin.Gold.barcode_print', [
+            'barcodeData' => $barcodeData
+        ]);
+    }
     private function modifySource($source)
     {
         if ($source === 'Production') {
             return '';
-        }
-        else{
+        } else {
             return strtoupper(substr($source, 0, 1));
         }
     }

@@ -8,6 +8,8 @@
     "require": {
         "php": "^8.2",
         "barryvdh/laravel-dompdf": "^3.1",
+        "chillerlan/php-qrcode": "^5.0",
+        "endroid/qr-code": "^5.0",
         "guzzlehttp/guzzle": "^7.9",
         "khaled.alshamaa/ar-php": "*",
         "laravel/framework": "^11.0",
@@ -15,9 +17,10 @@
         "laravel/sanctum": "^4.0",
         "laravel/socialite": "5.14",
         "laravel/tinker": "^2.9",
-        "maatwebsite/excel": "^1.1",
         "phpoffice/phpspreadsheet": "^3.7",
-        "shopify/shopify-api": "^5.6"
+        "picqer/php-barcode-generator": "^3.2",
+        "shopify/shopify-api": "^5.6",
+        "simplesoftwareio/simple-qrcode": "^4.2"
     },
     "require-dev": {
         "fakerphp/faker": "^1.23",

@@ -41,6 +41,13 @@
                     <button type="submit" class="btn btn-success">Export to Excel</button>
                 </form>
             </div>
+            <div class="col-md-3">
+                <form id="exportBarcodeForm" action="{{ route('barcode.exportBarcode') }}" method="GET">
+                    <input type="hidden" name="shop_id" id="export-barcode-shop-id" value="">
+                    <input type="hidden" name="date" id="export-barcode-date" value="">
+                    <button type="submit" class="btn btn-primary">Export Barcodes</button>
+                </form>
+            </div>
         </div>
 
         <table class="table table-striped table-bordered">
@@ -77,16 +84,21 @@
             const shopId = this.value;
             window.location.href = `?shop_id=${shopId}&date=${date}`;
         });
-
+    
         document.getElementById('date-filter').addEventListener('change', function () {
             const shopId = document.getElementById('shop-filter').value;
             const date = this.value;
             window.location.href = `?shop_id=${shopId}&date=${date}`;
         });
-
+    
         document.getElementById('exportForm').addEventListener('submit', function () {
             document.getElementById('export-shop-id').value = document.getElementById('shop-filter').value;
             document.getElementById('export-date').value = document.getElementById('date-filter').value;
+        });
+    
+        document.getElementById('exportBarcodeForm').addEventListener('submit', function () {
+            document.getElementById('export-barcode-shop-id').value = document.getElementById('shop-filter').value;
+            document.getElementById('export-barcode-date').value = document.getElementById('date-filter').value;
         });
     </script>
 </body>
