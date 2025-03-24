@@ -69,7 +69,7 @@
                         <td>{{ $item->shop_id ?? 'Admin' }}</td>
                         <td>{{ $item->model }}</td>
                         <td>{{ $item->weight }}</td>
-                        <td>{{ optional($item->modelCategory)->source }}</td>
+                        <td>{{ optional($item)->source }}</td>
                         <td>{{ $item->modified_source }}</td>
                         <td>{{ optional($item->modelCategory)->stars }}</td>
                     </tr>

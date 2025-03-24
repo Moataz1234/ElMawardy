@@ -47,7 +47,7 @@ class BarcodeController extends Controller
         $goldItems = $query->get();
 
         foreach ($goldItems as $item) {
-            $item->modified_source = $this->modifySource(optional($item->modelCategory)->source);
+            $item->modified_source = $this->modifySource(optional($item)->source);
         }
         $shops = Shop::all();
 
@@ -109,7 +109,7 @@ class BarcodeController extends Controller
                     $sheet->setCellValue('C' . $row, $item->model);
                     $sheet->setCellValue('D' . $row, $item->weight);
 
-                    $source = optional($item->modelCategory)->source;
+                    $source = optional($item)->source;
                     $sheet->setCellValue('E' . $row, $this->modifySource($source));
                     $sheet->setCellValue('F' . $row, optional($item->modelCategory)->stars);
                 }
@@ -122,7 +122,7 @@ class BarcodeController extends Controller
                         $sheet->setCellValue('I' . $row, $item2->model);
                         $sheet->setCellValue('J' . $row, $item2->weight);
 
-                        $source2 = optional($item2->modelCategory)->source;
+                        $source2 = optional($item2)->source;
                         $sheet->setCellValue('K' . $row, $this->modifySource($source2));
                         $sheet->setCellValue('L' . $row, optional($item2->modelCategory)->stars);
                     }
@@ -217,6 +217,7 @@ class BarcodeController extends Controller
                     'shop_id' => $shopId,
                     'stars' => $stars,
                     'barcode_image' => $qrCodeUrl,
+                    'source' => $this->modifySource(optional($item)->source),
                 ];
                 
                 Log::info('Generated QR code URL for: ' . $item->serial_number);
