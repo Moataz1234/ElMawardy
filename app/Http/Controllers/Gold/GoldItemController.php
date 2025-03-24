@@ -90,6 +90,7 @@ class GoldItemController extends Controller
             'shops.*.gold_color' => 'required',
             'shops.*.weight' => 'required|numeric',
             'shops.*.source' => 'nullable|string',
+            'talab' => 'nullable|boolean',
         ]);
 
         // Get the stars and default source from the Models table
@@ -117,7 +118,8 @@ class GoldItemController extends Controller
                 $shop['source'] = !empty($shop['source']) ? $shop['source'] : $defaultSource;
                 return $shop;
             }, $validatedData['shops']),
-            'stars' => $modelStars
+            'stars' => $modelStars,
+            'talab' => $validatedData['talab'] ?? false
         ];
 
         // Add the item to session
@@ -296,6 +298,7 @@ class GoldItemController extends Controller
                         'weights' => [$request->weight], // Individual weight
                         'count' => $request->quantity,
                         'serial_numbers' => [$request->serial_number],
+                        'source' => $request->source,
                         'is_pending' => true
                     ];
                 });
@@ -317,6 +320,7 @@ class GoldItemController extends Controller
                         'weights' => $group->pluck('weight')->toArray(), // Individual weights
                         'count' => $group->sum('quantity'),
                         'serial_numbers' => $group->pluck('serial_number')->toArray(),
+                        'source' => $firstItem->source,
                         'is_pending' => false
                     ];
                 })
