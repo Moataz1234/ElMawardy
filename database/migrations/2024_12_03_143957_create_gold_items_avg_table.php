@@ -14,7 +14,7 @@ return new class extends Migration
         Schema::create('gold_items_avg', function (Blueprint $table) {
             $table->id();
             $table->string('model');
-            $table->decimal('stones_weight', 10, 2)->nullable();
+            $table->float('stones_weight', 10, 2)->nullable();
       
             $table->foreign('model')
             ->references('model')
