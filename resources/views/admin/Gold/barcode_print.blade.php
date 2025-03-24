@@ -79,7 +79,7 @@
         
         .item-details {
             position: absolute;
-            top: 70px;
+            top: 60px;
             font-size: 12px;
             font-family: "Yu Gothic Medium", "Yu Gothic", YuGothic, sans-serif;
             font-weight: bold;
@@ -272,7 +272,7 @@
         <span class="pagination-info">Page <span id="currentPage">1</span> of <span id="totalPages">0</span></span>
         <button class="pagination-button" onclick="nextPage()">Next</button>
     </div>
-    
+
     @php
         // Group items by shop_id
         $itemsByShop = collect($barcodeData)->groupBy('shop_id');
@@ -281,44 +281,45 @@
     @foreach($itemsByShop as $shopId => $items)
         @php
             $shopIndex = $loop->index;
-            $pairs = $items->chunk(2);
+            $itemsArray = $items->toArray();
+            $itemCount = count($itemsArray);
         @endphp
 
-        @foreach($pairs as $pairIndex => $pair)
+        @for($i = 0; $i < $itemCount; $i += 2)
             <div class="page">
                 <div class="barcode-container">
                     <div class="barcode-card">
                         <div class="shop-id">{{ $shopId }}</div>
                         
                         <!-- Right item (always present) -->
-                        @if($pair->first())
+                        @if(isset($itemsArray[$i]))
                             <div class="right-item">
-                                <div id="qr-{{ $shopIndex }}-{{ $pairIndex }}-0" class="qr-code"></div>
+                                <div id="qr-{{ $shopIndex }}-{{ $i/2 }}-0" class="qr-code"></div>
                                 <div class="item-details">
-                                    <div class="stars">{{ $pair->first()['stars'] }}</div>
-                                    <div>{{ $pair->first()['serial_number'] }}</div>
-                                    <div>{{ $pair->first()['model'] }}</div>
-                                    <div>{{ $pair->first()['weight'] }} {{ $pair->first()['source'] }}</div>
+                                    <div class="stars">{{ $itemsArray[$i]['stars'] ?? '' }}</div>
+                                    <div>{{ $itemsArray[$i]['serial_number'] ?? '' }}</div>
+                                    <div>{{ $itemsArray[$i]['model'] ?? '' }}</div>
+                                    <div>{{ $itemsArray[$i]['weight'] ?? '' }} {{ isset($itemsArray[$i]['source']) ? substr($itemsArray[$i]['source'], 0, 1) : '' }}</div>
                                 </div>
                             </div>
                         @endif
                         
                         <!-- Left item (may not be present) -->
-                        @if($pair->count() > 1)
+                        @if(isset($itemsArray[$i+1]))
                             <div class="left-item">
-                                <div id="qr-{{ $shopIndex }}-{{ $pairIndex }}-1" class="qr-code"></div>
+                                <div id="qr-{{ $shopIndex }}-{{ $i/2 }}-1" class="qr-code"></div>
                                 <div class="item-details">
-                                    <div class="stars">{{ $pair->get(1)['stars'] }}</div>
-                                    <div>{{ $pair->get(1)['serial_number'] }}</div>
-                                    <div>{{ $pair->get(1)['model'] }}</div>
-                                    <div>{{ $pair->get(1)['weight'] }} {{ $pair->get(1)['source'] }}</div>
+                                    <div class="stars">{{ $itemsArray[$i+1]['stars'] ?? '' }}</div>
+                                    <div>{{ $itemsArray[$i+1]['serial_number'] ?? '' }}</div>
+                                    <div>{{ $itemsArray[$i+1]['model'] ?? '' }}</div>
+                                    <div>{{ $itemsArray[$i+1]['weight'] ?? '' }} {{ isset($itemsArray[$i+1]['source']) ? substr($itemsArray[$i+1]['source'], 0, 1) : '' }}</div>
                                 </div>
                             </div>
                         @endif
                     </div>
                 </div>
             </div>
-        @endforeach
+        @endfor
     @endforeach
     
     <script>
@@ -377,19 +378,23 @@
         let pages;
 
         document.addEventListener('DOMContentLoaded', function() {
+            // Generate QR codes
             @foreach($itemsByShop as $shopId => $items)
                 @php 
                     $shopIndex = $loop->index;
-                    $pairs = $items->chunk(2);
+                    $itemsArray = $items->toArray();
+                    $itemCount = count($itemsArray);
                 @endphp
                 
-                @foreach($pairs as $pairIndex => $pair)
-                    generateQR('{{ $pair->first()['serial_number'] }}', 'qr-{{ $shopIndex }}-{{ $pairIndex }}-0');
-                    
-                    @if($pair->count() > 1)
-                        generateQR('{{ $pair->get(1)['serial_number'] }}', 'qr-{{ $shopIndex }}-{{ $pairIndex }}-1');
+                @for($i = 0; $i < $itemCount; $i += 2)
+                    @if(isset($itemsArray[$i]))
+                        generateQR('{{ $itemsArray[$i]['serial_number'] ?? '' }}', 'qr-{{ $shopIndex }}-{{ $i/2 }}-0');
                     @endif
-                @endforeach
+                    
+                    @if(isset($itemsArray[$i+1]))
+                        generateQR('{{ $itemsArray[$i+1]['serial_number'] ?? '' }}', 'qr-{{ $shopIndex }}-{{ $i/2 }}-1');
+                    @endif
+                @endfor
             @endforeach
 
             // Initialize pagination
