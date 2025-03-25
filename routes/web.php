@@ -42,7 +42,8 @@ use App\Http\Controllers\{
     LaboratoryOperationController,
     LaboratoryDestinationController,
     GoldAnalysisController,
-    SuperAdminRequestController
+    SuperAdminRequestController,
+    KasrSaleController
     // NewItemTalabatController 
 };
 
@@ -365,6 +366,8 @@ Route::middleware(['auth'])->group(function () {
     // Add this route inside the authenticated routes group
     Route::get('/gold-items/same-model', [ShopsController::class, 'getItemsByModel'])
         ->name('gold-items.same-model');
+
+    Route::resource('kasr-sales', KasrSaleController::class);
 });
 
 // ===================================

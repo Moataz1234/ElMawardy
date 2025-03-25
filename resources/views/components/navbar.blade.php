@@ -141,6 +141,7 @@
                 </div>
             </li>
             <li class="navbar-item"><a href="{{ route('gold-items.sold') }}" class="navbar-link">المبيعات</a></li>
+            <li class="navbar-item"><a href="{{ route('kasr-sales.create') }}" class="navbar-link">شراء الكسر</a></li>
             <li class="navbar-item dropdown">
                 <a href="#" class="navbar-link dropdown-toggle">الطلبات</a>
                 <div class="dropdown-menu">

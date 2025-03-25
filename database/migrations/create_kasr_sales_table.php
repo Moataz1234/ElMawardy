@@ -15,19 +15,20 @@ return new class extends Migration
             $table->id();
             $table->string('customer_name');
             $table->string('shop_name')->nullable();
-            $table->foreign('shop_name')
-                ->references('shop_name')
-                ->on('users')
-                ->onDelete('cascade');
-            // $table->string('kind')->nullable();
+            // $table->foreign('shop_name')
+            //     ->references('shop_name')
+            //     ->on('users')
+            //     ->onDelete('cascade');
+            $table->string('kind')->nullable();
             $table->decimal('weight', 10, 2);
             $table->string('metal_purity');
-            $table->string('metal_type')->default('gold');
+            $table->string('item_type')->default('customer');
+            // $table->string('metal_type')->default('gold');
             $table->string('image_path')->nullable();
             $table->decimal('offered_price', 12, 2)->nullable();
             $table->date('order_date')->nullable();
             $table->string('status')->default('pending'); // pending, accepted, rejected
-            $table->text('notes')->nullable();
+            // $table->text('notes')->nullable();
             $table->timestamps();
         });
     }
