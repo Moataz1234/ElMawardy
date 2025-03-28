@@ -7,6 +7,7 @@ use App\Http\Controllers\Api\Auth\AsgardeoAuthController;
 use App\Http\Controllers\Api\Rabea\RabiaApiController;
 use App\Http\Controllers\Api\Models\ModelsController;
 use App\Http\Controllers\Api\Shopify\ShopifyCustomersController;
+use App\Http\Controllers\Api\Shopify\ShopifyOrdersController;
 use App\Http\Controllers\Api\GoldItems\GoldItemsController;
 
 // Public auth routes
@@ -42,6 +43,10 @@ Route::prefix('shopify')->group(function () {
     Route::get('/customers/all', [ShopifyCustomersController::class, 'getAllCustomers']);
     Route::get('/customers/page/{page}', [ShopifyCustomersController::class, 'getCustomersByPage']);
     Route::get('/customers/{customerId}', [ShopifyCustomersController::class, 'show']);
+    
+    // Orders Routes
+    Route::get('/orders', [ShopifyOrdersController::class, 'getOrders']);
+    Route::get('/orders/{orderId}', [ShopifyOrdersController::class, 'getOrder']);
 });
 
 // Gold Items API Routes
@@ -52,3 +57,7 @@ Route::prefix('shopify')->group(function () {
 //     'update' => 'api.gold-items.update',
 //     'destroy' => 'api.gold-items.destroy',
 // ]);
+
+// Add these routes to your existing API routes
+Route::get('/gold-items/match-sku/{sku}', [App\Http\Controllers\Api\GoldItems\GoldItemsController::class, 'matchBySku']);
+Route::post('/shopify/assign-item', [App\Http\Controllers\Api\Shopify\ShopifyOrdersController::class, 'assignItem']);

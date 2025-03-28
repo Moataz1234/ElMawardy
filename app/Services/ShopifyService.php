@@ -343,12 +343,20 @@ public function updateProductDraft($productGid)
     }
 }
 
-public function getOrders($tab = 'unfulfilled')
+public function getOrders($tab = 'any')
 {
     $query = [
-        'status' => $tab == 'archived' ? 'closed' : 'open', // Retrieve 'closed' orders for archived or 'open' for active/unfulfilled orders
         'limit' => 50 // Adjust the limit as necessary
     ];
+    
+    // Only add status filter if specifically requesting archived or unfulfilled
+    if ($tab == 'archived') {
+        $query['status'] = 'closed';
+    } else if ($tab == 'unfulfilled') {
+        $query['status'] = 'open';
+        $query['fulfillment_status'] = 'unfulfilled';
+    }
+    // For 'any', don't add status filters to get all orders
 
     $response = $this->client->get('orders.json', [
         'query' => $query
@@ -365,7 +373,7 @@ public function getOrders($tab = 'unfulfilled')
               $item['image_url'] = $product['media']['edges'][0]['node']['image']['url'];
           }
       }
-  }
+    }
     return $orders;
 }
 public function getProductBySku($sku)

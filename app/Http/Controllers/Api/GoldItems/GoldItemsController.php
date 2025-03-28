@@ -6,6 +6,7 @@ use App\Http\Controllers\Controller;
 use App\Models\GoldItem;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Validator;
+use App\Models\Models;
 
 class GoldItemsController extends Controller
 {
@@ -113,5 +114,26 @@ class GoldItemsController extends Controller
         } catch (\Exception $e) {
             return response()->json(['error' => 'Gold item not found'], 404);
         }
+    }
+
+    /**
+     * Find gold items matching a SKU from the Models table
+     */
+    public function matchBySku($sku)
+    {
+        // First find the model with this SKU
+        $model = Models::where('SKU', $sku)->first();
+        
+        if (!$model) {
+            return response()->json(['items' => []]);
+        }
+        
+        // Find gold items with this model that are available (not sold)
+        $items = GoldItem::where('model', $model->model)
+                        ->where('status', '!=', 'sold')
+                        ->where('status', '!=', 'deleted')
+                        ->get(['serial_number', 'model', 'weight', 'shop_name']);
+        
+        return response()->json(['items' => $items]);
     }
 } 

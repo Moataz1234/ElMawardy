@@ -53,7 +53,8 @@
                 <a href="#" class="navbar-link dropdown-toggle">Shopify</a>
                 <div class="dropdown-menu">
                     <a href="{{ route('shopify.products') }}" class="dropdown-item">Products</a>
-                    <a href="{{ route('orders_shopify') }}" class="dropdown-item">Orders</a>
+                    {{-- <a href="{{ route('shopify.orders') }}" class="dropdown-item">Orders</a> --}}
+                    <a href="{{ route('shopify.orders.api-view') }}" class="dropdown-item">Orders </a>
                 </div>
             </li>
         @endif

@@ -277,21 +277,31 @@ Route::middleware(['auth'])->group(function () {
 
 
         // Shopify Routes
-        Route::get('/shopify-products', [ShopifyProductController::class, 'index'])->name('shopify.products');
-        Route::get('/shopify-products/orders', [ShopifyProductController::class, 'Order_index'])->name('orders_shopify');
-        Route::post('/shopify/orders/{id}/fulfill', [ShopifyProductController::class, 'fulfillOrder'])->name('fulfill_order');
-        Route::post('/shopify/orders/{id}/paid', [ShopifyProductController::class, 'markAsPaid'])->name('mark_as_paid');
-        Route::get('/orders/{orderId}/pdf', [ShopifyProductController::class, 'generatePDF'])->name('order.pdf');
-        Route::get('/shopify-products/abandoned-checkouts', [ShopifyProductController::class, 'AbandonedCheckouts_index'])->name('abandoned_checkouts_shopify');
-        Route::get('/shopify-products/edit/{product_id}', [ShopifyProductController::class, 'showEditImageForm'])->name('shopify.products.showEditImageForm');
-        Route::post('/shopify-products/edit/{product_id}', [ShopifyProductController::class, 'editProduct'])->name('shopify.products.editProduct');
-        // Route::post('/admin/update-gold-prices', [ShopifyProductController::class, 'updateGoldPrices'])->name('admin.update-gold-prices');
-        Route::post('/admin/update-gold-prices', [ShopifyProductController::class, 'updateGoldPrices'])->name('shopify.updateGold');
-        Route::post('/admin/update-diamond-prices', [ShopifyProductController::class, 'updateDiamondPrices'])->name('admin.update-diamond-prices');
-        Route::post('/update-prices', [ShopifyProductController::class, 'updatePricesFromCsv']);
-        Route::post('/update-from-excel', [ShopifyProductController::class, 'updateFromExcel'])->name('shopify.updateFromExcel');
-
-        Route::get('shopify/update-prices', [ShopifyProductController::class, 'seeUpdatePrice']);
+        Route::prefix('shopify')->name('shopify.')->group(function () {
+            // Product routes
+            Route::get('/products', [App\Http\Controllers\Admin\Shopify\ShopifyProductController::class, 'index'])->name('products');
+            Route::get('/products/edit/{product_id}', [App\Http\Controllers\Admin\Shopify\ShopifyProductController::class, 'showEditImageForm'])->name('products.showEditImageForm');
+            Route::post('/products/edit/{product_id}', [App\Http\Controllers\Admin\Shopify\ShopifyProductController::class, 'editProduct'])->name('products.editProduct');
+            Route::post('/update-from-excel', [App\Http\Controllers\Admin\Shopify\ShopifyProductController::class, 'updateFromExcel'])->name('updateFromExcel');
+            
+            // Order routes
+            Route::get('/orders', [App\Http\Controllers\Admin\Shopify\ShopifyOrderController::class, 'index'])->name('orders');
+            Route::post('/orders/{id}/fulfill', [App\Http\Controllers\Admin\Shopify\ShopifyOrderController::class, 'fulfillOrder'])->name('orders.fulfill');
+            Route::post('/orders/{id}/paid', [App\Http\Controllers\Admin\Shopify\ShopifyOrderController::class, 'markAsPaid'])->name('orders.markAsPaid');
+            Route::get('/orders/{orderId}/pdf', [App\Http\Controllers\Admin\Shopify\ShopifyOrderController::class, 'generatePdf'])->name('orders.pdf');
+            
+            // Checkout routes
+            Route::get('/abandoned-checkouts', [App\Http\Controllers\Admin\Shopify\ShopifyCheckoutController::class, 'index'])->name('abandonedCheckouts');
+            
+            // Price update routes
+            Route::get('/update-prices', [App\Http\Controllers\Admin\Shopify\ShopifyPriceController::class, 'seeUpdatePrice'])->name('updatePrices');
+            Route::post('/update-gold-prices', [App\Http\Controllers\Admin\Shopify\ShopifyPriceController::class, 'updateGoldPrices'])->name('updateGold');
+            Route::post('/update-diamond-prices', [App\Http\Controllers\Admin\Shopify\ShopifyPriceController::class, 'updateDiamondPrices'])->name('updateDiamond');
+            Route::post('/update-prices-from-csv', [App\Http\Controllers\Admin\Shopify\ShopifyPriceController::class, 'updatePricesFromCsv'])->name('updatePricesFromCsv');
+            Route::post('/update-specific-products', [App\Http\Controllers\Admin\Shopify\ShopifyPriceController::class, 'updateSpecificProducts'])->name('updateSpecificProducts');
+            Route::post('/add-products-to-collection', [App\Http\Controllers\Admin\Shopify\ShopifyPriceController::class, 'addProductsToCollection'])->name('addProductsToCollection');
+            Route::post('/update-quantity-to-one', [App\Http\Controllers\Admin\Shopify\ShopifyPriceController::class, 'updateQuantityToOne'])->name('updateQuantityToOne');
+        });
 
         // Add these new routes inside the admin middleware group
     });
@@ -477,4 +487,9 @@ Route::get('/login', [AsgardeoAuthController::class, 'redirectToAsgardeo'])->nam
 
 Route::get('/admin/add-requests/export', [AddRequestController::class, 'export'])
     ->name('admin.add.requests.export');
+
+// Add this to your existing routes
+Route::get('/shopify/orders-api-view', function() {
+    return view('shopify.orders-api-view');
+})->name('shopify.orders.api-view');
     

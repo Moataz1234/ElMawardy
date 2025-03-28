@@ -46,24 +46,24 @@
     <ul class="nav nav-tabs mb-3">
         <li class="nav-item">
             <a class="nav-link {{ $currentTab == 'unfulfilled' ? 'active' : '' }}" 
-               href="{{ route('orders_shopify', ['tab' => 'unfulfilled']) }}">
+               href="{{ route('shopify.orders', ['tab' => 'unfulfilled']) }}">
                Unfulfilled Orders
             </a>
         </li>
         <li class="nav-item">
             <a class="nav-link {{ $currentTab == 'archived' ? 'active' : '' }}" 
-               href="{{ route('orders_shopify', ['tab' => 'archived']) }}">
+               href="{{ route('shopify.orders', ['tab' => 'archived']) }}">
                Past Orders
             </a>
         </li>
-        <li><a href="{{ route('abandoned_checkouts_shopify') }}">Abandoned Checkouts</a></li>
+        <li><a href="{{ route('shopify.abandonedCheckouts') }}">Abandoned Checkouts</a></li>
 
     </ul>
     <table class="table table-hover table-striped">
         <thead class="table-dark">
             <tr>
                 <th>
-                    <a href="{{ route('orders_shopify', ['tab' => $currentTab, 'sort_by_'.$currentTab => 'name', 'sort_direction_'.$currentTab => $sortDirection == 'asc' ? 'desc' : 'asc']) }}" class="text-white">
+                    <a href="{{ route('shopify.orders', ['tab' => $currentTab, 'sort_by_'.$currentTab => 'name', 'sort_direction_'.$currentTab => $sortDirection == 'asc' ? 'desc' : 'asc']) }}" class="text-white">
                         Order #
                         @if ($sortBy == 'name')
                             @if ($sortDirection == 'asc') &#9650; @else &#9660; @endif
@@ -72,7 +72,7 @@
                 </th>
 
                 <th>
-                    <a href="{{ route('orders_shopify', ['tab' => $currentTab, 'sort_by_'.$currentTab => 'created_at', 'sort_direction_'.$currentTab => $sortDirection == 'asc' ? 'desc' : 'asc']) }}" class="text-white">
+                    <a href="{{ route('shopify.orders', ['tab' => $currentTab, 'sort_by_'.$currentTab => 'created_at', 'sort_direction_'.$currentTab => $sortDirection == 'asc' ? 'desc' : 'asc']) }}" class="text-white">
                         Date
                         @if ($sortBy == 'created_at')
                             @if ($sortDirection == 'asc') &#9650; @else &#9660; @endif
@@ -89,7 +89,7 @@
               
                 {{-- <th>Channel</th> --}}
                 <th>
-                    <a href="{{ route('orders_shopify', ['sort_by' => 'total_price', 'sort_direction' => $sortBy == 'total_price' && $sortDirection == 'asc' ? 'desc' : 'asc']) }}" class="text-white">
+                    <a href="{{ route('shopify.orders', ['sort_by' => 'total_price', 'sort_direction' => $sortBy == 'total_price' && $sortDirection == 'asc' ? 'desc' : 'asc']) }}" class="text-white">
                         Total
                         @if ($sortBy == 'total_price')
                             @if ($sortDirection == 'asc') &#9650; @else &#9660; @endif
@@ -175,15 +175,15 @@
                     @endif
                 </td>
                 <td>
-                    <form action="{{ route('fulfill_order', $order['id']) }}" method="POST">
+                    <form action="{{ route('shopify.orders.fulfill', $order['id']) }}" method="POST">
                         @csrf
                         <button type="submit" class="btn btn-primary">Mark as Fulfilled</button>
                     </form>
-                    <form action="{{ route('mark_as_paid', $order['id']) }}" method="POST">
+                    <form action="{{ route('shopify.orders.markAsPaid', $order['id']) }}" method="POST">
                         @csrf
                         <button type="submit" class="btn btn-success">Mark as Paid</button>
                     </form>
-                    <a href="{{ route('order.pdf', $order['id']) }}" class="btn btn-sm btn-info" target="_blank">
+                    <a href="{{ route('shopify.orders.pdf', $order['id']) }}" class="btn btn-sm btn-info" target="_blank">
                         <i class="fas fa-print"></i> Print Invoice
                     </a>
                 </td>
