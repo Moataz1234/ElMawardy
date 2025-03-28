@@ -214,7 +214,7 @@ class SoldItemRequestController extends Controller
                                 'weight' => $goldItem->weight,
                                 'add_date' => $goldItem->rest_since,
                                 'price' => $saleRequest->price,
-                                'sold_date' => now(),
+                                'sold_date' => $saleRequest->sold_date,
                                 'customer_id' => $saleRequest->customer_id,
                                 'stars' => $modelCategory->stars,
                                 'source' => $goldItem->source
@@ -264,7 +264,8 @@ class SoldItemRequestController extends Controller
                     // Update request status
                     $saleRequest->update([
                         'status' => 'approved',
-                        'approver_shop_name' => Auth::user()->shop_name
+                        'approver_shop_name' => Auth::user()->shop_name,
+                        // 'sold_date' => now()
                     ]);
                 }
 

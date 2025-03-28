@@ -26,7 +26,8 @@ class SaleRequest extends Model
         'weight',
         'purity',
         'kind',
-        'related_item_serial' // Optional: Links pound to parent item when related
+        'related_item_serial',
+        'sold_date'
     ];
 
     public function goldItem()

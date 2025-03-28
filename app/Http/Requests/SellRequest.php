@@ -22,16 +22,19 @@ class SellRequest extends FormRequest
     public function rules(): array
     {
         return [
-            'first_name' => 'required|string',
-            'last_name' => 'required|string',
-            'phone_number' => 'nullable|string',
-            'address' => 'nullable|string',
-            'email' => 'nullable|email',
-            'payment_method' => 'required|string',
+            'first_name' => 'required|string|max:255',
+            'last_name' => 'required|string|max:255',
+            'phone_number' => 'required|string|max:20',
+            'address' => 'nullable|string|max:255',
+            'email' => 'nullable|email|max:255',
+            'payment_method' => 'required|string|max:50',
             'ids' => 'required|array',
             'ids.*' => 'exists:gold_items,id',
             'prices' => 'required|array',
-            'prices.*' => 'required|numeric|min:0'
+            'prices.*' => 'required|numeric|min:0',
+            'pound_prices' => 'sometimes|array',
+            'pound_prices.*' => 'sometimes|numeric|min:0',
+            'sold_date' => 'nullable|date'
         ];
     }
 

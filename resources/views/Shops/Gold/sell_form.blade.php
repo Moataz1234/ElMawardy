@@ -80,6 +80,12 @@
                                         </select>
                                     </div>
                                 </div>
+                                <div class="col-md-6">
+                                    <div class="mb-3">
+                                        <label for="sold_date">تاريخ البيع</label>
+                                        <input type="date" class="form-control" id="sold_date" name="sold_date" value="{{ date('Y-m-d') }}">
+                                    </div>
+                                </div>
                             </div>
                     </div>
 

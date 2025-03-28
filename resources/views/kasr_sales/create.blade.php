@@ -152,19 +152,10 @@
                                     <option value="خاتم" {{ old('kind') == 'خاتم' ? 'selected' : '' }}>خاتم</option>
                                     <option value="بروش" {{ old('kind') == 'بروش' ? 'selected' : '' }}>بروش</option>
                                     <option value="ميدالية" {{ old('kind') == 'ميدالية' ? 'selected' : '' }}>ميدالية</option>    
-                                    <option value="زرار ">زرار</option>
-                                    <option value="خاتم" {{ old('kind') == 'خاتم' ? 'selected' : '' }}>خاتم</option>
-                                    <option value="سوار" {{ old('kind') == 'سوار' ? 'selected' : '' }}>سوار</option>
-                                    <option value="عقد" {{ old('kind') == 'عقد' ? 'selected' : '' }}>عقد</option>
-                                    <option value="حلق" {{ old('kind') == 'حلق' ? 'selected' : '' }}>حلق</option>
-                                    <option value="خلخال" {{ old('kind') == 'خلخال' ? 'selected' : '' }}>خلخال</option>
-                                    <option value="دبلة" {{ old('kind') == 'دبلة' ? 'selected' : '' }}>دبلة</option>
-                                    <option value="تعليقة" {{ old('kind') == 'تعليقة' ? 'selected' : '' }}>تعليقة</option>
-                                    <option value="اسورة" {{ old('kind') == 'اسورة' ? 'selected' : '' }}>اسورة</option>
-                                    <option value="غويشة" {{ old('kind') == 'غويشة' ? 'selected' : '' }}>غويشة</option>
-                                    <option value="كوليه" {{ old('kind') == 'كوليه' ? 'selected' : '' }}>كوليه</option>
-                                    <option value="طقم" {{ old('kind') == 'طقم' ? 'selected' : '' }}>طقم</option>
-                                    <option value="أخرى" {{ old('kind') == 'أخرى' ? 'selected' : '' }}>أخرى</option>
+                                    <option value="زرار " {{ old('kind') == 'زرار' ? 'selected' : '' }}>زرار</option>
+                                    <option value="جنيه" {{ old('kind') == 'جنيه' ? 'selected' : '' }}>جنيه</option>
+                                    <option value="تول " {{ old('kind') == 'تول' ? 'selected' : '' }}>تول</option>
+
                                 </select>
                                 @error('kind')
                                     <span class="invalid-feedback" role="alert">
@@ -176,7 +167,7 @@
 
                         <div class="row mb-3">
                             <div class="col-md-6 mb-3 mb-md-0">
-                                <label for="offered_price" class="form-label">السعر المعروض</label>
+                                <label for="offered_price" class="form-label">السعر </label>
                                 <input id="offered_price" type="number" step="0.01" class="form-control @error('offered_price') is-invalid @enderror" name="offered_price" value="{{ old('offered_price') }}">
                                 @error('offered_price')
                                     <span class="invalid-feedback" role="alert">

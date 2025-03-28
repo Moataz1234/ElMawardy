@@ -48,6 +48,11 @@ class SellService
                 ]
             );
 
+            // Get the sold_date from the form or use null
+            $soldDate = isset($validatedData['sold_date']) && !empty($validatedData['sold_date']) 
+                ? $validatedData['sold_date'] 
+                : null;
+
             $results = [];
             foreach ($validatedData['ids'] as $id) {
                 $goldItem = GoldItem::with('poundInventory.goldPound')->findOrFail($id);
@@ -64,7 +69,8 @@ class SellService
                     'item_type' => 'item',
                     'weight' => $goldItem->weight,
                     'purity' => $goldItem->metal_purity,
-                    'kind' => $goldItem->kind
+                    'kind' => $goldItem->kind,
+                    'sold_date' => $soldDate
                 ]);
 
                 $goldItem->update(['status' => 'pending_sale']);
@@ -83,7 +89,8 @@ class SellService
                         'weight' => $poundInventory->weight,
                         'purity' => $poundInventory->purity,
                         'kind' => $poundInventory->goldPound->kind,
-                        'related_item_serial' => $goldItem->serial_number // Link to parent item
+                        'related_item_serial' => $goldItem->serial_number,
+                        'sold_date' => $soldDate
                     ]);
 
                     $poundInventory->update(['status' => 'pending_sale']);
