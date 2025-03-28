@@ -1,5 +1,5 @@
 <!DOCTYPE html>
-<html lang="ar" dir="rtl">
+<html lang="ar">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
@@ -10,7 +10,6 @@
     <style>
         body {
             background-color: #f8f9fa;
-            padding: 20px;
             font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
         }
         .form-container {
@@ -19,6 +18,7 @@
             box-shadow: 0 0 15px rgba(0, 0, 0, 0.1);
             padding: 30px;
             margin-top: 20px;
+            direction: rtl;
         }
         .form-header {
             background-color: #f8f9fa;
@@ -130,6 +130,9 @@
                                     <option value="22K" {{ old('metal_purity') == '22K' ? 'selected' : '' }}>عيار 22</option>
                                     <option value="21K" {{ old('metal_purity') == '21K' ? 'selected' : '' }}>عيار 21</option>
                                     <option value="18K" {{ old('metal_purity') == '18K' ? 'selected' : '' }}>عيار 18</option>
+                                    <option value="18K" {{ old('metal_purity') == '14K' ? 'selected' : '' }}>عيار 14</option>
+                                    <option value="18K" {{ old('metal_purity') == '12K' ? 'selected' : '' }}>عيار 12</option>
+                                    <option value="18K" {{ old('metal_purity') == '9K' ? 'selected' : '' }}>عيار 9</option>
                                 </select>
                                 @error('metal_purity')
                                     <span class="invalid-feedback" role="alert">
@@ -142,6 +145,14 @@
                                 <label for="kind" class="form-label">نوع القطعة</label>
                                 <select id="kind" class="form-select @error('kind') is-invalid @enderror" name="kind">
                                     <option value="">اختر النوع</option>
+                                    <option value="تعليفة" {{ old('kind') == 'تعليفة' ? 'selected' : '' }}>تعليفة</option>
+                                    <option value="اسورة" {{ old('kind') == 'اسورة' ? 'selected' : '' }}>اسورة</option>
+                                    <option value="حلق" {{ old('kind') == 'حلق' ? 'selected' : '' }}>حلق</option>
+                                    <option value="كوليه" {{ old('kind') == 'كوليه' ? 'selected' : '' }}>كوليه</option>
+                                    <option value="خاتم" {{ old('kind') == 'خاتم' ? 'selected' : '' }}>خاتم</option>
+                                    <option value="بروش" {{ old('kind') == 'بروش' ? 'selected' : '' }}>بروش</option>
+                                    <option value="ميدالية" {{ old('kind') == 'ميدالية' ? 'selected' : '' }}>ميدالية</option>    
+                                    <option value="زرار ">زرار</option>
                                     <option value="خاتم" {{ old('kind') == 'خاتم' ? 'selected' : '' }}>خاتم</option>
                                     <option value="سوار" {{ old('kind') == 'سوار' ? 'selected' : '' }}>سوار</option>
                                     <option value="عقد" {{ old('kind') == 'عقد' ? 'selected' : '' }}>عقد</option>
@@ -203,11 +214,11 @@
                                     <div class="form-check">
                                         <input class="form-check-input" type="checkbox" name="item_type" id="item_type" value="shop" {{ old('item_type') == 'shop' ? 'checked' : '' }}>
                                         <label class="form-check-label" for="item_type">
-                                            القطعة من محلنا
+                                            القطعة من صنعنا
                                         </label>
-                                        <span class="checkbox-description">
+                                        {{-- <span class="checkbox-description">
                                             حدد هذا الخيار إذا كانت القطعة الذهبية من محلنا، وإلا فهي من العميل
-                                        </span>
+                                        </span> --}}
                                         @error('item_type')
                                             <span class="invalid-feedback" role="alert">
                                                 <strong>{{ $message }}</strong>

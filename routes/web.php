@@ -43,7 +43,8 @@ use App\Http\Controllers\{
     LaboratoryDestinationController,
     GoldAnalysisController,
     SuperAdminRequestController,
-    KasrSaleController
+    KasrSaleController,
+    Admin\KasrSaleAdminController
     // NewItemTalabatController 
 };
 
@@ -492,4 +493,10 @@ Route::get('/admin/add-requests/export', [AddRequestController::class, 'export']
 Route::get('/shopify/orders-api-view', function() {
     return view('shopify.orders-api-view');
 })->name('shopify.orders.api-view');
+
+// Admin routes
+Route::middleware(['auth'])->group(function () {
+    // Kasr Sales Admin Routes
+    Route::get('/kasr-sales', [KasrSaleAdminController::class, 'index'])->name('kasr-sales.index');
+});
     
