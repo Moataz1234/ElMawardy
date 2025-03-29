@@ -57,6 +57,19 @@ public function handleTransfer($requestId, $status)
                         'shop_id' => $toShop->id,
                         'status' => 'active'
                     ]);
+                    
+                    // Create history record for pound transfer
+                    TransferRequestHistory::create([
+                        'from_shop_name' => $request->from_shop_name,
+                        'to_shop_name' => $request->to_shop_name,
+                        'status' => 'completed',
+                        'serial_number' => $pound->serial_number,
+                        'kind' => $pound->goldPound->kind ?? null,
+                        'weight' => $pound->goldPound->weight ?? null,
+                        'metal_purity' => $pound->purity ?? null,
+                        'quantity' => $pound->quantity ?? 1,
+                        'transfer_completed_at' => now()
+                    ]);
                 } else {
                     Log::error('Pound not found for transfer request', [
                         'request_id' => $requestId,
@@ -69,6 +82,24 @@ public function handleTransfer($requestId, $status)
                         'shop_name' => $request->to_shop_name,
                         'shop_id' => $toShop->id,
                         'status' => 'available'
+                    ]);
+                    
+                    // Create history record for gold item transfer
+                    TransferRequestHistory::create([
+                        'from_shop_name' => $request->from_shop_name,
+                        'to_shop_name' => $request->to_shop_name,
+                        'status' => 'completed',
+                        'serial_number' => $request->goldItem->serial_number,
+                        'model' => $request->goldItem->model,
+                        'kind' => $request->goldItem->kind,
+                        'weight' => $request->goldItem->weight,
+                        'gold_color' => $request->goldItem->gold_color,
+                        'metal_type' => $request->goldItem->metal_type,
+                        'metal_purity' => $request->goldItem->metal_purity,
+                        'quantity' => $request->goldItem->quantity ?? 1,
+                        'stones' => $request->goldItem->stones,
+                        'talab' => $request->goldItem->talab,
+                        'transfer_completed_at' => now()
                     ]);
                 }
             }
@@ -91,6 +122,9 @@ public function handleTransfer($requestId, $status)
             'request_id' => $requestId,
             'final_status' => $status
         ]);
+        
+        // Delete the transfer request after processing
+        $request->delete();
         
         return $request;
     });
