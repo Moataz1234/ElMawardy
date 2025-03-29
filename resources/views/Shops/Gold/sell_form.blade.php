@@ -76,7 +76,8 @@
                                             <option value="visa">فيزا (العربي الافريقي بوليون فاروز)</option>
                                             <option value="visa">فيزا (CIB)</option>
                                             <option value="visa">فيزا (جيديا)</option>
-
+                                            <option value="visa">تحويل بنكي ( بوليون فاروز)</option>
+                                            <option value="visa">تحويل بنكي ( المواردي بنك مصر  )</option>
                                         </select>
                                     </div>
                                 </div>
