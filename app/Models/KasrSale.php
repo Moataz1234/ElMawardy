@@ -11,28 +11,38 @@ class KasrSale extends Model
 
     protected $fillable = [
         'customer_name',
+        'customer_phone',
         'shop_name',
-        'weight',
-        'net_weight',
-        'kind',
-        'metal_purity',
-        // 'metal_type',
         'image_path',
         'offered_price',
         'order_date',
         'status',
-        // 'notes',
         'item_type',
     ];
 
     protected $casts = [
         'order_date' => 'date',
-        'weight' => 'decimal:2',
         'offered_price' => 'decimal:2',
     ];
 
     public function shop()
     {
         return $this->belongsTo(User::class, 'shop_name', 'shop_name');
+    }
+
+    public function items()
+    {
+        return $this->hasMany(KasrItem::class);
+    }
+    
+    // Helper methods to get total weight
+    public function getTotalWeight()
+    {
+        return $this->items->sum('weight');
+    }
+    
+    public function getTotalNetWeight()
+    {
+        return $this->items->sum('net_weight');
     }
 } 

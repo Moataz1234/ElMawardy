@@ -217,6 +217,7 @@
                             <th>#</th>
                             <th>صورة</th>
                             <th>اسم العميل</th>
+                            {{-- <th>رقم الهاتف</th> --}}
                             <th>المحل</th>
                             <th>النوع</th>
                             <th>العيار</th>
@@ -255,6 +256,7 @@
                                 @endif
                             </td>
                             <td>{{ $sale->customer_name }}</td>
+                            {{-- <td>{{ $kasrSale->customer_phone ?? 'غير متوفر' }}</td> --}}
                             <td>{{ $sale->shop_name }}</td>
                             <td>{{ $sale->kind ?? 'غير محدد' }}</td>
                             <td>{{ $sale->metal_purity }}</td>

@@ -105,54 +105,10 @@
                                 <input id="customer_name" type="text" class="form-control @error('customer_name') is-invalid @enderror" name="customer_name" value="{{ old('customer_name') }}" required autofocus>
                             </div>
                             
-                            <div class="col-md-3">
-                                <label for="weight" class="form-label">الوزن القائم </label>
-                                <input id="weight" type="number" step="0.01" class="form-control @error('weight') is-invalid @enderror" name="weight" value="{{ old('weight') }}" required>
-                            </div>
-                            
-                            <div class="col-md-3">
-                                <label for="net_weight" class="form-label">الوزن الصافي </label>
-                                <input id="net_weight" type="number" step="0.01" class="form-control @error('net_weight') is-invalid @enderror" name="net_weight" value="{{ old('net_weight') }}">
-                            </div>
-                        </div>
-
-                        <div class="row mb-3">
-                            <div class="col-md-6 mb-3 mb-md-0">
-                                <label for="metal_purity" class="form-label">عيار الذهب</label>
-                                <select id="metal_purity" class="form-select @error('metal_purity') is-invalid @enderror" name="metal_purity" required>
-                                    <option value="">اختر العيار</option>
-                                    <option value="24K" {{ old('metal_purity') == '24K' ? 'selected' : '' }}>عيار 24</option>
-                                    <option value="22K" {{ old('metal_purity') == '22K' ? 'selected' : '' }}>عيار 22</option>
-                                    <option value="21K" {{ old('metal_purity') == '21K' ? 'selected' : '' }}>عيار 21</option>
-                                    <option value="18K" {{ old('metal_purity') == '18K' ? 'selected' : '' }}>عيار 18</option>
-                                    <option value="18K" {{ old('metal_purity') == '14K' ? 'selected' : '' }}>عيار 14</option>
-                                    <option value="18K" {{ old('metal_purity') == '12K' ? 'selected' : '' }}>عيار 12</option>
-                                    <option value="18K" {{ old('metal_purity') == '9K' ? 'selected' : '' }}>عيار 9</option>
-                                </select>
-                                @error('metal_purity')
-                                    <span class="invalid-feedback" role="alert">
-                                        <strong>{{ $message }}</strong>
-                                    </span>
-                                @enderror
-                            </div>
-                            
                             <div class="col-md-6">
-                                <label for="kind" class="form-label">نوع القطعة</label>
-                                <select id="kind" class="form-select @error('kind') is-invalid @enderror" name="kind">
-                                    <option value="">اختر النوع</option>
-                                    <option value="تعليفة" {{ old('kind') == 'تعليفة' ? 'selected' : '' }}>تعليفة</option>
-                                    <option value="اسورة" {{ old('kind') == 'اسورة' ? 'selected' : '' }}>اسورة</option>
-                                    <option value="حلق" {{ old('kind') == 'حلق' ? 'selected' : '' }}>حلق</option>
-                                    <option value="كوليه" {{ old('kind') == 'كوليه' ? 'selected' : '' }}>كوليه</option>
-                                    <option value="خاتم" {{ old('kind') == 'خاتم' ? 'selected' : '' }}>خاتم</option>
-                                    <option value="بروش" {{ old('kind') == 'بروش' ? 'selected' : '' }}>بروش</option>
-                                    <option value="ميدالية" {{ old('kind') == 'ميدالية' ? 'selected' : '' }}>ميدالية</option>    
-                                    <option value="زرار " {{ old('kind') == 'زرار' ? 'selected' : '' }}>زرار</option>
-                                    <option value="جنيه" {{ old('kind') == 'جنيه' ? 'selected' : '' }}>جنيه</option>
-                                    <option value="تول " {{ old('kind') == 'تول' ? 'selected' : '' }}>تول</option>
-
-                                </select>
-                                @error('kind')
+                                <label for="customer_phone" class="form-label">رقم الهاتف</label>
+                                <input id="customer_phone" type="text" class="form-control @error('customer_phone') is-invalid @enderror" name="customer_phone" value="{{ old('customer_phone') }}">
+                                @error('customer_phone')
                                     <span class="invalid-feedback" role="alert">
                                         <strong>{{ $message }}</strong>
                                     </span>
@@ -161,7 +117,7 @@
                         </div>
 
                         <div class="row mb-3">
-                            <div class="col-md-6 mb-3 mb-md-0">
+                            <div class="col-md-2 mb-3 mb-md-0">
                                 <label for="offered_price" class="form-label">السعر </label>
                                 <input id="offered_price" type="number" step="0.01" class="form-control @error('offered_price') is-invalid @enderror" name="offered_price" value="{{ old('offered_price') }}">
                                 @error('offered_price')
@@ -171,7 +127,7 @@
                                 @enderror
                             </div>
                             
-                            <div class="col-md-6">
+                            <div class="col-md-3">
                                 <label for="order_date" class="form-label">تاريخ الطلب</label>
                                 <input id="order_date" type="date" class="form-control @error('order_date') is-invalid @enderror" name="order_date" value="{{ old('order_date', date('Y-m-d')) }}">
                                 @error('order_date')
@@ -180,16 +136,16 @@
                                     </span>
                                 @enderror
                             </div>
-                        </div>
+                        {{-- </div> --}}
 
-                        <div class="row mb-3">
-                            <div class="col-md-6">
+                        {{-- <div class="row mb-3"> --}}
+                            <div class="col-md-3">
                                 <label for="image" class="form-label">صورة</label>
                                 <input id="image" type="file" class="form-control @error('image') is-invalid @enderror" name="image">
                             </div>
 
                         {{-- <div class="row mb-3"> --}}
-                            <div class="col-md-6">
+                            <div class="col-md-4">
                                 <div class="custom-checkbox-container">
                                     <div class="form-check">
                                         <input class="form-check-input" type="checkbox" name="item_type" id="item_type" value="shop" {{ old('item_type') == 'shop' ? 'checked' : '' }}>
@@ -197,6 +153,78 @@
                                             القطعة من صنعنا
                                         </label>
                                     </div>
+                                </div>
+                            </div>
+                        </div>
+
+                        <div class="card mb-4">
+                            <div class="card-header bg-primary text-white">
+                                <h5 class="mb-0">تفاصيل القطع</h5>
+                            </div>
+                            <div class="card-body">
+                                <div class="table-responsive">
+                                    <table class="table table-bordered">
+                                        <thead class="table-light">
+                                            <tr>
+                                                <th width="5%">#</th>
+                                                <th width="25%">نوع القطعة</th>
+                                                <th width="25%">عيار الذهب</th>
+                                                <th width="20%">الوزن القائم</th>
+                                                <th width="20%">الوزن الصافي</th>
+                                                <th width="5%">حذف</th>
+                                            </tr>
+                                        </thead>
+                                        <tbody id="items-container">
+                                            <tr class="item-row">
+                                                <td class="align-middle"><span class="item-number">1</span></td>
+                                                <td>
+                                                    <select class="form-select" name="items[0][kind]" required>
+                                                        <option value="">اختر النوع</option>
+                                                        <option value="تعليقة">تعليقة</option>
+                                                        <option value="اسورة">اسورة</option>
+                                                        <option value="حلق">حلق</option>
+                                                        <option value="كوليه">كوليه</option>
+                                                        <option value="خاتم">خاتم</option>
+                                                        <option value="بروش">بروش</option>
+                                                        <option value="ميدالية">ميدالية</option>    
+                                                        <option value="زرار">زرار</option>
+                                                        <option value="سلاسل">سلاسل</option>
+                                                        <option value="جنيه">جنيه</option>
+                                                        <option value="تول">تول</option>
+                                                    </select>
+                                                </td>
+                                                <td>
+                                                    <select class="form-select" name="items[0][metal_purity]" required>
+                                                        <option value="">اختر العيار</option>
+                                                        <option value="24K">عيار 24</option>
+                                                        <option value="22K">عيار 22</option>
+                                                        <option value="21K">عيار 21</option>
+                                                        <option value="18K">عيار 18</option>
+                                                        <option value="14K">عيار 14</option>
+                                                        <option value="12K">عيار 12</option>
+                                                        <option value="9K">عيار 9</option>
+                                                    </select>
+                                                </td>
+                                                <td>
+                                                    <input type="number" step="0.01" class="form-control" name="items[0][weight]" required>
+                                                </td>
+                                                <td>
+                                                    <input type="number" step="0.01" class="form-control" name="items[0][net_weight]">
+                                                </td>
+                                                <td class="text-center">
+                                                    <button type="button" class="btn btn-danger btn-sm remove-item-btn" style="display: none;">
+                                                        <i class="fas fa-trash"></i>
+                                                    </button>
+                                                </td>
+                                            </tr>
+                                        </tbody>
+                                    </table>
+                                </div>
+                                
+                                <div class="text-center mt-3">
+                                    <button type="button" class="btn btn-success" id="add-item-btn">
+                                        <i class="fas fa-plus-circle me-1"></i> إضافة قطعة
+                                    </button>
                                 </div>
                             </div>
                         </div>
@@ -219,5 +247,106 @@
 
     <!-- Bootstrap JS Bundle with Popper -->
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0-alpha1/dist/js/bootstrap.bundle.min.js"></script>
+
+    <!-- Add this script at the end of your file, before the closing </body> tag -->
+    <script>
+        document.addEventListener('DOMContentLoaded', function() {
+            let itemCount = 1;
+            
+            // Add new item
+            document.getElementById('add-item-btn').addEventListener('click', function() {
+                itemCount++;
+                
+                const itemsContainer = document.getElementById('items-container');
+                const newRow = document.createElement('tr');
+                newRow.className = 'item-row';
+                
+                newRow.innerHTML = `
+                    <td class="align-middle"><span class="item-number">${itemCount}</span></td>
+                    <td>
+                        <select class="form-select" name="items[${itemCount-1}][kind]" required>
+                            <option value="">اختر النوع</option>
+                            <option value="تعليقة">تعليقة</option>
+                            <option value="اسورة">اسورة</option>
+                            <option value="حلق">حلق</option>
+                            <option value="كوليه">كوليه</option>
+                            <option value="خاتم">خاتم</option>
+                            <option value="بروش">بروش</option>
+                            <option value="ميدالية">ميدالية</option>    
+                            <option value="زرار">زرار</option>
+                            <option value="سلاسل">سلاسل</option>
+                            <option value="جنيه">جنيه</option>
+                            <option value="تول">تول</option>
+                        </select>
+                    </td>
+                    <td>
+                        <select class="form-select" name="items[${itemCount-1}][metal_purity]" required>
+                            <option value="">اختر العيار</option>
+                            <option value="24K">عيار 24</option>
+                            <option value="22K">عيار 22</option>
+                            <option value="21K">عيار 21</option>
+                            <option value="18K">عيار 18</option>
+                            <option value="14K">عيار 14</option>
+                            <option value="12K">عيار 12</option>
+                            <option value="9K">عيار 9</option>
+                        </select>
+                    </td>
+                    <td>
+                        <input type="number" step="0.01" class="form-control" name="items[${itemCount-1}][weight]" required>
+                    </td>
+                    <td>
+                        <input type="number" step="0.01" class="form-control" name="items[${itemCount-1}][net_weight]">
+                    </td>
+                    <td class="text-center">
+                        <button type="button" class="btn btn-danger btn-sm remove-item-btn">
+                            <i class="fas fa-trash"></i>
+                        </button>
+                    </td>
+                `;
+                
+                itemsContainer.appendChild(newRow);
+                
+                // Show remove button for first item if we have more than one item
+                if (itemCount > 1) {
+                    document.querySelector('.remove-item-btn[style="display: none;"]')?.removeAttribute('style');
+                }
+                
+                // Add event listener to the new remove button
+                newRow.querySelector('.remove-item-btn').addEventListener('click', function() {
+                    newRow.remove();
+                    itemCount--;
+                    
+                    // Update item numbers
+                    updateItemNumbers();
+                    
+                    // Hide remove button for first item if only one item remains
+                    if (itemCount === 1) {
+                        document.querySelector('.remove-item-btn').style.display = 'none';
+                    }
+                });
+            });
+            
+            // Function to update item numbers after removal
+            function updateItemNumbers() {
+                const itemNumbers = document.querySelectorAll('.item-number');
+                itemNumbers.forEach((span, index) => {
+                    span.textContent = index + 1;
+                });
+                
+                // Update input names to maintain sequential indices
+                const itemRows = document.querySelectorAll('.item-row');
+                itemRows.forEach((row, index) => {
+                    const inputs = row.querySelectorAll('input, select');
+                    inputs.forEach(input => {
+                        const name = input.getAttribute('name');
+                        if (name) {
+                            const newName = name.replace(/items\[\d+\]/, `items[${index}]`);
+                            input.setAttribute('name', newName);
+                        }
+                    });
+                });
+            }
+        });
+    </script>
 </body>
 </html> 
