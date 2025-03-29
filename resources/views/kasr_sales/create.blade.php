@@ -103,21 +103,16 @@
                             <div class="col-md-6 mb-3 mb-md-0">
                                 <label for="customer_name" class="form-label">اسم العميل</label>
                                 <input id="customer_name" type="text" class="form-control @error('customer_name') is-invalid @enderror" name="customer_name" value="{{ old('customer_name') }}" required autofocus>
-                                @error('customer_name')
-                                    <span class="invalid-feedback" role="alert">
-                                        <strong>{{ $message }}</strong>
-                                    </span>
-                                @enderror
                             </div>
                             
-                            <div class="col-md-6">
-                                <label for="weight" class="form-label">الوزن (جرام)</label>
+                            <div class="col-md-3">
+                                <label for="weight" class="form-label">الوزن القائم </label>
                                 <input id="weight" type="number" step="0.01" class="form-control @error('weight') is-invalid @enderror" name="weight" value="{{ old('weight') }}" required>
-                                @error('weight')
-                                    <span class="invalid-feedback" role="alert">
-                                        <strong>{{ $message }}</strong>
-                                    </span>
-                                @enderror
+                            </div>
+                            
+                            <div class="col-md-3">
+                                <label for="net_weight" class="form-label">الوزن الصافي </label>
+                                <input id="net_weight" type="number" step="0.01" class="form-control @error('net_weight') is-invalid @enderror" name="net_weight" value="{{ old('net_weight') }}">
                             </div>
                         </div>
 
@@ -191,30 +186,16 @@
                             <div class="col-md-6">
                                 <label for="image" class="form-label">صورة</label>
                                 <input id="image" type="file" class="form-control @error('image') is-invalid @enderror" name="image">
-                                @error('image')
-                                    <span class="invalid-feedback" role="alert">
-                                        <strong>{{ $message }}</strong>
-                                    </span>
-                                @enderror
                             </div>
-                        </div>
 
-                        <div class="row mb-3">
-                            <div class="col-md-12">
+                        {{-- <div class="row mb-3"> --}}
+                            <div class="col-md-6">
                                 <div class="custom-checkbox-container">
                                     <div class="form-check">
                                         <input class="form-check-input" type="checkbox" name="item_type" id="item_type" value="shop" {{ old('item_type') == 'shop' ? 'checked' : '' }}>
                                         <label class="form-check-label" for="item_type">
                                             القطعة من صنعنا
                                         </label>
-                                        {{-- <span class="checkbox-description">
-                                            حدد هذا الخيار إذا كانت القطعة الذهبية من محلنا، وإلا فهي من العميل
-                                        </span> --}}
-                                        @error('item_type')
-                                            <span class="invalid-feedback" role="alert">
-                                                <strong>{{ $message }}</strong>
-                                            </span>
-                                        @enderror
                                     </div>
                                 </div>
                             </div>

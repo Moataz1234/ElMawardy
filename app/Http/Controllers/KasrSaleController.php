@@ -28,6 +28,7 @@ class KasrSaleController extends Controller
         $validated = $request->validate([
             'customer_name' => 'required|string|max:255',
             'weight' => 'required|numeric|min:0',
+            'net_weight' => 'nullable|numeric|min:0',
             'metal_purity' => 'required|string|max:255',
             'metal_type' => 'nullable|string|max:255',
             'offered_price' => 'nullable|numeric|min:0',
@@ -41,6 +42,7 @@ class KasrSaleController extends Controller
         $kasrSale->customer_name = $validated['customer_name'];
         $kasrSale->shop_name = Auth::user()->shop_name;
         $kasrSale->weight = $validated['weight'];
+        $kasrSale->net_weight = $validated['net_weight'];
         $kasrSale->metal_purity = $validated['metal_purity'];
         // $kasrSale->metal_type = $validated['metal_type'] ?? 'gold';
         $kasrSale->offered_price = $validated['offered_price'];
@@ -74,6 +76,7 @@ class KasrSaleController extends Controller
         $validated = $request->validate([
             'customer_name' => 'required|string|max:255',
             'weight' => 'required|numeric|min:0',
+            'net_weight' => 'nullable|numeric|min:0',
             'metal_purity' => 'required|string|max:255',
             'metal_type' => 'nullable|string|max:255',
             'offered_price' => 'nullable|numeric|min:0',
@@ -85,6 +88,7 @@ class KasrSaleController extends Controller
 
         $kasrSale->customer_name = $validated['customer_name'];
         $kasrSale->weight = $validated['weight'];
+        $kasrSale->net_weight = $validated['net_weight'];
         $kasrSale->metal_purity = $validated['metal_purity'];
         $kasrSale->metal_type = $validated['metal_type'] ?? 'gold' ?? null;
         $kasrSale->offered_price = $validated['offered_price'] ?? null;

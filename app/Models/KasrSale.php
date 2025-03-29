@@ -13,6 +13,7 @@ class KasrSale extends Model
         'customer_name',
         'shop_name',
         'weight',
+        'net_weight',
         'kind',
         'metal_purity',
         // 'metal_type',

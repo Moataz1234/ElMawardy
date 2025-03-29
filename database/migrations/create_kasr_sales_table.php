@@ -21,6 +21,7 @@ return new class extends Migration
             //     ->onDelete('cascade');
             $table->string('kind')->nullable();
             $table->decimal('weight', 10, 2);
+            $table->decimal('net_weight', 10, 2)->nullable();
             $table->string('metal_purity');
             $table->string('item_type')->default('customer');
             // $table->string('metal_type')->default('gold');

@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>إدارة مبيعات الكسر</title>
+    <title>إدارة شراء الكسر</title>
     @include('components.navbar')
     <!-- Bootstrap RTL CSS -->
     <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0-alpha1/dist/css/bootstrap.rtl.min.css">
@@ -221,12 +221,13 @@
                             <th>النوع</th>
                             <th>العيار</th>
                             <th>الوزن القائم</th>
-                            <th>وزن عيار 24</th>
-                            <th>وزن عيار 18</th>
+                            <th>الوزن الصافي</th>
+                            {{-- <th>وزن عيار 24</th> --}}
+                            {{-- <th>وزن عيار 18</th> --}}
                             <th>السعر المعروض</th>
                             <th>تاريخ الطلب</th>
-                            {{-- <th>الحالة</th>
-                            <th>الإجراءات</th> --}}
+                            <th>الحالة</th>
+                            {{-- <th>الإجراءات</th> --}}
                         </tr>
                     </thead>
                     <tbody>
@@ -258,11 +259,12 @@
                             <td>{{ $sale->kind ?? 'غير محدد' }}</td>
                             <td>{{ $sale->metal_purity }}</td>
                             <td class="weight-cell weight-original">{{ number_format($sale->weight, 2) }}</td>
-                            <td class="weight-cell weight-24k">{{ number_format($weight24k, 2) }}</td>
-                            <td class="weight-cell weight-18k">{{ number_format($weight18k, 2) }}</td>
+                            <td class="weight-cell weight-original">{{ number_format($sale->net_weight, 2) }}</td>
+                            {{-- <td class="weight-cell weight-24k">{{ number_format($weight24k, 2) }}</td>
+                            <td class="weight-cell weight-18k">{{ number_format($weight18k, 2) }}</td> --}}
                             <td>{{ $sale->offered_price ? number_format($sale->offered_price, 2) : 'غير محدد' }}</td>
                             <td>{{ $sale->order_date ? $sale->order_date->format('Y-m-d') : 'غير محدد' }}</td>
-                            {{-- <td>
+                            <td>
                                 @if($sale->status == 'pending')
                                     <span class="status-badge status-pending">قيد الانتظار</span>
                                 @elseif($sale->status == 'accepted')
@@ -273,7 +275,7 @@
                                     <span class="status-badge status-pending">قيد الانتظار</span>
                                 @endif
                             </td>
-                            <td class="action-buttons">
+                           {{-- <td class="action-buttons">
                                 <a href="{{ route('kasr-sales.show', $sale->id) }}" class="btn btn-info btn-sm">
                                     <i class="fas fa-eye"></i>
                                 </a>
