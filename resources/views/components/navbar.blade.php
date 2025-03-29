@@ -63,6 +63,7 @@
             <li class="navbar-item"><a href="{{ route('dashboard') }}" class="navbar-link"> طلبات البيع</a></li>
             {{-- <li class="navbar-item"><a href="{{ route('sell-requests.acc') }}" class="navbar-link"> ط</a></li> --}}
             <li class="navbar-item"><a href="{{ route('all-sold-items') }}" class="navbar-link">sales analysis</a></li>
+            <li class="navbar-item"><a href="{{ route('kasr-sales.index') }}" class="navbar-link">الكسر</a></li>
             
             {{-- <li class="navbar-item dropdown">
                 <a href="#" class="navbar-link dropdown-toggle">المبيعات</a>
@@ -128,6 +129,8 @@
                     <a href="{{ route('reports.view') }}" class="dropdown-item">View Reports</a>
                 </div>
             </li>
+            <li class="navbar-item"><a href="{{ route('kasr-sales.index') }}" class="navbar-link">الكسر</a></li>
+
         @endif
 
         @if (auth()->user()->usertype === 'user')

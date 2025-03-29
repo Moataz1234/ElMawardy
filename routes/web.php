@@ -330,8 +330,7 @@ Route::middleware(['auth'])->group(function () {
         Route::post('/gold-items/{id}/transfer-request', [ShopsController::class, 'transferRequest'])->name('gold-items.transfer-request');
         Route::get('/transfer-request/{id}/{status}', [ShopsController::class, 'handleTransferRequest'])->name('transfer.handle');
         Route::get('/transfer-requests', [ShopsController::class, 'viewTransferRequests'])->name('transfer.requests');
-        Route::get('/gold-items/{id}/transfer', [ShopsController::class, 'showTransferForm'])->name('gold-items.transferForm');
-        Route::get('/bulk-transfer', [ShopsController::class, 'showBulkTransferForm'])->name('gold-items.bulk-transfer-form');
+        // Route::get('/bulk-transfer', [ShopsController::class, 'showBulkTransferForm'])->name('gold-items.bulk-transfer-form');
         Route::post('/bulk-transfer', [ShopsController::class, 'bulkTransfer'])->name('gold-items.bulk-transfer');
         Route::get('/orders', [OrderController::class, 'index'])->name('orders.index');
         Route::get('/orders/create', [OrderController::class, 'create'])->name('orders.create');

@@ -1,5 +1,5 @@
 <!DOCTYPE html>
-<html lang="ar" dir="rtl">
+<html lang="ar">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
@@ -24,6 +24,7 @@
             padding: 25px;
             margin-top: 20px;
             margin-bottom: 20px;
+            direction: rtl;
         }
         .page-header {
             background-color: #f8f9fa;
@@ -193,7 +194,7 @@
                 <div class="card-body">
                     <div class="row">
                         <div class="col-md-4 text-center">
-                            <h6>إجمالي الوزن الأصلي</h6>
+                            <h6>إجمالي الوزن القائم</h6>
                             <h3 class="weight-original">{{ number_format($totalOriginalWeight, 2) }} جرام</h3>
                         </div>
                         <div class="col-md-4 text-center">
@@ -219,7 +220,7 @@
                             <th>المحل</th>
                             <th>النوع</th>
                             <th>العيار</th>
-                            <th>الوزن الأصلي</th>
+                            <th>الوزن القائم</th>
                             <th>وزن عيار 24</th>
                             <th>وزن عيار 18</th>
                             <th>السعر المعروض</th>
