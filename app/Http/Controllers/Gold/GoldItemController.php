@@ -276,7 +276,36 @@ class GoldItemController extends Controller
         
         return view('admin.Gold.Items.Edit_form', compact('goldItem', 'kinds', 'shopNames'));
     }
-
+    public function update(Request $request, $id)
+    {
+        $goldItem = GoldItem::findOrFail($id);
+        
+        // Validate the request data
+        $validatedData = $request->validate([
+            'shop_name' => 'required',
+            'shop_id' => 'required|numeric',
+            'kind' => 'required|string',
+            'model' => 'required|string',
+            'talab' => 'nullable',
+            'gold_color' => 'required',
+            'stones' => 'nullable',
+            'metal_type' => 'required',
+            'metal_purity' => 'required',
+            'quantity' => 'required|numeric',
+            'weight' => 'required|numeric',
+            'rest_since' => 'required|date',
+        ]);
+        
+        // If the "other" option was selected, use the custom kind value
+        // if ($request->has('custom_kind') && !empty($request->custom_kind)) {
+        //     $validatedData['kind'] = $request->custom_kind;
+        // }
+        
+        // Update the gold item
+        $goldItem->update($validatedData);
+        
+        return redirect()->route('admin.inventory')->with('success', 'Gold item updated successfully.');
+    }
     public function checkExists($model)
     {
         $exists = Models::where('model', $model)->exists();
@@ -365,34 +394,5 @@ class GoldItemController extends Controller
         }
     }
 
-    public function update(Request $request, $id)
-    {
-        $goldItem = GoldItem::findOrFail($id);
-        
-        // Validate the request data
-        $validatedData = $request->validate([
-            'shop_name' => 'required',
-            'shop_id' => 'required|numeric',
-            'kind' => 'required|string',
-            'model' => 'required|string',
-            'talab' => 'nullable',
-            'gold_color' => 'required',
-            'stones' => 'nullable',
-            'metal_type' => 'required',
-            'metal_purity' => 'required',
-            'quantity' => 'required|numeric',
-            'weight' => 'required|numeric',
-            'rest_since' => 'required|date',
-        ]);
-        
-        // If the "other" option was selected, use the custom kind value
-        if ($request->has('custom_kind') && !empty($request->custom_kind)) {
-            $validatedData['kind'] = $request->custom_kind;
-        }
-        
-        // Update the gold item
-        $goldItem->update($validatedData);
-        
-        return redirect()->route('admin.inventory')->with('success', 'Gold item updated successfully.');
-    }
+    
 }

@@ -120,12 +120,12 @@
                                     {{ $kindOption }}
                                 </option>
                             @endforeach
-                            <option value="other" {{ !$kinds->contains($goldItem->kind) ? 'selected' : '' }}>Other</option>
+                            {{-- <option value="other" {{ !$kinds->contains($goldItem->kind) ? 'selected' : '' }}>Other</option> --}}
                         </select>
-                        <input type="text" id="custom-kind" name="custom_kind" class="form-control mt-2" 
+                        {{-- <input type="text" id="custom-kind" name="custom_kind" class="form-control mt-2" 
                             style="display: {{ !$kinds->contains($goldItem->kind) ? 'block' : 'none' }};" 
                             value="{{ !$kinds->contains($goldItem->kind) ? $goldItem->kind : '' }}" 
-                            placeholder="Enter custom kind">
+                            placeholder="Enter custom kind"> --}}
                     </div>
                     
                     <div class="col-md-4 mb-3">
