@@ -9,6 +9,7 @@ class GoldItemWeightHistory extends Model
 {
     use HasFactory;
 
+    protected $table = 'gold_item_weight_history';
     protected $fillable = [
         'gold_item_id',
         'user_id', // Add this line

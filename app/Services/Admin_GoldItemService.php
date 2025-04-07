@@ -52,13 +52,30 @@ class Admin_GoldItemService
         // Get the weight after the update
         $weightAfter = $goldItem->weight;
     
+        // Log the weight values for debugging
+        Log::info('Weight update attempt', [
+            'gold_item_id' => $goldItem->id,
+            'weight_before' => $weightBefore,
+            'weight_after' => $weightAfter,
+            'weight_changed' => $weightBefore != $weightAfter
+        ]);
+    
         // Save the weight change history
         if ($weightBefore != $weightAfter) {
-            GoldItemWeightHistory::create([
-                'gold_item_id' => $goldItem->id,
-                'weight_before' => $weightBefore,
-                'weight_after' => $weightAfter,
-            ]);
+            try {
+                $history = GoldItemWeightHistory::create([
+                    'gold_item_id' => $goldItem->id,
+                    'user_id' => Auth::id(),
+                    'weight_before' => $weightBefore,
+                    'weight_after' => $weightAfter,
+                ]);
+                Log::info('Weight history created successfully', ['history_id' => $history->id]);
+            } catch (\Exception $e) {
+                Log::error('Failed to create weight history', [
+                    'error' => $e->getMessage(),
+                    'gold_item_id' => $goldItem->id
+                ]);
+            }
         }
     
         return $goldItem;
