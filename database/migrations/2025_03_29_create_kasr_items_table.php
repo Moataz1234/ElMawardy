@@ -18,6 +18,7 @@ return new class extends Migration
             $table->string('metal_purity');
             $table->decimal('weight', 10, 2);
             $table->decimal('net_weight', 10, 2)->nullable();
+            $table->string('item_type')->default('customer');
             $table->timestamps();
         });
     }

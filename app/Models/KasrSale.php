@@ -17,7 +17,6 @@ class KasrSale extends Model
         'offered_price',
         'order_date',
         'status',
-        'item_type',
     ];
 
     protected $casts = [

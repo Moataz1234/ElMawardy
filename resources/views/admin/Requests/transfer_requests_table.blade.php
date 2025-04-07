@@ -19,15 +19,15 @@
                             <div class="serial">{{ $request->serial_number }}</div>
                             <div class="model">{{ $request->model }}</div>
                         @else
-                            <div class="serial">{{ $request->goldItem->serial_number }}</div>
-                            <div class="model">{{ $request->goldItem->model }}</div>
+                        <div class="serial">{{ $request->goldItem->serial_number ?? 'N/A' }}</div>
+                        <div class="model">{{ $request->goldItem->model ?? 'N/A' }}</div>
                         @endif
                     </div>
                 </td>
                 <td>{{ $request->from_shop_name }}</td>
                 <td>{{ $request->to_shop_name }}</td>
                 <td>
-                    <span class="badge status-{{ $request->status }}">
+                    <span class="badge {{ $request->status === 'completed' ? 'bg-success' : 'bg-warning' }}">
                         {{ ucfirst($request->status) }}
                     </span>
                 </td>

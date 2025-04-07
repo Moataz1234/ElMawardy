@@ -105,6 +105,38 @@
         .table-sm td, .table-sm th {
             padding: 0.5rem;
         }
+        .item-details-row {
+            background-color: #f8f9fa;
+        }
+        .toggle-items {
+            color: #0d6efd;
+            padding: 0 5px;
+            cursor: pointer;
+        }
+        .toggle-items:hover {
+            color: #0a58ca;
+        }
+        .main-row:hover {
+            background-color: #e9ecef;
+        }
+        .select-all-container {
+            margin-bottom: 15px;
+            padding: 10px;
+            background-color: #f0f8ff;
+            border-radius: 5px;
+            border-right: 3px solid #0d6efd;
+        }
+        .form-check-input.order-checkbox {
+            width: 1.2em;
+            height: 1.2em;
+        }
+        .batch-actions {
+            margin-bottom: 20px;
+            padding: 15px;
+            background-color: #e8f4fd;
+            border-radius: 5px;
+            border: 1px solid #b8daff;
+        }
     </style>
 </head>
 <body>
@@ -113,9 +145,9 @@
             <div class="page-header">
                 <div class="d-flex justify-content-between align-items-center">
                     <h3 class="mb-0">إدارة مبيعات الكسر</h3>
-                    {{-- <a href="{{ route('kasr-sales.create') }}" class="btn btn-primary">
+                    <a href="{{ route('kasr-sales.create') }}" class="btn btn-primary">
                         <i class="fas fa-plus-circle me-1"></i> إضافة كسر جديد
-                    </a> --}}
+                    </a>
                 </div>
             </div>
 
@@ -127,39 +159,6 @@
                             <label for="date_range" class="form-label">نطاق التاريخ</label>
                             <input type="text" class="form-control" id="date_range" name="date_range" value="{{ request('date_range') }}">
                         </div>
-                        {{-- <div class="col-md-3 mb-3">
-                            <label for="shop_name" class="form-label">اسم المحل</label>
-                            <select class="form-select" id="shop_name" name="shop_name">
-                                <option value="">الكل</option>
-                                @foreach($shops as $shop)
-                                    <option value="{{ $shop->shop_name }}" {{ request('shop_name') == $shop->shop_name ? 'selected' : '' }}>
-                                        {{ $shop->shop_name }}
-                                    </option>
-                                @endforeach
-                            </select>
-                        </div> --}}
-                        {{-- <div class="col-md-3 mb-3">
-                            <label for="kind" class="form-label">نوع القطعة</label>
-                            <select class="form-select" id="kind" name="kind">
-                                <option value="">الكل</option>
-                                @foreach($kinds as $kind)
-                                    <option value="{{ $kind }}" {{ request('kind') == $kind ? 'selected' : '' }}>
-                                        {{ $kind }}
-                                    </option>
-                                @endforeach
-                            </select>
-                        </div> --}}
-                        {{-- <div class="col-md-3 mb-3">
-                            <label for="metal_purity" class="form-label">عيار الذهب</label>
-                            <select class="form-select" id="metal_purity" name="metal_purity">
-                                <option value="">الكل</option>
-                                <option value="24K" {{ request('metal_purity') == '24K' ? 'selected' : '' }}>عيار 24</option>
-                                <option value="22K" {{ request('metal_purity') == '22K' ? 'selected' : '' }}>عيار 22</option>
-                                <option value="21K" {{ request('metal_purity') == '21K' ? 'selected' : '' }}>عيار 21</option>
-                                <option value="18K" {{ request('metal_purity') == '18K' ? 'selected' : '' }}>عيار 18</option>
-                                <option value="14K" {{ request('metal_purity') == '14K' ? 'selected' : '' }}>عيار 14</option>
-                            </select>
-                        </div> --}}
                         <div class="col-md-3 mb-3">
                             <label for="price_min" class="form-label">السعر (من)</label>
                             <input type="number" class="form-control" id="price_min" name="price_min" value="{{ request('price_min') }}">
@@ -168,7 +167,7 @@
                             <label for="price_max" class="form-label">السعر (إلى)</label>
                             <input type="number" class="form-control" id="price_max" name="price_max" value="{{ request('price_max') }}">
                         </div>
-                        {{-- <div class="col-md-3 mb-3">
+                        <div class="col-md-3 mb-3">
                             <label for="status" class="form-label">الحالة</label>
                             <select class="form-select" id="status" name="status">
                                 <option value="">الكل</option>
@@ -176,7 +175,7 @@
                                 <option value="accepted" {{ request('status') == 'accepted' ? 'selected' : '' }}>مقبول</option>
                                 <option value="rejected" {{ request('status') == 'rejected' ? 'selected' : '' }}>مرفوض</option>
                             </select>
-                        </div> --}}
+                        </div>
                         <div class="col-md-3 mb-3 d-flex align-items-end">
                             <button type="submit" class="btn btn-primary w-100">
                                 <i class="fas fa-filter me-1"></i> تصفية
@@ -198,105 +197,201 @@
                             <h3 class="weight-original">{{ number_format($totalOriginalWeight, 2) }} جرام</h3>
                         </div>
                         <div class="col-md-4 text-center">
-                            <h6>إجمالي الوزن عيار 24</h6>
-                            <h3 class="weight-24k">{{ number_format($total24kWeight, 2) }} جرام</h3>
+                            <h6>إجمالي الوزن الصافي</h6>
+                            <h3 class="weight-24k">{{ number_format($totalNetWeight, 2) }} جرام</h3>
                         </div>
                         <div class="col-md-4 text-center">
-                            <h6>إجمالي الوزن عيار 18</h6>
-                            <h3 class="weight-18k">{{ number_format($total18kWeight, 2) }} جرام</h3>
+                            <h6>عدد الطلبات المعلقة</h6>
+                            <h3 class="text-warning">{{ $pendingCount }}</h3>
                         </div>
                     </div>
                 </div>
             </div>
 
-            <!-- Data Table -->
-            <div class="table-responsive">
-                <table id="kasrSalesTable" class="table table-striped table-hover table-sm">
-                    <thead>
-                        <tr>
-                            <th>#</th>
-                            <th>صورة</th>
-                            <th>اسم العميل</th>
-                            {{-- <th>رقم الهاتف</th> --}}
-                            <th>المحل</th>
-                            <th>النوع</th>
-                            <th>العيار</th>
-                            <th>الوزن القائم</th>
-                            <th>الوزن الصافي</th>
-                            {{-- <th>وزن عيار 24</th> --}}
-                            {{-- <th>وزن عيار 18</th> --}}
-                            <th>السعر المعروض</th>
-                            <th>تاريخ الطلب</th>
-                            <th>الحالة</th>
-                            {{-- <th>الإجراءات</th> --}}
-                        </tr>
-                    </thead>
-                    <tbody>
-                        @foreach($kasrSales as $index => $sale)
-                        @php
-                            // Extract the numeric value from the purity string (e.g., "21K" -> 21)
-                            $purityValue = intval(str_replace('K', '', $sale->metal_purity));
-                            
-                            // Calculate weights
-                            $weight24k = ($purityValue / 24) * $sale->weight;
-                            $weight18k = ($purityValue / 18) * $sale->weight;
-                        @endphp
-                        <tr>
-                            <td>{{ $index + 1 }}</td>
-                            <td>
-                                @if($sale->image_path)
-                                <img src="{{ asset('storage/' . $sale->image_path) }}" 
-                                     class="thumbnail" 
-                                     data-bs-toggle="modal" 
-                                     data-bs-target="#imageModal" 
-                                     data-img-src="{{ asset('storage/' . $sale->image_path) }}"
-                                     alt="صورة الكسر">
-                                @else
-                                <span class="text-muted">لا توجد صورة</span>
-                                @endif
-                            </td>
-                            <td>{{ $sale->customer_name }}</td>
-                            {{-- <td>{{ $kasrSale->customer_phone ?? 'غير متوفر' }}</td> --}}
-                            <td>{{ $sale->shop_name }}</td>
-                            <td>{{ $sale->kind ?? 'غير محدد' }}</td>
-                            <td>{{ $sale->metal_purity }}</td>
-                            <td class="weight-cell weight-original">{{ number_format($sale->weight, 2) }}</td>
-                            <td class="weight-cell weight-original">{{ number_format($sale->net_weight, 2) }}</td>
-                            {{-- <td class="weight-cell weight-24k">{{ number_format($weight24k, 2) }}</td>
-                            <td class="weight-cell weight-18k">{{ number_format($weight18k, 2) }}</td> --}}
-                            <td>{{ $sale->offered_price ? number_format($sale->offered_price, 2) : 'غير محدد' }}</td>
-                            <td>{{ $sale->order_date ? $sale->order_date->format('Y-m-d') : 'غير محدد' }}</td>
-                            <td>
-                                @if($sale->status == 'pending')
-                                    <span class="status-badge status-pending">قيد الانتظار</span>
-                                @elseif($sale->status == 'accepted')
-                                    <span class="status-badge status-accepted">مقبول</span>
-                                @elseif($sale->status == 'rejected')
-                                    <span class="status-badge status-rejected">مرفوض</span>
-                                @else
-                                    <span class="status-badge status-pending">قيد الانتظار</span>
-                                @endif
-                            </td>
-                           {{-- <td class="action-buttons">
-                                <a href="{{ route('kasr-sales.show', $sale->id) }}" class="btn btn-info btn-sm">
-                                    <i class="fas fa-eye"></i>
-                                </a>
-                                <a href="{{ route('kasr-sales.edit', $sale->id) }}" class="btn btn-warning btn-sm">
-                                    <i class="fas fa-edit"></i>
-                                </a>
-                                <form action="{{ route('kasr-sales.destroy', $sale->id) }}" method="POST" class="d-inline">
-                                    @csrf
-                                    @method('DELETE')
-                                    <button type="submit" class="btn btn-danger btn-sm" onclick="return confirm('هل أنت متأكد من حذف هذا العنصر؟')">
-                                        <i class="fas fa-trash"></i>
-                                    </button>
-                                </form>
-                            </td> --}}
-                        </tr>
-                        @endforeach
-                    </tbody>
-                </table>
-            </div>
+            <!-- Batch Actions Form -->
+            <form id="batch-actions-form" action="{{ route('kasr-sales.batch-update') }}" method="POST">
+                @csrf
+                
+                <!-- Batch Actions Buttons -->
+                <div class="batch-actions">
+                    <div class="d-flex justify-content-between align-items-center">
+                        <div>
+                            <div class="select-all-container d-inline-block me-2">
+                                <div class="form-check">
+                                    <input class="form-check-input" type="checkbox" id="select-all">
+                                    <label class="form-check-label" for="select-all">
+                                        تحديد الكل
+                                    </label>
+                                </div>
+                            </div>
+                            <span id="selected-count" class="badge bg-primary me-2">0</span> طلب محدد
+                        </div>
+                        <div>
+                            <button type="submit" name="action" value="accept" class="btn btn-success me-2" disabled id="accept-btn">
+                                <i class="fas fa-check me-1"></i> قبول المحدد
+                            </button>
+                            <button type="submit" name="action" value="reject" class="btn btn-danger" disabled id="reject-btn">
+                                <i class="fas fa-times me-1"></i> رفض المحدد
+                            </button>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Data Table -->
+                <div class="table-responsive">
+                    <table id="kasrSalesTable" class="table table-striped table-hover table-sm">
+                        <thead>
+                            <tr>
+                                <th width="3%"></th>
+                                <th width="5%">#</th>
+                                <th width="7%">صورة</th>
+                                <th width="15%">اسم العميل</th>
+                                <th width="10%">رقم الهاتف</th>
+                                <th width="10%">المحل</th>
+                                <th width="10%">عدد القطع</th>
+                                <th width="10%">الوزن الكلي</th>
+                                <th width="10%">السعر المعروض</th>
+                                <th width="10%">تاريخ الطلب</th>
+                                <th width="5%">الحالة</th>
+                                <th width="5%">الإجراءات</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            @foreach($kasrSales as $index => $sale)
+                            <tr class="main-row">
+                                <td>
+                                    @if($sale->status == 'pending')
+                                    <div class="form-check">
+                                        <input class="form-check-input order-checkbox" type="checkbox" name="selected_orders[]" value="{{ $sale->id }}">
+                                    </div>
+                                    @endif
+                                </td>
+                                <td>{{ $index + 1 }}</td>
+                                <td>
+                                    @if($sale->image_path)
+                                    <img src="{{ asset('storage/' . $sale->image_path) }}" 
+                                        class="thumbnail" 
+                                        data-bs-toggle="modal" 
+                                        data-bs-target="#imageModal" 
+                                        data-img-src="{{ asset('storage/' . $sale->image_path) }}"
+                                        alt="صورة الكسر">
+                                    @else
+                                    <span class="text-muted">لا توجد صورة</span>
+                                    @endif
+                                </td>
+                                <td>{{ $sale->customer_name }}</td>
+                                <td>{{ $sale->customer_phone ?? 'غير متوفر' }}</td>
+                                <td>{{ $sale->shop_name }}</td>
+                                <td>
+                                    <span class="badge bg-info">{{ $sale->items->count() }}</span>
+                                    <a href="#" class="toggle-items" data-sale-id="{{ $sale->id }}">
+                                        <i class="fas fa-chevron-down"></i>
+                                    </a>
+                                </td>
+                                <td class="weight-cell weight-original">{{ number_format($sale->getTotalWeight(), 2) }}</td>
+                                <td>{{ $sale->offered_price ? number_format($sale->offered_price, 2) : 'غير محدد' }}</td>
+                                <td>{{ $sale->order_date ? $sale->order_date->format('Y-m-d') : 'غير محدد' }}</td>
+                                <td>
+                                    @if($sale->status == 'pending')
+                                        <span class="status-badge status-pending">قيد الانتظار</span>
+                                    @elseif($sale->status == 'accepted')
+                                        <span class="status-badge status-accepted">مقبول</span>
+                                    @elseif($sale->status == 'rejected')
+                                        <span class="status-badge status-rejected">مرفوض</span>
+                                    @else
+                                        <span class="status-badge status-pending">قيد الانتظار</span>
+                                    @endif
+                                </td>
+                                <td class="action-buttons">
+                                    <a href="{{ route('kasr-sales.show', $sale->id) }}" class="btn btn-info btn-sm">
+                                        <i class="fas fa-eye"></i>
+                                    </a>
+                                    <div class="dropdown d-inline">
+                                        <button class="btn btn-secondary btn-sm dropdown-toggle" type="button" data-bs-toggle="dropdown">
+                                            <i class="fas fa-cog"></i>
+                                        </button>
+                                        <ul class="dropdown-menu">
+                                            <li>
+                                                <a href="{{ route('kasr-sales.edit', $sale->id) }}" class="dropdown-item">
+                                                    <i class="fas fa-edit me-1"></i> تعديل
+                                                </a>
+                                            </li>
+                                    @if($sale->status == 'pending')
+                                    <li>
+                                        <form action="{{ route('kasr-sales.update-status', $sale->id) }}" method="POST" class="d-inline">
+                                            @csrf
+                                            @method('PUT')
+                                            <input type="hidden" name="status" value="accepted">
+                                            <button type="submit" class="dropdown-item text-success">
+                                                <i class="fas fa-check-circle me-1"></i> قبول
+                                            </button>
+                                        </form>
+                                    </li>
+                                    <li>
+                                        <form action="{{ route('kasr-sales.update-status', $sale->id) }}" method="POST" class="d-inline">
+                                            @csrf
+                                            @method('PUT')
+                                            <input type="hidden" name="status" value="rejected">
+                                            <button type="submit" class="dropdown-item text-danger">
+                                                <i class="fas fa-times-circle me-1"></i> رفض
+                                            </button>
+                                        </form>
+                                    </li>
+                                    @endif
+                                    <li><hr class="dropdown-divider"></li>
+                                    <li>
+                                        <form action="{{ route('kasr-sales.destroy', $sale->id) }}" method="POST" class="d-inline">
+                                            @csrf
+                                            @method('DELETE')
+                                            <button type="submit" class="dropdown-item text-danger" onclick="return confirm('هل أنت متأكد من حذف هذا العنصر؟')">
+                                                <i class="fas fa-trash-alt me-1"></i> حذف
+                                            </button>
+                                        </form>
+                                    </li>
+                                        </ul>
+                                    </div>
+                                </td>
+                            </tr>
+                            <!-- Items detail row (initially hidden) -->
+                            <tr class="item-details-row" id="items-{{ $sale->id }}" style="display:none;">
+                                <td colspan="12">
+                                    <div class="card m-2">
+                                        <div class="card-header bg-light">
+                                            <h6 class="mb-0">تفاصيل القطع</h6>
+                                        </div>
+                                        <div class="card-body p-0">
+                                            <table class="table table-sm mb-0">
+                                                <thead class="table-secondary">
+                                                    <tr>
+                                                        <th>#</th>
+                                                        <th>نوع القطعة</th>
+                                                        <th>عيار الذهب</th>
+                                                        <th>الوزن القائم</th>
+                                                        <th>الوزن الصافي</th>
+                                                    </tr>
+                                                </thead>
+                                                <tbody>
+                                                    @foreach($sale->items as $itemIndex => $item)
+                                                    <tr>
+                                                        <td>{{ $itemIndex + 1 }}</td>
+                                                        <td>{{ $item->kind }}</td>
+                                                        <td>{{ $item->metal_purity }}</td>
+                                                        <td>{{ number_format($item->weight, 2) }}</td>
+                                                        <td>{{ number_format($item->net_weight, 2) }}</td>
+                                                    </tr>
+                                                    @endforeach
+                                                </tbody>
+                                            </table>
+                                        </div>
+                                    </div>
+                                </td>
+                            </tr>
+                            @endforeach
+                        </tbody>
+                    </table>
+                </div>
+                
+            </form>
 
             <!-- Pagination -->
             <div class="d-flex justify-content-center mt-4">
@@ -378,6 +473,53 @@
                 var modal = $(this);
                 modal.find('#modalImage').attr('src', imgSrc);
             });
+            
+            // Toggle item details
+            $('.toggle-items').on('click', function(e) {
+                e.preventDefault();
+                var saleId = $(this).data('sale-id');
+                var detailsRow = $('#items-' + saleId);
+                var icon = $(this).find('i');
+                
+                detailsRow.toggle();
+                
+                if (detailsRow.is(':visible')) {
+                    icon.removeClass('fa-chevron-down').addClass('fa-chevron-up');
+                } else {
+                    icon.removeClass('fa-chevron-up').addClass('fa-chevron-down');
+                }
+            });
+            
+            // Checkbox selection logic
+            $('#select-all').change(function() {
+                $('.order-checkbox').prop('checked', this.checked);
+                updateSelectedCount();
+                updateActionButtons();
+            });
+            
+            $('.order-checkbox').change(function() {
+                updateSelectedCount();
+                updateActionButtons();
+                // If not all checkboxes are checked, uncheck "select all"
+                if (!$(this).prop('checked')) {
+                    $('#select-all').prop('checked', false);
+                }
+                
+                // If all checkboxes are checked, check "select all"
+                if ($('.order-checkbox:checked').length === $('.order-checkbox').length) {
+                    $('#select-all').prop('checked', true);
+                }
+            });
+            
+            function updateSelectedCount() {
+                const count = $('.order-checkbox:checked').length;
+                $('#selected-count').text(count);
+            }
+            
+            function updateActionButtons() {
+                const anySelected = $('.order-checkbox:checked').length > 0;
+                $('#accept-btn, #reject-btn').prop('disabled', !anySelected);
+            }
         });
     </script>
 </body>

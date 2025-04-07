@@ -377,7 +377,14 @@ Route::middleware(['auth'])->group(function () {
     Route::get('/gold-items/same-model', [ShopsController::class, 'getItemsByModel'])
         ->name('gold-items.same-model');
 
-    Route::resource('kasr-sales', KasrSaleController::class);
+    Route::resource('kasr-sales', KasrSaleController::class)->names([
+        'index' => 'kasr-sales.index',
+        'create' => 'kasr-sales.create',
+        'store' => 'kasr-sales.store',
+        'edit' => 'kasr-sales.edit',
+        'update' => 'kasr-sales.update',
+        'destroy' => 'kasr-sales.destroy',
+    ]);
 });
 
 // ===================================
@@ -496,6 +503,10 @@ Route::get('/shopify/orders-api-view', function() {
 // Admin routes
 Route::middleware(['auth'])->group(function () {
     // Kasr Sales Admin Routes
-    Route::get('/kasr-sales', [KasrSaleAdminController::class, 'index'])->name('kasr-sales.index');
+    Route::get('/kasr-sales-admin', [KasrSaleAdminController::class, 'index'])->name('kasr-sales.admin.index');
 });
+
+// Add this route 
+Route::post('kasr-sales/batch-update', [KasrSaleController::class, 'batchUpdate'])->name('kasr-sales.batch-update');
+Route::put('kasr-sales/{kasrSale}/update-status', [KasrSaleController::class, 'updateStatus'])->name('kasr-sales.update-status');
     

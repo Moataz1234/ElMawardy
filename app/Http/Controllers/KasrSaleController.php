@@ -34,7 +34,6 @@ class KasrSaleController extends Controller
             'offered_price' => 'nullable|numeric|min:0',
             'order_date' => 'nullable|date',
             'image' => 'nullable|image|max:2048',
-            'item_type' => 'nullable|string|max:255',
             
             // Item fields (as array of items)
             'items' => 'required|array',
@@ -42,6 +41,7 @@ class KasrSaleController extends Controller
             'items.*.metal_purity' => 'required|string|max:255',
             'items.*.weight' => 'required|numeric|min:0',
             'items.*.net_weight' => 'nullable|numeric|min:0',
+            'items.*.item_type' => 'nullable|string|in:shop',
         ]);
 
         // Begin transaction
@@ -55,7 +55,6 @@ class KasrSaleController extends Controller
             $kasrSale->shop_name = Auth::user()->shop_name;
             $kasrSale->offered_price = $validated['offered_price'];
             $kasrSale->order_date = $validated['order_date'] ?? now();
-            $kasrSale->item_type = $request->has('item_type') ? 'shop' : 'customer';
             
             if ($request->hasFile('image')) {
                 $path = $request->file('image')->store('kasr_sales', 'public');
@@ -72,12 +71,16 @@ class KasrSaleController extends Controller
                 $kasrItem->metal_purity = $itemData['metal_purity'];
                 $kasrItem->weight = $itemData['weight'];
                 $kasrItem->net_weight = $itemData['net_weight'] ?? null;
+                
+                // Set item_type based on the individual checkbox
+                $kasrItem->item_type = isset($itemData['item_type']) ? 'shop' : 'customer';
+                
                 $kasrItem->save();
             }
             
             DB::commit();
             
-            return redirect()->route('kasr-sales.index')
+            return redirect()->route('kasr-sales')
                 ->with('success', 'تم اضافة الكسر بنجاح.');
         } catch (\Exception $e) {
             DB::rollBack();

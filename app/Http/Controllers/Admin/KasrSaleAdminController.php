@@ -4,38 +4,33 @@ namespace App\Http\Controllers\Admin;
 
 use App\Http\Controllers\Controller;
 use App\Models\KasrSale;
+use App\Models\KasrItem;
 use App\Models\User;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
+use Carbon\Carbon;
 
 class KasrSaleAdminController extends Controller
 {
     public function index(Request $request)
     {
-        // Start with a base query
-        $query = KasrSale::query();
+        // Start with a base query with eager loading of items
+        $query = KasrSale::with('items');
         
         // Apply date range filter
         if ($request->filled('date_range')) {
             $dates = explode(' - ', $request->date_range);
             if (count($dates) == 2) {
-                $query->whereBetween('order_date', [$dates[0], $dates[1]]);
+                $query->whereBetween('order_date', [
+                    Carbon::parse($dates[0])->startOfDay(),
+                    Carbon::parse($dates[1])->endOfDay(),
+                ]);
             }
         }
         
         // Apply shop name filter
         if ($request->filled('shop_name')) {
             $query->where('shop_name', $request->shop_name);
-        }
-        
-        // Apply kind filter
-        if ($request->filled('kind')) {
-            $query->where('kind', $request->kind);
-        }
-        
-        // Apply metal purity filter
-        if ($request->filled('metal_purity')) {
-            $query->where('metal_purity', $request->metal_purity);
         }
         
         // Apply price range filter
@@ -52,23 +47,20 @@ class KasrSaleAdminController extends Controller
             $query->where('status', $request->status);
         }
         
-        // Get all records for weight calculations (without pagination)
+        // Get all records for calculations (without pagination)
         $allRecords = $query->get();
         
         // Calculate total weights
         $totalOriginalWeight = 0;
-        $total24kWeight = 0;
-        $total18kWeight = 0;
+        $totalNetWeight = 0;
         
-        foreach ($allRecords as $record) {
-            // Extract the numeric value from the purity string (e.g., "21K" -> 21)
-            $purityValue = intval(str_replace('K', '', $record->metal_purity));
-            
-            // Add to totals
-            $totalOriginalWeight += $record->weight;
-            $total24kWeight += ($purityValue / 24) * $record->weight;
-            $total18kWeight += ($purityValue / 18) * $record->weight;
+        foreach ($allRecords as $sale) {
+            $totalOriginalWeight += $sale->getTotalWeight();
+            $totalNetWeight += $sale->getTotalNetWeight();
         }
+        
+        // Count pending orders
+        $pendingCount = KasrSale::where('status', 'pending')->count();
         
         // Get the filtered results with pagination
         $kasrSales = $query->orderBy('created_at', 'desc')->paginate(15);
@@ -76,16 +68,61 @@ class KasrSaleAdminController extends Controller
         // Get all shop names for the filter dropdown
         $shops = User::whereNotNull('shop_name')->select('shop_name')->distinct()->get();
         
-        // Get all unique kinds for the filter dropdown
-        $kinds = KasrSale::whereNotNull('kind')->select('kind')->distinct()->pluck('kind');
-        
         return view('admin.kasr_sales.index', compact(
             'kasrSales', 
             'shops', 
-            'kinds', 
             'totalOriginalWeight', 
-            'total24kWeight', 
-            'total18kWeight'
+            'totalNetWeight',
+            'pendingCount'
         ));
+    }
+    
+    /**
+     * Update the status of a specific kasr sale.
+     */
+    public function updateStatus(Request $request, KasrSale $kasrSale)
+    {
+        $validated = $request->validate([
+            'status' => 'required|in:pending,accepted,rejected',
+        ]);
+        
+        $kasrSale->status = $validated['status'];
+        $kasrSale->save();
+        
+        $statusText = $validated['status'] == 'accepted' ? 'قبول' : 'رفض';
+        
+        return redirect()->back()->with('success', "تم {$statusText} الطلب بنجاح");
+    }
+
+    /**
+     * Process batch actions for kasr sales.
+     */
+    public function batchUpdate(Request $request)
+    {
+        $validated = $request->validate([
+            'selected_orders' => 'required|array',
+            'selected_orders.*' => 'exists:kasr_sales,id',
+            'action' => 'required|in:accept,reject',
+        ]);
+        
+        $status = $request->action == 'accept' ? 'accepted' : 'rejected';
+        $count = count($validated['selected_orders']);
+        
+        // Update all selected orders
+        KasrSale::whereIn('id', $validated['selected_orders'])
+            ->update(['status' => $status]);
+        
+        $actionText = $request->action == 'accept' ? 'قبول' : 'رفض';
+        
+        return redirect()->back()->with('success', "تم {$actionText} {$count} طلب بنجاح");
+    }
+    
+    /**
+     * Show details for a specific sale.
+     */
+    public function show(KasrSale $kasrSale)
+    {
+        $kasrSale->load('items');
+        return view('admin.kasr_sales.show', compact('kasrSale'));
     }
 } 

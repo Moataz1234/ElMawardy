@@ -16,7 +16,7 @@ return new class extends Migration
             $table->string('customer_name');
             $table->string('customer_phone')->nullable();
             $table->string('shop_name')->nullable();
-            $table->string('metal_purity');
+            // $table->string('metal_purity');
             $table->string('image_path')->nullable();
             $table->decimal('offered_price', 12, 2)->nullable();
             $table->date('order_date')->nullable();

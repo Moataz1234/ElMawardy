@@ -15,6 +15,7 @@ class KasrItem extends Model
         'metal_purity',
         'weight',
         'net_weight',
+        'item_type',
     ];
 
     protected $casts = [

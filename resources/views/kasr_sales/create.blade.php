@@ -100,12 +100,12 @@
                         @csrf
 
                         <div class="row mb-3">
-                            <div class="col-md-6 mb-3 mb-md-0">
+                            <div class="col-md-2 mb-3 mb-md-0">
                                 <label for="customer_name" class="form-label">اسم العميل</label>
                                 <input id="customer_name" type="text" class="form-control @error('customer_name') is-invalid @enderror" name="customer_name" value="{{ old('customer_name') }}" required autofocus>
                             </div>
                             
-                            <div class="col-md-6">
+                            <div class="col-md-2">
                                 <label for="customer_phone" class="form-label">رقم الهاتف</label>
                                 <input id="customer_phone" type="text" class="form-control @error('customer_phone') is-invalid @enderror" name="customer_phone" value="{{ old('customer_phone') }}">
                                 @error('customer_phone')
@@ -114,9 +114,9 @@
                                     </span>
                                 @enderror
                             </div>
-                        </div>
+                        {{-- </div> --}}
 
-                        <div class="row mb-3">
+                        {{-- <div class="row mb-3"> --}}
                             <div class="col-md-2 mb-3 mb-md-0">
                                 <label for="offered_price" class="form-label">السعر </label>
                                 <input id="offered_price" type="number" step="0.01" class="form-control @error('offered_price') is-invalid @enderror" name="offered_price" value="{{ old('offered_price') }}">
@@ -136,29 +136,15 @@
                                     </span>
                                 @enderror
                             </div>
-                        {{-- </div> --}}
 
-                        {{-- <div class="row mb-3"> --}}
                             <div class="col-md-3">
                                 <label for="image" class="form-label">صورة</label>
                                 <input id="image" type="file" class="form-control @error('image') is-invalid @enderror" name="image">
                             </div>
-
-                        {{-- <div class="row mb-3"> --}}
-                            <div class="col-md-4">
-                                <div class="custom-checkbox-container">
-                                    <div class="form-check">
-                                        <input class="form-check-input" type="checkbox" name="item_type" id="item_type" value="shop" {{ old('item_type') == 'shop' ? 'checked' : '' }}>
-                                        <label class="form-check-label" for="item_type">
-                                            القطعة من صنعنا
-                                        </label>
-                                    </div>
-                                </div>
-                            </div>
                         </div>
 
                         <div class="card mb-4">
-                            <div class="card-header bg-primary text-white">
+                            <div class="card-header bg-primary text-white d-flex justify-content-between align-items-center">
                                 <h5 class="mb-0">تفاصيل القطع</h5>
                             </div>
                             <div class="card-body">
@@ -167,11 +153,12 @@
                                         <thead class="table-light">
                                             <tr>
                                                 <th width="5%">#</th>
-                                                <th width="25%">نوع القطعة</th>
-                                                <th width="25%">عيار الذهب</th>
-                                                <th width="20%">الوزن القائم</th>
-                                                <th width="20%">الوزن الصافي</th>
-                                                <th width="5%">حذف</th>
+                                                <th width="20%">نوع القطعة</th>
+                                                <th width="20%">عيار الذهب</th>
+                                                <th width="12%">الوزن القائم</th>
+                                                <th width="12%">الوزن الصافي</th>
+                                                <th width="21%">القطعة من صنعنا</th>
+                                                <th width="5%"></th>
                                             </tr>
                                         </thead>
                                         <tbody id="items-container">
@@ -210,6 +197,11 @@
                                                 </td>
                                                 <td>
                                                     <input type="number" step="0.01" class="form-control" name="items[0][net_weight]">
+                                                </td>
+                                                <td class="text-center">
+                                                    <div class="form-check d-flex justify-content-center">
+                                                        <input class="form-check-input" type="checkbox" name="items[0][item_type]" value="shop">
+                                                    </div>
                                                 </td>
                                                 <td class="text-center">
                                                     <button type="button" class="btn btn-danger btn-sm remove-item-btn" style="display: none;">
@@ -298,6 +290,11 @@
                         <input type="number" step="0.01" class="form-control" name="items[${itemCount-1}][net_weight]">
                     </td>
                     <td class="text-center">
+                        <div class="form-check d-flex justify-content-center">
+                            <input class="form-check-input" type="checkbox" name="items[${itemCount-1}][item_type]" value="shop">
+                        </div>
+                    </td>
+                    <td class="text-center">
                         <button type="button" class="btn btn-danger btn-sm remove-item-btn">
                             <i class="fas fa-trash"></i>
                         </button>
@@ -346,7 +343,20 @@
                     });
                 });
             }
+            
+            // Add event listener to the first row's remove button
+            document.querySelector('.remove-item-btn').addEventListener('click', function() {
+                if (itemCount > 1) {
+                    this.closest('tr').remove();
+                    itemCount--;
+                    updateItemNumbers();
+                    
+                    // Hide remove button for first item if only one item remains
+                    if (itemCount === 1) {
+                        document.querySelector('.remove-item-btn').style.display = 'none';
+                    }
+                }
+            });
         });
     </script>
 </body>
-</html> 
