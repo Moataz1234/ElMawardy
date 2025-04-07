@@ -500,6 +500,7 @@ Route::get('/shopify/orders-api-view', function() {
     return view('shopify.orders-api-view');
 })->name('shopify.orders.api-view');
 
+
 // Admin routes
 Route::middleware(['auth'])->group(function () {
     // Kasr Sales Admin Routes
