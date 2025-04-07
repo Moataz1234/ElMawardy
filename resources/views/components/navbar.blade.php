@@ -129,7 +129,7 @@
                     <a href="{{ route('reports.view') }}" class="dropdown-item">View Reports</a>
                 </div>
             </li>
-            <li class="navbar-item"><a href="{{ route('kasr-sales.index') }}" class="navbar-link">الكسر</a></li>
+            <li class="navbar-item"><a href="{{ route('kasr-sales.admin.index') }}" class="navbar-link">الكسر</a></li>
 
         @endif
 
