@@ -286,7 +286,7 @@ class GoldItemController extends Controller
             'shop_id' => 'required|numeric',
             'kind' => 'required|string',
             'model' => 'required|string',
-            'talab' => 'nullable',
+            'talab' => 'required|boolean',
             'gold_color' => 'required',
             'stones' => 'nullable',
             'metal_type' => 'required',
@@ -297,14 +297,26 @@ class GoldItemController extends Controller
         ]);
         
         // If the "other" option was selected, use the custom kind value
-        // if ($request->has('custom_kind') && !empty($request->custom_kind)) {
-        //     $validatedData['kind'] = $request->custom_kind;
-        // }
+        if ($request->has('custom_kind') && !empty($request->custom_kind)) {
+            $validatedData['kind'] = $request->custom_kind;
+        }
         
-        // Update the gold item
-        $goldItem->update($validatedData);
+        // If the "other" option was selected for shop name, use the custom shop name
+        if ($request->has('custom_shop') && !empty($request->custom_shop)) {
+            $validatedData['shop_name'] = $request->custom_shop;
+        }
         
-        return redirect()->route('admin.inventory')->with('success', 'Gold item updated successfully.');
+        // Convert talab to boolean
+        $validatedData['talab'] = (bool)$request->talab;
+        
+        try {
+            // Update the gold item
+            $goldItem->update($validatedData);
+            
+            return redirect()->route('admin.inventory')->with('success', 'Gold item updated successfully.');
+        } catch (\Exception $e) {
+            return redirect()->back()->with('error', 'Failed to update gold item: ' . $e->getMessage());
+        }
     }
     public function checkExists($model)
     {

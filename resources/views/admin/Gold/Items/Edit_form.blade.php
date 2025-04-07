@@ -177,6 +177,7 @@
                     
                     <div class="col-md-3 mb-3 d-flex align-items-end">
                         <div class="form-check">
+                            <input type="hidden" name="talab" value="0">
                             <input type="checkbox" class="form-check-input" name="talab" id="talab" value="1" {{ $goldItem->talab ? 'checked' : '' }}>
                             <label class="form-check-label" for="talab">Talab</label>
                         </div>
@@ -233,9 +234,10 @@
             
             // Form submission handling
             document.querySelector('form').addEventListener('submit', function(e) {
+                e.preventDefault(); // Prevent default form submission
+                
                 // Validate kind field
                 if (kindSelect.value === 'other' && customKindInput.value.trim() === '') {
-                    e.preventDefault();
                     alert('Please enter a custom kind value');
                     customKindInput.focus();
                     return;
@@ -243,7 +245,6 @@
                 
                 // Validate shop name field
                 if (shopSelect.value === 'other' && customShopInput.value.trim() === '') {
-                    e.preventDefault();
                     alert('Please enter a custom shop name');
                     customShopInput.focus();
                     return;
@@ -266,6 +267,9 @@
                     hiddenShopInput.value = customShopInput.value.trim();
                     this.appendChild(hiddenShopInput);
                 }
+                
+                // Submit the form
+                this.submit();
             });
         });
     </script>
