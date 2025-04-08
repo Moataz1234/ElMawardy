@@ -139,7 +139,7 @@
 
                             <div class="col-md-3">
                                 <label for="image" class="form-label">صورة</label>
-                                <input id="image" type="file" class="form-control @error('image') is-invalid @enderror" name="image">
+                                <input id="image" type="file" class="form-control @error('image') is-invalid @enderror" name="image" accept="image/*" required>
                             </div>
                         </div>
 

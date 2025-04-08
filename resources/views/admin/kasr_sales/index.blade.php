@@ -253,7 +253,6 @@
                                 <th width="10%">السعر المعروض</th>
                                 <th width="10%">تاريخ الطلب</th>
                                 <th width="5%">الحالة</th>
-                                <th width="5%">الإجراءات</th>
                             </tr>
                         </thead>
                         <tbody>
@@ -302,59 +301,10 @@
                                         <span class="status-badge status-pending">قيد الانتظار</span>
                                     @endif
                                 </td>
-                                <td class="action-buttons">
-                                    <a href="{{ route('kasr-sales.show', $sale->id) }}" class="btn btn-info btn-sm">
-                                        <i class="fas fa-eye"></i>
-                                    </a>
-                                    <div class="dropdown d-inline">
-                                        <button class="btn btn-secondary btn-sm dropdown-toggle" type="button" data-bs-toggle="dropdown">
-                                            <i class="fas fa-cog"></i>
-                                        </button>
-                                        <ul class="dropdown-menu">
-                                            <li>
-                                                <a href="{{ route('kasr-sales.edit', $sale->id) }}" class="dropdown-item">
-                                                    <i class="fas fa-edit me-1"></i> تعديل
-                                                </a>
-                                            </li>
-                                    @if($sale->status == 'pending')
-                                    <li>
-                                        <form action="{{ route('kasr-sales.update-status', $sale->id) }}" method="POST" class="d-inline">
-                                            @csrf
-                                            @method('PUT')
-                                            <input type="hidden" name="status" value="accepted">
-                                            <button type="submit" class="dropdown-item text-success">
-                                                <i class="fas fa-check-circle me-1"></i> قبول
-                                            </button>
-                                        </form>
-                                    </li>
-                                    <li>
-                                        <form action="{{ route('kasr-sales.update-status', $sale->id) }}" method="POST" class="d-inline">
-                                            @csrf
-                                            @method('PUT')
-                                            <input type="hidden" name="status" value="rejected">
-                                            <button type="submit" class="dropdown-item text-danger">
-                                                <i class="fas fa-times-circle me-1"></i> رفض
-                                            </button>
-                                        </form>
-                                    </li>
-                                    @endif
-                                    <li><hr class="dropdown-divider"></li>
-                                    <li>
-                                        <form action="{{ route('kasr-sales.destroy', $sale->id) }}" method="POST" class="d-inline">
-                                            @csrf
-                                            @method('DELETE')
-                                            <button type="submit" class="dropdown-item text-danger" onclick="return confirm('هل أنت متأكد من حذف هذا العنصر؟')">
-                                                <i class="fas fa-trash-alt me-1"></i> حذف
-                                            </button>
-                                        </form>
-                                    </li>
-                                        </ul>
-                                    </div>
-                                </td>
                             </tr>
                             <!-- Items detail row (initially hidden) -->
                             <tr class="item-details-row" id="items-{{ $sale->id }}" style="display:none;">
-                                <td colspan="12">
+                                <td colspan="11">
                                     <div class="card m-2">
                                         <div class="card-header bg-light">
                                             <h6 class="mb-0">تفاصيل القطع</h6>
@@ -368,6 +318,7 @@
                                                         <th>عيار الذهب</th>
                                                         <th>الوزن القائم</th>
                                                         <th>الوزن الصافي</th>
+                                                        <th>نوع القطعة</th>
                                                     </tr>
                                                 </thead>
                                                 <tbody>
@@ -378,6 +329,13 @@
                                                         <td>{{ $item->metal_purity }}</td>
                                                         <td>{{ number_format($item->weight, 2) }}</td>
                                                         <td>{{ number_format($item->net_weight, 2) }}</td>
+                                                        <td>
+                                                            @if($item->item_type == 'shop')
+                                                                <span class="badge bg-primary">من صنعنا</span>
+                                                            @else
+                                                                <span class="badge bg-secondary">من العميل</span>
+                                                            @endif
+                                                        </td>
                                                     </tr>
                                                     @endforeach
                                                 </tbody>

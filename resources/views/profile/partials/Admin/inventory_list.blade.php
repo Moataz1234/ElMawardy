@@ -413,10 +413,10 @@
                                     'kind' => 'Kind',
                                     'model' => 'Model',
                                     'gold_color' => 'Gold Color',
+                                    'weight' => 'Weight',
                                     'metal_type' => 'Metal Type',
                                     'metal_purity' => 'Metal Purity',
                                     'quantity' => 'Quantity',
-                                    'weight' => 'Weight',
                                     'stars' => 'stars',
                                     'source' => 'Source',
                                     'stones' => 'Stones',
@@ -454,10 +454,10 @@
                                         data-model="{{ $item->model }}">{{ $item->model }}</a>
                                 </td>
                                 <td>{{ $item->gold_color }}</td>
+                                <td>{{ $item->weight }}</td>
                                 <td>{{ $item->metal_type }}</td>
                                 <td>{{ $item->metal_purity }}</td>
                                 <td>{{ $item->quantity }}</td>
-                                <td>{{ $item->weight }}</td>
                                 <td>{{ $item->modelCategory->stars ?? 'No stars' }}</td>
                                 <td>{{ $item->source }}</td>
                                 <td>{{ $item->stones }}</td>
