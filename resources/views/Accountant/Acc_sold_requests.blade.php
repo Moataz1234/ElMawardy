@@ -39,7 +39,8 @@
                 <th>Price/Gram</th>
                 <th>Payment Method</th>
                 <th>Status</th>
-                <th>Date</th>
+                <th>Created At</th>
+                <th>Sold Date</th>
                 <th>Actions</th>
             </tr>
         </thead>
@@ -204,6 +205,7 @@
                             <span class="badge badge-danger p-2">Rejected</span>
                         @endif
                     </td>
+                    <td>{{ $request->created_at->format('Y-m-d H:i:s') }}</td>
                     <td>{{ $request->sold_date }}</td>
                     <td>
                         @if ($request->status === 'pending')
