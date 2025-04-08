@@ -318,14 +318,28 @@ class SoldItemRequestController extends Controller
 
     public function exportSales(Request $request)
     {
-        $query = GoldItemSold::with('customer');
+        $activeTab = $request->get('tab', 'items');
+        
+        if ($activeTab === 'items') {
+            $query = GoldItemSold::with('customer');
+        } else {
+            $query = GoldPoundSold::with(['customer', 'goldPound']);
+        }
 
         // Apply date range filter
         if ($request->filled('from_date')) {
-            $query->whereDate('sold_date', '>=', $request->from_date);
+            if ($activeTab === 'items') {
+                $query->whereDate('sold_date', '>=', $request->from_date);
+            } else {
+                $query->whereDate('gold_pounds_sold.created_at', '>=', $request->from_date);
+            }
         }
         if ($request->filled('to_date')) {
-            $query->whereDate('sold_date', '<=', $request->to_date);
+            if ($activeTab === 'items') {
+                $query->whereDate('sold_date', '<=', $request->to_date);
+            } else {
+                $query->whereDate('gold_pounds_sold.created_at', '<=', $request->to_date);
+            }
         }
 
         // Apply shop filter
@@ -333,7 +347,13 @@ class SoldItemRequestController extends Controller
             $query->where('shop_name', $request->shop_name);
         }
 
-        $sales = $query->get();
+        if ($activeTab === 'items') {
+            $sales = $query->get();
+        } else {
+            $sales = $query->join('gold_pounds as gp', 'gold_pounds_sold.gold_pound_id', '=', 'gp.id')
+                ->select('gold_pounds_sold.*', 'gp.weight as pound_weight', 'gp.purity')
+                ->get();
+        }
 
         // Create new Spreadsheet object
         $spreadsheet = new Spreadsheet();
@@ -352,7 +372,11 @@ class SoldItemRequestController extends Controller
             'Date'
         ];
 
-        foreach (range('A', 'I') as $key => $column) {
+        if ($activeTab === 'pounds') {
+            $headers[] = 'Purity';
+        }
+
+        foreach (range('A', chr(ord('A') + count($headers) - 1)) as $key => $column) {
             $sheet->setCellValue($column . '1', $headers[$key]);
             $sheet->getStyle($column . '1')->getFont()->setBold(true);
             $sheet->getStyle($column . '1')->getFill()
@@ -363,12 +387,14 @@ class SoldItemRequestController extends Controller
         // Add data
         $row = 2;
         foreach ($sales as $sale) {
-            $pricePerGram = $sale->weight > 0 ? round($sale->price / $sale->weight, 2) : 0;
+            $weight = $activeTab === 'items' ? $sale->weight : $sale->pound_weight;
+            $pricePerGram = $weight > 0 ? round($sale->price / $weight, 2) : 0;
+            $date = $activeTab === 'items' ? $sale->sold_date : $sale->created_at;
 
             // Format cells properly for numerical calculations
             $sheet->setCellValue('A' . $row, $sale->serial_number);
             $sheet->setCellValue('B' . $row, $sale->shop_name);
-            $sheet->setCellValue('C' . $row, $sale->weight);
+            $sheet->setCellValue('C' . $row, $weight);
             $sheet->getStyle('C' . $row)->getNumberFormat()->setFormatCode('0.00"g"');
             
             $sheet->setCellValue('D' . $row, $sale->price);
@@ -380,7 +406,12 @@ class SoldItemRequestController extends Controller
             $sheet->setCellValue('F' . $row, $sale->customer ? $sale->customer->payment_method : 'N/A');
             $sheet->setCellValue('G' . $row, $sale->customer ? $sale->customer->first_name . ' ' . $sale->customer->last_name : 'N/A');
             $sheet->setCellValue('H' . $row, $sale->customer ? $sale->customer->phone_number : 'N/A');
-            $sheet->setCellValue('I' . $row, $sale->sold_date);
+            $sheet->setCellValue('I' . $row, $date);
+
+            if ($activeTab === 'pounds') {
+                $sheet->setCellValue('J' . $row, $sale->purity . 'K');
+            }
+
             $row++;
         }
 
@@ -396,7 +427,7 @@ class SoldItemRequestController extends Controller
         $sheet->getStyle('B' . $row . ':D' . $row)->getFont()->setBold(true);
 
         // Auto size columns
-        foreach (range('A', 'I') as $column) {
+        foreach (range('A', chr(ord('A') + count($headers) - 1)) as $column) {
             $sheet->getColumnDimension($column)->setAutoSize(true);
         }
 
@@ -404,7 +435,7 @@ class SoldItemRequestController extends Controller
         $writer = new Xlsx($spreadsheet);
         
         // Generate file name based on filters
-        $fileName = 'sales_report';
+        $fileName = $activeTab === 'items' ? 'gold_items_sales_report' : 'gold_pounds_sales_report';
         
         if ($request->filled('shop_name')) {
             $fileName .= '_' . $request->shop_name;
@@ -434,14 +465,31 @@ class SoldItemRequestController extends Controller
     
     public function viewAllSoldItems(Request $request)
     {
-        $query = GoldItemSold::with('customer');
+        $activeTab = $request->get('tab', 'items'); // Default to items tab
+        $shops = [];
+        $totals = null;
+        $soldItems = null;
+
+        if ($activeTab === 'items') {
+            $query = GoldItemSold::with('customer');
+        } else {
+            $query = GoldPoundSold::with(['customer', 'goldPound']);
+        }
 
         // Apply date range filter using sold_date
         if ($request->filled('from_date')) {
-            $query->whereDate('sold_date', '>=', $request->from_date);
+            if ($activeTab === 'items') {
+                $query->whereDate('sold_date', '>=', $request->from_date);
+            } else {
+                $query->whereDate('gold_pounds_sold.created_at', '>=', $request->from_date);
+            }
         }
         if ($request->filled('to_date')) {
-            $query->whereDate('sold_date', '<=', $request->to_date);
+            if ($activeTab === 'items') {
+                $query->whereDate('sold_date', '<=', $request->to_date);
+            } else {
+                $query->whereDate('gold_pounds_sold.created_at', '<=', $request->to_date);
+            }
         }
 
         // Apply shop filter
@@ -449,26 +497,52 @@ class SoldItemRequestController extends Controller
             $query->where('shop_name', $request->shop_name);
         }
 
-        // Get unique shop names for the dropdown
-        $shops = GoldItemSold::distinct('shop_name')->pluck('shop_name');
+        // Get unique shop names for the dropdown based on active tab
+        if ($activeTab === 'items') {
+            $shops = GoldItemSold::distinct('shop_name')->pluck('shop_name');
+        } else {
+            $shops = GoldPoundSold::distinct('shop_name')->pluck('shop_name');
+        }
 
         // Calculate totals from the entire filtered dataset before pagination
-        $totals = (clone $query)->selectRaw('
-            COUNT(*) as total_items,
-            SUM(weight) as total_weight,
-            SUM(price) as total_revenue,
-            CASE 
-                WHEN SUM(weight) > 0 
-                THEN SUM(price) / SUM(weight) 
-                ELSE 0 
-            END as avg_price_per_gram
-        ')->first();
+        if ($activeTab === 'items') {
+            $totals = (clone $query)->selectRaw('
+                COUNT(*) as total_items,
+                SUM(weight) as total_weight,
+                SUM(price) as total_revenue,
+                CASE 
+                    WHEN SUM(weight) > 0 
+                    THEN SUM(price) / SUM(weight) 
+                    ELSE 0 
+                END as avg_price_per_gram
+            ')->first();
+        } else {
+            // For pounds, we need to join with gold_pounds to get the weight
+            $totals = (clone $query)->selectRaw('
+                COUNT(*) as total_items,
+                SUM(gp.weight) as total_weight,
+                SUM(gold_pounds_sold.price) as total_revenue,
+                CASE 
+                    WHEN SUM(gp.weight) > 0 
+                    THEN SUM(gold_pounds_sold.price) / SUM(gp.weight) 
+                    ELSE 0 
+                END as avg_price_per_gram
+            ')
+            ->join('gold_pounds as gp', 'gold_pounds_sold.gold_pound_id', '=', 'gp.id')
+            ->first();
+        }
 
-        // Get paginated results with 50 items per page
-        $soldItemRequests = $query->orderBy('sold_date', 'desc')
-            ->paginate(50)
-            ->withQueryString(); // This preserves the filter parameters
+        // Get paginated results
+        if ($activeTab === 'items') {
+            $soldItems = $query->orderBy('sold_date', 'desc')
+                ->paginate(50)
+                ->withQueryString();
+        } else {
+            $soldItems = $query->orderBy('gold_pounds_sold.created_at', 'desc')
+                ->paginate(50)
+                ->withQueryString();
+        }
 
-        return view('Accountant.all_sold_items', compact('soldItemRequests', 'shops', 'totals'));
+        return view('Accountant.all_sold_items', compact('soldItems', 'shops', 'totals', 'activeTab'));
     }
 }

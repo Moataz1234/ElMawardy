@@ -49,16 +49,37 @@
             font-size: 14px;
         }
     }
+
+    .nav-tabs .nav-link {
+        font-size: 1.1rem;
+        padding: 1rem 2rem;
+    }
+
+    .nav-tabs .nav-link.active {
+        font-weight: bold;
+        border-bottom: 3px solid #007bff;
+    }
     </style>
 </head>
 
 <div class="container mt-4">
+    <!-- Tabs -->
+    <ul class="nav nav-tabs mb-4">
+        <li class="nav-item">
+            <a class="nav-link {{ $activeTab === 'items' ? 'active' : '' }}" href="?tab=items">Gold Items</a>
+        </li>
+        <li class="nav-item">
+            <a class="nav-link {{ $activeTab === 'pounds' ? 'active' : '' }}" href="?tab=pounds">Gold Pounds</a>
+        </li>
+    </ul>
+
     <div class="card mb-4">
         <div class="card-header">
             <h3>Advanced Filter</h3>
         </div>
         <div class="card-body">
             <form id="filterForm" class="row">
+                <input type="hidden" name="tab" value="{{ $activeTab }}">
                 <div class="col-md-3">
                     <div class="form-group">
                         <label>From Date:</label>
@@ -141,29 +162,36 @@
             </tr>
         </thead>
         <tbody>
-            @foreach ($soldItemRequests as $request)
+            @foreach ($soldItems as $item)
+                @php
+                    $weight = $activeTab === 'items' ? $item->weight : ($item->goldPound->weight ?? 0);
+                    $pricePerGram = $weight > 0 ? $item->price / $weight : 0;
+                @endphp
                 <tr>
                     <td>
-                        <a href="#" class="item-details text-primary" data-serial="{{ $request->serial_number }}">
-                            {{ $request->serial_number }}
+                        <a href="#" class="item-details text-primary" 
+                           data-serial="{{ $item->serial_number }}"
+                           data-type="{{ $activeTab }}">
+                            {{ $item->serial_number }}
                         </a>
                     </td>
-                    <td>{{ $request->shop_name }}</td>
-                    <td>{{ $request->weight }}g</td>
-                    <td>{{ $request->price > 0 ? number_format($request->price) : 0 }} </td>
-                    <td>{{ $request->weight > 0 ? number_format($request->price / $request->weight, 2) : 0 }} /g</td>
-                    <td>{{ $request->customer ? $request->customer->payment_method : 'N/A' }}</td>
-                    <td>{{ $request->customer ? $request->customer->first_name . ' ' . $request->customer->last_name : 'N/A' }}</td>
-                    <td>{{ $request->sold_date }}</td>
+                    <td>{{ $item->shop_name }}</td>
+                    <td>{{ $weight }}g</td>
+                    <td>{{ number_format($item->price) }} {{ config('app.currency') }}</td>
+                    <td>{{ number_format($pricePerGram, 2) }} {{ config('app.currency') }}/g</td>
+                    <td>{{ $item->customer ? $item->customer->payment_method : 'N/A' }}</td>
+                    <td>{{ $item->customer ? $item->customer->first_name . ' ' . $item->customer->last_name : 'N/A' }}</td>
+                    <td>{{ $activeTab === 'items' ? $item->sold_date : $item->created_at }}</td>
                 </tr>
             @endforeach
         </tbody>
     </table>
 
     <div class="d-flex justify-content-center">
-        {!! $soldItemRequests->appends(request()->query())->links('pagination::bootstrap-4') !!}
+        {!! $soldItems->appends(request()->query())->links('pagination::bootstrap-4') !!}
     </div>
 </div>
+
 <div class="modal fade" id="itemModal" tabindex="-1" role="dialog" aria-labelledby="itemModalLabel" aria-hidden="true">
     <div class="modal-dialog modal-dialog-centered">
         <div class="modal-content">
@@ -182,7 +210,6 @@
         </div>
     </div>
 </div>
-</div>
 
 <script>
 $(document).ready(function() {
@@ -196,20 +223,19 @@ $(document).ready(function() {
         let formData = $('#filterForm').serialize();
         window.location.href = `/export-sales?${formData}`;
     });
-});
-</script> 
 
-<script>
-    $(document).ready(function() {
-        $('.item-details').click(function(e) {
-            e.preventDefault();
-            let serial = $(this).data('serial');
-            
-            $.ajax({
-                url: `/item-details/${serial}`,
-                method: 'GET',
-                success: function(data) {
-                    let details = `
+    $('.item-details').click(function(e) {
+        e.preventDefault();
+        let serial = $(this).data('serial');
+        let type = $(this).data('type');
+        
+        $.ajax({
+            url: `/item-details/${serial}?type=${type}`,
+            method: 'GET',
+            success: function(data) {
+                let details = '';
+                if (type === 'items') {
+                    details = `
                         <div class="row mb-2">
                             <div class="col-5 font-weight-bold">Serial Number:</div>
                             <div class="col-7">${data.serial_number}</div>
@@ -228,17 +254,37 @@ $(document).ready(function() {
                         </div>
                         <div class="row mb-2">
                             <div class="col-5 font-weight-bold">Weight:</div>
-                            <div class="col-7">${data.weight}</div>
+                            <div class="col-7">${data.weight}g</div>
                         </div>
                         <div class="row mb-2">
                             <div class="col-5 font-weight-bold">Price:</div>
-                            <div class="col-7">${data.price}</div>
+                            <div class="col-7">${data.price} {{ config('app.currency') }}</div>
                         </div>
                     `;
-                    $('#itemDetails').html(details);
-                    $('#itemModal').modal('show');
+                } else {
+                    details = `
+                        <div class="row mb-2">
+                            <div class="col-5 font-weight-bold">Serial Number:</div>
+                            <div class="col-7">${data.serial_number}</div>
+                        </div>
+                        <div class="row mb-2">
+                            <div class="col-5 font-weight-bold">Weight:</div>
+                            <div class="col-7">${data.weight}g</div>
+                        </div>
+                        <div class="row mb-2">
+                            <div class="col-5 font-weight-bold">Purity:</div>
+                            <div class="col-7">${data.purity}K</div>
+                        </div>
+                        <div class="row mb-2">
+                            <div class="col-5 font-weight-bold">Price:</div>
+                            <div class="col-7">${data.price} {{ config('app.currency') }}</div>
+                        </div>
+                    `;
                 }
-            });
+                $('#itemDetails').html(details);
+                $('#itemModal').modal('show');
+            }
         });
     });
-    </script>
+});
+</script>
