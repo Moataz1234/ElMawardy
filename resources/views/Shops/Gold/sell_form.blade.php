@@ -27,40 +27,40 @@
                         <form class="item-details-form" action="{{ route('shop-items.bulkSell') }}" method="POST">
                             @csrf
                             <div class="row g-3">
-                                <div class="col-md-6">
+                                <div class="col-md-4">
                                     <div class=" mb-3">
                                         <label for="first_name">الاسم الاول</label>
                                         <input type="text" class="form-control" id="first_name" name="first_name"
                                             required>
                                     </div>
                                 </div>
-                                <div class="col-md-6">
+                                <div class="col-md-4">
                                     <div class=" mb-3">
                                         <label for="last_name">الاسم الاخير</label>
                                         <input type="text" class="form-control" id="last_name" name="last_name"
                                             required>
                                     </div>
                                 </div>
-                                <div class="col-md-6">
+                                <div class="col-md-4">
                                     <div class=" mb-3">
                                         <label for="phone_number">رقم التليفون</label>
                                         <input type="number" class="form-control" id="phone_number"
                                             name="phone_number">
                                     </div>
                                 </div>
-                                <div class="col-md-6">
+                                <div class="col-md-3">
                                     <div class=" mb-3">
                                         <label for="address">العنوان</label>
                                         <input type="text" class="form-control" id="address" name="address">
                                     </div>
                                 </div>
-                                <div class="col-md-6">
+                                <div class="col-md-3">
                                     <div class=" mb-3">
                                         <label for="email">البريد الإلكتروني</label>
                                         <input type="email" class="form-control" id="email" name="email">
                                     </div>
                                 </div>
-                                <div class="col-md-6">
+                                <div class="col-md-3">
                                     <div class=" mb-3">
                                         <label for="payment_method">طريقة الدفع</label>
 
@@ -81,7 +81,7 @@
                                         </select>
                                     </div>
                                 </div>
-                                <div class="col-md-6">
+                                <div class="col-md-3">
                                     <div class="mb-3">
                                         <label for="sold_date">تاريخ البيع</label>
                                         <input type="date" class="form-control" id="sold_date" name="sold_date" value="{{ date('Y-m-d') }}">

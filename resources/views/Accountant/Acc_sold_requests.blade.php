@@ -204,7 +204,7 @@
                             <span class="badge badge-danger p-2">Rejected</span>
                         @endif
                     </td>
-                    <td>{{ $request->created_at->format('Y-m-d H:i') }}</td>
+                    <td>{{ $request->sold_date }}</td>
                     <td>
                         @if ($request->status === 'pending')
                             {{-- <button class="btn btn-success btn-sm approve-btn" data-request-id="{{ $request->id }}">
