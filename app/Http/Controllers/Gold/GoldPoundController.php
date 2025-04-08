@@ -291,7 +291,8 @@ class GoldPoundController extends Controller
             'last_name' => 'required|string',
             'phone_number' => 'nullable|string',
             'address' => 'nullable|string',
-            'email' => 'nullable|email'
+            'email' => 'nullable|email',
+            'sold_date' => 'nullable|date'
         ]);
 
         try {
@@ -327,7 +328,8 @@ class GoldPoundController extends Controller
                         'item_type' => 'pound',
                         'weight' => $poundInventory->goldPound->weight,
                         'purity' => $poundInventory->goldPound->purity,
-                        'kind' => $poundInventory->goldPound->kind
+                        'kind' => $poundInventory->goldPound->kind,
+                        'sold_date' => $request->sold_date
                     ]);
 
                     // Update only the pound inventory status
@@ -390,7 +392,9 @@ class GoldPoundController extends Controller
             'serial_numbers' => 'required|array',
             'serial_numbers.*' => 'exists:gold_pounds_inventory,serial_number',
             'prices' => 'required|array',
-            'prices.*' => 'required|numeric|min:0'
+            'prices.*' => 'required|numeric|min:0',
+            'payment_method' => 'nullable',
+            'sold_date' => 'nullable|date'
         ]);
 
         foreach ($validated['serial_numbers'] as $serialNumber) {
@@ -400,7 +404,9 @@ class GoldPoundController extends Controller
                 'status' => 'pending',
                 'customer_id' => $validated['customer_id'],
                 'price' => $validated['prices'][$serialNumber],
-                'item_type' => 'pound'
+                'item_type' => 'pound',
+                'payment_method' => $validated['payment_method'],
+                'sold_date' => $validated['sold_date']
             ]);
 
             // Update inventory status

@@ -23,50 +23,64 @@
                             method="POST">
                             @csrf
                             <div class="row g-3">
-                                <div class="col-md-6">
+                                <div class="col-md-4">
                                     <div class=" mb-3">
                                         <label for="first_name">الاسم الاول</label>
                                         <input type="text" class="form-control" id="first_name" name="first_name"
                                             required>
                                     </div>
                                 </div>
-                                <div class="col-md-6">
+                                <div class="col-md-4">
                                     <div class=" mb-3">
                                         <label for="last_name">الاسم الاخير</label>
                                         <input type="text" class="form-control" id="last_name" name="last_name"
                                             required>
                                     </div>
                                 </div>
-                                <div class="col-md-6">
+                                <div class="col-md-4">
                                     <div class=" mb-3">
                                         <label for="phone_number">رقم التليفون</label>
                                         <input type="number" class="form-control" id="phone_number"
                                             name="phone_number" required>
                                     </div>
                                 </div>
-                                <div class="col-md-6">
+                                <div class="col-md-3">
                                     <div class=" mb-3">
                                         <label for="address">العنوان</label>
                                         <input type="text" class="form-control" id="address" name="address">
                                     </div>
                                 </div>
-                                <div class="col-md-6">
+                                <div class="col-md-3">
                                     <div class=" mb-3">
                                         <label for="email">البريد الإلكتروني</label>
                                         <input type="email" class="form-control" id="email" name="email">
                                     </div>
                                 </div>
-                                <div class="col-md-6">
+                                <div class="col-md-3">
                                     <div class=" mb-3">
                                         <label for="payment_method">طريقة الدفع</label>
 
-                                        <select class="form-select" id="payment_method" name="payment_method">
-                                            <option value="cash">كاش</option>
-                                            <option value="visa">فيزا</option>
+                                        <select class="form-select" name="payment_method">
+                                            <option value="">لا يوجد</option>
+
                                             <option value="value">فاليو</option>
-                                            <option value="mogo">موجو</option>
-                                            <option value="instapay">انستا باي</option>
+                                            <option value="cash">كاش</option>
+                                            <option value="instapay">انستاباي</option>
+                                            <option value="visa">فيزا (بنك مصر مواردي)</option>
+                                            <option value="visa">فيزا (بنك مصر بوليون فاروز)</option>
+                                            <option value="visa">فيزا (العربي الافريقي ماوردي)</option>
+                                            <option value="visa">فيزا (العربي الافريقي بوليون فاروز)</option>
+                                            <option value="visa">فيزا (CIB)</option>
+                                            <option value="visa">فيزا (جيديا)</option>
+                                            <option value="visa">تحويل بنكي ( بوليون فاروز)</option>
+                                            <option value="visa">تحويل بنكي ( المواردي بنك مصر  )</option>
                                         </select>
+                                    </div>
+                                </div>
+                                <div class="col-md-3">
+                                    <div class="mb-3">
+                                        <label for="sold_date">تاريخ البيع</label>
+                                        <input type="date" class="form-control" id="sold_date" name="sold_date" value="{{ date('Y-m-d') }}">
                                     </div>
                                 </div>
                             </div>

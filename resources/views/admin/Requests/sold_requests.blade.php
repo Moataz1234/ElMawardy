@@ -11,17 +11,14 @@
             <form class="form-inline" id="filterForm">
                 <div class="form-group mx-2">
                     <label for="filter_date" class="mr-2">Select Date:</label>
-                    <input type="date" class="form-control" id="filter_date" name="filter_date"
-                        value="{{ request('filter_date', date('Y-m-d')) }}">
+                    <input type="date" class="form-control" id="filter_date" name="filter_date">
                 </div>
                 <div class="form-group mx-2">
                     <label for="status" class="mr-2">Status:</label>
                     <select class="form-control" id="status" name="status">
-                        <option value="pending" {{ request('status', 'pending') === 'pending' ? 'selected' : '' }}>
-                            Pending Sale</option>
-                        {{-- <option value="approved" {{ request('status') === 'approved' ? 'selected' : '' }}>Approved </option> --}}
-                        <option value="rejected" {{ request('status') === 'rejected' ? 'selected' : '' }}>Rejected </option>
-                        {{-- <option value="all" {{ request('status') === 'all' ? 'selected' : '' }}>All</option> --}}
+                        <option value="all">All</option>
+                        <option value="pending">Pending Sale</option>
+                        <option value="rejected">Rejected</option>
                     </select>
                 </div>
                 <button type="submit" class="btn btn-primary mx-2">Filter</button>
@@ -34,10 +31,11 @@
             <tr>
                 {{-- <th><input type="checkbox" id="selectAll" /></th> --}}
                 <th>Serial Number</th>
+                <th>Type</th>
                 <th>Shop Name</th>
                 <th>Weight</th>
-                {{-- <th>Price</th>
-                <th>Price/Gram</th> --}}
+                <th>Price</th>
+                <th>Price/Gram</th>
                 <th>Payment Method</th>
                 <th>Status</th>
                 <th>Date</th>
@@ -47,7 +45,7 @@
         <tbody>
             @foreach ($soldItemRequests as $request)
                 @php
-                    $weight = $request->item_type === 'pound' ? $request->weight : $request->goldItem->weight ?? 0;
+                    $weight = $request->item_type === 'pound' ? $request->weight : ($request->goldItem->weight ?? 0);
                     $pricePerGram = $weight > 0 ? round($request->price / $weight, 2) : 0;
                 @endphp
                 <tr>
@@ -82,6 +80,13 @@
                                         {{ config('app.currency') }}</p>
                                 </div>
                             </div>
+                        @endif
+                    </td>
+                    <td>
+                        @if ($request->item_type === 'pound')
+                            <span class="badge badge-info">Pound</span>
+                        @else
+                            <span class="badge badge-primary">Item</span>
                         @endif
                     </td>
                     {{--                         
@@ -222,8 +227,8 @@
                     </td>
                     <td>{{ $request->shop_name }}</td>
                     <td>{{ $weight }}g</td>
-                    {{-- <td>{{ $request->price }} {{ config('app.currency') }}</td> --}}
-                    {{-- <td>{{ $pricePerGram }} {{ config('app.currency') }}/g</td> --}}
+                    <td>{{ $request->price }} {{ config('app.currency') }}</td>
+                    <td>{{ $pricePerGram }} {{ config('app.currency') }}/g</td>
                     <td>{{ $request->payment_method ?? 'N/A' }}</td>
                     <td>
                         @if ($request->status === 'pending')

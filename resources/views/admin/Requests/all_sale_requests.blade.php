@@ -31,11 +31,11 @@
                     $pricePerGram = $weight > 0 ? round($request->price / $weight, 2) : 0;
                 @endphp
                 <tr>
-                    <td>
+                    {{-- <td>
                         @if ($request->status === 'pending')
                             <input type="checkbox" name="requests[]" value="{{ $request->id }}" class="request-checkbox" />
                         @endif
-                    </td>
+                    </td> --}}
                     <td>
                         <div class="item-container">
                             <!-- Serial number links to item details -->

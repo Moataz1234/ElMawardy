@@ -110,7 +110,10 @@ class KasrSaleAdminController extends Controller
         
         // Update all selected orders
         KasrSale::whereIn('id', $validated['selected_orders'])
-            ->update(['status' => $status]);
+            ->update([
+                'status' => $status,
+                'shop_name' => $request->action == 'accept' ? 'rabea' : DB::raw('shop_name') // Only update shop_name to 'rabea' when accepting
+            ]);
         
         $actionText = $request->action == 'accept' ? 'قبول' : 'رفض';
         

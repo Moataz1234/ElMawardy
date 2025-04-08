@@ -137,7 +137,19 @@
             border-radius: 5px;
             border: 1px solid #b8daff;
         }
+        /* SweetAlert2 RTL Support */
+        .rtl-alert {
+            direction: rtl;
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+        }
+        
+        .rtl-alert .swal2-title,
+        .rtl-alert .swal2-content {
+            text-align: right;
+        }
     </style>
+    <!-- Add this in the head section -->
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/sweetalert2@11/dist/sweetalert2.min.css">
 </head>
 <body>
     <div class="container">
@@ -227,10 +239,10 @@
                             <span id="selected-count" class="badge bg-primary me-2">0</span> طلب محدد
                         </div>
                         <div>
-                            <button type="submit" name="action" value="accept" class="btn btn-success me-2" disabled id="accept-btn">
+                            <button type="submit" name="action" value="accept" class="btn btn-success me-2" >
                                 <i class="fas fa-check me-1"></i> قبول المحدد
                             </button>
-                            <button type="submit" name="action" value="reject" class="btn btn-danger" disabled id="reject-btn">
+                            <button type="submit" name="action" value="reject" class="btn btn-danger" >
                                 <i class="fas fa-times me-1"></i> رفض المحدد
                             </button>
                         </div>
@@ -386,6 +398,8 @@
     <script src="https://cdn.jsdelivr.net/npm/daterangepicker/daterangepicker.min.js"></script>
     <!-- Font Awesome -->
     <script src="https://kit.fontawesome.com/a076d05399.js" crossorigin="anonymous"></script>
+    <!-- Add this before your custom script -->
+    <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
 
     <script>
         $(document).ready(function() {
@@ -448,16 +462,63 @@
                 }
             });
             
+            // Remove the disabled attribute from accept and reject buttons
+            $('#accept-btn, #reject-btn').removeAttr('disabled');
+
+            // Handle form submission
+            $('#batch-actions-form').on('submit', function(e) {
+                e.preventDefault(); // Prevent default form submission
+
+                const selectedCount = $('.order-checkbox:checked').length;
+
+                if (selectedCount === 0) {
+                    Swal.fire({
+                        title: 'تنبيه!',
+                        text: 'الرجاء تحديد طلب واحد على الأقل',
+                        icon: 'warning',
+                        confirmButtonText: 'حسناً',
+                        confirmButtonColor: '#3085d6',
+                        customClass: {
+                            popup: 'rtl-alert'
+                        }
+                    });
+                    return false;
+                }
+
+                // Get the action (accept/reject)
+                const action = $(document.activeElement).val();
+                const actionText = action === 'accept' ? 'قبول' : 'رفض';
+
+                // Show confirmation dialog
+                Swal.fire({
+                    title: `تأكيد ${actionText} الطلبات`,
+                    text: `هل أنت متأكد من ${actionText} ${selectedCount} طلب؟`,
+                    icon: 'question',
+                    showCancelButton: true,
+                    confirmButtonColor: action === 'accept' ? '#28a745' : '#dc3545',
+                    cancelButtonColor: '#6c757d',
+                    confirmButtonText: `نعم، ${actionText}`,
+                    cancelButtonText: 'إلغاء',
+                    customClass: {
+                        popup: 'rtl-alert'
+                    }
+                }).then((result) => {
+                    if (result.isConfirmed) {
+                        // Submit the form
+                        this.submit();
+                    }
+                });
+            });
+
             // Checkbox selection logic
             $('#select-all').change(function() {
                 $('.order-checkbox').prop('checked', this.checked);
                 updateSelectedCount();
-                updateActionButtons();
             });
             
             $('.order-checkbox').change(function() {
                 updateSelectedCount();
-                updateActionButtons();
+                
                 // If not all checkboxes are checked, uncheck "select all"
                 if (!$(this).prop('checked')) {
                     $('#select-all').prop('checked', false);
@@ -472,11 +533,6 @@
             function updateSelectedCount() {
                 const count = $('.order-checkbox:checked').length;
                 $('#selected-count').text(count);
-            }
-            
-            function updateActionButtons() {
-                const anySelected = $('.order-checkbox:checked').length > 0;
-                $('#accept-btn, #reject-btn').prop('disabled', !anySelected);
             }
         });
     </script>

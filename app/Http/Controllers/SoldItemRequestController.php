@@ -33,16 +33,7 @@ class SoldItemRequestController extends Controller
 
     public function viewSaleRequestsAcc(Request $request)
     {
-        $query = SaleRequest::with(['goldItem', 'customer'])
-            ->where(function ($q) {
-                // Include all items (item_type != 'pound')
-                $q->where('item_type', '!=', 'pound')
-                  // Include standalone pounds (item_type = 'pound' AND related_item_serial is null)
-                  ->orWhere(function ($q) {
-                      $q->where('item_type', 'pound')
-                        ->whereNull('related_item_serial');
-                  });
-            });
+        $query = SaleRequest::with(['goldItem', 'customer']);
     
         // Apply date filter if provided
         if ($request->has('filter_date')) {
@@ -73,40 +64,28 @@ class SoldItemRequestController extends Controller
 
     public function viewSaleRequests(Request $request)
     {
-        $query = SaleRequest::with(['goldItem', 'customer'])
-        ->where(function ($q) {
-            // Include all items (item_type != 'pound')
-            $q->where('item_type', '!=', 'pound')
-              // Include standalone pounds (item_type = 'pound' AND related_item_serial is null)
-              ->orWhere(function ($q) {
-                  $q->where('item_type', 'pound')
-                    ->whereNull('related_item_serial');
-              });
-        });
+        $query = SaleRequest::with(['goldItem', 'customer']);
 
-    // Apply date filter if provided
-    if ($request->has('filter_date')) {
-        $query->whereDate('created_at', $request->filter_date);
-    }
-
-    // Apply status filter, default to 'pending'
-    $status = $request->get('status', 'pending');
-    if ($status !== 'all') {
-        $query->where('status', $status);
-    }
-
-    $soldItemRequests = $query->orderBy('created_at', 'desc')->get();
-
-    // For items, load associated pound requests if they exist (for display or approval logic)
-    $soldItemRequests = $soldItemRequests->map(function ($request) {
-        if ($request->item_type !== 'pound') {
-            $request->associatedPound = SaleRequest::where('related_item_serial', $request->item_serial_number)
-                ->where('item_type', 'pound')
-                ->first();
+        // Apply filters only if they are explicitly provided
+        if ($request->has('filter_date') && $request->filter_date) {
+            $query->whereDate('created_at', $request->filter_date);
         }
-        return $request;
-    });
 
+        if ($request->has('status') && $request->status !== 'all') {
+            $query->where('status', $request->status);
+        }
+
+        $soldItemRequests = $query->orderBy('created_at', 'desc')->get();
+
+        // For items, load associated pound requests if they exist
+        $soldItemRequests = $soldItemRequests->map(function ($request) {
+            if ($request->item_type !== 'pound') {
+                $request->associatedPound = SaleRequest::where('related_item_serial', $request->item_serial_number)
+                    ->where('item_type', 'pound')
+                    ->first();
+            }
+            return $request;
+        });
 
         return view('admin.Requests.sold_requests', compact('soldItemRequests'));
     }
@@ -114,7 +93,7 @@ class SoldItemRequestController extends Controller
     {
         // Only get approved requests
         $soldItemRequests = SaleRequest::where('status', 'approved')
-            ->orderBy('created_at', 'desc')
+            ->orderBy('sold_date', 'desc')
             ->get();
 
         return view('admin.Requests.all_sale_requests', compact('soldItemRequests'));
