@@ -47,11 +47,11 @@
         
         .left-item {
             transform: rotate(180deg);
-            left: 10px;
         }
         
         .right-item {
-            right: 10px;
+            right: 0;
+            top: 10px;
         }
         
         .qr-code {
@@ -82,7 +82,7 @@
         
         .item-details {
             position: absolute;
-            top: 40px;  /* Adjusted from 50px */
+            top: 43px;  /* Adjusted from 50px */
             font-size: 8px;  /* Reduced from 10px */
             font-family: "Yu Gothic Medium", "Yu Gothic", YuGothic, sans-serif;
             font-weight: bold;
@@ -95,7 +95,6 @@
         .item-details div {
             margin: 0;  /* Remove margin between divs */
             padding: 0; /* Remove padding between divs */
-            line-height: 1; /* Remove line height spacing */
         }
         
         @media print {
@@ -428,8 +427,8 @@
             qr.addData(text);
             qr.make();
             
-            // Create QR code with larger cell size for better scanning
-            var qrImage = qr.createImgTag(4, 1);  // cellSize = 4, margin = 1
+            // Create QR code with larger cell size and margin for better scanning
+            var qrImage = qr.createImgTag(6, 4);  // cellSize = 6, margin = 2
             
             // Create a wrapper div to style the QR code
             var wrapper = document.createElement('div');

@@ -90,7 +90,7 @@ class GoldItemController extends Controller
             'shops.*.gold_color' => 'required',
             'shops.*.weight' => 'required|numeric',
             'shops.*.source' => 'nullable|string',
-            'talab' => 'nullable|boolean',
+            'shops.*.talab' => 'nullable|boolean',
         ]);
 
         // Get the stars and default source from the Models table
@@ -116,10 +116,10 @@ class GoldItemController extends Controller
             'shops' => array_map(function($shop) use ($defaultSource) {
                 // Use provided source or fall back to default source
                 $shop['source'] = !empty($shop['source']) ? $shop['source'] : $defaultSource;
+                $shop['talab'] = isset($shop['talab']) ? (bool)$shop['talab'] : false;
                 return $shop;
             }, $validatedData['shops']),
             'stars' => $modelStars,
-            'talab' => $validatedData['talab'] ?? false
         ];
 
         // Add the item to session
