@@ -71,9 +71,9 @@
         .qr-code {
             /* position: absolute; */
             /* top: 0px; */
-            width: 40px;
+            width: 38px;
             /* Reduced from 50px */
-            height: 40px;
+            height: 38px;
             /* Reduced from 50px */
             background-color: white;
             /* Ensure white background */
