@@ -65,7 +65,7 @@
         .right-item .qr-code{
             position: absolute;
             top: 10px;
-            left: 0;
+            right: 20px;
         }
 
         .qr-code {
@@ -103,7 +103,7 @@
             position: absolute;
             top: 53px;
             /* Adjusted from 40px */
-            font-size: 8.8px;
+            font-size: 8px;
             /* Increased font size */
             font-family: "Yu Gothic Medium", "Yu Gothic", YuGothic;
             font-weight: bold;
@@ -117,7 +117,7 @@
             position: absolute;
             top: 43px;
             /* Adjusted from 40px */
-            font-size: 8.8px;
+            font-size: 8px;
             /* Increased font size */
             font-family: "Yu Gothic Medium", "Yu Gothic", YuGothic;
             font-weight: bold;
