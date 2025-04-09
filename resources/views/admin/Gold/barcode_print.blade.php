@@ -8,7 +8,7 @@
     <script src="https://cdn.jsdelivr.net/npm/qrcode-generator@1.4.4/qrcode.min.js"></script>
     <style>
         body {
-            font-family: "Yu Gothic Medium", "Yu Gothic", YuGothic, sans-serif;
+            font-family: "Yu Gothic Medium", "Yu Gothic", YuGothic;
             margin: 0;
             background-color: #c9cec9
         }
@@ -41,7 +41,7 @@
             font-size: 24px;
             /* Reduced from 32px */
             font-weight: bold;
-            font-family: "Yu Gothic Medium", "Yu Gothic", YuGothic, sans-serif;
+            font-family: "Yu Gothic Medium", "Yu Gothic", YuGothic;
         }
 
         .left-item,
@@ -61,6 +61,11 @@
             /* top: 10px; */
             text-align: left;
             /* Align items to start from the left */
+        }
+        .right-item .qr-code{
+            position: absolute;
+            top: 10px;
+            left: 0;
         }
 
         .qr-code {
@@ -86,20 +91,35 @@
             /* top: 50px; */
             /* right: 0; */
             font-size: 15px;
+            height: 10px;
             /* Increased font size */
             font-weight: bold;
-            font-family: "Yu Gothic Medium", "Yu Gothic", YuGothic, sans-serif;
+            font-family: "Yu Gothic Medium", "Yu Gothic", YuGothic;
             text-align: center;
             /* Center the stars */
         }
 
-        .item-details {
+        .right-item .item-details {
             position: absolute;
             top: 53px;
             /* Adjusted from 40px */
-            font-size: 9px;
+            font-size: 8.8px;
             /* Increased font size */
-            font-family: "Yu Gothic Medium", "Yu Gothic", YuGothic, sans-serif;
+            font-family: "Yu Gothic Medium", "Yu Gothic", YuGothic;
+            font-weight: bold;
+            text-align: left;
+            /* Align text to the left */
+
+            line-height: 1.2;
+            /* Increased line height */
+        }
+        .left-item .item-details {
+            position: absolute;
+            top: 43px;
+            /* Adjusted from 40px */
+            font-size: 8.8px;
+            /* Increased font size */
+            font-family: "Yu Gothic Medium", "Yu Gothic", YuGothic;
             font-weight: bold;
             text-align: left;
             /* Align text to the left */
