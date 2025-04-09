@@ -515,4 +515,6 @@ Route::middleware(['auth'])->group(function () {
 // Add this route 
 Route::post('kasr-sales/batch-update', [KasrSaleAdminController::class, 'batchUpdate'])->name('kasr-sales.batch-update');
 Route::put('kasr-sales/{kasrSale}/update-status', [KasrSaleController::class, 'updateStatus'])->name('kasr-sales.update-status');
+
+Route::get('/get-customer-data', [ShopsController::class, 'getCustomerData']);
     

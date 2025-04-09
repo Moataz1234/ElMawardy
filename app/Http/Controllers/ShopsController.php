@@ -184,6 +184,25 @@ public function bulkSell(SellRequest $request)
 {
     $validated = $request->validated();
     $validated['pound_prices'] = $request->input('pound_prices', []); // Add pound prices from form
+
+    // Check if a customer with the given phone number exists
+    $customer = Customer::where('phone_number', $validated['phone_number'])->first();
+
+    if (!$customer) {
+        // If no customer exists, create a new one
+        $customer = Customer::create([
+            'first_name' => $validated['first_name'],
+            'last_name' => $validated['last_name'],
+            'address' => $validated['address'],
+            'phone_number' => $validated['phone_number'],
+            'email' => $validated['email'],
+            'payment_method' => $validated['payment_method'],
+        ]);
+    }
+
+    // Use the existing or newly created customer's ID
+    $validated['customer_id'] = $customer->id;
+
     $result = $this->saleService->processBulkSale($validated);
     session()->flash('clear_selections', true);
     
@@ -381,6 +400,21 @@ public function bulkSell(SellRequest $request)
     {
         $goldItems = $this->adminGoldItemService->getGoldItems($request);
         return view('Shops.Gold.all_items', compact('goldItems'));
+    }
+
+    public function getCustomerData(Request $request)
+    {
+        $phoneNumber = $request->query('phone_number');
+        $customer = Customer::where('phone_number', $phoneNumber)->first();
+
+        if ($customer) {
+            return response()->json([
+                'success' => true,
+                'customer' => $customer
+            ]);
+        }
+
+        return response()->json(['success' => false]);
     }
 
 }

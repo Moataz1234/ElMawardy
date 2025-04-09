@@ -101,7 +101,7 @@
 
         .right-item .item-details {
             position: absolute;
-            top: 53px;
+            top: 55px;
             /* Adjusted from 40px */
             font-size: 8px;
             /* Increased font size */

@@ -38,15 +38,23 @@ class SellService
         Log::info('Starting bulk sale process', ['data' => $validatedData]);
 
         return DB::transaction(function () use ($validatedData) {
-            $customer = Customer::create(
-                [
+            // Check if customer already exists with the given phone number
+            $customer = null;
+            if (!empty($validatedData['phone_number'])) {
+                $customer = Customer::where('phone_number', $validatedData['phone_number'])->first();
+            }
+
+            // If customer doesn't exist, create a new one
+            if (!$customer) {
+                $customer = Customer::create([
                     'phone_number' => $validatedData['phone_number'],
                     'email' => $validatedData['email'],
                     'first_name' => $validatedData['first_name'],
                     'last_name' => $validatedData['last_name'],
-                    'address' => $validatedData['address']
-                ]
-            );
+                    'address' => $validatedData['address'],
+                    'payment_method' => $validatedData['payment_method']
+                ]);
+            }
 
             // Get the sold_date from the form or use null
             $soldDate = isset($validatedData['sold_date']) && !empty($validatedData['sold_date']) 

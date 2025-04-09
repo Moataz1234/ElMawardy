@@ -288,6 +288,26 @@
                         submitButton.innerHTML = originalText;
                     });
             });
+
+            const phoneNumberInput = document.getElementById('phone_number');
+
+            phoneNumberInput.addEventListener('blur', function() {
+                const phoneNumber = phoneNumberInput.value.trim();
+                if (phoneNumber) {
+                    fetch(`/get-customer-data?phone_number=${phoneNumber}`)
+                        .then(response => response.json())
+                        .then(data => {
+                            if (data.success) {
+                                document.getElementById('first_name').value = data.customer.first_name;
+                                document.getElementById('last_name').value = data.customer.last_name;
+                                document.getElementById('address').value = data.customer.address;
+                                document.getElementById('email').value = data.customer.email;
+                                document.querySelector('select[name="payment_method"]').value = data.customer.payment_method;
+                            }
+                        })
+                        .catch(error => console.error('Error fetching customer data:', error));
+                }
+            });
         });
     </script>
     {{-- <script>
