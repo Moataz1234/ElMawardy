@@ -9,6 +9,7 @@ use App\Models\User;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
 use Carbon\Carbon;
+use Illuminate\Support\Facades\Log;
 
 class KasrSaleAdminController extends Controller
 {
@@ -67,13 +68,51 @@ class KasrSaleAdminController extends Controller
         
         // Get all shop names for the filter dropdown
         $shops = User::whereNotNull('shop_name')->select('shop_name')->distinct()->get();
+
+        // Prepare structured data for items table
+        $acceptedSales = KasrSale::where('status', 'accepted')
+            ->with('items')
+            ->get();
+
+        $structuredData = [];
+        $purities = [];
+        $shopNames = [];
+
+        foreach ($acceptedSales as $sale) {
+            $shopName = $sale->shop_name;
+            $shopNames[] = $shopName;
+
+            foreach ($sale->items as $item) {
+                $purity = $item->metal_purity;
+                $purities[] = $purity;
+
+                if (!isset($structuredData[$shopName])) {
+                    $structuredData[$shopName] = [];
+                }
+
+                if (!isset($structuredData[$shopName][$purity])) {
+                    $structuredData[$shopName][$purity] = 0;
+                }
+
+                $structuredData[$shopName][$purity] += $item->net_weight;
+            }
+        }
+
+        // Remove duplicates and sort
+        $purities = array_unique($purities);
+        sort($purities);
+        $shopNames = array_unique($shopNames);
+        sort($shopNames);
         
         return view('admin.kasr_sales.index', compact(
             'kasrSales', 
             'shops', 
             'totalOriginalWeight', 
             'totalNetWeight',
-            'pendingCount'
+            'pendingCount',
+            'structuredData',
+            'purities',
+            'shopNames'
         ));
     }
     
@@ -127,5 +166,31 @@ class KasrSaleAdminController extends Controller
     {
         $kasrSale->load('items');
         return view('admin.kasr_sales.show', compact('kasrSale'));
+    }
+
+    public function getItems(KasrSale $kasrSale)
+    {
+        try {
+            $kasrSale->load('items');
+            $items = $kasrSale->items->map(function($item) {
+                return [
+                    'kind' => $item->kind,
+                    'metal_purity' => $item->metal_purity,
+                    'weight' => number_format($item->weight, 2),
+                    'net_weight' => number_format($item->net_weight, 2),
+                    'item_type' => $item->item_type,
+                ];
+            });
+            
+            return response()->json([
+                'items' => $items->toArray() // Make sure to convert to array
+            ]);
+        } catch (\Exception $e) {
+            Log::error('Error in getItems method', [
+                'error' => $e->getMessage(),
+                'trace' => $e->getTraceAsString()
+            ]);
+            return response()->json(['error' => $e->getMessage()], 500);
+        }
     }
 } 

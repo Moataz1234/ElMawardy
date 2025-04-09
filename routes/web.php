@@ -385,6 +385,10 @@ Route::middleware(['auth'])->group(function () {
         'update' => 'kasr-sales.update',
         'destroy' => 'kasr-sales.destroy',
     ]);
+
+    // Kasr Sales Admin Routes
+    // Route::get('/kasr-sales-admin', [KasrSaleAdminController::class, 'index'])->name('kasr-sales.admin.index');
+    // Route::get('/kasr-sales-admin/{kasrSale}/items', [KasrSaleAdminController::class, 'getItems'])->name('kasr-sales.admin.items');
 });
 
 // ===================================
@@ -505,6 +509,7 @@ Route::get('/shopify/orders-api-view', function() {
 Route::middleware(['auth'])->group(function () {
     // Kasr Sales Admin Routes
     Route::get('/kasr-sales-admin', [KasrSaleAdminController::class, 'index'])->name('kasr-sales.admin.index');
+    Route::get('/admin/kasr-sales/{kasrSale}/items', [App\Http\Controllers\Admin\KasrSaleAdminController::class, 'getItems'])->name('admin.kasr-sales.items');
 });
 
 // Add this route 

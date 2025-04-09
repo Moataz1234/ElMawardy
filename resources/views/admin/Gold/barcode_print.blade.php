@@ -33,7 +33,7 @@
             top: 50%;
             left: 50%;
             transform: translate(-50%, -50%);
-            font-size: 32px;
+            font-size: 24px;  /* Reduced from 32px */
             font-weight: bold;
             font-family: "Yu Gothic Medium", "Yu Gothic", YuGothic, sans-serif;
         }
@@ -47,17 +47,18 @@
         
         .left-item {
             transform: rotate(180deg);
+            left: 10px;
         }
         
         .right-item {
-            right: 5px;
+            right: 10px;
         }
         
         .qr-code {
             position: absolute;
             top: 5px;
-            width: 50px;
-            height: 50px;
+            width: 30px;  /* Reduced from 50px */
+            height: 30px; /* Reduced from 50px */
             background-color: white;  /* Ensure white background */
         }
         
@@ -69,23 +70,33 @@
         }
         
         .stars {
-            /* position: absolute; */
-            top: 70px;
+            top: 40px;  /* Adjusted from 50px */
             right: 5px;
-            font-size: 14px;
+            font-size: 10px;  /* Reduced from 12px */
             font-weight: bold;
             font-family: "Yu Gothic Medium", "Yu Gothic", YuGothic, sans-serif;
+            margin: 0;  /* Remove margin */
+            padding: 0; /* Remove padding */
+            line-height: 1; /* Remove line height spacing */
         }
         
         .item-details {
             position: absolute;
-            top: 60px;
-            font-size: 12px;
+            top: 40px;  /* Adjusted from 50px */
+            font-size: 8px;  /* Reduced from 10px */
             font-family: "Yu Gothic Medium", "Yu Gothic", YuGothic, sans-serif;
             font-weight: bold;
             text-align: right;
-            
-        }        
+            margin: 0;  /* Remove margin */
+            padding: 0; /* Remove padding */
+            line-height: 1; /* Remove line height spacing */
+        }
+        
+        .item-details div {
+            margin: 0;  /* Remove margin between divs */
+            padding: 0; /* Remove padding between divs */
+            line-height: 1; /* Remove line height spacing */
+        }
         
         @media print {
             @page {
@@ -265,6 +276,7 @@
     <!-- Update your print button -->
     <div class="print-controls">
         <button class="print-button" onclick="showPrintDialog()">Print Current Card</button>
+        <button class="print-button" onclick="printAllPages()">Print All Pages</button>
     </div>
     
     <div class="pagination-controls">
@@ -535,6 +547,20 @@
             });
 
             // Print
+            window.print();
+
+            // Restore original display settings after print
+            setTimeout(() => {
+                pages.forEach(page => page.style.display = '');
+                showPage(currentPageIndex);
+            }, 100);
+        }
+
+        function printAllPages() {
+            // Show all pages
+            pages.forEach(page => page.style.display = 'block');
+
+            // Print all pages
             window.print();
 
             // Restore original display settings after print
