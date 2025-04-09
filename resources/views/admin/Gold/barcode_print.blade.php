@@ -428,7 +428,7 @@
             qr.make();
             
             // Create QR code with larger cell size and margin for better scanning
-            var qrImage = qr.createImgTag(6, 4);  // cellSize = 6, margin = 2
+            var qrImage = qr.createImgTag(6, 2);  // cellSize = 6, margin = 2
             
             // Create a wrapper div to style the QR code
             var wrapper = document.createElement('div');
