@@ -52,13 +52,14 @@
         .right-item {
             right: 0;
             top: 10px;
+            text-align: left;  /* Align items to start from the left */
         }
         
         .qr-code {
             position: absolute;
             top: 5px;
-            width: 30px;  /* Reduced from 50px */
-            height: 30px; /* Reduced from 50px */
+            width: 33px;  /* Reduced from 50px */
+            height: 33px; /* Reduced from 50px */
             background-color: white;  /* Ensure white background */
         }
         
@@ -70,26 +71,31 @@
         }
         
         .stars {
-            top: 40px;  /* Adjusted from 50px */
-            right: 5px;
-            font-size: 10px;  /* Reduced from 12px */
+            top: 0;  /* Position stars at the top */
+            right: 0;
+            font-size: 12px;  /* Increased font size */
             font-weight: bold;
             font-family: "Yu Gothic Medium", "Yu Gothic", YuGothic, sans-serif;
             margin: 0;  /* Remove margin */
             padding: 0; /* Remove padding */
-            line-height: 1; /* Remove line height spacing */
+            line-height: 1.2; /* Increased line height */
+            text-align: center;  /* Center the stars */
         }
         
         .item-details {
             position: absolute;
-            top: 43px;  /* Adjusted from 50px */
-            font-size: 8px;  /* Reduced from 10px */
+            top: 43px;  /* Adjusted from 40px */
+            font-size: 10px;  /* Increased font size */
             font-family: "Yu Gothic Medium", "Yu Gothic", YuGothic, sans-serif;
             font-weight: bold;
-            text-align: right;
+            text-align: left;  /* Align text to the left */
             margin: 0;  /* Remove margin */
             padding: 0; /* Remove padding */
-            line-height: 1; /* Remove line height spacing */
+            line-height: 1.2; /* Increased line height */
+        }
+        
+        .item-details div:first-child {
+            font-size: 11px;  /* Make serial number slightly larger */
         }
         
         .item-details div {
