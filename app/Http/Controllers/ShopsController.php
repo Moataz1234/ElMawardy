@@ -408,9 +408,16 @@ public function bulkSell(SellRequest $request)
         $customer = Customer::where('phone_number', $phoneNumber)->first();
 
         if ($customer) {
+            // Get customer's purchase history from GoldItemSold
+            $purchaseHistory = GoldItemSold::where('customer_id', $customer->id)
+                ->orderBy('sold_date', 'desc')
+                ->get();
+
             return response()->json([
                 'success' => true,
-                'customer' => $customer
+                'customer' => $customer,
+                'isReturningCustomer' => $purchaseHistory->isNotEmpty(),
+                'purchaseHistory' => $purchaseHistory
             ]);
         }
 

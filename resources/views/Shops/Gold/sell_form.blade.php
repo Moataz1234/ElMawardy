@@ -22,6 +22,47 @@
             <div class="col-12">
                 <div class="card shadow-sm">
                     <div class="card-body p-4">
+                        <!-- Returning Customer Alert -->
+                        <div id="returningCustomerAlert" class="alert alert-info d-none mb-4" role="alert">
+                            <strong>عميل سابق!</strong> هذا العميل قام بالشراء من قبل. 
+                            <button type="button" class="btn btn-link" data-bs-toggle="modal" data-bs-target="#customerHistoryModal">
+                                عرض التفاصيل
+                            </button>
+                        </div>
+
+                        <!-- Customer History Modal -->
+                        <div class="modal fade" id="customerHistoryModal" tabindex="-1" aria-labelledby="customerHistoryModalLabel" aria-hidden="true">
+                            <div class="modal-dialog modal-lg">
+                                <div class="modal-content">
+                                    <div class="modal-header">
+                                        <h5 class="modal-title" id="customerHistoryModalLabel">سجل مشتريات العميل</h5>
+                                        <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                                    </div>
+                                    <div class="modal-body">
+                                        <div class="table-responsive">
+                                            <table class="table table-striped">
+                                                <thead>
+                                                    <tr>
+                                                        <th>تاريخ البيع</th>
+                                                        <th>الرقم التسلسلي</th>
+                                                        <th>النوع</th>
+                                                        <th>الموديل</th>
+                                                        <th>الوزن</th>
+                                                        <th>السعر</th>
+                                                    </tr>
+                                                </thead>
+                                                <tbody id="purchaseHistoryTableBody">
+                                                </tbody>
+                                            </table>
+                                        </div>
+                                    </div>
+                                    <div class="modal-footer">
+                                        <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">إغلاق</button>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+
                         <!-- Customer Details Section -->
                         <h2 class="card-title text-center mb-4" style="color: #28a745">بيانات الزبون</h2>
                         <form class="item-details-form" action="{{ route('shop-items.bulkSell') }}" method="POST">
@@ -298,11 +339,37 @@
                         .then(response => response.json())
                         .then(data => {
                             if (data.success) {
+                                // Fill in customer details
                                 document.getElementById('first_name').value = data.customer.first_name;
                                 document.getElementById('last_name').value = data.customer.last_name;
                                 document.getElementById('address').value = data.customer.address;
                                 document.getElementById('email').value = data.customer.email;
                                 document.querySelector('select[name="payment_method"]').value = data.customer.payment_method;
+
+                                // Show returning customer alert if customer has purchase history
+                                const returningCustomerAlert = document.getElementById('returningCustomerAlert');
+                                if (data.isReturningCustomer) {
+                                    returningCustomerAlert.classList.remove('d-none');
+                                    
+                                    // Populate purchase history table
+                                    const tableBody = document.getElementById('purchaseHistoryTableBody');
+                                    tableBody.innerHTML = ''; // Clear existing content
+                                    
+                                    data.purchaseHistory.forEach(sale => {
+                                        const row = document.createElement('tr');
+                                        row.innerHTML = `
+                                            <td>${new Date(sale.sold_date).toLocaleDateString('ar-EG')}</td>
+                                            <td>${sale.serial_number}</td>
+                                            <td>${sale.kind}</td>
+                                            <td>${sale.model}</td>
+                                            <td>${sale.weight}</td>
+                                            <td>${sale.price}</td>
+                                        `;
+                                        tableBody.appendChild(row);
+                                    });
+                                } else {
+                                    returningCustomerAlert.classList.add('d-none');
+                                }
                             }
                         })
                         .catch(error => console.error('Error fetching customer data:', error));
