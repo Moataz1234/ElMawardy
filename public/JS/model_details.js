@@ -67,6 +67,16 @@ document.addEventListener('DOMContentLoaded', function () {
                 tableBody.innerHTML = '';
                 modelImageDiv.innerHTML = '';
 
+                // Set the source value from model details
+                const sourceInput = document.querySelector('.source-input');
+                if (sourceInput) {
+                    if (data.modelDetails && data.modelDetails.source) {
+                        sourceInput.value = data.modelDetails.source;
+                    } else {
+                        sourceInput.value = 'Production'; // Default value if no source found
+                    }
+                }
+
                 // Handle model image
                 if (data.modelDetails && data.modelDetails.scanned_image) {
                     const imageElement = document.createElement('img');

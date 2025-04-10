@@ -131,9 +131,11 @@
                         <div class="form-group">
                             <label for="source">Source:</label>
                             <select name="shops[0][source]" class="form-control source-input" id="source">
-                                <option value="">Select Source</option>
+                                <option value="Production">Production</option>
                                 @foreach ($sources as $source)
-                                    <option value="{{ $source }}">{{ $source }}</option>
+                                    @if($source !== 'Production')
+                                        <option value="{{ $source }}">{{ $source }}</option>
+                                    @endif
                                 @endforeach
                             </select>
                         </div>

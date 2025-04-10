@@ -33,8 +33,9 @@ class GoldItemSold extends Model
         'created_at',
         'updated_at',
         'stars',
-        'source'
-
+        'source',
+        'payment_method',
+        'address'
     ];
 
     public function customer()

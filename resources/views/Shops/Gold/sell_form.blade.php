@@ -14,6 +14,18 @@
     <script src="https://cdn.jsdelivr.net/npm/@popperjs/core@2.11.6/dist/umd/popper.min.js"></script>
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.min.js"></script>
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+    <style>
+        .badge {
+            padding: 0.5em 1em;
+            font-size: 0.85em;
+            font-weight: 500;
+            border-radius: 4px;
+            color: white;
+        }
+        .modal-body table td {
+            vertical-align: middle;
+        }
+    </style>
 </head>
 
 <body class="bg-light">
@@ -43,12 +55,14 @@
                                             <table class="table table-striped">
                                                 <thead>
                                                     <tr>
-                                                        <th>تاريخ البيع</th>
+                                                        <th>تاريخ الطلب</th>
+                                                        <th>الحالة</th>
+                                                        <th>نوع القطعة</th>
                                                         <th>الرقم التسلسلي</th>
                                                         <th>النوع</th>
-                                                        <th>الموديل</th>
                                                         <th>الوزن</th>
                                                         <th>السعر</th>
+                                                        <th>طريقة الدفع</th>
                                                     </tr>
                                                 </thead>
                                                 <tbody id="purchaseHistoryTableBody">
@@ -357,13 +371,23 @@
                                     
                                     data.purchaseHistory.forEach(sale => {
                                         const row = document.createElement('tr');
+                                        const statusText = {
+                                            'approved': 'تم البيع',
+                                            'pending': 'قيد الانتظار',
+                                            'rejected': 'مرفوض'
+                                        }[sale.status] || sale.status;
+                                        
+                                        const itemType = sale.item_type === 'pound' ? 'جنيه ذهب' : 'قطعة ذهب';
+                                        
                                         row.innerHTML = `
-                                            <td>${new Date(sale.sold_date).toLocaleDateString('ar-EG')}</td>
-                                            <td>${sale.serial_number}</td>
+                                            <td>${new Date(sale.created_at).toLocaleDateString('ar-EG')}</td>
+                                            <td><span class="badge ${sale.status_badge}">${statusText}</span></td>
+                                            <td>${itemType}</td>
+                                            <td>${sale.item_serial_number}</td>
                                             <td>${sale.kind}</td>
-                                            <td>${sale.model}</td>
                                             <td>${sale.weight}</td>
                                             <td>${sale.price}</td>
+                                            <td>${sale.payment_method}</td>
                                         `;
                                         tableBody.appendChild(row);
                                     });

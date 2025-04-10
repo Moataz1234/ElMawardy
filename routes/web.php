@@ -239,7 +239,6 @@ Route::middleware(['auth'])->group(function () {
         Route::get('/admin/barcode/export-barcode', [BarcodeController::class, 'exportBarcode'])->name('barcode.exportBarcode');
         Route::get('/generate-qr', [BarcodeController::class, 'generate'])->name('barcode.generate');
 
-        Route::put('/gold-items-sold/{id}', [GoldItemSoldController::class, 'update'])->name('gold-items-sold.update');
         Route::get('/warehouse', [WarehouseController::class, 'index'])->name('admin.warehouse.index');
         Route::post('/warehouse', [WarehouseController::class, 'store'])->name('admin.warehouse.store');
         Route::post('/bulk-action', [WarehouseController::class, 'bulkAction'])->name('warehouse.bulkAction');
@@ -324,6 +323,8 @@ Route::middleware(['auth'])->group(function () {
         Route::get('/gold-items/shop', [ShopsController::class, 'showShopItems'])->name('gold-items.shop');
         Route::post('/gold-items-sold/{id}/mark-as-rest', [GoldItemSoldController::class, 'markAsRest'])->name('gold-items-sold.markAsRest');
         Route::get('/gold-items-sold/{id}/edit', [GoldItemSoldController::class, 'edit'])->name('gold-items-sold.edit');
+        Route::put('/gold-items-sold/{id}', [GoldItemSoldController::class, 'update'])->name('gold-items-sold.update');
+
         Route::post('/gold-items/store-outer', [ShopsController::class, 'storeOuter'])->name('gold-items.storeOuter');
         Route::post('gold-items/returnOuter/{serialNumber}', [ShopsController::class, 'returnOuter'])->name('gold-items.returnOuter');
         Route::post('gold-items/toggleReturn/{serial_number}', [ShopsController::class, 'toggleReturn'])->name('gold-items.toggleReturn');

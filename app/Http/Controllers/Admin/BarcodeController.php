@@ -203,10 +203,12 @@ class BarcodeController extends Controller
                 // Get shop ID
                 $shopId = $item->shop_id ?? 'Admin';
                 
-                // Get stars from model
+                // Get stars and source from model
                 $stars = '';
-                if ($item->modelCategory && $item->modelCategory->stars) {
+                $modelSource = '';
+                if ($item->modelCategory) {
                     $stars = $item->modelCategory->stars;
+                    $modelSource = $item->modelCategory->source;
                 }
                 
                 // Add to data array
@@ -217,7 +219,7 @@ class BarcodeController extends Controller
                     'shop_id' => $shopId,
                     'stars' => $stars,
                     'barcode_image' => $qrCodeUrl,
-                    'source' => $this->modifySource(optional($item)->source),
+                    'source' => $this->modifySource($modelSource), // Use model's source instead of item's source
                 ];
                 
                 Log::info('Generated QR code URL for: ' . $item->serial_number);
@@ -234,10 +236,21 @@ class BarcodeController extends Controller
     }
     private function modifySource($source)
     {
-        if ($source === 'Production') {
-            return '';
-        } else {
-            return strtoupper(substr($source, 0, 1));
+        if (!$source) return '';
+        
+        $sourceMap = [
+            'Turkish' => 'T',
+            'France' => 'F',
+            'Market' => 'M',
+            'Italy' => 'I'
+        ];
+
+        foreach ($sourceMap as $word => $letter) {
+            if (stripos($source, $word) !== false) {
+                return $letter;
+            }
         }
+
+        return '';
     }
 }

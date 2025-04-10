@@ -408,10 +408,31 @@ public function bulkSell(SellRequest $request)
         $customer = Customer::where('phone_number', $phoneNumber)->first();
 
         if ($customer) {
-            // Get customer's purchase history from GoldItemSold
-            $purchaseHistory = GoldItemSold::where('customer_id', $customer->id)
-                ->orderBy('sold_date', 'desc')
-                ->get();
+            // Get all sale requests (both approved and pending) for the customer
+            $purchaseHistory = SaleRequest::where('customer_id', $customer->id)
+                ->with(['goldItem'])  // Eager load relationships
+                ->orderBy('created_at', 'desc')
+                ->get()
+                ->map(function ($request) {
+                    // Add a status badge class for styling
+                    $request->status_badge = match($request->status) {
+                        'approved' => 'bg-success',
+                        'pending' => 'bg-warning',
+                        'rejected' => 'bg-danger',
+                        default => 'bg-secondary'
+                    };
+                    return $request;
+                });
+
+            // Get the most recent successful transaction for default values
+            $lastTransaction = $purchaseHistory
+                ->where('status', 'approved')
+                ->first();
+
+            // Update customer data from their last approved transaction if available
+            if ($lastTransaction) {
+                $customer->payment_method = $lastTransaction->payment_method ?? $customer->payment_method;
+            }
 
             return response()->json([
                 'success' => true,

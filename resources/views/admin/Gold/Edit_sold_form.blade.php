@@ -65,7 +65,7 @@
         }
         .form-grid {
             display: grid;
-            grid-template-columns: repeat(3, 1fr);
+            grid-template-columns: repeat(5, 1fr);
             gap: 20px;
         }
         @media (max-width: 992px) {
