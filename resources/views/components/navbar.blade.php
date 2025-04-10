@@ -124,12 +124,12 @@
                     <a href="{{ route('sale-requests.all') }}" class="dropdown-item">All Sold Requests</a>
                 </div>
             </li>
-            <li class="navbar-item dropdown">
+            {{-- <li class="navbar-item dropdown">
                 <a href="#" class="navbar-link dropdown-toggle">Reports</a>
                 <div class="dropdown-menu">
                     <a href="{{ route('reports.view') }}" class="dropdown-item">View Reports</a>
                 </div>
-            </li>
+            </li> --}}
             <li class="navbar-item"><a href="{{ route('kasr-sales.admin.index') }}" class="navbar-link">الكسر</a></li>
 
         @endif
