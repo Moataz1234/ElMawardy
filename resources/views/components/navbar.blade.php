@@ -85,6 +85,7 @@
             <li class="navbar-item"><a href="{{ route('orders.rabea.to_print') }}" class="navbar-link">الورشة</a></li>
             <li class="navbar-item"><a href="{{ route('orders.completed') }}" class="navbar-link">الاوردرات التي تم
                     تسليمها</a></li>
+            <li class="navbar-item"><a href="{{ route('laboratory.operations.index') }}" class="navbar-link">المعمل</a></li>
             <li class="navbar-item dropdown">
                 <a href="#" class="navbar-link dropdown-toggle">Models</a>
                 <div class="dropdown-menu">

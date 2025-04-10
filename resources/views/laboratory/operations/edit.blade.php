@@ -1,6 +1,7 @@
 <!DOCTYPE html>
-<html lang="ar" dir="rtl">
+<html lang="ar">
 <head>
+    @include('components.navbar')
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>تعديل العملية</title>
@@ -14,6 +15,10 @@
             background-color: #f8f9fa;
             padding-top: 20px;
             font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+        }
+        .container{
+            margin-top: 20px;
+            direction: rtl;
         }
         .card {
             box-shadow: 0 0.125rem 0.25rem rgba(0, 0, 0, 0.075);

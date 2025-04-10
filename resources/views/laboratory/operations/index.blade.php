@@ -1,6 +1,7 @@
 <!DOCTYPE html>
-<html lang="ar" dir="rtl">
+<html lang="ar">
 <head>
+    @include('components.navbar')
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>عمليات المعمل</title>
@@ -16,11 +17,15 @@
             padding-top: 20px;
             font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
         }
-        .navbar {
+        /* .navbar {
             margin-bottom: 20px;
             background-color: #fff;
             box-shadow: 0 2px 4px rgba(0,0,0,.1);
-        }
+        } */
+         .container{
+            margin-top: 20px;
+            direction: rtl;
+         }
         .card {
             box-shadow: 0 0.125rem 0.25rem rgba(0, 0, 0, 0.075);
             margin-bottom: 20px;
@@ -42,28 +47,7 @@
     </style>
 </head>
 <body>
-    <!-- Navbar -->
-    <nav class="navbar navbar-expand-lg navbar-light bg-white px-3">
-        <div class="container-fluid">
-            <a class="navbar-brand" href="#">نظام الذهب</a>
-            <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarNav">
-                <span class="navbar-toggler-icon"></span>
-            </button>
-            <div class="collapse navbar-collapse" id="navbarNav">
-                <ul class="navbar-nav">
-                    <li class="nav-item">
-                        <a class="nav-link active" href="#">المعمل</a>
-                    </li>
-                    <li class="nav-item">
-                        <a class="nav-link" href="#">الورشة</a>
-                    </li>
-                    <li class="nav-item">
-                        <a class="nav-link" href="#">التركيب</a>
-                    </li>
-                </ul>
-            </div>
-        </div>
-    </nav>
+  
 
     <div class="container">
         <div class="row justify-content-center">
