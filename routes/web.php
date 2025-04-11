@@ -388,8 +388,9 @@ Route::middleware(['auth'])->group(function () {
     ]);
 
     // Kasr Sales Admin Routes
-    // Route::get('/kasr-sales-admin', [KasrSaleAdminController::class, 'index'])->name('kasr-sales.admin.index');
-    // Route::get('/kasr-sales-admin/{kasrSale}/items', [KasrSaleAdminController::class, 'getItems'])->name('kasr-sales.admin.items');
+    Route::get('/kasr-sales-admin', [KasrSaleAdminController::class, 'index'])->name('kasr-sales.admin.index');
+    Route::get('/admin/kasr-sales/{kasrSale}/items', [KasrSaleAdminController::class, 'getItems'])->name('admin.kasr-sales.items');
+    Route::post('/kasr-sales/batch-update', [KasrSaleAdminController::class, 'batchUpdate'])->name('kasr-sales.batch-update');
 });
 
 // ===================================

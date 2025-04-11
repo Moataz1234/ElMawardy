@@ -195,12 +195,23 @@
 
             <!-- Filters -->
             <div class="filter-card">
-                <form id="filter-form" method="GET" action="{{ route('kasr-sales.index') }}">
+                <form id="filter-form" method="GET" action="{{ route('kasr-sales.admin.index') }}">
                     <div class="row">
                         <div class="col-md-3 mb-3">
                             <label for="date_range" class="form-label">نطاق التاريخ</label>
                             <input type="text" class="form-control" id="date_range" name="date_range"
                                 value="{{ request('date_range') }}">
+                        </div>
+                        <div class="col-md-3 mb-3">
+                            <label for="shop_name" class="form-label">اسم المحل</label>
+                            <select class="form-select" id="shop_name" name="shop_name">
+                                <option value="">الكل</option>
+                                @foreach($shops as $shop)
+                                    <option value="{{ $shop->shop_name }}" {{ request('shop_name') == $shop->shop_name ? 'selected' : '' }}>
+                                        {{ $shop->shop_name }}
+                                    </option>
+                                @endforeach
+                            </select>
                         </div>
                         <div class="col-md-3 mb-3">
                             <label for="price_min" class="form-label">السعر (من)</label>
@@ -216,12 +227,9 @@
                             <label for="status" class="form-label">الحالة</label>
                             <select class="form-select" id="status" name="status">
                                 <option value="">الكل</option>
-                                <option value="pending" {{ request('status') == 'pending' ? 'selected' : '' }}>قيد
-                                    الانتظار</option>
-                                <option value="accepted" {{ request('status') == 'accepted' ? 'selected' : '' }}>مقبول
-                                </option>
-                                <option value="rejected" {{ request('status') == 'rejected' ? 'selected' : '' }}>مرفوض
-                                </option>
+                                <option value="pending" {{ request('status') == 'pending' ? 'selected' : '' }}>قيد الانتظار</option>
+                                <option value="accepted" {{ request('status') == 'accepted' ? 'selected' : '' }}>مقبول</option>
+                                <option value="rejected" {{ request('status') == 'rejected' ? 'selected' : '' }}>مرفوض</option>
                             </select>
                         </div>
                         <div class="col-md-3 mb-3 d-flex align-items-end">
@@ -277,6 +285,7 @@
                     <!-- Batch Actions Form -->
                     <form id="batch-actions-form" action="{{ route('kasr-sales.batch-update') }}" method="POST">
                         @csrf
+                        <input type="hidden" name="action" id="batch-action" value="">
 
                         <!-- Batch Actions Buttons -->
                         <div class="batch-actions">
@@ -633,8 +642,7 @@
 
             // Handle form submission
             $('#batch-actions-form').on('submit', function(e) {
-                e.preventDefault(); // Prevent default form submission
-
+                e.preventDefault();
                 const selectedCount = $('.order-checkbox:checked').length;
 
                 if (selectedCount === 0) {
@@ -651,8 +659,9 @@
                     return false;
                 }
 
-                // Get the action (accept/reject)
+                // Get the action from the clicked button
                 const action = $(document.activeElement).val();
+                $('#batch-action').val(action);
                 const actionText = action === 'accept' ? 'قبول' : 'رفض';
 
                 // Show confirmation dialog
@@ -674,6 +683,14 @@
                         this.submit();
                     }
                 });
+            });
+
+            // Update the batch action buttons to use the form
+            $('.btn-batch-action').on('click', function(e) {
+                e.preventDefault();
+                const action = $(this).data('action');
+                $('#batch-action').val(action);
+                $('#batch-actions-form').submit();
             });
 
             // Checkbox selection logic
@@ -700,6 +717,55 @@
                 const count = $('.order-checkbox:checked').length;
                 $('#selected-count').text(count);
             }
+
+            // Handle filter form submission
+            $('#filter-form').on('submit', function(e) {
+                e.preventDefault();
+                const formData = $(this).serialize();
+                
+                // Show loading state
+                $('#kasrSalesTable tbody').html('<tr><td colspan="12" class="text-center">جاري التحميل...</td></tr>');
+                
+                // Submit form via AJAX
+                $.ajax({
+                    url: $(this).attr('action'),
+                    type: 'GET',
+                    data: formData,
+                    success: function(response) {
+                        // Update the table content
+                        $('#kasrSalesTable tbody').html($(response).find('#kasrSalesTable tbody').html());
+                        // Update pagination
+                        $('.pagination').html($(response).find('.pagination').html());
+                        // Update summary data
+                        $('.total-original-weight').text($(response).find('.total-original-weight').text());
+                        $('.total-net-weight').text($(response).find('.total-net-weight').text());
+                        $('.pending-count').text($(response).find('.pending-count').text());
+                    },
+                    error: function(xhr) {
+                        Swal.fire({
+                            title: 'خطأ!',
+                            text: 'حدث خطأ أثناء التصفية',
+                            icon: 'error',
+                            confirmButtonText: 'حسناً',
+                            customClass: {
+                                popup: 'rtl-alert'
+                            }
+                        });
+                    }
+                });
+            });
+
+            // Update URL with filter parameters without page reload
+            function updateUrl() {
+                const formData = $('#filter-form').serialize();
+                const newUrl = window.location.pathname + '?' + formData;
+                window.history.pushState({ path: newUrl }, '', newUrl);
+            }
+
+            // Update URL when filter inputs change
+            $('#filter-form input, #filter-form select').on('change', function() {
+                updateUrl();
+            });
         });
     </script>
 </body>
