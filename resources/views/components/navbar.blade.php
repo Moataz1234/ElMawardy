@@ -64,6 +64,7 @@
             {{-- <li class="navbar-item"><a href="{{ route('sell-requests.acc') }}" class="navbar-link"> ط</a></li> --}}
             <li class="navbar-item"><a href="{{ route('all-sold-items') }}" class="navbar-link">sales analysis</a></li>
             <li class="navbar-item"><a href="{{ route('kasr-sales.admin.index') }}" class="navbar-link">الكسر</a></li>
+            <li class="navbar-item"><a href="{{ route('gold-balance.report') }}" class="navbar-link">Gold Balance Report</a></li>
             
             {{-- <li class="navbar-item dropdown">
                 <a href="#" class="navbar-link dropdown-toggle">المبيعات</a>
@@ -171,8 +172,11 @@
             </li>
             <li class="navbar-item"><a href="{{ route('transfer.requests') }}" class="navbar-link">التحويلات</a></li>
             <li class="navbar-item"><a href="{{ route('add-requests.index') }}" class="navbar-link">الاضافات</a></li>
-
+            <li class="navbar-item"><a href="{{ route('workshop.requests.index') }}" class="navbar-link">التحويلات الى الورشة</a></li>
+            {{-- <li class="navbar-item"><a href="{{ route('shop.requests.index') }}" class="navbar-link">التحويلات الى الورشة</a></li> --}}
+            
             <li class="navbar-item dropdown">
+               
                 {{-- <a href="#" class="navbar-link dropdown-toggle">التحويلات و الاضافات</a> --}}
                 <div class="dropdown-menu">
                     <a class="dropdown-item" href="{{ route('transfer.requests') }}" class="navbar-link"> التحويلات</a>

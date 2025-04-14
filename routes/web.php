@@ -44,7 +44,8 @@ use App\Http\Controllers\{
     GoldAnalysisController,
     SuperAdminRequestController,
     KasrSaleController,
-    Admin\KasrSaleAdminController
+    Admin\KasrSaleAdminController,
+    Admin\GoldBalanceReportController
     // NewItemTalabatController 
 };
 
@@ -141,9 +142,10 @@ Route::middleware(['auth'])->group(function () {
         Route::post('/Acc_sell_requests/{id}/reject', [SoldItemRequestController::class, 'rejectSaleRequest'])->name('sell-requests.reject');
         Route::get('/all-sold-items', [SoldItemRequestController::class, 'viewAllSoldItems'])
             ->name('all-sold-items');
-            Route::post('/sell-requests/bulk-approve', [SoldItemRequestController::class, 'bulkApprove'])->name('sell-requests.bulk-approve');
-
-
+        Route::post('/sell-requests/bulk-approve', [SoldItemRequestController::class, 'bulkApprove'])->name('sell-requests.bulk-approve');
+        
+        // Gold Balance Report Route
+        Route::get('/gold-balance-report', [GoldBalanceReportController::class, 'index'])->name('gold-balance.report');
     });
 
     // ===================================
@@ -303,7 +305,11 @@ Route::middleware(['auth'])->group(function () {
             Route::post('/update-quantity-to-one', [App\Http\Controllers\Admin\Shopify\ShopifyPriceController::class, 'updateQuantityToOne'])->name('updateQuantityToOne');
         });
 
-        // Add these new routes inside the admin middleware group
+        // Kasr Sales Admin Routes
+        Route::get('/kasr-sales-admin', [KasrSaleAdminController::class, 'index'])->name('kasr-sales.admin.index');
+        Route::get('/admin/kasr-sales/{kasrSale}/items', [KasrSaleAdminController::class, 'getItems'])->name('admin.kasr-sales.items');
+        Route::post('/kasr-sales/batch-update', [KasrSaleAdminController::class, 'batchUpdate'])->name('kasr-sales.batch-update');
+        Route::get('/kasr-sales-completed', [KasrSaleController::class, 'completed'])->name('kasr-sales.completed');
     });
 
     // ===================================
@@ -387,10 +393,8 @@ Route::middleware(['auth'])->group(function () {
         'destroy' => 'kasr-sales.destroy',
     ]);
 
-    // Kasr Sales Admin Routes
-    Route::get('/kasr-sales-admin', [KasrSaleAdminController::class, 'index'])->name('kasr-sales.admin.index');
-    Route::get('/admin/kasr-sales/{kasrSale}/items', [KasrSaleAdminController::class, 'getItems'])->name('admin.kasr-sales.items');
-    Route::post('/kasr-sales/batch-update', [KasrSaleAdminController::class, 'batchUpdate'])->name('kasr-sales.batch-update');
+    // Shop Workshop Request routes
+    Route::get('/shop/workshop-requests', [AdminDashboardController::class, 'shopWorkshopRequests'])->name('shop.workshop.requests');
 });
 
 // ===================================
@@ -479,12 +483,10 @@ Route::post('/import-gold-items/update-sources', [ImportGoldItems::class, 'updat
     ->name('import-gold-items.update-sources');
 
 // Workshop transfer request routes
-Route::middleware(['auth', 'admin'])->group(function () {
+Route::middleware(['auth'])->group(function () {
     Route::get('/workshop-requests', [AdminDashboardController::class, 'workshopRequests'])->name('workshop.requests.index');
     Route::post('/workshop-requests/{id}/handle', [AdminDashboardController::class, 'handleWorkshopRequest'])->name('workshop.requests.handle');
-});
-
-Route::middleware(['auth'])->group(function () {
+    
     Route::post('/workshop-requests/create', [AdminDashboardController::class, 'createWorkshopRequests'])->name('workshop.requests.create');
     Route::get('/workshop-items', [AdminDashboardController::class, 'workshopItems'])->name('workshop.items.index');
 });
@@ -508,15 +510,10 @@ Route::get('/shopify/orders-api-view', function() {
 
 
 // Admin routes
-Route::middleware(['auth'])->group(function () {
-    // Kasr Sales Admin Routes
-    Route::get('/kasr-sales-admin', [KasrSaleAdminController::class, 'index'])->name('kasr-sales.admin.index');
-    Route::get('/admin/kasr-sales/{kasrSale}/items', [App\Http\Controllers\Admin\KasrSaleAdminController::class, 'getItems'])->name('admin.kasr-sales.items');
-});
-
-// Add this route 
-Route::post('kasr-sales/batch-update', [KasrSaleAdminController::class, 'batchUpdate'])->name('kasr-sales.batch-update');
-Route::put('kasr-sales/{kasrSale}/update-status', [KasrSaleController::class, 'updateStatus'])->name('kasr-sales.update-status');
-
+// Route::middleware(['auth'])->group(function () {
+//     // Kasr Sales Admin Routes
+//     Route::get('/kasr-sales-admin', [KasrSaleAdminController::class, 'index'])->name('kasr-sales.admin.index');
+//     Route::get('/admin/kasr-sales/{kasrSale}/items', [App\Http\Controllers\Admin\KasrSaleAdminController::class, 'getItems'])->name('admin.kasr-sales.items');
+// });
 Route::get('/get-customer-data', [ShopsController::class, 'getCustomerData']);
     

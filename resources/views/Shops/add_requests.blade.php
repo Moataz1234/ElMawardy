@@ -9,10 +9,6 @@
     <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet">
     <link href="{{ url('css/addRequests.css') }}" rel="stylesheet">
     <style>
-        .nav-tabs .nav-link.active {
-            font-weight: bold;
-            border-bottom: 3px solid #0d6efd;
-        }
         .pound-image {
             max-width: 100px;
             max-height: 100px;
@@ -26,6 +22,13 @@
         .modal-image {
             max-width: 100%;
             max-height: 80vh;
+        }
+        .section-header {
+            background-color: #f8f9fa;
+            padding: 10px;
+            margin-bottom: 15px;
+            border-radius: 5px;
+            border-left: 5px solid #0d6efd;
         }
     </style>
     @include('components.navbar')
@@ -48,156 +51,142 @@
             </div>
         @endif
 
-        <!-- Tabs -->
-        <ul class="nav nav-tabs mb-4" id="requestTabs" role="tablist">
-            <li class="nav-item" role="presentation">
-                <button class="nav-link active" id="items-tab" data-bs-toggle="tab" data-bs-target="#items" type="button">
-                    طلبات القطع
-                </button>
-            </li>
-            <li class="nav-item" role="presentation">
-                <button class="nav-link" id="pounds-tab" data-bs-toggle="tab" data-bs-target="#pounds" type="button">
-                    طلبات الجنيهات و التول
-                </button>
-            </li>
-        </ul>
-
-        <!-- Tab Content -->
-        <div class="tab-content" id="requestTabsContent">
-            <!-- Items Requests Tab -->
-            <div class="tab-pane fade show active" id="items" role="tabpanel">
-                <form id="bulk-action-form" action="{{ route('add-requests.bulk-action') }}" method="POST">
-                    @csrf
-                    <input type="hidden" name="action" value="accept">
-                    <table class="table table-bordered">
-                        <thead>
+        <!-- Combined Requests Section -->
+        <div class="section-header d-flex justify-content-between align-items-center">
+            <h3 class="mb-0">طلبات الاضافة</h3>
+        </div>
+        
+        <form id="bulk-action-form" action="{{ route('add-requests.bulk-action') }}" method="POST">
+            @csrf
+            <input type="hidden" name="action" value="accept">
+            
+            <div class="table-responsive">
+                <table class="table table-bordered table-hover">
+                    <thead>
+                        <tr>
+                            <th><input type="checkbox" id="select-all"></th>
+                            <th>نوع الطلب</th>
+                            <th>الرقم التسلسلي</th>
+                            <th>الموديل/نوع السبيكة</th>
+                            <th>النوع</th>
+                            <th>الوزن</th>
+                            <th>لون الذهب/العيار</th>
+                            <th>الكمية</th>
+                            <th>الصورة</th>
+                            <th>الحالة</th>
+                            <th>التاريخ</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        @php
+                            $totalWeight = 0;
+                            $totalItems = count($itemRequests);
+                            $totalPounds = count($poundRequests);
+                        @endphp
+                        
+                        <!-- Item Requests -->
+                        @forelse ($itemRequests as $request)
                             <tr>
-                                <th><input type="checkbox" id="select-all-items"></th>
-                                <th>Model</th>
-                                <th>Serial Number</th>
-                                <th>Kind</th>
-                                <th>Weight</th>
-                                <th>Gold Color</th>
-                                <th>Status</th>
-                                <th>Date</th>
+                                <td>
+                                    <input type="checkbox" name="selected_requests[]" value="{{ $request->id }}" class="item-checkbox">
+                                </td>
+                                <td><span class="badge bg-primary">قطعة</span></td>
+                                <td>{{ $request->serial_number }}</td>
+                                <td>{{ $request->model }}</td>
+                                <td>{{ $request->kind }}</td>
+                                <td>{{ $request->weight }}</td>
+                                <td>{{ $request->gold_color }}</td>
+                                <td>{{ $request->quantity ?? '1' }}</td>
+                                <td>-</td>
+                                <td>
+                                    <span class="badge bg-{{ $request->status === 'pending' ? 'warning' : ($request->status === 'accepted' ? 'success' : 'danger') }}">
+                                        {{ $request->status === 'pending' ? 'قيد الانتظار' : ($request->status === 'accepted' ? 'مقبول' : 'مرفوض') }}
+                                    </span>
+                                </td>
+                                <td>{{ $request->rest_since }}</td>
                             </tr>
-                        </thead>
-                        <tbody>
                             @php
-                                $totalWeight = 0;
-                                $totalItems = count($itemRequests);
+                                $totalWeight += $request->weight;
                             @endphp
-                            @foreach ($itemRequests as $request)
-                                <tr>
-                                    <td>
-                                        <input type="checkbox" name="selected_requests[]" value="{{ $request->id }}">
-                                    </td>
-                                    <td>{{ $request->model }}</td>
-                                    <td>{{ $request->serial_number }}</td>
-                                    <td>{{ $request->kind }}</td>
-                                    <td>{{ $request->weight }}</td>
-                                    <td>{{ $request->gold_color }}</td>
-                                    <td>{{ $request->status }}</td>
-                                    <td>{{ $request->rest_since}}</td>
-                                </tr>
-                                @php
-                                    $totalWeight += $request->weight;
-                                @endphp
-                            @endforeach
-                        </tbody>
-                    </table>
-                    <div class="d-flex justify-content-between">
-                        <strong class="total_items badge bg-danger col-4 fs-6">Total Items: <span class="fs-6">{{ $totalItems }}</span></strong>
-                        <strong class="total_weight badge bg-warning col-4 fs-6">Total Weight: <span class="fs-6">{{ $totalWeight }}</span></strong>
-                    </div>
-                    <div class="mt-3">
-                        <button type="button" id="accept-selected-items" class="btn btn-success">Accept Selected Items</button>
-                    </div>
-                </form>
-            </div>
-
-            <!-- Pounds Requests Tab -->
-            <div class="tab-pane fade" id="pounds" role="tabpanel">
-                <div class="table-responsive">
-                    <table class="table table-hover">
-                        <thead>
+                        @empty
+                            <!-- Empty state will be handled after all loops -->
+                        @endforelse
+                        
+                        <!-- Pound Requests -->
+                        @forelse ($poundRequests as $request)
                             <tr>
-                                <th>
+                                <td>
                                     <div class="form-check">
-                                        <input type="checkbox" class="form-check-input" id="selectAllPounds">
+                                        <input type="checkbox" class="form-check-input pound-checkbox" 
+                                            value="{{ $request->id }}"
+                                            {{ $request->status !== 'pending' ? 'disabled' : '' }}>
                                     </div>
-                                </th>
-                                <th>الرقم التسلسلي</th>
-                                <th>نوع السبيكة</th>
-                                <th>النوع</th>
-                                <th>الوزن</th>
-                                <th>العيار</th>
-                                <th>الكمية</th>
-                                <th>الصورة</th>
-                                <th>تاريخ الطلب</th>
-                                <th>الحالة</th>
+                                </td>
+                                <td><span class="badge bg-warning">جنيه/تول</span></td>
+                                <td>{{ $request->serial_number }}</td>
+                                <td>{{ $request->goldPound->kind }}</td>
+                                <td>{{ $request->type === 'standalone' ? 'منفرد' : 'في قطعة' }}</td>
+                                <td>
+                                    @if(in_array($request->goldPound->kind, ['pound_varient', 'bar_varient']))
+                                        {{ $request->custom_weight ?? $request->weight }}g
+                                    @else
+                                        {{ $request->weight }}g
+                                    @endif
+                                </td>
+                                <td>
+                                    @if(in_array($request->goldPound->kind, ['pound_varient', 'bar_varient']))
+                                        {{ $request->custom_purity ?? $request->goldPound->purity }} قيراط
+                                    @else
+                                        {{ $request->goldPound->purity }} قيراط
+                                    @endif
+                                </td>
+                                <td>{{ $request->quantity }}</td>
+                                <td>
+                                    @if($request->image_path)
+                                        <img src="{{ asset('storage/' . $request->image_path) }}" 
+                                             alt="صورة السبيكة" 
+                                             class="pound-image"
+                                             onclick="showImageModal(this.src)">
+                                    @else
+                                        <span class="text-muted">-</span>
+                                    @endif
+                                </td>
+                                <td>
+                                    <span class="badge bg-{{ $request->status === 'pending' ? 'warning' : ($request->status === 'approved' ? 'success' : 'danger') }}">
+                                        {{ $request->status === 'pending' ? 'قيد الانتظار' : ($request->status === 'approved' ? 'مقبول' : 'مرفوض') }}
+                                    </span>
+                                </td>
+                                <td>{{ $request->created_at->format('Y-m-d') }}</td>
                             </tr>
-                        </thead>
-                        <tbody>
-                            @forelse($poundRequests as $request)
-                                <tr>
-                                    <td>
-                                        <div class="form-check">
-                                            <input type="checkbox" class="form-check-input pound-checkbox" 
-                                                value="{{ $request->id }}"
-                                                {{ $request->status !== 'pending' ? 'disabled' : '' }}>
-                                        </div>
-                                    </td>
-                                    <td>{{ $request->serial_number }}</td>
-                                    <td>{{ $request->goldPound->kind }}</td>
-                                    <td>{{ $request->type === 'standalone' ? 'منفرد' : 'في قطعة' }}</td>
-                                    <td>
-                                        @if(in_array($request->goldPound->kind, ['pound_varient', 'bar_varient']))
-                                            {{ $request->custom_weight ?? $request->weight }}g
-                                        @else
-                                            {{ $request->weight }}g
-                                        @endif
-                                    </td>
-                                    <td>
-                                        @if(in_array($request->goldPound->kind, ['pound_varient', 'bar_varient']))
-                                            {{ $request->custom_purity ?? $request->goldPound->purity }} قيراط
-                                        @else
-                                            {{ $request->goldPound->purity }} قيراط
-                                        @endif
-                                    </td>
-                                    <td>{{ $request->quantity }}</td>
-                                    <td>
-                                        @if($request->image_path)
-                                            <img src="{{ asset('storage/' . $request->image_path) }}" 
-                                                 alt="صورة السبيكة" 
-                                                 class="pound-image"
-                                                 onclick="showImageModal(this.src)">
-                                        @else
-                                            <span class="text-muted">لا توجد صورة</span>
-                                        @endif
-                                    </td>
-                                    <td>{{ $request->created_at->format('Y-m-d H:i') }}</td>
-                                    <td>
-                                        <span class="badge bg-{{ $request->status === 'pending' ? 'warning' : ($request->status === 'approved' ? 'success' : 'danger') }}">
-                                            {{ $request->status === 'pending' ? 'قيد الانتظار' : ($request->status === 'approved' ? 'مقبول' : 'مرفوض') }}
-                                        </span>
-                                    </td>
-                                </tr>
-                            @empty
-                                <tr>
-                                    <td colspan="10" class="text-center">لا توجد طلبات حالياً</td>
-                                </tr>
-                            @endforelse
-                        </tbody>
-                    </table>
+                        @empty
+                            <!-- Empty state will be handled below -->
+                        @endforelse
+                        
+                        @if(count($itemRequests) == 0 && count($poundRequests) == 0)
+                            <tr>
+                                <td colspan="11" class="text-center">لا توجد طلبات حالياً</td>
+                            </tr>
+                        @endif
+                    </tbody>
+                </table>
+            </div>
+            
+            <div class="d-flex justify-content-between mt-3">
+                <div class="col-md-4">
+                    <span class="badge bg-primary">قطع: {{ $totalItems }}</span>
+                    <span class="ms-2 badge bg-warning">جنيهات: {{ $totalPounds }}</span>
                 </div>
-                <div class="mt-3">
-                    <button id="approveSelectedPounds" class="btn btn-success" disabled>
-                        <i class="fas fa-check me-1"></i> قبول المحدد
+                <div class="col-md-4 text-center">
+                    <span class="badge bg-info">إجمالي الوزن: {{ $totalWeight }}</span>
+                </div>
+                <div class="col-md-4 text-end">
+                    <button type="button" id="accept-selected-items" class="btn btn-success">قبول القطع المحددة</button>
+                    <button type="button" id="approveSelectedPounds" class="btn btn-warning" disabled>
+                        <i class="fas fa-check me-1"></i> قبول الجنيهات المحددة
                     </button>
                 </div>
             </div>
-        </div>
+        </form>
     </div>
 
     <!-- Confirmation Modals -->
@@ -222,34 +211,6 @@
     <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
     <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
     <script>
-        // Items tab functionality
-        document.getElementById('select-all-items').addEventListener('change', function() {
-            const checkboxes = document.querySelectorAll('input[name="selected_requests[]"]');
-            checkboxes.forEach(checkbox => {
-                checkbox.checked = this.checked;
-            });
-        });
-
-        document.getElementById('accept-selected-items').addEventListener('click', function() {
-            const selectedRequests = document.querySelectorAll('input[name="selected_requests[]"]:checked');
-            if (selectedRequests.length > 0) {
-                const modal = new bootstrap.Modal(document.getElementById('confirmationModal'));
-                modal.show();
-            } else {
-                Swal.fire({
-                    title: "عفوا",
-                    text: "عليك اختيار قطعة على الاقل",
-                    icon: "info"
-                });
-            }
-        });
-
-        // Add this new event listener
-        document.getElementById('confirm-accept').addEventListener('click', function() {
-            document.getElementById('bulk-action-form').submit();
-        });
-
-        // Pounds tab functionality
         $(document).ready(function() {
             // Add CSRF token to all AJAX requests
             $.ajaxSetup({
@@ -257,29 +218,66 @@
                     'X-CSRF-TOKEN': '{{ csrf_token() }}'
                 }
             });
-
-            const selectAllPounds = $('#selectAllPounds');
-            const poundCheckboxes = $('.pound-checkbox');
-            const approveBtn = $('#approveSelectedPounds');
-
-            function updateButtonsState() {
-                const checkedBoxes = $('.pound-checkbox:checked').length;
-                approveBtn.prop('disabled', checkedBoxes === 0);
-            }
-
-            selectAllPounds.change(function() {
-                poundCheckboxes.not(':disabled').prop('checked', this.checked);
+            
+            // Common select all functionality
+            $("#select-all").change(function() {
+                const isChecked = $(this).prop('checked');
+                
+                // For item checkboxes
+                $(".item-checkbox").prop('checked', isChecked);
+                
+                // For pound checkboxes - only check enabled ones
+                $(".pound-checkbox:not(:disabled)").prop('checked', isChecked);
+                
                 updateButtonsState();
             });
-
-            poundCheckboxes.change(function() {
+            
+            // Individual checkbox handling
+            $(".item-checkbox, .pound-checkbox").change(function() {
                 updateButtonsState();
-                selectAllPounds.prop('checked', 
-                    $('.pound-checkbox:checked').length === $('.pound-checkbox:not(:disabled)').length
+                
+                // Check if all are selected to update the select-all checkbox
+                const allItemsChecked = $(".item-checkbox:not(:checked)").length === 0;
+                const allPoundsChecked = $(".pound-checkbox:not(:disabled):not(:checked)").length === 0;
+                
+                // If all eligible checkboxes are checked, check the select-all
+                $("#select-all").prop('checked', 
+                    allItemsChecked && allPoundsChecked && 
+                    ($(".item-checkbox").length > 0 || $(".pound-checkbox:not(:disabled)").length > 0)
                 );
             });
+            
+            function updateButtonsState() {
+                const itemCheckedCount = $(".item-checkbox:checked").length;
+                const poundCheckedCount = $(".pound-checkbox:checked").length;
+                
+                // Enable/disable appropriate buttons
+                $("#accept-selected-items").prop('disabled', itemCheckedCount === 0);
+                $("#approveSelectedPounds").prop('disabled', poundCheckedCount === 0);
+            }
+            
+            // Item approval
+            $("#accept-selected-items").click(function() {
+                const selectedRequests = $(".item-checkbox:checked").length;
+                if (selectedRequests > 0) {
+                    const modal = new bootstrap.Modal(document.getElementById('confirmationModal'));
+                    modal.show();
+                } else {
+                    Swal.fire({
+                        title: "عفوا",
+                        text: "عليك اختيار قطعة على الاقل",
+                        icon: "info"
+                    });
+                }
+            });
 
-            approveBtn.click(function() {
+            // Confirm action on modal
+            document.getElementById('confirm-accept').addEventListener('click', function() {
+                document.getElementById('bulk-action-form').submit();
+            });
+            
+            // Pounds approval
+            $("#approveSelectedPounds").click(function() {
                 const selectedRequests = $('.pound-checkbox:checked').map(function() {
                     return this.value;
                 }).get();

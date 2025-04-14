@@ -205,11 +205,57 @@ class AdminDashboardController extends Controller
 
     public function workshopRequests(Request $request)
     {
-        $requests = DB::table('workshop_transfer_requests')
-            ->orderBy('created_at', 'desc')
+        $query = DB::table('workshop_transfer_requests');
+        
+        // Apply filters
+        if ($request->has('status') && $request->status != '') {
+            $query->where('status', $request->status);
+        } else {
+            // Default to pending if no status is specified
+            $query->where('status', 'pending');
+        }
+        
+        if ($request->has('shop_name') && $request->shop_name != '') {
+            $query->where('shop_name', $request->shop_name);
+        }
+        
+        if ($request->has('date') && $request->date != '') {
+            $query->whereDate('created_at', $request->date);
+        }
+        
+        // Get all shop names for the filter dropdown
+        $shops = DB::table('workshop_transfer_requests')
+            ->select('shop_name')
+            ->distinct()
+            ->pluck('shop_name');
+            
+        $requests = $query->orderBy('created_at', 'desc')
             ->paginate(20);
 
-        return view('admin.requests.workshop_requests', compact('requests'));
+        return view('admin.requests.workshop_requests', compact('requests', 'shops'));
+    }
+
+    public function shopWorkshopRequests(Request $request)
+    {
+        // Get the authenticated user's shop name
+        $shopName = Auth::user()->name;
+        
+        $query = DB::table('workshop_transfer_requests')
+            ->where('shop_name', $shopName);
+        
+        // Apply filters
+        if ($request->has('status') && $request->status != '') {
+            $query->where('status', $request->status);
+        }
+        
+        if ($request->has('date') && $request->date != '') {
+            $query->whereDate('created_at', $request->date);
+        }
+        
+        $requests = $query->orderBy('created_at', 'desc')
+            ->paginate(20);
+
+        return view('shop.requests.workshop_requests', compact('requests'));
     }
 
     public function handleWorkshopRequest(Request $request, $id)
@@ -259,7 +305,7 @@ class AdminDashboardController extends Controller
                 ]);
 
             DB::commit();
-            return true;
+            return redirect()->route('workshop.requests.index')->with('success', 'Workshop request updated successfully');
         } catch (\Exception $e) {
             DB::rollBack();
             Log::error('Workshop request handling failed: ' . $e->getMessage());
@@ -276,7 +322,8 @@ class AdminDashboardController extends Controller
         try {
             $request->validate([
                 'items' => 'required|string', // JSON string of item IDs
-                'transfer_reason' => 'required|string'
+                'transfer_reason' => 'required|string',
+                'transfer_all_models' => 'nullable|string'
             ]);
 
             DB::beginTransaction(); // Start transaction
@@ -284,36 +331,61 @@ class AdminDashboardController extends Controller
             // Decode the JSON items
             $items = json_decode($request->input('items'), true);
             $reason = $request->input('transfer_reason');
+            $transferAllModels = $request->input('transfer_all_models') === 'true';
 
-            foreach ($items as $itemId) {
-                $goldItem = GoldItem::findOrFail($itemId);
+            if ($transferAllModels) {
+                // Extract all unique models from the selected items
+                $models = [];
+                foreach ($items as $item) {
+                    $goldItem = GoldItem::findOrFail($item['id']);
+                    $models[] = $goldItem->model;
+                }
+                $models = array_unique($models);
+
+                // Get all items with these models
+                $allItemsWithModels = GoldItem::whereIn('model', $models)->get();
                 
-                // Create workshop transfer request
-                DB::table('workshop_transfer_requests')->insert([
-                    'item_id' => $itemId,
-                    'shop_name' => $goldItem->shop_name,
-                    'serial_number' => $goldItem->serial_number,
-                    'status' => 'pending',
-                    'reason' => $reason,
-                    'requested_by' => Auth::user()->name,
-                    'created_at' => now(),
-                    'updated_at' => now()
-                ]);
+                // Create workshop requests for all items with these models
+                foreach ($allItemsWithModels as $goldItem) {
+                    DB::table('workshop_transfer_requests')->insert([
+                        'item_id' => $goldItem->id,
+                        'shop_name' => $goldItem->shop_name,
+                        'serial_number' => $goldItem->serial_number,
+                        'status' => 'pending',
+                        'reason' => $reason,
+                        'requested_by' => Auth::user()->name,
+                        'created_at' => now(),
+                        'updated_at' => now()
+                    ]);
+                }
+            } else {
+                // Process only selected items
+                foreach ($items as $item) {
+                    // Make sure we're using the 'id' field from the JSON object
+                    $itemId = $item['id'];
+                    $goldItem = GoldItem::findOrFail($itemId);
+                    
+                    // Create workshop transfer request
+                    DB::table('workshop_transfer_requests')->insert([
+                        'item_id' => $itemId,
+                        'shop_name' => $goldItem->shop_name,
+                        'serial_number' => $goldItem->serial_number,
+                        'status' => 'pending',
+                        'reason' => $reason,
+                        'requested_by' => Auth::user()->name,
+                        'created_at' => now(),
+                        'updated_at' => now()
+                    ]);
+                }
             }
 
             DB::commit();
 
-            return response()->json([
-                'success' => true,
-                'message' => 'Workshop transfer requests created successfully'
-            ]);
+            return redirect()->route('gold-items.index')->with('success', 'Workshop transfer requests created successfully');
         } catch (\Exception $e) {
             DB::rollBack();
             Log::error('Failed to create workshop requests: ' . $e->getMessage());
-            return response()->json([
-                'success' => false,
-                'message' => 'Failed to create workshop requests: ' . $e->getMessage()
-            ], 500);
+            return redirect()->back()->with('error', 'Failed to create workshop requests: ' . $e->getMessage());
         }
     }
 }
