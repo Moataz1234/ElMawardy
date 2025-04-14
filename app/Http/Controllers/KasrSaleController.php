@@ -198,4 +198,17 @@ class KasrSaleController extends Controller
         return redirect()->route('kasr-sales.index')
             ->with('success', 'تم حذف الكسر بنجاح.');
     }
+
+    /**
+     * Display a listing of the completed kasr sales.
+     */
+    public function completed()
+    {
+        // Get completed kasr sales where shop_name is 'rabea'
+        $completedSales = \App\Models\KasrSaleComplete::with('items')
+            ->orderBy('completion_date', 'desc')
+            ->paginate(15);
+        
+        return view('kasr_sales.completed', compact('completedSales'));
+    }
 } 

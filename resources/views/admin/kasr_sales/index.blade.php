@@ -227,7 +227,7 @@
                             <label for="status" class="form-label">الحالة</label>
                             <select class="form-select" id="status" name="status">
                                 <option value="">الكل</option>
-                                <option value="pending" {{ request('status') == 'pending' ? 'selected' : '' }}>قيد الانتظار</option>
+                                <option value="pending" {{ request('status') == 'pending' || (!request('status') && !request()->has('status')) ? 'selected' : '' }}>قيد الانتظار</option>
                                 <option value="accepted" {{ request('status') == 'accepted' ? 'selected' : '' }}>مقبول</option>
                                 <option value="rejected" {{ request('status') == 'rejected' ? 'selected' : '' }}>مرفوض</option>
                             </select>

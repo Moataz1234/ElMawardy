@@ -46,6 +46,9 @@ class KasrSaleAdminController extends Controller
         // Apply status filter
         if ($request->filled('status')) {
             $query->where('status', $request->status);
+        } else {
+            // If no status filter is provided, default to showing only pending
+            $query->where('status', 'pending');
         }
         
         // Get all records for calculations (without pagination)
@@ -125,8 +128,25 @@ class KasrSaleAdminController extends Controller
             'status' => 'required|in:pending,accepted,rejected',
         ]);
         
+        // Set the status on the original kasr sale
         $kasrSale->status = $validated['status'];
         $kasrSale->save();
+        
+        // If accepting, create a completed sale record
+        if ($validated['status'] == 'accepted') {
+            \App\Models\KasrSaleComplete::create([
+                'original_kasr_sale_id' => $kasrSale->id,
+                'customer_name' => $kasrSale->customer_name,
+                'customer_phone' => $kasrSale->customer_phone,
+                'original_shop_name' => $kasrSale->shop_name, // Store the original shop name
+                'shop_name' => 'rabea', // Set shop_name to 'rabea' for completed sales
+                'image_path' => $kasrSale->image_path,
+                'offered_price' => $kasrSale->offered_price,
+                'order_date' => $kasrSale->order_date,
+                'completion_date' => now(),
+                'status' => 'accepted',
+            ]);
+        }
         
         $statusText = $validated['status'] == 'accepted' ? 'قبول' : 'رفض';
         
@@ -147,12 +167,40 @@ class KasrSaleAdminController extends Controller
         $status = $request->action == 'accept' ? 'accepted' : 'rejected';
         $count = count($validated['selected_orders']);
         
-        // Update all selected orders
-        KasrSale::whereIn('id', $validated['selected_orders'])
-            ->update([
-                'status' => $status,
-                'shop_name' => $request->action == 'accept' ? 'rabea' : DB::raw('shop_name') // Only update shop_name to 'rabea' when accepting
-            ]);
+        if ($request->action == 'accept') {
+            // Get all the kasr sales that are being accepted
+            $kasrSales = KasrSale::whereIn('id', $validated['selected_orders'])->get();
+            
+            // For each accepted sale, create a completed sale record
+            foreach ($kasrSales as $kasrSale) {
+                // Create a new completed sale record
+                \App\Models\KasrSaleComplete::create([
+                    'original_kasr_sale_id' => $kasrSale->id,
+                    'customer_name' => $kasrSale->customer_name,
+                    'customer_phone' => $kasrSale->customer_phone,
+                    'original_shop_name' => $kasrSale->shop_name, // Store the original shop name
+                    'shop_name' => 'rabea', // Set shop_name to 'rabea' for completed sales
+                    'image_path' => $kasrSale->image_path,
+                    'offered_price' => $kasrSale->offered_price,
+                    'order_date' => $kasrSale->order_date,
+                    'completion_date' => now(),
+                    'status' => 'accepted',
+                ]);
+            }
+            
+            // Update the original kasr sales to accepted status (but keep their original shop_name)
+            KasrSale::whereIn('id', $validated['selected_orders'])
+                ->update([
+                    'status' => 'accepted',
+                    // Don't change the shop_name in the original records
+                ]);
+        } else {
+            // For reject action, just update the status
+            KasrSale::whereIn('id', $validated['selected_orders'])
+                ->update([
+                    'status' => 'rejected',
+                ]);
+        }
         
         $actionText = $request->action == 'accept' ? 'قبول' : 'رفض';
         
