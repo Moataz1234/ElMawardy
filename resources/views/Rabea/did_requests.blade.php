@@ -4,7 +4,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>My Workshop Requests</title>
+    <title>Workshop Approval Requests</title>
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@4.6.0/dist/js/bootstrap.bundle.min.js"></script>
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@4.6.0/dist/css/bootstrap.min.css" rel="stylesheet">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
@@ -78,6 +78,11 @@
             color: #fff;
         }
 
+        .status-return_to_shop {
+            background-color: #20c997;
+            color: #fff;
+        }
+
         .action-buttons {
             margin-top: 20px;
             margin-bottom: 20px;
@@ -118,7 +123,7 @@
 <body>
     @include('components.navbar')
     <div class="container">
-        <h1 class="text-center mb-4">My Workshop Transfer Requests</h1>
+        <h1 class="text-center mb-4">Workshop Approval Requests</h1>
 
         @if (session('success'))
             <div class="alert alert-success alert-dismissible fade show" role="alert">
@@ -139,16 +144,29 @@
         @endif
 
         <div class="filters-container">
-            <form action="{{ route('shop.workshop.requests') }}" method="GET" class="row align-items-end">
+            <form action="{{ route('rabea.did.requests') }}" method="GET" class="row align-items-end">
                 <div class="col-md-3">
                     <label for="status" class="form-label">Request Status</label>
                     <select name="status" id="status" class="form-control custom-select">
                         <option value="">All Status</option>
+                        <option value="accepted_by_shop" {{ request('status', 'accepted_by_shop') == 'accepted_by_shop' ? 'selected' : '' }}>Accepted By Shop</option>
                         <option value="pending" {{ request('status') == 'pending' ? 'selected' : '' }}>Pending</option>
                         <option value="approved" {{ request('status') == 'approved' ? 'selected' : '' }}>Approved</option>
                         <option value="rejected" {{ request('status') == 'rejected' ? 'selected' : '' }}>Rejected</option>
-                        <option value="accepted_by_shop" {{ request('status') == 'accepted_by_shop' ? 'selected' : '' }}>Accepted By Shop</option>
                         <option value="rejected_by_shop" {{ request('status') == 'rejected_by_shop' ? 'selected' : '' }}>Rejected By Shop</option>
+                        <option value="return_to_shop" {{ request('status') == 'return_to_shop' ? 'selected' : '' }}>Returned To Shop</option>
+                    </select>
+                </div>
+
+                <div class="col-md-3">
+                    <label for="shop_name" class="form-label">Shop Name</label>
+                    <select name="shop_name" id="shop_name" class="form-control custom-select">
+                        <option value="">All Shops</option>
+                        @foreach ($shops ?? [] as $shop)
+                            <option value="{{ $shop }}" {{ request('shop_name') == $shop ? 'selected' : '' }}>
+                                {{ $shop }}
+                            </option>
+                        @endforeach
                     </select>
                 </div>
 
@@ -164,14 +182,14 @@
                            placeholder="Serial number, reason..." value="{{ request('search') }}">
                 </div>
 
-                <div class="col-md-3">
-                    <button type="submit" class="btn btn-primary btn-block">Filter</button>
-                    <a href="{{ route('shop.workshop.requests') }}" class="btn btn-secondary btn-block mt-2">Reset</a>
+                <div class="col-md-12 mt-3">
+                    <button type="submit" class="btn btn-primary">Filter</button>
+                    <a href="{{ route('rabea.did.requests') }}" class="btn btn-secondary">Reset</a>
                 </div>
             </form>
         </div>
 
-        <form action="{{ route('shop.workshop.requests.handle') }}" method="POST" id="batchActionForm">
+        <form action="{{ route('rabea.did.requests.handle') }}" method="POST" id="batchActionForm">
             @csrf
             <div class="select-all-container">
                 <input type="checkbox" id="select-all" class="form-check-input">
@@ -179,11 +197,14 @@
             </div>
 
             <div class="action-buttons">
-                <button type="submit" name="action" value="accept" class="btn btn-success">
-                    <i class="fas fa-check"></i> Accept Selected
+                <button type="submit" name="action" value="approve" class="btn btn-success">
+                    <i class="fas fa-check"></i> Approve & Transfer to Workshop
                 </button>
                 <button type="submit" name="action" value="reject" class="btn btn-danger">
-                    <i class="fas fa-times"></i> Reject Selected
+                    <i class="fas fa-times"></i> Reject
+                </button>
+                <button type="submit" name="action" value="return" class="btn btn-info">
+                    <i class="fas fa-undo"></i> Return to Shop
                 </button>
             </div>
 
@@ -195,9 +216,9 @@
                                 <div class="text-center">Select</div>
                             </th>
                             <th>Serial Number</th>
-                            <th>Model</th>
-                            <th>Weight</th>
+                            <th>Shop Name</th>
                             <th>Requested By</th>
+                            <th>Item Weight</th>
                             <th>Reason</th>
                             <th>Status</th>
                             <th>Created At</th>
@@ -211,22 +232,21 @@
                         @forelse ($requests ?? [] as $request)
                             @php
                                 $goldItem = App\Models\GoldItem::where('serial_number', $request->serial_number)->first();
-                                $itemModel = $goldItem ? $goldItem->model : 'N/A';
                                 $itemWeight = $goldItem ? $goldItem->weight : 0;
                                 $totalWeight += $itemWeight;
                             @endphp
                             <tr>
                                 <td class="checkbox-column">
-                                    @if(in_array($request->status, ['pending', 'approved']))
+                                    @if(in_array($request->status, ['accepted_by_shop']))
                                         <input type="checkbox" name="selected_items[]" value="{{ $request->id }}" class="form-check-input item-checkbox">
                                     @else
                                         <input type="checkbox" disabled class="form-check-input">
                                     @endif
                                 </td>
                                 <td>{{ $request->serial_number }}</td>
-                                <td>{{ $itemModel }}</td>
-                                <td>{{ $itemWeight }} g</td>
+                                <td>{{ $request->shop_name }}</td>
                                 <td>{{ $request->requested_by }}</td>
+                                <td>{{ $itemWeight }}</td>
                                 <td>{{ $request->reason }}</td>
                                 <td>
                                     <span class="badge status-{{ $request->status }}">
@@ -239,20 +259,7 @@
                             <tr>
                                 <td colspan="8" class="text-center">
                                     <div class="alert alert-info">
-                                        <p>No workshop requests found for <strong>{{ $shopName }}</strong>.</p>
-                                        
-                                        @if(isset($noRequestsFound) && $noRequestsFound && isset($allShops) && count($allShops) > 0)
-                                            <hr>
-                                            <p><strong>Possible Shop Name Mismatch:</strong></p>
-                                            <p>Your user account shop name is <strong>"{{ $shopName }}"</strong>, but it doesn't match any shop names in our system.</p>
-                                            <p>Workshop requests exist for the following shop names:</p>
-                                            <ul class="text-left">
-                                                @foreach($allShops as $shop)
-                                                    <li>{{ $shop }}</li>
-                                                @endforeach
-                                            </ul>
-                                            <p>Please contact an administrator to update your shop name to match one of these shop names.</p>
-                                        @endif
+                                        No workshop approval requests found.
                                     </div>
                                 </td>
                             </tr>
@@ -307,9 +314,22 @@
                     return false;
                 }
                 
-                const confirmMessage = action === 'accept' ? 
-                    'Are you sure you want to accept these ' + selectedCount + ' items?' : 
-                    'Are you sure you want to reject these ' + selectedCount + ' items?';
+                let confirmMessage = '';
+                
+                switch(action) {
+                    case 'approve':
+                        confirmMessage = 'Are you sure you want to approve and transfer these ' + 
+                            selectedCount + ' items to the workshop? They will be removed from the inventory.';
+                        break;
+                    case 'reject':
+                        confirmMessage = 'Are you sure you want to reject these ' + 
+                            selectedCount + ' workshop requests?';
+                        break;
+                    case 'return':
+                        confirmMessage = 'Are you sure you want to return these ' + 
+                            selectedCount + ' items to their respective shops?';
+                        break;
+                }
                 
                 if (!confirm(confirmMessage)) {
                     e.preventDefault();
@@ -319,4 +339,4 @@
         });
     </script>
 </body>
-</html> 
+</html>

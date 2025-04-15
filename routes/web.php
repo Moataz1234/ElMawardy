@@ -310,6 +310,9 @@ Route::middleware(['auth'])->group(function () {
         Route::get('/admin/kasr-sales/{kasrSale}/items', [KasrSaleAdminController::class, 'getItems'])->name('admin.kasr-sales.items');
         Route::post('/kasr-sales/batch-update', [KasrSaleAdminController::class, 'batchUpdate'])->name('kasr-sales.batch-update');
         Route::get('/kasr-sales-completed', [KasrSaleController::class, 'completed'])->name('kasr-sales.completed');
+
+        // Shop name matching tool
+        Route::post('/update-shop-name', [AdminDashboardController::class, 'updateShopName'])->name('admin.update-shop-name');
     });
 
     // ===================================
@@ -349,6 +352,14 @@ Route::middleware(['auth'])->group(function () {
         ->name('transfer-requests.handle');
         Route::get('/import', [ExcelImportController::class, 'showForm'])->name('import.form');
         Route::post('/import', [ExcelImportController::class, 'import'])->name('excel.import');
+
+        // Shop Workshop Request routes
+        Route::get('/shop/workshop-requests', [AdminDashboardController::class, 'shopWorkshopRequests'])->name('shop.workshop.requests');
+        Route::post('/shop/workshop-requests/handle', [AdminDashboardController::class, 'handleShopWorkshopRequests'])->name('shop.workshop.requests.handle');
+
+        // Workshop requests for 'rabea' shop
+        Route::get('/rabea/workshop-requests', [ShopsController::class, 'showWorkshopRequests'])->name('rabea.workshop.requests');
+        Route::post('/rabea/workshop-requests/handle', [ShopsController::class, 'handleWorkshopRequests'])->name('rabea.workshop.requests.handle');
     });
 
     // ===================================
@@ -370,6 +381,10 @@ Route::middleware(['auth'])->group(function () {
         Route::post('/orders/accept', [RabiaController::class, 'accept'])->name('orders.accept');
         Route::get('/orders/toPrint', [RabiaController::class, 'toPrint'])->name('orders.rabea.to_print');
         Route::get('/orders/completed', [RabiaController::class, 'completed'])->name('orders.completed');
+        
+        // Workshop DID requests
+        Route::get('/did-requests', [RabiaController::class, 'didRequests'])->name('rabea.did.requests');
+        Route::post('/did-requests/handle', [RabiaController::class, 'handleDidRequests'])->name('rabea.did.requests.handle');
     });
 
     // ===================================
@@ -392,9 +407,6 @@ Route::middleware(['auth'])->group(function () {
         'update' => 'kasr-sales.update',
         'destroy' => 'kasr-sales.destroy',
     ]);
-
-    // Shop Workshop Request routes
-    Route::get('/shop/workshop-requests', [AdminDashboardController::class, 'shopWorkshopRequests'])->name('shop.workshop.requests');
 });
 
 // ===================================

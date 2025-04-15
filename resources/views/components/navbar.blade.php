@@ -87,6 +87,7 @@
             <li class="navbar-item"><a href="{{ route('orders.completed') }}" class="navbar-link">الاوردرات التي تم
                     تسليمها</a></li>
             <li class="navbar-item"><a href="{{ route('laboratory.operations.index') }}" class="navbar-link">المعمل</a></li>
+            <li class="navbar-item"><a href="{{ route('rabea.did.requests') }}" class="navbar-link">طلبات الورشة</a></li>
             <li class="navbar-item dropdown">
                 <a href="#" class="navbar-link dropdown-toggle">Models</a>
                 <div class="dropdown-menu">
@@ -172,7 +173,7 @@
             </li>
             <li class="navbar-item"><a href="{{ route('transfer.requests') }}" class="navbar-link">التحويلات</a></li>
             <li class="navbar-item"><a href="{{ route('add-requests.index') }}" class="navbar-link">الاضافات</a></li>
-            <li class="navbar-item"><a href="{{ route('workshop.requests.index') }}" class="navbar-link">التحويلات الى الورشة</a></li>
+            <li class="navbar-item"><a href="{{ route('shop.workshop.requests') }}" class="navbar-link">التحويلات الى الورشة</a></li>
             {{-- <li class="navbar-item"><a href="{{ route('shop.requests.index') }}" class="navbar-link">التحويلات الى الورشة</a></li> --}}
             
             <li class="navbar-item dropdown">

@@ -25,7 +25,7 @@
                 <div class="button-container">
                     <button id="sellItemsButton" class="btn btn-primary">بيع</button>
                     <button id="transferItemsButton" class="btn btn-danger">تحويل</button>
-                    {{-- <button id="workshopButton" class="btn btn-warning">Workshop</button> --}}
+                    <button id="workshopButton" class="btn btn-warning">Workshop</button>
                 </div>
                 <table class="table table-striped table-hover">
                     <thead>
@@ -57,8 +57,10 @@
                                         <span class="pending-badge" style="font-size: 16px;">في انتظار  الموافقة على التحويل</span>
                                     @elseif($item->status === 'pending_sale')
                                         <span class="pending-badge" style="font-size: 16px;">في انتظار الموافقة على البيع</span>
+                                    @elseif($item->status === 'pending_workshop' || $item->status === 'pending_kasr')
+                                        <span class="pending-badge" style="font-size: 16px;">في انتظار الموافقة على الكسر</span>
                                     @else
-                                        <input type="checkbox" class="select-item" data-id="{{ $item->id }}">
+                                        <input type="checkbox" class="select-item" data-id="{{ $item->id }}" data-serial="{{ $item->serial_number }}" data-model="{{ $item->model }}">
                                     @endif
                                 </td>
                                 <td>
@@ -265,62 +267,114 @@
                     return;
                 }
 
-                const selectedIds = Array.from(selectedItems).map(checkbox => checkbox.dataset.id);
-
-                Swal.fire({
-                    title: 'Workshop Transfer Request',
-                    html: `
-                        <p>Are you sure you want to request workshop transfer for ${selectedIds.length} items?</p>
-                        <div class="form-group">
-                            <label>Reason for transfer:</label>
-                            <textarea id="transfer-reason" class="form-control" required></textarea>
-                        </div>
-                    `,
-                    showCancelButton: true,
-                    confirmButtonText: 'Submit Request',
-                    cancelButtonText: 'Cancel',
-                    preConfirm: () => {
-                        const reason = document.getElementById('transfer-reason').value;
-                        if (!reason || reason.trim() === '') {
-                            Swal.showValidationMessage('Please enter a reason for transfer');
-                            return false;
-                        }
-                        return reason;
-                    }
-                }).then((result) => {
-                    if (result.isConfirmed) {
-                        // Create form data
-                        const formData = new FormData();
-                        formData.append('items', JSON.stringify(selectedIds));
-                        formData.append('transfer_reason', result.value);
-                        formData.append('_token', '{{ csrf_token() }}');
-
-                        // Send request
-                        fetch('{{ route("workshop.requests.create") }}', {
-                            method: 'POST',
-                            body: formData,
-                        })
-                        .then(response => {
-                            console.log('Response:', response); // Debug log
-                            return response.json();
-                        })
-                        .then(data => {
-                            console.log('Data:', data); // Debug log
-                            if (data.success) {
-                                Swal.fire('Success', 'Workshop transfer request submitted successfully', 'success')
-                                    .then(() => window.location.reload());
-                            } else {
-                                Swal.fire('Error', data.message || 'Failed to submit request', 'error');
-                            }
-                        })
-                        .catch(error => {
-                            console.error('Error:', error); // Debug log
-                            Swal.fire('Error', 'Failed to submit request', 'error');
-                        });
-                    }
+                // Populate the modal with selected items
+                const itemsList = document.getElementById('workshop-items-list');
+                itemsList.innerHTML = '';
+                
+                selectedItems.forEach(item => {
+                    const row = document.createElement('tr');
+                    row.innerHTML = `
+                        <td>
+                            <input type="checkbox" class="workshop-item-checkbox" checked 
+                                data-id="${item.dataset.id}" 
+                                data-serial="${item.dataset.serial}" 
+                                data-model="${item.dataset.model}">
+                        </td>
+                        <td>${item.dataset.serial}</td>
+                        <td>${item.dataset.model}</td>
+                    `;
+                    itemsList.appendChild(row);
                 });
+                
+                // Show the modal
+                $('#workshopItemsModal').modal('show');
+            });
+            
+            // Add confirm workshop button handler
+            document.getElementById('confirm-workshop-btn').addEventListener('click', function() {
+                const selectedCheckboxes = document.querySelectorAll('.workshop-item-checkbox:checked');
+                if (selectedCheckboxes.length === 0) {
+                    alert('Please select at least one item');
+                    return;
+                }
+                
+                const reason = document.getElementById('workshop-reason').value;
+                if (!reason || reason.trim() === '') {
+                    alert('Please enter a reason for transfer');
+                    return;
+                }
+                
+                // Get selected item IDs
+                const selectedIds = Array.from(selectedCheckboxes).map(checkbox => checkbox.dataset.id);
+                
+                // Create form data
+                const formData = new FormData();
+                formData.append('items', JSON.stringify(selectedIds));
+                formData.append('transfer_reason', reason);
+                formData.append('_token', '{{ csrf_token() }}');
+                
+                // Send request
+                fetch('{{ route("workshop.requests.create") }}', {
+                    method: 'POST',
+                    body: formData,
+                })
+                .then(response => response.json())
+                .then(data => {
+                    if (data.success) {
+                        alert('Workshop transfer request submitted successfully');
+                        window.location.reload();
+                    } else {
+                        alert('Failed to submit request: ' + (data.message || 'Unknown error'));
+                    }
+                })
+                .catch(error => {
+                    console.error('Error:', error);
+                    alert('Failed to submit request');
+                });
+                
+                // Close the modal
+                $('#workshopItemsModal').modal('hide');
             });
         });
     </script>
+
+    <!-- Workshop Items Confirmation Modal -->
+    <div class="modal" id="workshopItemsModal" tabindex="-1" role="dialog">
+        <div class="modal-dialog modal-lg" role="document">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title">Confirm Workshop Items</h5>
+                    <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                        <span aria-hidden="true">&times;</span>
+                    </button>
+                </div>
+                <div class="modal-body">
+                    <p>The following items will be sent to workshop:</p>
+                    <div class="table-responsive">
+                        <table class="table table-striped">
+                            <thead>
+                                <tr>
+                                    <th>Select</th>
+                                    <th>Serial Number</th>
+                                    <th>Model</th>
+                                </tr>
+                            </thead>
+                            <tbody id="workshop-items-list">
+                                <!-- Items will be inserted here -->
+                            </tbody>
+                        </table>
+                    </div>
+                    <div class="form-group mt-4">
+                        <label for="workshop-reason">Reason for transfer:</label>
+                        <textarea id="workshop-reason" class="form-control" required></textarea>
+                    </div>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary" data-dismiss="modal">Cancel</button>
+                    <button type="button" id="confirm-workshop-btn" class="btn btn-warning">Submit Request</button>
+                </div>
+            </div>
+        </div>
+    </div>
 </body>
 </html>

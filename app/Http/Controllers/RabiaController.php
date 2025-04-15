@@ -5,6 +5,8 @@ use App\Models\Order;
 use App\Models\OrderItem;
 use App\Models\GoldItem;
 use Illuminate\Support\Facades\Log;
+use Illuminate\Support\Facades\DB;
+use Illuminate\Support\Facades\Auth;
 use App\Services\OrderService;
 use App\Http\Requests\OrderUpdateRequest;
 use App\Repositories\OrderRepository;
@@ -219,6 +221,163 @@ public function accept(Request $request)
     } catch (\Exception $e) {
         Log::error('Error accepting orders: ' . $e->getMessage());
         return redirect()->back()->with('error', 'حدث خطأ أثناء استلام الطلبات');
+    }
+}
+
+/**
+ * Display workshop requests for Rabea shop
+ */
+public function didRequests(Request $request)
+{
+    // Check if the user's shop name is 'rabea'
+    // if (Auth::user()->shop_name !== 'rabea') {
+    //     return redirect()->route('dashboard')
+    //         ->with('error', 'Only Rabea shop can view workshop requests');
+    // }
+    
+    $query = DB::table('workshop_transfer_requests');
+    
+    // Apply filters
+    if ($request->has('status') && $request->status != '') {
+        $query->where('status', $request->status);
+    } else {
+        // Default to showing items with 'accepted_by_shop' status
+        $query->where('status', 'accepted_by_shop');
+    }
+    
+    if ($request->has('shop_name') && $request->shop_name != '') {
+        $query->where('shop_name', $request->shop_name);
+    }
+    
+    if ($request->has('date') && $request->date != '') {
+        $query->whereDate('created_at', $request->date);
+    }
+    
+    if ($request->has('search') && $request->search != '') {
+        $search = $request->search;
+        $query->where(function($q) use ($search) {
+            $q->where('serial_number', 'like', '%' . $search . '%')
+              ->orWhere('reason', 'like', '%' . $search . '%')
+              ->orWhere('requested_by', 'like', '%' . $search . '%');
+        });
+    }
+    
+    // Get all shop names for the filter dropdown
+    $shops = DB::table('workshop_transfer_requests')
+        ->select('shop_name')
+        ->distinct()
+        ->pluck('shop_name');
+        
+    $requests = $query->orderBy('created_at', 'desc')
+        ->paginate(20);
+    
+    return view('Rabea.did_requests', compact('requests', 'shops'));
+}
+
+/**
+ * Handle workshop requests batch actions for Rabea shop
+ */
+public function handleDidRequests(Request $request)
+{
+    try {
+        if (!$request->has('selected_items') || empty($request->selected_items)) {
+            return redirect()->back()->with('error', 'No items selected');
+        }
+        
+        DB::beginTransaction();
+        
+        $action = $request->input('action');
+        $selectedItems = $request->input('selected_items');
+        
+        foreach ($selectedItems as $id) {
+            $transferRequest = DB::table('workshop_transfer_requests')
+                ->where('id', $id)
+                ->first();
+            
+            if (!$transferRequest) {
+                continue; // Skip if request not found
+            }
+            
+            // Get the gold item
+            $goldItem = GoldItem::find($transferRequest->item_id);
+            if (!$goldItem) {
+                continue; // Skip if gold item not found
+            }
+            
+            // Update the request and item based on the action
+            if ($action === 'approve') {
+                // Create workshop record
+                DB::table('workshop_items')->insert([
+                    'item_id' => $goldItem->id,
+                    'transferred_by' => $transferRequest->requested_by,
+                    'serial_number' => $goldItem->serial_number,
+                    'shop_name' => $goldItem->shop_name, // Keep original shop name
+                    'kind' => $goldItem->kind,
+                    'model' => $goldItem->model,
+                    'gold_color' => $goldItem->gold_color,
+                    'metal_purity' => $goldItem->metal_purity,
+                    'weight' => $goldItem->weight,
+                    'transfer_reason' => $transferRequest->reason,
+                    'transferred_at' => now(),
+                    'created_at' => now(),
+                    'updated_at' => now()
+                ]);
+
+                // No need to update shop_name to 'rabea' anymore
+                // Keep the original shop name
+                
+                // Delete the item from gold_items table
+                $goldItem->delete();
+                
+                // Update request status
+                DB::table('workshop_transfer_requests')
+                    ->where('id', $id)
+                    ->update([
+                        'status' => 'approved',
+                        'updated_at' => now()
+                    ]);
+            } 
+            else if ($action === 'reject') {
+                // Reset the item status
+                $goldItem->status = null;
+                $goldItem->save();
+                
+                // Update request status
+                DB::table('workshop_transfer_requests')
+                    ->where('id', $id)
+                    ->update([
+                        'status' => 'rejected',
+                        'updated_at' => now()
+                    ]);
+            }
+            else if ($action === 'return') {
+                // Return the item to the shop
+                $goldItem->status = null;
+                $goldItem->save();
+                
+                // Update request status
+                DB::table('workshop_transfer_requests')
+                    ->where('id', $id)
+                    ->update([
+                        'status' => 'return_to_shop',
+                        'updated_at' => now()
+                    ]);
+            }
+        }
+        
+        DB::commit();
+        
+        $message = ($action === 'approve') 
+            ? 'Selected items approved and transferred to workshop successfully' 
+            : (($action === 'reject') 
+                ? 'Selected items rejected successfully' 
+                : 'Selected items returned to shop successfully');
+            
+        return redirect()->route('admin.inventory')->with('success', $message);
+    } catch (\Exception $e) {
+        DB::rollBack();
+        Log::error('Failed to handle did requests: ' . $e->getMessage());
+        return redirect()->back()->with('error', 'An error occurred: ' . $e->getMessage());
     }
 }
 }

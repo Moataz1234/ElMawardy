@@ -68,6 +68,21 @@
             color: #fff;
         }
 
+        .status-accepted_by_shop {
+            background-color: #6f42c1;
+            color: #fff;
+        }
+
+        .status-rejected_by_shop {
+            background-color: #fd7e14;
+            color: #fff;
+        }
+
+        .status-return_to_shop {
+            background-color: #20c997;
+            color: #fff;
+        }
+
         .btn-action {
             margin: 2px;
         }
@@ -93,8 +108,11 @@
                     <select name="status" id="status" class="form-select custom-select">
                         <option value="">All Status</option>
                         <option value="pending" {{ request('status', 'pending') == 'pending' ? 'selected' : '' }}>Pending</option>
+                        <option value="accepted_by_shop" {{ request('status') == 'accepted_by_shop' ? 'selected' : '' }}>Accepted By Shop</option>
+                        <option value="rejected_by_shop" {{ request('status') == 'rejected_by_shop' ? 'selected' : '' }}>Rejected By Shop</option>
                         <option value="approved" {{ request('status') == 'approved' ? 'selected' : '' }}>Approved</option>
                         <option value="rejected" {{ request('status') == 'rejected' ? 'selected' : '' }}>Rejected</option>
+                        <option value="return_to_shop" {{ request('status') == 'return_to_shop' ? 'selected' : '' }}>Returned To Shop</option>
                     </select>
                 </div>
 
@@ -168,6 +186,23 @@
                                         <input type="hidden" name="status" value="rejected">
                                         <button type="submit" class="btn btn-danger btn-sm btn-action">
                                             Reject
+                                        </button>
+                                    </form>
+                                @elseif($request->status === 'accepted_by_shop')
+                                    <form action="{{ route('workshop.requests.handle', $request->id) }}" 
+                                          method="POST" style="display: inline;">
+                                        @csrf
+                                        <input type="hidden" name="status" value="approved">
+                                        <button type="submit" class="btn btn-success btn-sm btn-action">
+                                            Transfer to Workshop
+                                        </button>
+                                    </form>
+                                    <form action="{{ route('workshop.requests.handle', $request->id) }}" 
+                                          method="POST" style="display: inline;">
+                                        @csrf
+                                        <input type="hidden" name="status" value="return_to_shop">
+                                        <button type="submit" class="btn btn-info btn-sm btn-action">
+                                            Return to Shop
                                         </button>
                                     </form>
                                 @endif
