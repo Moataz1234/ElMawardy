@@ -25,7 +25,7 @@
                 <div class="button-container">
                     <button id="sellItemsButton" class="btn btn-primary">بيع</button>
                     <button id="transferItemsButton" class="btn btn-danger">تحويل</button>
-                    <button id="workshopButton" class="btn btn-warning">Workshop</button>
+                    {{-- <button id="workshopButton" class="btn btn-warning">Workshop</button> --}}
                 </div>
                 <table class="table table-striped table-hover">
                     <thead>
