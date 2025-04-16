@@ -44,6 +44,7 @@ use App\Http\Controllers\{
     GoldAnalysisController,
     SuperAdminRequestController,
     KasrSaleController,
+    DidItemsController,
     Admin\KasrSaleAdminController,
     Admin\GoldBalanceReportController
     // NewItemTalabatController 
@@ -354,8 +355,8 @@ Route::middleware(['auth'])->group(function () {
         Route::post('/import', [ExcelImportController::class, 'import'])->name('excel.import');
 
         // Shop Workshop Request routes
-        Route::get('/shop/workshop-requests', [AdminDashboardController::class, 'shopWorkshopRequests'])->name('shop.workshop.requests');
-        Route::post('/shop/workshop-requests/handle', [AdminDashboardController::class, 'handleShopWorkshopRequests'])->name('shop.workshop.requests.handle');
+        Route::get('/shop/workshop-requests', [DidItemsController::class, 'shopWorkshopRequests'])->name('shop.workshop.requests');
+        Route::post('/shop/workshop-requests/handle', [DidItemsController::class, 'handleShopWorkshopRequests'])->name('shop.workshop.requests.handle');
 
         // Workshop requests for 'rabea' shop
         Route::get('/rabea/workshop-requests', [ShopsController::class, 'showWorkshopRequests'])->name('rabea.workshop.requests');
@@ -383,8 +384,8 @@ Route::middleware(['auth'])->group(function () {
         Route::get('/orders/completed', [RabiaController::class, 'completed'])->name('orders.completed');
         
         // Workshop DID requests
-        Route::get('/did-requests', [RabiaController::class, 'didRequests'])->name('rabea.did.requests');
-        Route::post('/did-requests/handle', [RabiaController::class, 'handleDidRequests'])->name('rabea.did.requests.handle');
+        Route::get('/did-requests', [DidItemsController::class, 'didRequests'])->name('rabea.did.requests');
+        Route::post('/did-requests/handle', [DidItemsController::class, 'handleDidRequests'])->name('rabea.did.requests.handle');
     });
 
     // ===================================
@@ -496,11 +497,11 @@ Route::post('/import-gold-items/update-sources', [ImportGoldItems::class, 'updat
 
 // Workshop transfer request routes
 Route::middleware(['auth'])->group(function () {
-    Route::get('/workshop-requests', [AdminDashboardController::class, 'workshopRequests'])->name('workshop.requests.index');
-    Route::post('/workshop-requests/{id}/handle', [AdminDashboardController::class, 'handleWorkshopRequest'])->name('workshop.requests.handle');
+    Route::get('/workshop-requests', [DidItemsController::class, 'workshopRequests'])->name('workshop.requests.index');
+    Route::post('/workshop-requests/{id}/handle', [DidItemsController::class, 'handleWorkshopRequest'])->name('workshop.requests.handle');
     
-    Route::post('/workshop-requests/create', [AdminDashboardController::class, 'createWorkshopRequests'])->name('workshop.requests.create');
-    Route::get('/workshop-items', [AdminDashboardController::class, 'workshopItems'])->name('workshop.items.index');
+    Route::post('/workshop-requests/create', [DidItemsController::class, 'createWorkshopRequests'])->name('workshop.requests.create');
+    Route::get('/workshop-items', [DidItemsController::class, 'workshopItems'])->name('workshop.items.index');
 });
 
 Route::post('/import-sold-items/update-prices', [ImportSoldItems::class, 'updatePrices'])

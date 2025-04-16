@@ -295,19 +295,30 @@ public function bulkSell(SellRequest $request)
     public function getItemsByModel(Request $request)
     {
         $model = $request->input('model');
+        Log::info('Getting items with model', ['model' => $model]);
 
-        // Fetch items with the same model, excluding the current shop
-        $items = GoldItem::with('shop')
-            ->where('model', $model)
-            ->whereHas('shop') // Ensure the item belongs to a shop
+        // Fetch items with the same model, including status
+        $items = GoldItem::where('model', $model)
             ->get()
             ->map(function ($item) {
                 return [
+                    'id' => $item->id,
                     'serial_number' => $item->serial_number,
-                    'shop_name' => $item->shop->name,
+                    'shop_name' => $item->shop_name,
                     'weight' => $item->weight,
+                    'status' => $item->status, // Include item status
+                    'model' => $item->model,
+                    'gold_color' => $item->gold_color
                 ];
             });
+        
+        Log::info('Found items with model', [
+            'model' => $model, 
+            'count' => $items->count(),
+            'items_with_status' => $items->map(function($i) { 
+                return ['id' => $i['id'], 'serial' => $i['serial_number'], 'status' => $i['status']]; 
+            })
+        ]);
 
         return response()->json(['items' => $items]);
     }
@@ -571,6 +582,25 @@ public function bulkSell(SellRequest $request)
             Log::error('Failed to handle workshop requests: ' . $e->getMessage());
             return redirect()->back()->with('error', 'An error occurred: ' . $e->getMessage());
         }
+    }
+
+    /**
+     * Display gold items specifically for Rabea shop
+     */
+    public function showRabeaItems(Request $request)
+    {
+        // Ensure the user is from Rabea shop
+        if (Auth::user()->shop_name !== 'Rabea') {
+            return redirect()->route('dashboard')
+                ->with('error', 'Only Rabea shop can access this page');
+        }
+        
+        // Get items for Rabea shop
+        $goldItems = GoldItem::where('shop_name', 'Rabea')
+            ->orderBy('created_at', 'desc')
+            ->paginate(20);
+            
+        return view('Rabea.items_list', compact('goldItems'));
     }
 
 }
