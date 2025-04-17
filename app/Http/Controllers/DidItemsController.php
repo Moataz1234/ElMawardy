@@ -333,7 +333,7 @@ class DidItemsController extends Controller
                     ]);
                     
                     // Update gold item status to pending_kasr
-                    $goldItem->status = 'pending_kasr';
+                    // $goldItem->status = 'pending_kasr';
                     $goldItem->save();
                     $validItemsCount++;
                 } catch (\Exception $e) {

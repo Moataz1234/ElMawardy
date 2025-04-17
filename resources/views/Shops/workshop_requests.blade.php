@@ -104,7 +104,7 @@
         /* Ensure checkbox is aligned properly within the table cell */
         .checkbox-column {
             text-align: center;
-            vertical-align: middle;
+            vertical-align:top ;
             width: 50px;
         }
         
@@ -173,8 +173,8 @@
 
         <form action="{{ route('shop.workshop.requests.handle') }}" method="POST" id="batchActionForm">
             @csrf
-            <div class="select-all-container">
-                <input type="checkbox" id="select-all" class="form-check-input">
+            <div class="select-all-container" style="margin-left: 10px;">
+                <input type="checkbox" id="select-all" class="form-check-input" >
                 <label for="select-all">Select All</label>
             </div>
 

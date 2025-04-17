@@ -7,6 +7,8 @@
     <title>Rabea Items Inventory</title>
     
     <!-- CSS -->
+    @include('components.navbar')
+    {{-- @include('sidebars.user-sidebar') --}}
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
     <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.1/font/bootstrap-icons.css">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.2/css/all.min.css">
@@ -61,8 +63,6 @@
 </head>
 <body>
     <!-- Include navbar and sidebar components -->
-    @include('components.navbar')
-    @include('sidebars.rabea-sidebar')
 
     <div class="content-wrapper">
         <div class="main-content">
@@ -94,7 +94,7 @@
 
                                 <div class="button-container mb-3">
                                     <button id="didButton" class="btn btn-warning">
-                                        <i class="bi bi-tools me-1"></i> Send to Workshop (DID)
+                                        <i class="bi bi-tools me-1"></i>  DID
                                     </button>
                                     <button id="transferButton" class="btn btn-primary">
                                         <i class="bi bi-arrow-right-circle me-1"></i> Transfer to Shop

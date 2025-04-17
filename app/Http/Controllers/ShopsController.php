@@ -590,10 +590,10 @@ public function bulkSell(SellRequest $request)
     public function showRabeaItems(Request $request)
     {
         // Ensure the user is from Rabea shop
-        if (Auth::user()->shop_name !== 'Rabea') {
-            return redirect()->route('dashboard')
-                ->with('error', 'Only Rabea shop can access this page');
-        }
+        // if (Auth::user()->shop_name !== 'Rabea') {
+        //     return redirect()->route('dashboard')
+        //         ->with('error', 'Only Rabea shop can access this page');
+        // }
         
         // Get items for Rabea shop
         $goldItems = GoldItem::where('shop_name', 'Rabea')
