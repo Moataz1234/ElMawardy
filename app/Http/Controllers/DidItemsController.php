@@ -153,7 +153,7 @@ class DidItemsController extends Controller
                     ->where('id', $id)
                     ->update([
                         'status' => $status,
-                        'shop_name' => 'Rabea',
+                        'shop_name' => ($action === 'accept') ? 'Rabea' : $shopName, // Update shop_name to Rabea if accepted
                         'updated_at' => now()
                     ]);
                 
@@ -161,8 +161,7 @@ class DidItemsController extends Controller
                 $goldItem = GoldItem::find($transferRequest->item_id);
                 if ($goldItem) {
                     if ($action === 'accept') {
-                        // When accepted, mark item as pending for workshop
-                        // $goldItem->status = 'pending_workshop';
+                        // When accepted, update shop_name to Rabea
                         $goldItem->shop_name = 'Rabea';
                         $goldItem->save();
                     } else {

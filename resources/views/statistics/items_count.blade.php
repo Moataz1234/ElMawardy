@@ -1,53 +1,5 @@
 @include('components.navbar')
 
-<div class="container mt-4">
-    <div class="statistics-container">
-        <div class="shop-header">
-            <h2>{{ $shopName }} إحصائيات الجرد</h2>
-            <div class="total-summary">
-                <div class="summary-item">
-                    <i class="fas fa-cubes"></i>
-                    <span>إجمالي القطع: {{ $statistics->sum('total_items') }}</span>
-                </div>
-                <div class="summary-item">
-                    <i class="fas fa-weight"></i>
-                    <span>إجمالي الوزن: {{ number_format($statistics->sum('total_weight'), 3) }} جرام</span>
-                </div>
-            </div>
-        </div>
-
-        <div class="statistics-grid">
-            @foreach($statistics as $stat)
-                <div class="stat-card">
-                    <div class="stat-header">
-                        <h3>{{ $stat->kind }}</h3>
-                    </div>
-                    <div class="stat-body">
-                        <div class="stat-item">
-                            <div class="stat-icon">
-                                <i class="fas fa-cube"></i>
-                            </div>
-                            <div class="stat-info">
-                                <span class="stat-label">عدد القطع</span>
-                                <span class="stat-value">{{ $stat->total_items }}</span>
-                            </div>
-                        </div>
-                        <div class="stat-item">
-                            <div class="stat-icon">
-                                <i class="fas fa-balance-scale"></i>
-                            </div>
-                            <div class="stat-info">
-                                <span class="stat-label">الوزن</span>
-                                <span class="stat-value">{{ number_format($stat->total_weight, 3) }} جرام</span>
-                            </div>
-                        </div>
-                    </div>
-                </div>
-            @endforeach
-        </div>
-    </div>
-</div>
-
 <style>
     .statistics-container {
         padding: 20px;
@@ -63,11 +15,38 @@
         color: white;
         border-radius: 10px;
         box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+        position: relative;
     }
 
     .shop-header h2 {
         margin-bottom: 15px;
         font-weight: bold;
+    }
+
+    .export-btn {
+        position: absolute;
+        top: 20px;
+        right: 20px;
+        padding: 10px 20px;
+        font-weight: bold;
+        border-radius: 30px;
+        transition: all 0.3s ease;
+        box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+        background-color: #28a745;
+        border-color: #28a745;
+        color: white;
+        text-decoration: none;
+    }
+
+    .export-btn:hover {
+        transform: translateY(-3px);
+        box-shadow: 0 6px 8px rgba(0, 0, 0, 0.15);
+        background-color: #218838;
+        border-color: #1e7e34;
+    }
+
+    .export-btn i {
+        margin-left: 8px;
     }
 
     .total-summary {
@@ -168,5 +147,62 @@
             flex-direction: column;
             gap: 15px;
         }
+        
+        .export-btn {
+            position: static;
+            margin: 10px auto 20px;
+            display: block;
+        }
     }
-</style> 
+</style>
+
+<div class="container mt-4">
+    <div class="statistics-container">
+        <div class="shop-header">
+            <h2>{{ $shopName }} إحصائيات الجرد</h2>
+            <a href="{{ route('items.statistics.export') }}" class="btn export-btn">
+                تصدير إلى إكسل <i class="fas fa-file-excel"></i>
+            </a>
+            <div class="total-summary">
+                <div class="summary-item">
+                    <i class="fas fa-cubes"></i>
+                    <span>إجمالي القطع: {{ $statistics->sum('total_items') }}</span>
+                </div>
+                <div class="summary-item">
+                    <i class="fas fa-weight"></i>
+                    <span>إجمالي الوزن: {{ number_format($statistics->sum('total_weight'), 3) }} جرام</span>
+                </div>
+            </div>
+        </div>
+
+        <div class="statistics-grid">
+            @foreach($statistics as $stat)
+                <div class="stat-card">
+                    <div class="stat-header">
+                        <h3>{{ $stat->kind }}</h3>
+                    </div>
+                    <div class="stat-body">
+                        <div class="stat-item">
+                            <div class="stat-icon">
+                                <i class="fas fa-cube"></i>
+                            </div>
+                            <div class="stat-info">
+                                <span class="stat-label">عدد القطع</span>
+                                <span class="stat-value">{{ $stat->total_items }}</span>
+                            </div>
+                        </div>
+                        <div class="stat-item">
+                            <div class="stat-icon">
+                                <i class="fas fa-balance-scale"></i>
+                            </div>
+                            <div class="stat-info">
+                                <span class="stat-label">الوزن</span>
+                                <span class="stat-value">{{ number_format($stat->total_weight, 3) }} جرام</span>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            @endforeach
+        </div>
+    </div>
+</div> 

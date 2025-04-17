@@ -383,6 +383,9 @@ Route::middleware(['auth'])->group(function () {
         Route::get('/orders/toPrint', [RabiaController::class, 'toPrint'])->name('orders.rabea.to_print');
         Route::get('/orders/completed', [RabiaController::class, 'completed'])->name('orders.completed');
         
+        // Rabea inventory management
+        Route::get('/rabea/items', [ShopsController::class, 'showRabeaItems'])->name('rabea.items');
+        
         // Workshop DID requests
         Route::get('/did-requests', [DidItemsController::class, 'didRequests'])->name('rabea.did.requests');
         Route::post('/did-requests/handle', [DidItemsController::class, 'handleDidRequests'])->name('rabea.did.requests.handle');
@@ -471,6 +474,7 @@ Route::get('gold-pounds/export', [GoldPoundController::class, 'export'])->name('
 // })->name('download.file');
 
 Route::get('/items-statistics', [ItemStatisticsController::class, 'index'])->name('items.statistics');
+Route::get('/items-statistics/export', [ItemStatisticsController::class, 'export'])->name('items.statistics.export');
 
 // Laboratory Operations
 Route::prefix('laboratory')->name('laboratory.')->group(function () {
