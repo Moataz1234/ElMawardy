@@ -144,7 +144,7 @@ Route::middleware(['auth'])->group(function () {
         Route::get('/all-sold-items', [SoldItemRequestController::class, 'viewAllSoldItems'])
             ->name('all-sold-items');
         Route::post('/sell-requests/bulk-approve', [SoldItemRequestController::class, 'bulkApprove'])->name('sell-requests.bulk-approve');
-        
+
         // Gold Balance Report Route
         Route::get('/gold-balance-report', [GoldBalanceReportController::class, 'index'])->name('gold-balance.report');
     });
@@ -241,7 +241,7 @@ Route::middleware(['auth'])->group(function () {
         Route::get('/barcode/export', [BarcodeController::class, 'export'])->name('barcode.export');
         Route::get('/admin/barcode/export-barcode', [BarcodeController::class, 'exportBarcode'])->name('barcode.exportBarcode');
         Route::get('/gold-items/{id}/export-barcode', [BarcodeController::class, 'exportSingleItemBarcode'])
-        ->name('item.export.barcode');
+            ->name('item.export.barcode');
         Route::get('/generate-qr', [BarcodeController::class, 'generate'])->name('barcode.generate');
 
         Route::get('/warehouse', [WarehouseController::class, 'index'])->name('admin.warehouse.index');
@@ -288,16 +288,16 @@ Route::middleware(['auth'])->group(function () {
             Route::get('/products/edit/{product_id}', [App\Http\Controllers\Admin\Shopify\ShopifyProductController::class, 'showEditImageForm'])->name('products.showEditImageForm');
             Route::post('/products/edit/{product_id}', [App\Http\Controllers\Admin\Shopify\ShopifyProductController::class, 'editProduct'])->name('products.editProduct');
             Route::post('/update-from-excel', [App\Http\Controllers\Admin\Shopify\ShopifyProductController::class, 'updateFromExcel'])->name('updateFromExcel');
-            
+
             // Order routes
             Route::get('/orders', [App\Http\Controllers\Admin\Shopify\ShopifyOrderController::class, 'index'])->name('orders');
             Route::post('/orders/{id}/fulfill', [App\Http\Controllers\Admin\Shopify\ShopifyOrderController::class, 'fulfillOrder'])->name('orders.fulfill');
             Route::post('/orders/{id}/paid', [App\Http\Controllers\Admin\Shopify\ShopifyOrderController::class, 'markAsPaid'])->name('orders.markAsPaid');
             Route::get('/orders/{orderId}/pdf', [App\Http\Controllers\Admin\Shopify\ShopifyOrderController::class, 'generatePdf'])->name('orders.pdf');
-            
+
             // Checkout routes
             Route::get('/abandoned-checkouts', [App\Http\Controllers\Admin\Shopify\ShopifyCheckoutController::class, 'index'])->name('abandonedCheckouts');
-            
+
             // Price update routes
             Route::get('/update-prices', [App\Http\Controllers\Admin\Shopify\ShopifyPriceController::class, 'seeUpdatePrice'])->name('updatePrices');
             Route::post('/update-gold-prices', [App\Http\Controllers\Admin\Shopify\ShopifyPriceController::class, 'updateGoldPrices'])->name('updateGold');
@@ -323,13 +323,13 @@ Route::middleware(['auth'])->group(function () {
     // ===================================
     Route::get('/shop-items/bulk-transfer-form', [ShopsController::class, 'showBulkTransferForm'])->name('shop-items.bulkTransferForm');
     Route::post('/transfer-requests/{requestId}/handle', [ShopsController::class, 'handleTransferRequest'])
-    ->name('transfer-requests.handle');
+        ->name('transfer-requests.handle');
     Route::post('/gold-items/{id}/transfer-request', [ShopsController::class, 'transferRequest'])->name('gold-items.transfer-request');
     Route::get('/transfer-request/{id}/{status}', [ShopsController::class, 'handleTransferRequest'])->name('transfer.handle');
     Route::get('/transfer-requests', [ShopsController::class, 'viewTransferRequests'])->name('transfer.requests');
     // Route::get('/bulk-transfer', [ShopsController::class, 'showBulkTransferForm'])->name('gold-items.bulk-transfer-form');
     Route::post('/bulk-transfer', [ShopsController::class, 'bulkTransfer'])->name('gold-items.bulk-transfer');
-  
+
     Route::middleware('user')->group(function () {
         // Shop Requests
         Route::get('/shop/requests', [ShopsController::class, 'showAdminRequests'])
@@ -349,12 +349,12 @@ Route::middleware(['auth'])->group(function () {
         Route::post('/gold-items/store-outer', [ShopsController::class, 'storeOuter'])->name('gold-items.storeOuter');
         Route::post('gold-items/returnOuter/{serialNumber}', [ShopsController::class, 'returnOuter'])->name('gold-items.returnOuter');
         Route::post('gold-items/toggleReturn/{serial_number}', [ShopsController::class, 'toggleReturn'])->name('gold-items.toggleReturn');
-         Route::get('/orders', [OrderController::class, 'index'])->name('orders.index');
+        Route::get('/orders', [OrderController::class, 'index'])->name('orders.index');
         Route::get('/orders/create', [OrderController::class, 'create'])->name('orders.create');
         Route::get('/orders/history', [OrderController::class, 'showCompletedOrders'])->name('orders.history');
         Route::post('/shop-items/bulk-sell', [ShopsController::class, 'BulkSell'])->name('shop-items.bulkSell');
         Route::get('/shop-items/bulk-sell-form', [ShopsController::class, 'showBulkSellForm'])->name('shop-items.bulkSellForm');
-      
+
         Route::get('/import', [ExcelImportController::class, 'showForm'])->name('import.form');
         Route::post('/import', [ExcelImportController::class, 'import'])->name('excel.import');
 
@@ -372,7 +372,7 @@ Route::middleware(['auth'])->group(function () {
     // ===================================
     Route::middleware('rabea')->group(function () {
         Route::get('/orders/rabea', [RabiaController::class, 'indexForRabea'])->name('orders.rabea.index');
-        
+
         Route::get('/search', [RabiaController::class, 'search'])->name('orders.search');
         Route::post('/update-status/{id}', [RabiaController::class, 'updateStatus'])->name('orders.updateStatus');
         Route::post('/orders/update-status-bulk', [RabiaController::class, 'updateStatusBulk'])->name('orders.updateStatus.bulk');
@@ -386,9 +386,9 @@ Route::middleware(['auth'])->group(function () {
         Route::post('/orders/accept', [RabiaController::class, 'accept'])->name('orders.accept');
         Route::get('/orders/toPrint', [RabiaController::class, 'toPrint'])->name('orders.rabea.to_print');
         Route::get('/orders/completed', [RabiaController::class, 'completed'])->name('orders.completed');
-        
+
         // Rabea inventory management
-        
+
     });
 
     // ===================================
@@ -419,13 +419,13 @@ Route::middleware(['auth'])->group(function () {
 Route::prefix('laboratory')->name('laboratory.')->group(function () {
     Route::resource('operations', LaboratoryOperationController::class);
     Route::post('operations/{operation}/add-output', [LaboratoryOperationController::class, 'addOutput'])
-         ->name('operations.add-output');
+        ->name('operations.add-output');
     Route::post('operations/{operation}/add-input', [LaboratoryOperationController::class, 'addInput'])
-         ->name('operations.add-input');
+        ->name('operations.add-input');
     Route::patch('operations/{operation}/close', [LaboratoryOperationController::class, 'closeOperation'])
-         ->name('operations.close');
+        ->name('operations.close');
     Route::get('operations/{operation}/edit', [LaboratoryOperationController::class, 'edit'])
-         ->name('operations.edit');
+        ->name('operations.edit');
     Route::patch('/operations/{operation}/weights', [LaboratoryOperationController::class, 'updateWeights'])
         ->name('operations.update-weights');
     Route::patch('/operations/{operation}/costs', [LaboratoryOperationController::class, 'updateCosts'])
@@ -480,13 +480,13 @@ Route::get('/items-statistics/export', [ItemStatisticsController::class, 'export
 Route::prefix('laboratory')->name('laboratory.')->group(function () {
     Route::resource('operations', LaboratoryOperationController::class);
     Route::post('operations/{operation}/add-output', [LaboratoryOperationController::class, 'addOutput'])
-         ->name('operations.add-output');
+        ->name('operations.add-output');
     Route::post('operations/{operation}/add-input', [LaboratoryOperationController::class, 'addInput'])
-         ->name('operations.add-input');
+        ->name('operations.add-input');
     Route::patch('operations/{operation}/close', [LaboratoryOperationController::class, 'closeOperation'])
-         ->name('operations.close');
+        ->name('operations.close');
     Route::get('operations/{operation}/edit', [LaboratoryOperationController::class, 'edit'])
-         ->name('operations.edit');
+        ->name('operations.edit');
     Route::patch('/operations/{operation}/weights', [LaboratoryOperationController::class, 'updateWeights'])
         ->name('operations.update-weights');
     Route::patch('/operations/{operation}/costs', [LaboratoryOperationController::class, 'updateCosts'])
@@ -503,7 +503,7 @@ Route::post('/import-gold-items/update-sources', [ImportGoldItems::class, 'updat
 Route::middleware(['auth'])->group(function () {
     Route::get('/workshop-requests', [DidItemsController::class, 'workshopRequests'])->name('workshop.requests.index');
     Route::post('/workshop-requests/{id}/handle', [DidItemsController::class, 'handleWorkshopRequest'])->name('workshop.requests.handle');
-    
+
     Route::post('/workshop-requests/create', [DidItemsController::class, 'createWorkshopRequests'])->name('workshop.requests.create');
     Route::get('/workshop-items', [DidItemsController::class, 'workshopItems'])->name('workshop.items.index');
 });
@@ -519,9 +519,12 @@ Route::get('/login', [AsgardeoAuthController::class, 'redirectToAsgardeo'])->nam
 
 Route::get('/admin/add-requests/export', [AddRequestController::class, 'export'])
     ->name('admin.add.requests.export');
-
+Route::get('/admin/add-requests/print', [AddRequestController::class, 'printRequests'])
+    ->name('admin.add.requests.print');
+Route::post('/admin/add-requests/{id}/update', [AddRequestController::class, 'update'])
+    ->name('admin.add.requests.update');
 // Add this to your existing routes
-Route::get('/shopify/orders-api-view', function() {
+Route::get('/shopify/orders-api-view', function () {
     return view('shopify.orders-api-view');
 })->name('shopify.orders.api-view');
 

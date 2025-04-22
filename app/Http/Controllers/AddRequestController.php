@@ -77,7 +77,45 @@ class AddRequestController extends Controller
 
         return view('shops.add_requests', compact('itemRequests', 'poundRequests'));
     }
+    public function update(Request $request, $id)
+{
+    try {
+        $addRequest = AddRequest::findOrFail($id);
 
+        // Validate the incoming data
+        $validatedData = $request->validate([
+            'serial_number' => 'sometimes|string|max:255',
+            'model' => 'sometimes|string|max:255',
+            'shop_name' => 'sometimes|string|max:255',
+            'kind' => 'sometimes|string|max:255',
+            'gold_color' => 'sometimes|string|max:255',
+            'metal_type' => 'sometimes|string|max:255',
+            'metal_purity' => 'sometimes|string|max:255',
+            'quantity' => 'sometimes|numeric|min:1',
+            'weight' => 'sometimes|numeric|min:0',
+            'talab' => 'sometimes|string|max:255',
+            'status' => 'sometimes|in:pending,accepted,rejected',
+            'rest_since' => 'sometimes|date',
+            'source' => 'sometimes|string|max:255'
+        ]);
+
+        // Update only the fields that are present in the request
+        $addRequest->fill($validatedData);
+        $addRequest->save();
+
+        return response()->json([
+            'success' => true,
+            'message' => 'Add Request updated successfully',
+            'data' => $addRequest
+        ]);
+    } catch (\Exception $e) {
+        return response()->json([
+            'success' => false,
+            'message' => 'Failed to update Add Request',
+            'error' => $e->getMessage()
+        ], 500);
+    }
+}
     public function bulkAction(Request $request)
     {
         $action = $request->input('action'); // 'accept' or 'reject'
@@ -163,36 +201,75 @@ class AddRequestController extends Controller
         $query = AddRequest::query()
             ->leftJoin('models', 'add_requests.model', '=', 'models.model')
             ->select('add_requests.*', 'models.stars', 'models.average_of_stones');
-
+    
         // Apply filters
         if ($status = $request->get('status')) {
             $query->where('add_requests.status', $status);
         }
-
+    
         if ($request->has('shop_name') && $request->shop_name != '') {
             $query->where('add_requests.shop_name', $request->shop_name);
         }
-
+    
         if ($date = $request->get('date')) {
             $query->whereDate('add_requests.rest_since', $date);
         }
-
+    
+        // Sorting
         if ($sort = $request->get('sort')) {
             $direction = $request->get('direction', 'desc');
             $query->orderBy('add_requests.created_at', $direction);
         }
-
+    
         $requests = $query->with('modelCategory')->get();
-
+    
         // Create and export excel
         $excelService = new ExcelExportService();
         $filename = $excelService->exportAddRequests($requests);
-
+    
         // Return file download response
         return response()->download(
             storage_path('app/public/' . $filename),
             $filename,
             ['Content-Type' => 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet']
         )->deleteFileAfterSend(true);
+    }
+    
+    // New method for print functionality
+    public function printRequests(Request $request)
+    {
+        $query = AddRequest::query();
+    
+        // Apply filters similar to export method
+        if ($status = $request->get('status')) {
+            $query->where('status', $status);
+        }
+    
+        if ($request->has('shop_name') && $request->shop_name != '') {
+            $query->where('shop_name', $request->shop_name);
+        }
+    
+        if ($date = $request->get('date')) {
+            $query->whereDate('rest_since', $date);
+        }
+    
+        // Sorting
+        $query->orderBy('created_at', 'desc');
+    
+        $requests = $query->get();
+    
+        $shops = [
+            'Mohandessin Shop',
+            'Mall of Arabia',
+            'Nasr City',
+            'Zamalek',
+            'Mall of Egypt',
+            'El Guezira Shop',
+            'Arkan',
+            'District 5',
+            'U Venues'
+        ];
+    
+        return view('admin.requests.print_requests', compact('requests', 'shops'));
     }
 }
