@@ -240,6 +240,8 @@ Route::middleware(['auth'])->group(function () {
         Route::get('/barcode', [BarcodeController::class, 'index'])->name('barcode.view');
         Route::get('/barcode/export', [BarcodeController::class, 'export'])->name('barcode.export');
         Route::get('/admin/barcode/export-barcode', [BarcodeController::class, 'exportBarcode'])->name('barcode.exportBarcode');
+        Route::get('/gold-items/{id}/export-barcode', [BarcodeController::class, 'exportSingleItemBarcode'])
+        ->name('item.export.barcode');
         Route::get('/generate-qr', [BarcodeController::class, 'generate'])->name('barcode.generate');
 
         Route::get('/warehouse', [WarehouseController::class, 'index'])->name('admin.warehouse.index');

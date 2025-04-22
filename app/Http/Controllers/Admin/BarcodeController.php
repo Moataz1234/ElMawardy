@@ -4,6 +4,9 @@ namespace App\Http\Controllers\Admin;
 
 use App\Http\Controllers\Controller;
 use App\Models\AddRequest;
+use App\Models\GoldItem;
+use App\Models\Models;
+
 use App\Models\Shop;
 use Illuminate\Http\Request;
 use PhpOffice\PhpSpreadsheet\Spreadsheet;
@@ -252,5 +255,41 @@ class BarcodeController extends Controller
         }
 
         return '';
+    }
+    public function exportSingleItemBarcode($id)
+    {
+        try {
+            // Find the specific gold item with its related model
+            $item = GoldItem::with('modelCategory')->findOrFail($id);
+    
+            // Fetch stars from the related Models table
+            $modelInfo = Models::where('model', $item->model)->first();
+            $stars = $modelInfo ? $modelInfo->stars : 'N/A';
+    
+            // Generate QR code URL
+            $qrCodeUrl = 'https://api.qrserver.com/v1/create-qr-code/?size=200x200&data=' . urlencode($item->serial_number);
+            
+            // Prepare barcode data for a single item
+            $barcodeData = [
+                'serial_number' => $item->serial_number,
+                'model' => $item->model,
+                'weight' => $item->weight,
+                'shop_id' => $item->shop_id,
+                'stars' => $stars,
+                'barcode_image' => $qrCodeUrl,
+                'source' => $this->modifySource($item->source),
+            ];
+    
+            // Return the barcode print view for this single item
+            return view('admin.Gold.barcode_print', [
+                'barcodeData' => [$barcodeData]
+            ]);
+        } catch (\Exception $e) {
+            // Log the error
+            Log::error('Barcode generation error for item ' . $id . ': ' . $e->getMessage());
+            
+            // Redirect back with an error message
+            return redirect()->back()->with('error', 'Failed to generate barcode: ' . $e->getMessage());
+        }
     }
 }
