@@ -28,6 +28,7 @@
                     <a href="{{ route('barcode.view') }}" class="dropdown-item">Barcode</a> --}}
                     <a href="{{ route('gold-pounds.admin.index') }}" class="dropdown-item">Gold Pounds</a>
                     <a href="{{ route('admin.inventory') }}" class="dropdown-item">Gold Items</a>
+                    <a href="{{ route('rabea.items.list') }}" class="dropdown-item">Items List</a>
                     <a href="{{ route('admin.sold-items') }}" class="dropdown-item">Sold Items</a>
                     <a href="{{ route('workshop.items.index') }}" class="dropdown-item">Did</a>
                 </div>
@@ -113,6 +114,7 @@
                     <a href="{{ route('barcode.view') }}" class="dropdown-item">Barcode</a> --}}
                     <a href="{{ route('gold-pounds.admin.index') }}" class="dropdown-item">Gold Pounds</a>
                     <a href="{{ route('admin.inventory') }}" class="dropdown-item">Gold Items</a>
+                    <a href="{{ route('rabea.items.list') }}" class="dropdown-item">Items List</a>
                     <a href="{{ route('admin.sold-items') }}" class="dropdown-item">Sold Items</a>
                     {{-- <a href="{{ route('workshop.items.index') }}" class="dropdown-item">Did</a> --}}
                 </div>

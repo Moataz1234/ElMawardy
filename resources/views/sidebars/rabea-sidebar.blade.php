@@ -1,6 +1,6 @@
     <div class="sidebar_order">
         <!-- Rabea Navigation Links -->
-        <div class="nav-links mt-4">
+        {{-- <div class="nav-links mt-4">
             <a href="{{ route('orders.rabea.index') }}" class="nav-link {{ request()->routeIs('orders.rabea.index') ? 'active' : '' }}">
                 <i class="fas fa-shopping-cart me-2"></i> Orders Dashboard
             </a>
@@ -10,8 +10,8 @@
             <a href="{{ route('rabea.did.requests') }}" class="nav-link {{ request()->routeIs('rabea.did.requests') ? 'active' : '' }}">
                 <i class="fas fa-tools me-2"></i> Workshop Requests
             </a>
-        </div>
-        
+        </div> --}}
+            
         <form method="GET" action="{{ url()->current() }}" id="filterForm">    
             <div class="radio-group">
                 <h3>Sort By</h3>

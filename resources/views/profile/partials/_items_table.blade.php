@@ -57,8 +57,8 @@
                                         <span class="pending-badge" style="font-size: 16px;">في انتظار  الموافقة على التحويل</span>
                                     @elseif($item->status === 'pending_sale')
                                         <span class="pending-badge" style="font-size: 16px;">في انتظار الموافقة على البيع</span>
-                                    @elseif($item->status === 'pending_workshop' || $item->status === 'pending_kasr')
-                                        <span class="pending-badge" style="font-size: 16px;">في انتظار الموافقة على الكسر</span>
+                                    {{-- @elseif($item->status === 'pending_workshop' || $item->status === 'pending_kasr')
+                                        <span class="pending-badge" style="font-size: 16px;">في انتظار الموافقة على الكسر</span> --}}
                                     @else
                                         <input type="checkbox" class="select-item" data-id="{{ $item->id }}" data-serial="{{ $item->serial_number }}" data-model="{{ $item->model }}">
                                     @endif

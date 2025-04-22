@@ -7,6 +7,13 @@ use App\Models\GoldItem;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Log;
 use Illuminate\Support\Facades\Auth;
+use App\Models\Shop;
+use App\Models\TransferRequest;
+use App\Models\TransferRequestHistory;
+use App\Models\User;
+use Illuminate\Support\Facades\Notification;
+use App\Notifications\TransferRequestNotification;
+
 
 class DidItemsController extends Controller
 {
@@ -71,6 +78,7 @@ class DidItemsController extends Controller
         // First, check if there are any requests for this exact shop name
         $exactMatchCount = DB::table('workshop_transfer_requests')
             ->where('shop_name', $shopName)
+            ->where('status', 'pending')
             ->count();
             
         Log::info('Found ' . $exactMatchCount . ' exact matches for shop name: ' . $shopName);
@@ -107,6 +115,7 @@ class DidItemsController extends Controller
         }
         
         $requests = $query->orderBy('created_at', 'desc')
+            ->where('status', 'pending')
             ->paginate(20);
             
         // Log the count of requests found
@@ -153,7 +162,6 @@ class DidItemsController extends Controller
                     ->where('id', $id)
                     ->update([
                         'status' => $status,
-                        'shop_name' => ($action === 'accept') ? 'Rabea' : $shopName, // Update shop_name to Rabea if accepted
                         'updated_at' => now()
                     ]);
                 
@@ -163,6 +171,7 @@ class DidItemsController extends Controller
                     if ($action === 'accept') {
                         // When accepted, update shop_name to Rabea
                         $goldItem->shop_name = 'Rabea';
+                        $goldItem->status = 'pending_workshop';
                         $goldItem->save();
                     } else {
                         // If rejected, reset the status back to normal
@@ -333,7 +342,7 @@ class DidItemsController extends Controller
                     ]);
                     
                     // Update gold item status to pending_kasr
-                    // $goldItem->status = 'pending_kasr';
+                    $goldItem->status = 'pending_kasr';
                     $goldItem->save();
                     $validItemsCount++;
                 } catch (\Exception $e) {
@@ -529,4 +538,255 @@ class DidItemsController extends Controller
             return redirect()->back()->with('error', 'An error occurred: ' . $e->getMessage());
         }
     }
+
+/**
+ * Handle DID requests from Rabea shop
+ * This method processes items to be sent directly to workshop
+ */
+public function handleRabeaDIDRequests(Request $request)
+{
+    try {
+        // Validate the request
+        $request->validate([
+            'items' => 'required|string', // JSON string of item details
+            'transfer_reason' => 'required|string',
+            'action' => 'required|string|in:approve,reject'
+        ]);
+
+        // Debug received data
+        Log::info('DID request received', [
+            'items' => $request->input('items'),
+            'reason' => $request->input('transfer_reason'),
+            'action' => $request->input('action')
+        ]);
+
+        DB::beginTransaction(); // Start transaction
+
+        // Decode the JSON items
+        $items = json_decode($request->input('items'), true);
+        
+        // Debug decoded items
+        Log::info('Decoded items for DID', ['count' => count($items), 'data' => $items]);
+        
+        if (empty($items)) {
+            Log::error('No items to transfer after JSON decoding');
+            return redirect()->back()->with('error', 'No valid items to transfer. Please check your selection.');
+        }
+        
+        $reason = $request->input('transfer_reason');
+        $action = $request->input('action');
+        $validItemsCount = 0;
+
+        // Process only the selected items from the table
+        foreach ($items as $item) {
+            try {
+                // Get item ID from the JSON object
+                $itemId = $item['id'];
+                $goldItem = GoldItem::findOrFail($itemId);
+                
+                // Check if item already has a pending request
+                if ($goldItem->status === 'pending_kasr' || $goldItem->status === 'pending_workshop') {
+                    Log::info('Skipping item already pending', ['id' => $goldItem->id, 'serial' => $goldItem->serial_number]);
+                    continue;
+                }
+                
+                if ($action === 'approve') {
+                    // Create workshop item record
+                    DB::table('workshop_items')->insert([
+                        'item_id' => $goldItem->id,
+                        'transferred_by' => Auth::user()->name,
+                        'serial_number' => $goldItem->serial_number,
+                        'shop_name' => $goldItem->shop_name,
+                        'kind' => $goldItem->kind,
+                        'model' => $goldItem->model,
+                        'gold_color' => $goldItem->gold_color,
+                        'metal_purity' => $goldItem->metal_purity,
+                        'weight' => $goldItem->weight,
+                        'transfer_reason' => $reason,
+                        'transferred_at' => now(),
+                        'created_at' => now(),
+                        'updated_at' => now()
+                    ]);
+                    
+                    // Create a record in workshop_transfer_requests table for tracking
+                    DB::table('workshop_transfer_requests')->insert([
+                        'item_id' => $goldItem->id,
+                        'shop_name' => $goldItem->shop_name,
+                        'serial_number' => $goldItem->serial_number,
+                        'status' => 'approved',
+                        'reason' => $reason,
+                        'requested_by' => Auth::user()->shop_name,
+                        'created_at' => now(),
+                        'updated_at' => now()
+                    ]);
+                    
+                    // Remove the item from gold_items table
+                    $goldItem->delete();
+                }
+                
+                $validItemsCount++;
+            } catch (\Exception $e) {
+                Log::warning('Error processing DID item', ['id' => $item['id'] ?? 'unknown', 'error' => $e->getMessage()]);
+                continue;
+            }
+        }
+        
+        Log::info('Valid items processed count for DID', ['count' => $validItemsCount]);
+        
+        if ($validItemsCount === 0) {
+            DB::rollBack();
+            Log::error('No valid items were processed for DID');
+            return redirect()->back()->with('error', 'No valid items to transfer. All selected items may already be in process or have invalid status.');
+        }
+
+        DB::commit();
+
+        // Check if this is an AJAX request
+        if ($request->ajax() || $request->wantsJson()) {
+            return response()->json([
+                'success' => true,
+                'message' => 'Items transferred to workshop successfully (' . $validItemsCount . ' items)'
+            ]);
+        }
+
+        return redirect()->route('rabea.items')->with('success', 'Items transferred to workshop successfully (' . $validItemsCount . ' items)');
+    } catch (\Exception $e) {
+        DB::rollBack();
+        Log::error('Failed to process DID request: ' . $e->getMessage(), [
+            'trace' => $e->getTraceAsString()
+        ]);
+        
+        // Check if this is an AJAX request
+        if ($request->ajax() || $request->wantsJson()) {
+            return response()->json([
+                'success' => false,
+                'message' => 'Failed to process DID request: ' . $e->getMessage()
+            ], 422);
+        }
+        
+        return redirect()->back()->with('error', 'Failed to process DID request: ' . $e->getMessage());
+    }
+}
+public function getShopsForTransfer()
+{
+    try {
+        Log::info('Getting shops for transfer');
+        
+        // Get all shops except Rabea
+        $shops = Shop::where('name', '!=', 'rabea')
+            // ->where('is_active', true)
+            ->pluck('name');
+            
+        Log::info('Shops found', ['count' => $shops->count(), 'shops' => $shops->toArray()]);
+            
+        return response()->json([
+            'success' => true,
+            'shops' => $shops
+        ]);
+    } catch (\Exception $e) {
+        Log::error('Failed to fetch shops for transfer: ' . $e->getMessage(), [
+            'trace' => $e->getTraceAsString()
+        ]);
+        return response()->json([
+            'success' => false,
+            'message' => 'Failed to load shops: ' . $e->getMessage()
+        ], 500);
+    }
+}
+/**
+ * Process direct transfer from modal
+ */
+/**
+ * Process direct transfer from modal
+ */
+public function processRabeaTransfer(Request $request)
+{
+    try {
+        // Validate the request data
+        $validated = $request->validate([
+            'item_ids' => 'required|array',
+            'item_ids.*' => 'exists:gold_items,id',
+            'shop_name' => 'required|string|exists:shops,name'
+        ]);
+        
+        DB::beginTransaction();
+        
+        // Get destination shop and items
+        $destinationShop = $validated['shop_name'];
+        $items = GoldItem::whereIn('id', $validated['item_ids'])->get();
+        
+        Log::info('Processing Rabea transfer via modal', [
+            'destination_shop' => $destinationShop,
+            'item_count' => count($validated['item_ids']),
+            'items' => $items->pluck('id')->toArray()
+        ]);
+        
+        $processedCount = 0;
+        $skippedItems = [];
+        
+        // Process each item
+        foreach ($items as $item) {
+            // Only skip items that are specifically in pending_transfer state
+            // This allows items with other statuses to be transferred
+            if ($item->status === 'pending_transfer') {
+                Log::info('Skipping item with pending_transfer status', [
+                    'item_id' => $item->id,
+                    'serial' => $item->serial_number,
+                    'current_status' => $item->status
+                ]);
+                $skippedItems[] = $item->serial_number;
+                continue;
+            }
+            
+            Log::info('Processing item for transfer', [
+                'item_id' => $item->id,
+                'serial' => $item->serial_number,
+                'current_status' => $item->status
+            ]);
+            
+            // Create transfer request record in transfer_requests table
+            TransferRequest::create([
+                'gold_item_id' => $item->id,
+                'from_shop_name' => 'rabea',
+                'to_shop_name' => $destinationShop,
+                'status' => 'pending',
+                'type' => 'item' // Add this if your table has a type field
+            ]);
+            
+            // Update item status to pending_transfer
+            $item->status = 'pending_transfer';
+            $item->save();
+            
+            $processedCount++;
+        }
+        
+        if ($processedCount === 0) {
+            DB::rollBack();
+            Log::warning('No items were processed for transfer', [
+                'skipped_items' => $skippedItems
+            ]);
+            return response()->json([
+                'success' => false,
+                'message' => 'No items were processed. All selected items may already be in process.'
+            ]);
+        }
+        
+        DB::commit();
+        
+        return response()->json([
+            'success' => true,
+            'message' => "Transfer requests created successfully for {$processedCount} items"
+        ]);
+    } catch (\Exception $e) {
+        DB::rollBack();
+        Log::error('Failed to process Rabea transfer: ' . $e->getMessage(), [
+            'trace' => $e->getTraceAsString()
+        ]);
+        
+        return response()->json([
+            'success' => false,
+            'message' => 'Failed to process transfer: ' . $e->getMessage()
+        ], 422);
+    }
+}
 } 

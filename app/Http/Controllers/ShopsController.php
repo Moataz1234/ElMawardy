@@ -589,17 +589,12 @@ public function bulkSell(SellRequest $request)
      */
     public function showRabeaItems(Request $request)
     {
-        // Ensure the user is from Rabea shop
-        // if (Auth::user()->shop_name !== 'Rabea') {
-        //     return redirect()->route('dashboard')
-        //         ->with('error', 'Only Rabea shop can access this page');
-        // }
+        // Get all the gold items that are available in inventory
+        $goldItems = GoldItem::with('modelCategory')
+        ->where('shop_name', 'rabea')
+        ->orderBy('created_at', 'desc')
+        ->paginate(20);
         
-        // Get items for Rabea shop
-        $goldItems = GoldItem::where('shop_name', 'Rabea')
-            ->orderBy('created_at', 'desc')
-            ->paginate(20);
-            
         return view('Rabea.items_list', compact('goldItems'));
     }
 

@@ -509,8 +509,8 @@
             </div>
             <div class="button-container">
                 {{-- <button class="delete_btn" type="button" name="action" value="delete" form="bulkActionForm">Delete</button> --}}
-                <button class="request_btn" type="submit" name="action" value="request">Request Item</button>
-                <button class="workshop_btn" type="button" name="action" value="workshop" form="bulkActionForm"> Did</button>
+                {{-- <button class="request_btn" type="submit" name="action" value="request">Request Item</button> --}}
+                <button class="workshop_btn" type="button" name="action" value="workshop" form="bulkActionForm"> Request Item</button>
             </div>
         </form>
     </div>
@@ -544,19 +544,17 @@
     <!-- Model Selection Modal for Workshop Transfer -->
     <div class="modal fade" id="modelSelectionModal" tabindex="-1" role="dialog" aria-labelledby="modelSelectionModalLabel"
         aria-hidden="true">
-        <div class="modal-dialog modal-lg modal-dialog-centered" role="document">
+        <div class="modal-dialog modal-lg modal-dialog-centered modal-dialog-scrollable" role="document">
             <div class="modal-content border-0 shadow">
                 <div class="modal-header bg-primary text-white d-flex justify-content-between align-items-center">
                     <h5 class="modal-title" id="modelSelectionModalLabel">
                         <i class="bi bi-list-check me-2"></i>Select Items to Transfer (DID)
                     </h5>
-                    {{-- <button type="button" class="btn-close btn-close-white" data-dismiss="modal" aria-label="Close"></button> --}}
                 </div>
-                <div class="modal-body p-4">
-                    <div class="alert alert-primary d-flex align-items-center">
-                        <i class="bi bi-info-circle me-2"></i> 
+                <div class="modal-body p-3" style="max-height: 60vh; overflow-y: auto;">
+                    {{-- <div class="alert alert-primary d-flex align-items-center">
                         <div>Review the items below and select which ones to transfer to the workshop. Reason: <strong>DID</strong></div>
-                    </div>
+                    </div> --}}
                     <div id="model-selection-content" class="mt-3">
                         <div class="text-center p-4">
                             <div class="spinner-border text-primary" role="status">

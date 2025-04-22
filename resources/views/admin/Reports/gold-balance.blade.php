@@ -41,38 +41,31 @@
                 <!-- Filter Form -->
                 <form action="{{ route('gold-balance.report') }}" method="GET" class="mb-4">
                     <div class="row g-3 align-items-end">
-                        <div class="col-md-3">
-                            <label for="start_date" class="form-label">Start Date</label>
-                            <input type="date" id="start_date" name="start_date" class="form-control" value="{{ $startDate ? $startDate->format('Y-m-d') : '' }}">
+                        <div class="col-md-4">
+                            <label for="report_date" class="form-label">Report Date</label>
+                            <input type="date" id="report_date" name="report_date" class="form-control" value="{{ $reportDate ? $reportDate->format('Y-m-d') : '' }}">
                         </div>
-                        <div class="col-md-3">
-                            <label for="end_date" class="form-label">End Date</label>
-                            <input type="date" id="end_date" name="end_date" class="form-control" value="{{ $endDate ? $endDate->format('Y-m-d') : '' }}">
-                        </div>
-                        <div class="col-md-3">
+                        <div class="col-md-4">
                             <div class="form-check">
                                 <input type="checkbox" id="hide_inactive" name="hide_inactive" class="form-check-input" value="1" {{ request()->has('hide_inactive') ? 'checked' : '' }}>
                                 <label for="hide_inactive" class="form-check-label">Hide inactive shops</label>
                             </div>
                         </div>
-                        <div class="col-md-3">
+                        <div class="col-md-4">
                             <button type="submit" class="btn btn-primary w-100">Apply Filters</button>
                         </div>
                     </div>
                 </form>
 
-                <!-- Date Range Title -->
+                <!-- Date Title -->
                 <div class="alert alert-info mb-4">
                     <h5 class="mb-0">
-                        Report Period: {{ $startDate->format('d M Y') }} 
-                        @if($startDate->format('Y-m-d') != $endDate->format('Y-m-d'))
-                            to {{ $endDate->format('d M Y') }}
-                        @endif
+                        Report Date: {{ $reportDate->format('d M Y') }}
                     </h5>
                 </div>
 
                 <!-- Summary Cards -->
-                {{-- <div class="row mb-4">
+                <div class="row mb-4">
                     <div class="col-md-4">
                         <div class="card text-center h-100 bg-light">
                             <div class="card-body">
@@ -102,7 +95,7 @@
                             </div>
                         </div>
                     </div>
-                </div> --}}
+                </div>
 
                 <!-- Shop-Based Report Table -->
                 <div class="card mb-4">
@@ -118,7 +111,6 @@
                                         <th class="text-end">Sold Weight (g)</th>
                                         <th class="text-end">Bought Weight (g)</th>
                                         <th class="text-end">Shop Balance (g)</th>
-                                        <th class="text-end">Running Balance (g)</th>
                                     </tr>
                                 </thead>
                                 <tbody>
@@ -131,9 +123,6 @@
                                                 <td class="text-end {{ $data['shop_balance'] >= 0 ? 'text-success' : 'text-danger' }}">
                                                     {{ number_format($data['shop_balance'], 2) }}
                                                 </td>
-                                                <td class="text-end {{ $data['running_balance'] >= 0 ? 'text-success' : 'text-danger' }} fw-bold">
-                                                    {{ number_format($data['running_balance'], 2) }}
-                                                </td>
                                             </tr>
                                         @endif
                                     @endforeach
@@ -145,9 +134,6 @@
                                         <td class="text-end"><strong>{{ number_format($shopReportData['Total']['bought'], 2) }}</strong></td>
                                         <td class="text-end {{ $shopReportData['Total']['shop_balance'] >= 0 ? 'text-success' : 'text-danger' }}">
                                             <strong>{{ number_format($shopReportData['Total']['shop_balance'], 2) }}</strong>
-                                        </td>
-                                        <td class="text-end {{ $shopReportData['Total']['running_balance'] >= 0 ? 'text-success' : 'text-danger' }}">
-                                            <strong>{{ number_format($shopReportData['Total']['running_balance'], 2) }}</strong>
                                         </td>
                                     </tr>
                                 </tfoot>
@@ -302,4 +288,4 @@
         });
     </script>
 </body>
-</html> 
+</html>

@@ -140,7 +140,7 @@
 
         <div class="filters-container">
             <form action="{{ route('shop.workshop.requests') }}" method="GET" class="row align-items-end">
-                <div class="col-md-3">
+                {{-- <div class="col-md-3">
                     <label for="status" class="form-label">Request Status</label>
                     <select name="status" id="status" class="form-control custom-select">
                         <option value="">All Status</option>
@@ -150,7 +150,7 @@
                         <option value="accepted_by_shop" {{ request('status') == 'accepted_by_shop' ? 'selected' : '' }}>Accepted By Shop</option>
                         <option value="rejected_by_shop" {{ request('status') == 'rejected_by_shop' ? 'selected' : '' }}>Rejected By Shop</option>
                     </select>
-                </div>
+                </div> --}}
 
                 <div class="col-md-3">
                     <label for="date" class="form-label">Date</label>
@@ -236,7 +236,7 @@
                                 <td>{{ $request->created_at }}</td>
                             </tr>
                         @empty
-                            <tr>
+                            {{-- <tr>
                                 <td colspan="8" class="text-center">
                                     <div class="alert alert-info">
                                         <p>No workshop requests found for <strong>{{ $shopName }}</strong>.</p>
@@ -255,7 +255,7 @@
                                         @endif
                                     </div>
                                 </td>
-                            </tr>
+                            </tr> --}}
                         @endforelse
                     </tbody>
                 </table>

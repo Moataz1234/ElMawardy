@@ -15,48 +15,38 @@ class GoldBalanceReportController extends Controller
 {
     public function index(Request $request)
     {
-        // Get filter parameters - default to today if not provided
-        $startDate = $request->input('start_date') ? Carbon::parse($request->input('start_date')) : Carbon::today();
-        $endDate = $request->input('end_date') ? Carbon::parse($request->input('end_date')) : Carbon::today()->endOfDay();
+        // Get filter parameter - default to today if not provided
+        $reportDate = $request->input('report_date') ? Carbon::parse($request->input('report_date')) : Carbon::today();
+        $startDate = $reportDate->copy()->startOfDay();
+        $endDate = $reportDate->copy()->endOfDay();
         $hideInactive = $request->has('hide_inactive');
         
-        // Query for KasrItems (bought gold)
-        $kasrItemsQuery = KasrItem::query()
-            ->join('kasr_sales', 'kasr_items.kasr_sale_id', '=', 'kasr_sales.id')
-            ->where('kasr_sales.status', 'accepted');
+        // Get KasrItems from REGULAR SALES only (not completed)
+        // This query gets regular kasr items excluding those that have been completed
+        $regularKasrItems = KasrItem::join('kasr_sales', 'kasr_items.kasr_sale_id', '=', 'kasr_sales.id')
+            ->leftJoin('kasr_sales_complete', 'kasr_sales.id', '=', 'kasr_sales_complete.original_kasr_sale_id')
+            ->whereNull('kasr_sales_complete.id') // Only those WITHOUT a completed record
+            ->where('kasr_sales.status', 'accepted')
+            ->whereDate('kasr_sales.order_date', $reportDate)
+            ->select('kasr_items.*', 'kasr_sales.shop_name')
+            ->get();
             
-        // Apply date filters to KasrItems
-        $kasrItemsQuery->whereBetween('kasr_sales.order_date', [$startDate, $endDate]);
-        
-        // Get kasr items with normalized weight to 18K
-        $kasrItems = $kasrItemsQuery->get();
-        
-        // Query for KasrItems from completed sales table
-        $completedKasrItemsQuery = KasrItem::query()
-            ->join('kasr_sales', 'kasr_items.kasr_sale_id', '=', 'kasr_sales.id')
+        // Get items from COMPLETED SALES only
+        $completedSaleItems = KasrItem::join('kasr_sales', 'kasr_items.kasr_sale_id', '=', 'kasr_sales.id')
             ->join('kasr_sales_complete', 'kasr_sales.id', '=', 'kasr_sales_complete.original_kasr_sale_id')
-            ->where('kasr_sales_complete.status', 'accepted');
+            ->where('kasr_sales_complete.status', 'accepted')
+            ->whereDate('kasr_sales_complete.order_date', $reportDate)
+            ->select('kasr_items.*', 'kasr_sales_complete.original_shop_name as shop_name')
+            ->get();
             
-        // Apply date filters to completed items
-        $completedKasrItemsQuery->whereBetween('kasr_sales_complete.order_date', [$startDate, $endDate]);
-        
-        // Get completed kasr items
-        $completedKasrItems = $completedKasrItemsQuery->get();
-        
-        // Combine both collections
-        $allKasrItems = $kasrItems->concat($completedKasrItems);
+        // Combine the non-overlapping sets
+        $allKasrItems = $regularKasrItems->concat($completedSaleItems);
         
         // Calculate total bought weight
         $totalBoughtWeight = $this->normalizeWeightsTo18K($allKasrItems);
         
         // Query for Gold Items Sold
-        $soldItemsQuery = GoldItemSold::query();
-        
-        // Apply date filters to sold items
-        $soldItemsQuery->whereBetween('sold_date', [$startDate, $endDate]);
-        
-        // Get sold items with normalized weight to 18K
-        $soldItems = $soldItemsQuery->get();
+        $soldItems = GoldItemSold::whereDate('sold_date', $reportDate)->get();
         $totalSoldWeight = $this->normalizeWeightsTo18K($soldItems, 'sold');
         
         // Calculate balance
@@ -66,11 +56,11 @@ class GoldBalanceReportController extends Controller
         $boughtWeightByPurity = $this->getWeightByPurity($allKasrItems);
         $soldWeightByPurity = $this->getWeightByPurity($soldItems, 'sold');
         
-        // Get monthly data for chart
+        // Get monthly data for chart (still keep this for historical view)
         $monthlyData = $this->getMonthlyData($startDate->copy()->subMonths(6), $endDate);
         
         // Get shop-based report data
-        $shopReportData = $this->getShopReportData($startDate, $endDate, $hideInactive);
+        $shopReportData = $this->getShopReportData($reportDate, $hideInactive);
         
         return view('admin.reports.gold-balance', compact(
             'totalBoughtWeight', 
@@ -79,8 +69,7 @@ class GoldBalanceReportController extends Controller
             'boughtWeightByPurity', 
             'soldWeightByPurity',
             'monthlyData',
-            'startDate',
-            'endDate',
+            'reportDate',
             'shopReportData',
             'hideInactive'
         ));
@@ -165,8 +154,11 @@ class GoldBalanceReportController extends Controller
             $endDate = Carbon::now();
         }
         
-        // Bought monthly data (KasrItems)
-        $boughtMonthly = KasrItem::join('kasr_sales', 'kasr_items.kasr_sale_id', '=', 'kasr_sales.id')
+        // Bought monthly data - regular sales (excluding completed ones)
+        $regularBoughtMonthly = DB::table('kasr_items')
+            ->join('kasr_sales', 'kasr_items.kasr_sale_id', '=', 'kasr_sales.id')
+            ->leftJoin('kasr_sales_complete', 'kasr_sales.id', '=', 'kasr_sales_complete.original_kasr_sale_id')
+            ->whereNull('kasr_sales_complete.id') // Only those WITHOUT a completed record
             ->where('kasr_sales.status', 'accepted')
             ->whereBetween('kasr_sales.order_date', [$startDate, $endDate])
             ->select(
@@ -177,6 +169,24 @@ class GoldBalanceReportController extends Controller
             )
             ->groupBy('year', 'month', 'kasr_items.metal_purity')
             ->get();
+            
+        // Bought monthly data - completed sales
+        $completedBoughtMonthly = DB::table('kasr_items')
+            ->join('kasr_sales', 'kasr_items.kasr_sale_id', '=', 'kasr_sales.id')
+            ->join('kasr_sales_complete', 'kasr_sales.id', '=', 'kasr_sales_complete.original_kasr_sale_id')
+            ->where('kasr_sales_complete.status', 'accepted')
+            ->whereBetween('kasr_sales_complete.order_date', [$startDate, $endDate])
+            ->select(
+                DB::raw('YEAR(kasr_sales_complete.order_date) as year'),
+                DB::raw('MONTH(kasr_sales_complete.order_date) as month'),
+                DB::raw('SUM(kasr_items.weight) as total_weight'),
+                'kasr_items.metal_purity'
+            )
+            ->groupBy('year', 'month', 'kasr_items.metal_purity')
+            ->get();
+            
+        // Combine bought data
+        $boughtMonthly = $regularBoughtMonthly->concat($completedBoughtMonthly);
             
         // Sold monthly data (GoldItemSold)
         $soldMonthly = GoldItemSold::whereBetween('sold_date', [$startDate, $endDate])
@@ -240,33 +250,32 @@ class GoldBalanceReportController extends Controller
     /**
      * Get shop-based report data
      * 
-     * @param Carbon $startDate
-     * @param Carbon $endDate
+     * @param Carbon $reportDate
      * @param bool $hideInactive
      * @return array
      */
-    private function getShopReportData($startDate, $endDate, $hideInactive = false)
+    private function getShopReportData($reportDate, $hideInactive = false)
     {
         // Get all shop names from users table - only 'user' type, exclude 'admin' and 'rabea'
         $allShops = \App\Models\User::where('usertype', 'user')
-            ->whereNotIn('usertype', ['admin', 'rabea']) // Ensure we exclude admin and rabea
+            ->whereNotIn('usertype', ['admin', 'rabea']) 
             ->pluck('shop_name')
             ->toArray();
             
         // Also get shop names from transactions in the selected period
         $kasrShops = KasrSale::where('status', 'accepted')
-            ->whereBetween('order_date', [$startDate, $endDate])
+            ->whereDate('order_date', $reportDate)
             ->distinct()
             ->pluck('shop_name')
             ->toArray();
             
-        // Get shop names from completed kasr sales (will be 'rabea' but we'll use original_shop_name)
-        $completedKasrShops = \App\Models\KasrSaleComplete::whereBetween('order_date', [$startDate, $endDate])
+        // Get shop names from completed kasr sales
+        $completedKasrShops = \App\Models\KasrSaleComplete::whereDate('order_date', $reportDate)
             ->distinct()
             ->pluck('original_shop_name')
             ->toArray();
             
-        $soldShops = GoldItemSold::whereBetween('sold_date', [$startDate, $endDate])
+        $soldShops = GoldItemSold::whereDate('sold_date', $reportDate)
             ->distinct()
             ->pluck('shop_name')
             ->toArray();
@@ -274,7 +283,7 @@ class GoldBalanceReportController extends Controller
         // Combine and unique shop names
         $allShops = array_unique(array_merge($allShops, $kasrShops, $completedKasrShops, $soldShops));
         
-        // Filter out any 'admin' or 'rabea' shop names that might have been included from transactions
+        // Filter out any 'admin' or 'rabea' shop names
         $excludedShopNames = \App\Models\User::whereIn('usertype', ['admin', 'rabea'])
             ->pluck('shop_name')
             ->toArray();
@@ -297,29 +306,33 @@ class GoldBalanceReportController extends Controller
         foreach ($allShops as $shop) {
             if (empty($shop)) continue; // Skip empty shop names
             
-            // Get kasr items from original table for this shop
-            $kasrItems = KasrItem::join('kasr_sales', 'kasr_items.kasr_sale_id', '=', 'kasr_sales.id')
+            // Get regular kasr items for this shop (excluding completed ones)
+            $regularKasrItems = KasrItem::join('kasr_sales', 'kasr_items.kasr_sale_id', '=', 'kasr_sales.id')
+                ->leftJoin('kasr_sales_complete', 'kasr_sales.id', '=', 'kasr_sales_complete.original_kasr_sale_id')
+                ->whereNull('kasr_sales_complete.id') // Only those WITHOUT a completed record
                 ->where('kasr_sales.status', 'accepted')
                 ->where('kasr_sales.shop_name', $shop)
-                ->whereBetween('kasr_sales.order_date', [$startDate, $endDate])
+                ->whereDate('kasr_sales.order_date', $reportDate)
+                ->select('kasr_items.*')
                 ->get();
             
-            // Get kasr items from completed table for this shop (using original_shop_name)
+            // Get completed kasr items for this shop
             $completedKasrItems = KasrItem::join('kasr_sales', 'kasr_items.kasr_sale_id', '=', 'kasr_sales.id')
                 ->join('kasr_sales_complete', 'kasr_sales.id', '=', 'kasr_sales_complete.original_kasr_sale_id')
                 ->where('kasr_sales_complete.status', 'accepted')
                 ->where('kasr_sales_complete.original_shop_name', $shop)
-                ->whereBetween('kasr_sales_complete.order_date', [$startDate, $endDate])
+                ->whereDate('kasr_sales_complete.order_date', $reportDate)
+                ->select('kasr_items.*')
                 ->get();
             
             // Combine both collections
-            $allKasrItems = $kasrItems->concat($completedKasrItems);
+            $allKasrItems = $regularKasrItems->concat($completedKasrItems);
             
             $boughtWeight = $this->normalizeWeightsTo18K($allKasrItems);
             
             // Get sold items for this shop
             $soldItems = GoldItemSold::where('shop_name', $shop)
-                ->whereBetween('sold_date', [$startDate, $endDate])
+                ->whereDate('sold_date', $reportDate)
                 ->get();
                 
             $soldWeight = $this->normalizeWeightsTo18K($soldItems, 'sold');
@@ -358,4 +371,4 @@ class GoldBalanceReportController extends Controller
         
         return $shopData;
     }
-} 
+}

@@ -319,6 +319,15 @@ Route::middleware(['auth'])->group(function () {
     // ===================================
     // Shop Routes
     // ===================================
+    Route::get('/shop-items/bulk-transfer-form', [ShopsController::class, 'showBulkTransferForm'])->name('shop-items.bulkTransferForm');
+    Route::post('/transfer-requests/{requestId}/handle', [ShopsController::class, 'handleTransferRequest'])
+    ->name('transfer-requests.handle');
+    Route::post('/gold-items/{id}/transfer-request', [ShopsController::class, 'transferRequest'])->name('gold-items.transfer-request');
+    Route::get('/transfer-request/{id}/{status}', [ShopsController::class, 'handleTransferRequest'])->name('transfer.handle');
+    Route::get('/transfer-requests', [ShopsController::class, 'viewTransferRequests'])->name('transfer.requests');
+    // Route::get('/bulk-transfer', [ShopsController::class, 'showBulkTransferForm'])->name('gold-items.bulk-transfer-form');
+    Route::post('/bulk-transfer', [ShopsController::class, 'bulkTransfer'])->name('gold-items.bulk-transfer');
+  
     Route::middleware('user')->group(function () {
         // Shop Requests
         Route::get('/shop/requests', [ShopsController::class, 'showAdminRequests'])
@@ -338,19 +347,12 @@ Route::middleware(['auth'])->group(function () {
         Route::post('/gold-items/store-outer', [ShopsController::class, 'storeOuter'])->name('gold-items.storeOuter');
         Route::post('gold-items/returnOuter/{serialNumber}', [ShopsController::class, 'returnOuter'])->name('gold-items.returnOuter');
         Route::post('gold-items/toggleReturn/{serial_number}', [ShopsController::class, 'toggleReturn'])->name('gold-items.toggleReturn');
-        Route::post('/gold-items/{id}/transfer-request', [ShopsController::class, 'transferRequest'])->name('gold-items.transfer-request');
-        Route::get('/transfer-request/{id}/{status}', [ShopsController::class, 'handleTransferRequest'])->name('transfer.handle');
-        Route::get('/transfer-requests', [ShopsController::class, 'viewTransferRequests'])->name('transfer.requests');
-        // Route::get('/bulk-transfer', [ShopsController::class, 'showBulkTransferForm'])->name('gold-items.bulk-transfer-form');
-        Route::post('/bulk-transfer', [ShopsController::class, 'bulkTransfer'])->name('gold-items.bulk-transfer');
-        Route::get('/orders', [OrderController::class, 'index'])->name('orders.index');
+         Route::get('/orders', [OrderController::class, 'index'])->name('orders.index');
         Route::get('/orders/create', [OrderController::class, 'create'])->name('orders.create');
         Route::get('/orders/history', [OrderController::class, 'showCompletedOrders'])->name('orders.history');
         Route::post('/shop-items/bulk-sell', [ShopsController::class, 'BulkSell'])->name('shop-items.bulkSell');
         Route::get('/shop-items/bulk-sell-form', [ShopsController::class, 'showBulkSellForm'])->name('shop-items.bulkSellForm');
-        Route::get('/shop-items/bulk-transfer-form', [ShopsController::class, 'showBulkTransferForm'])->name('shop-items.bulkTransferForm');
-        Route::post('/transfer-requests/{requestId}/handle', [ShopsController::class, 'handleTransferRequest'])
-        ->name('transfer-requests.handle');
+      
         Route::get('/import', [ExcelImportController::class, 'showForm'])->name('import.form');
         Route::post('/import', [ExcelImportController::class, 'import'])->name('excel.import');
 
@@ -384,11 +386,7 @@ Route::middleware(['auth'])->group(function () {
         Route::get('/orders/completed', [RabiaController::class, 'completed'])->name('orders.completed');
         
         // Rabea inventory management
-        Route::get('/rabea/items', [ShopsController::class, 'showRabeaItems'])->name('rabea.items');
         
-        // Workshop DID requests
-        Route::get('/did-requests', [DidItemsController::class, 'didRequests'])->name('rabea.did.requests');
-        Route::post('/did-requests/handle', [DidItemsController::class, 'handleDidRequests'])->name('rabea.did.requests.handle');
     });
 
     // ===================================
@@ -533,4 +531,28 @@ Route::get('/shopify/orders-api-view', function() {
 //     Route::get('/admin/kasr-sales/{kasrSale}/items', [App\Http\Controllers\Admin\KasrSaleAdminController::class, 'getItems'])->name('admin.kasr-sales.items');
 // });
 Route::get('/get-customer-data', [ShopsController::class, 'getCustomerData']);
-    
+
+// Add this route to your web.php file
+// Route::get('/items-list', [ShopsController::class, 'showRabeaItems'])->name('rabea.items.list');
+// Route::post('/rabea/did-requests/handle', [DidItemsController::class, 'handleRabeaDIDRequests'])->name('rabea.did.requests.handle');
+
+// Route::post('/rabea/transfer-form', [DidItemsController::class, 'bulkTransferFromRabea'])
+//     ->name('gold-items.bulk-transfer');
+
+// // Route for processing the submitted transfer form
+// Route::post('/rabea/process-transfer', [DidItemsController::class, 'processRabeaTransfer'])
+//     ->name('rabea.process-transfer');
+// Add these routes inside your rabea middleware group in web.php
+// Look for the section that starts with: Route::middleware('rabea')->group(function () {
+
+
+Route::get('/rabea/items', [ShopsController::class, 'showRabeaItems'])->name('rabea.items.list');
+// Route::post('/rabea/items/transfer-form', [DidItemsController::class, 'rabeaTransferForm'])->name('rabea.transfer.form');
+// Route::post('/rabea/items/process-transfer', [DidItemsController::class, 'processRabeaTransfer'])->name('rabea.process.transfer');
+Route::get('/rabea/get-shops', [DidItemsController::class, 'getShopsForTransfer'])->name('rabea.get.shops');
+Route::post('/rabea/process-transfer', [DidItemsController::class, 'processRabeaTransfer'])->name('rabea.process.transfer');
+
+
+// Workshop DID requests
+Route::get('/did-requests', [DidItemsController::class, 'didRequests'])->name('rabea.did.requests');
+Route::post('/did-requests/handle', [DidItemsController::class, 'handleDidRequests'])->name('rabea.did.requests.handle');
