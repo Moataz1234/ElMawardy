@@ -496,6 +496,7 @@
                                     'metal_purity' => 'Metal Purity',
                                     'quantity' => 'Quantity',
                                     'stars' => 'stars',
+                                    'rest_since' =>'rest_since',
                                     'source' => 'Source',
                                     'stones' => 'Stones',
                                     'average_of_stones' => 'Avg',
@@ -506,7 +507,6 @@
                             @foreach ($columns as $field => $label)
                                 <th>{{ $label }}</th>
                             @endforeach
-                            <th>Actions</th>
                         </tr>
                     </thead>
                     <tbody>
@@ -514,7 +514,7 @@
                             <tr>
                                 <td>
                                     <div class="actions-container">
-                                        <div style="position: relative;">
+                                        {{-- <div style="position: relative;">
                                             <input type="checkbox" name="selected_items[]" value="{{ $item->id }}"
                                                 {{ $item->status == 'pending_kasr' ? 'disabled' : '' }} />
                                             @if ($item->status == 'pending_kasr')
@@ -522,10 +522,16 @@
                                             @elseif($item->status == 'pending_sale')
                                                 <span class="status-badge status-pending_sale">Sale</span>
                                             @endif
-                                        </div>
+                                        </div> --}}
                                         <a href="{{ route('gold-items.edit', $item->id) }}" class="edit-icon">
                                             <i class="bi bi-pencil"></i>
                                         </a>
+                                    {{-- </div> --}}
+                                    {{-- <div class="actions-container"> --}}
+                                        <!-- Existing actions like checkbox and edit icon -->
+                                        <a href="{{ route('item.export.barcode', $item->id) }}" class="print-icon">
+                                            <i class="bi bi-printer"></i>
+                                        </a>   
                                     </div>
                                 </td>
                                 <td>
@@ -547,17 +553,11 @@
                                 <td>{{ $item->metal_purity }}</td>
                                 <td>{{ $item->quantity }}</td>
                                 <td>{{ $item->modelCategory->stars ?? 'No stars' }}</td>
+                                <td>{{ $item->rest_since ?? 'No stars' }}</td>
                                 <td>{{ $item->source }}</td>
                                 <td>{{ $item->stones }}</td>
                                 <td>{{ $item->modelCategory->average_of_stones ?? 'No avg' }}</td>
-                                <td>
-                                    <div class="actions-container">
-                                        <!-- Existing actions like checkbox and edit icon -->
-                                        <a href="{{ route('item.export.barcode', $item->id) }}" class="print-icon">
-                                            <i class="bi bi-printer"></i>
-                                        </a>   
-                                    </div>
-                                </td>
+                             
                             </tr>
                         @endforeach
                     </tbody>
