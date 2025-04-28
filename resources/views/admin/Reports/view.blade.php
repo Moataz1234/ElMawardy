@@ -13,300 +13,306 @@
     <style>
         /* Reset and base styles */
         * {
-    margin: 0;
-    padding: 0;
-    box-sizing: border-box;
-}
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
 
-body {
-    font-family: 'DejaVu Sans', sans-serif;
-    padding: 10px;
-}
-
-
-/* Container styles */
-
-.report-page {
-    page-break-after: always;
-    margin-bottom: 20px;
-    height: 10px;
-}
-
-.report-page:last-child {
-    page-break-after: avoid;
-}
+        body {
+            font-family: 'DejaVu Sans', sans-serif;
+            padding: 10px;
+        }
 
 
-/* Header section */
+        /* Container styles */
 
-.header-section {
-    width: 100%;
-    margin-bottom: 20px;
-    position: relative;
-}
+        .report-page {
+            page-break-after: always;
+            margin-bottom: 20px;
+            height: 10px;
+        }
 
-.image-section {
-    width: 60%;
-    float: left;
-}
-
-.image-section img {
-    width: 300px;
-    height: auto;
-    border: 5px solid #6A6458;
-}
-
-.info-section {
-    width: 35%;
-    float: right;
-}
+        .report-page:last-child {
+            page-break-after: avoid;
+        }
 
 
-/* Info boxes */
+        /* Header section */
 
-.info-box {
-    background-color: #6A6458;
-    color: white;
-    padding: 10px;
-    margin-bottom: 10px;
-    border-radius: 5px;
-    text-align: center;
-}
+        .header-section {
+            width: 100%;
+            margin-bottom: 20px;
+            position: relative;
+        }
 
-.data-text {
-    background-color: white;
-    color: #333;
-    padding: 5px;
-    margin-top: 5px;
-    font-weight: bold;
-}
+        .image-section {
+            width: 60%;
+            float: left;
+        }
 
+        .image-section img {
+            width: 300px;
+            height: auto;
+            border: 5px solid #6A6458;
+        }
 
-/* Table styles */
-
-.table-section {
-    width: 100%;
-    margin-top: 20px;
-    clear: both;
-}
-
-table {
-    width: 100%;
-    border-collapse: collapse;
-    margin-bottom: 15px;
-}
-
-th {
-    background-color: #6A6458;
-    color: white;
-    padding: 8px;
-    text-align: center;
-    border: 1px solid #6A6458;
-}
-
-td {
-    padding: 5px;
-    text-align: center;
-    border: 1px solid #6A6458;
-}
-
-tr:nth-child(even) {
-    background-color: #f2f2f2;
-}
-
-.shop-name {
-    background-color: #8c8c8c;
-    color: white;
-}
-
-.clearfix::after {
-    content: "";
-    clear: both;
-    display: table;
-}
+        .info-section {
+            width: 35%;
+            float: right;
+        }
 
 
-/* Filter form styles */
+        /* Info boxes */
 
-.filter-form {
-    margin-bottom: 20px;
-}
+        .info-box {
+            background-color: #6A6458;
+            color: white;
+            padding: 10px;
+            margin-bottom: 10px;
+            border-radius: 5px;
+            text-align: center;
+        }
 
-.filter-form input[type="date"] {
-    padding: 5px;
-    font-size: 16px;
-}
-
-.filter-form button {
-    padding: 5px 10px;
-    font-size: 16px;
-    background-color: #6A6458;
-    color: white;
-    border: none;
-    border-radius: 5px;
-    cursor: pointer;
-}
-
-.filter-form button:hover {
-    background-color: #5a5448;
-}
-
-.export-button {
-    padding: 5px 10px;
-    font-size: 16px;
-    background-color: #28a745;
-    color: white;
-    border: none;
-    border-radius: 5px;
-    cursor: pointer;
-    text-decoration: none;
-    display: inline-block;
-    margin-left: 10px;
-}
-
-.export-button:hover {
-    background-color: #218838;
-}
-
-.total-items-sold {
-    position: absolute;
-    font-size: 30px;
-    font-weight: bold;
-    margin-bottom: 20px;
-    color: #c99a3c;
-    right: 200px;
-    top: 100px;
-    /* background-color: #218838; */
-}
-
-@page {
-    size: A4;
-    margin: 0;
-}
-
-.report-container {
-    height: 1000px; /* Keep original height */
-    width: {{ $isPdf ? '90%' : '800px' }}; /* A4-like width for web view */
-    page-break-inside: avoid;
-    margin-bottom: 20px;
-    margin-left: auto; 
-    margin-right: auto; 
-    border: 5px solid #6A6458;
-    border-radius: 10px;
-    padding: 20px;
-    overflow: hidden;
-}
-
-.pdf-only {
-    display: none;
-    /* Hide by default */
-}
-
-@media print {
-    .no-export {
-        display: none;
-        /* Hide sections not to be exported */
-    }
-    .pdf-only {
-        display: block;
-        /* Show PDF-only sections */
-    }
-    .report-container {
-        page-break-before: always;
-        /* Ensure each report starts on a new page */
-    }
-    .report-container:first-child {
-        page-break-before: avoid;
-        /* Prevent page break before the first report */
-    }
-}
-
-@media screen {
-
-    .header-section {
-        display: flex;
-        justify-content: space-between;
-        align-items: flex-start;
-    }
-
-    .image-section {
-        width: 50%;
-    }
-
-    .info-section {
-        width: 45%;
-    }
-
-    .image-section img {
-        max-width: 100%;
-        height: auto;
-    }
-}
+        .data-text {
+            background-color: white;
+            color: #333;
+            padding: 5px;
+            margin-top: 5px;
+            font-weight: bold;
+        }
 
 
-/* New styles for the email management dialogue */
+        /* Table styles */
 
-.email-dialogue {
-    display: none;
-    position: fixed;
-    top: 50%;
-    left: 50%;
-    transform: translate(-50%, -50%);
-    background-color: white;
-    padding: 20px;
-    border: 1px solid #ccc;
-    box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
-    z-index: 1000;
-}
+        .table-section {
+            width: 100%;
+            margin-top: 20px;
+            clear: both;
+        }
 
-.email-dialogue.open {
-    display: block;
-}
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            margin-bottom: 15px;
+        }
 
-.email-list {
-    margin-bottom: 10px;
-}
+        th {
+            background-color: #6A6458;
+            color: white;
+            padding: 8px;
+            text-align: center;
+            border: 1px solid #6A6458;
+        }
 
-.email-list input {
-    margin-right: 10px;
-    margin-bottom: 5px;
-    padding: 5px;
-    width: 200px;
-}
+        td {
+            padding: 5px;
+            text-align: center;
+            border: 1px solid #6A6458;
+        }
 
-.add-email-button,
-.save-button {
-    padding: 5px 10px;
-    font-size: 16px;
-    background-color: #6A6458;
-    color: white;
-    border: none;
-    border-radius: 5px;
-    cursor: pointer;
-}
+        tr:nth-child(even) {
+            background-color: #f2f2f2;
+        }
 
-.add-email-button:hover,
-.save-button:hover {
-    background-color: #5a5448;
-}
+        .shop-name {
+            background-color: #8c8c8c;
+            color: white;
+        }
 
-.close-button {
-    position: absolute;
-    top: 10px;
-    right: 10px;
-    background: none;
-    border: none;
-    font-size: 16px;
-    cursor: pointer;
-}
+        .clearfix::after {
+            content: "";
+            clear: both;
+            display: table;
+        }
 
-.icon-container {
-    display: flex;
-    align-items: center;
-    gap: 10px;
-    /* Space between the export button and the email icon */
-    margin-bottom: 20px;
-}
+
+        /* Filter form styles */
+
+        .filter-form {
+            margin-bottom: 20px;
+        }
+
+        .filter-form input[type="date"] {
+            padding: 5px;
+            font-size: 16px;
+        }
+
+        .filter-form button {
+            padding: 5px 10px;
+            font-size: 16px;
+            background-color: #6A6458;
+            color: white;
+            border: none;
+            border-radius: 5px;
+            cursor: pointer;
+        }
+
+        .filter-form button:hover {
+            background-color: #5a5448;
+        }
+
+        .export-button {
+            padding: 5px 10px;
+            font-size: 16px;
+            background-color: #28a745;
+            color: white;
+            border: none;
+            border-radius: 5px;
+            cursor: pointer;
+            text-decoration: none;
+            display: inline-block;
+            margin-left: 10px;
+        }
+
+        .export-button:hover {
+            background-color: #218838;
+        }
+
+        .total-items-sold {
+            position: absolute;
+            font-size: 30px;
+            font-weight: bold;
+            margin-bottom: 20px;
+            color: #c99a3c;
+            right: 200px;
+            top: 100px;
+            /* background-color: #218838; */
+        }
+
+        @page {
+            size: A4;
+            margin: 0;
+        }
+
+        .report-container {
+            height: 1000px;
+            /* Keep original height */
+            width: {{ $isPdf ? '90%' : '800px' }};
+            /* A4-like width for web view */
+            page-break-inside: avoid;
+            margin-bottom: 20px;
+            margin-left: auto;
+            margin-right: auto;
+            border: 5px solid #6A6458;
+            border-radius: 10px;
+            padding: 20px;
+            overflow: hidden;
+        }
+
+        .pdf-only {
+            display: none;
+            /* Hide by default */
+        }
+
+        @media print {
+            .no-export {
+                display: none;
+                /* Hide sections not to be exported */
+            }
+
+            .pdf-only {
+                display: block;
+                /* Show PDF-only sections */
+            }
+
+            .report-container {
+                page-break-before: always;
+                /* Ensure each report starts on a new page */
+            }
+
+            .report-container:first-child {
+                page-break-before: avoid;
+                /* Prevent page break before the first report */
+            }
+        }
+
+        @media screen {
+
+            .header-section {
+                display: flex;
+                justify-content: space-between;
+                align-items: flex-start;
+            }
+
+            .image-section {
+                width: 50%;
+            }
+
+            .info-section {
+                width: 45%;
+            }
+
+            .image-section img {
+                max-width: 100%;
+                height: auto;
+            }
+        }
+
+
+        /* New styles for the email management dialogue */
+
+        .email-dialogue {
+            display: none;
+            position: fixed;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            background-color: white;
+            padding: 20px;
+            border: 1px solid #ccc;
+            box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
+            z-index: 1000;
+        }
+
+        .email-dialogue.open {
+            display: block;
+        }
+
+        .email-list {
+            margin-bottom: 10px;
+        }
+
+        .email-list input {
+            margin-right: 10px;
+            margin-bottom: 5px;
+            padding: 5px;
+            width: 200px;
+        }
+
+        .add-email-button,
+        .save-button {
+            padding: 5px 10px;
+            font-size: 16px;
+            background-color: #6A6458;
+            color: white;
+            border: none;
+            border-radius: 5px;
+            cursor: pointer;
+        }
+
+        .add-email-button:hover,
+        .save-button:hover {
+            background-color: #5a5448;
+        }
+
+        .close-button {
+            position: absolute;
+            top: 10px;
+            right: 10px;
+            background: none;
+            border: none;
+            font-size: 16px;
+            cursor: pointer;
+        }
+
+        .icon-container {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            /* Space between the export button and the email icon */
+            margin-bottom: 20px;
+        }
+
         .no-export {
             display: {{ $isPdf ? 'none' : 'block' }};
         }
@@ -315,11 +321,99 @@ tr:nth-child(even) {
         .total-items-sold {
             display: {{ $isPdf ? 'none' : 'block' }};
         }
+
+        /* Add these styles to your existing CSS */
+        .variant-A {
+            color: black !important;
+            font-weight: bold;
+        }
+
+        .variant-B {
+            color: goldenrod !important;
+            font-weight: bold;
+        }
+
+        .variant-C {
+            color: red !important;
+            font-weight: bold;
+        }
+
+        .variant-D {
+            color: blue !important;
+            font-weight: bold;
+        }
+
+        /* This helps with making the variant stand out in the model cell */
+        .model-variant {
+            margin-left: 5px;
+            font-weight: bold;
+        }
+
+        /* Add these to your existing CSS */
+
+        /* Variant color styles */
+        .variant-A {
+            color: black !important;
+            font-weight: bold;
+        }
+
+        .variant-B {
+            color: gold !important;
+            font-weight: bold;
+        }
+
+        .variant-C {
+            color: red !important;
+            font-weight: bold;
+        }
+
+        .variant-D {
+            color: blue !important;
+            font-weight: bold;
+        }
+
+        /* Style for the model cell to display variants nicely */
+        td .variant-display {
+            margin-left: 5px;
+            font-weight: bold;
+        }
+
+        /* Style for the variant legend */
+        .variant-legend {
+            margin-top: 10px;
+            font-size: 12px;
+            padding: 8px;
+            background-color: #f5f5f5;
+            border-radius: 4px;
+            border: 1px solid #ddd;
+        }
+
+        .variant-legend span {
+            display: inline-block;
+            margin-right: 10px;
+            padding: 2px 5px;
+        }
+
+        /* Make variant numbers stand out in the table */
+        td .variant-count {
+            display: inline-block;
+            margin-left: 5px;
+            font-weight: bold;
+        }
     </style>
 
 </head>
 
 <body>
+    <div class="variant-legend"
+    style="margin-top: 10px; font-size: 12px; padding: 5px; background-color: #f5f5f5; border-radius: 4px;">
+    <strong>Model Variants:</strong>
+    <span style="color: black; font-weight: bold; margin-right: 10px;">A = Black</span>
+    <span style="color: gold; font-weight: bold; margin-right: 10px;">B = Yellow</span>
+    <span style="color: red; font-weight: bold; margin-right: 10px;">C = Red</span>
+    <span style="color: blue; font-weight: bold; margin-right: 10px;">D = Blue</span>
+</div>
+</div>
     <div class="no-export position-relative">
         <h1>Sales Reports</h1>
 
@@ -363,7 +457,8 @@ tr:nth-child(even) {
                     <div class="header-section clearfix">
                         <div class="image-section">
                             @if (isset($data['image_path']) && $data['image_path'])
-                                <img height="200px" style="max-height: 400px" src="{{ $isPdf ? public_path('storage/' . $data['image_path']) : asset('storage/' . $data['image_path']) }}"
+                                <img height="200px" style="max-height: 400px"
+                                    src="{{ $isPdf ? public_path('storage/' . $data['image_path']) : asset('storage/' . $data['image_path']) }}"
                                     alt="Product Image" />
                             @else
                                 <p>No Image Available</p>
@@ -402,7 +497,16 @@ tr:nth-child(even) {
                                 <th>Total Sold</th>
                             </tr>
                             <tr>
-                                <td>{{ $data['model'] }}</td>
+                                {{-- <td>{{ $data['model'] }}</td> --}}
+                                <td>
+                                    {{ $data['model'] }}
+                                    @if (isset($data['variant']) && $data['variant'])
+                                        <span
+                                            style="color: {{ strtolower($data['variant_color']) }}; font-weight: bold;">({{ $data['variant'] }})</span>
+                                    @endif
+                                </td>
+
+
                                 <td>{{ $data['remaining'] }}</td>
                                 <td>{{ $data['total_production'] }}</td>
                                 <td>{{ $data['total_sold'] }}</td>
@@ -435,14 +539,49 @@ tr:nth-child(even) {
                             @foreach ($data['shops_data'] as $shop => $counts)
                                 <tr>
                                     <td class="shop-name">{{ $shop }}</td>
-                                    <td>{{ $counts['yellow_gold'] }}</td>
-                                    <td>{{ $counts['white_gold'] }}</td>
-                                    <td>{{ $counts['rose_gold'] }}</td>
-                                    <td>{{ $counts['all_rests'] }}</td>
+                                    <td>
+                                        {{ $counts['yellow_gold'] }}
+                                        @if (isset($counts['variant_B']) && $counts['variant_B'] > 0)
+                                            <span
+                                                style="color: gold; font-weight: bold; margin-left: 5px;">{{ $counts['variant_B'] }}</span>
+                                        @endif
+                                    </td>
+                                    <td>
+                                        {{ $counts['white_gold'] }}
+                                        @if (isset($counts['variant_A']) && $counts['variant_A'] > 0)
+                                            <span
+                                                style="color: black; font-weight: bold; margin-left: 5px;">{{ $counts['variant_A'] }}</span>
+                                        @endif
+                                    </td>
+                                    <td>
+                                        {{ $counts['rose_gold'] }}
+                                        @if (isset($counts['variant_C']) && $counts['variant_C'] > 0)
+                                            <span
+                                                style="color: red; font-weight: bold; margin-left: 5px;">{{ $counts['variant_C'] }}</span>
+                                        @endif
+                                        @if (isset($counts['variant_D']) && $counts['variant_D'] > 0)
+                                            <span
+                                                style="color: blue; font-weight: bold; margin-left: 5px;">{{ $counts['variant_D'] }}</span>
+                                        @endif
+                                    </td>
+                                    <td>
+                                        {{ $counts['all_rests'] }}
+                                        @php
+                                            $totalVariants =
+                                                ($counts['variant_A'] ?? 0) +
+                                                ($counts['variant_B'] ?? 0) +
+                                                ($counts['variant_C'] ?? 0) +
+                                                ($counts['variant_D'] ?? 0);
+                                        @endphp
+                                        @if ($totalVariants > 0)
+                                            <span
+                                                style="font-weight: bold; margin-left: 5px;">(+{{ $totalVariants }})</span>
+                                        @endif
+                                    </td>
                                 </tr>
                             @endforeach
                         </table>
-                    </div>
+                   
                 </div>
             </div>
         @endforeach

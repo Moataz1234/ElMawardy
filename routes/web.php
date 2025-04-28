@@ -16,7 +16,6 @@ use App\Http\Controllers\{
     Gold\GoldItemSoldController,
     ShopsController,
     OrderController,
-    Admin\ShopifyProductController,
     GoldReportController,
     RabiaController,
     Auth\AsgardeoAuthController,
@@ -46,7 +45,8 @@ use App\Http\Controllers\{
     KasrSaleController,
     DidItemsController,
     Admin\KasrSaleAdminController,
-    Admin\GoldBalanceReportController
+    Admin\GoldBalanceReportController,
+    Admin\Shopify\ShopifyProductController
     // NewItemTalabatController 
 };
 
@@ -284,11 +284,14 @@ Route::middleware(['auth'])->group(function () {
         // Shopify Routes
         Route::prefix('shopify')->name('shopify.')->group(function () {
             // Product routes
-            Route::get('/products', [App\Http\Controllers\Admin\Shopify\ShopifyProductController::class, 'index'])->name('products');
-            Route::get('/products/edit/{product_id}', [App\Http\Controllers\Admin\Shopify\ShopifyProductController::class, 'showEditImageForm'])->name('products.showEditImageForm');
-            Route::post('/products/edit/{product_id}', [App\Http\Controllers\Admin\Shopify\ShopifyProductController::class, 'editProduct'])->name('products.editProduct');
-            Route::post('/update-from-excel', [App\Http\Controllers\Admin\Shopify\ShopifyProductController::class, 'updateFromExcel'])->name('updateFromExcel');
-
+            Route::get('/products', [ShopifyProductController::class, 'index'])->name('products');
+            Route::get('/products/edit/{product_id}', [ShopifyProductController::class, 'showEditImageForm'])->name('products.showEditImageForm');
+            Route::post('/products/edit/{product_id}', [ShopifyProductController::class, 'editProduct'])->name('products.editProduct');
+            Route::post('/update-from-excel', [ShopifyProductController::class, 'updateFromExcel'])->name('updateFromExcel');
+            // Route::get('/products/update-g-inventory', [ShopifyProductController::class, 'updateGInventory'])->name('updateGInventory');
+            // Route::get('/products/update-g-inventory-location', [ShopifyProductController::class, 'updateGInventoryAtLocation'])->name('updateGInventoryAtLocation');
+            Route::get('/products/update-all-zero-inventory', [ShopifyProductController::class, 'updateAllZeroInventory'])->name('updateAllZeroInventory');
+            Route::post('/products/import-skus-set-zero', [ShopifyProductController::class, 'importSkusSetZero'])->name('importSkusSetZero');
             // Order routes
             Route::get('/orders', [App\Http\Controllers\Admin\Shopify\ShopifyOrderController::class, 'index'])->name('orders');
             Route::post('/orders/{id}/fulfill', [App\Http\Controllers\Admin\Shopify\ShopifyOrderController::class, 'fulfillOrder'])->name('orders.fulfill');

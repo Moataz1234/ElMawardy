@@ -120,94 +120,121 @@ class GoldItemSoldController extends Controller
         // Get the selected date from the request or default to today
         $date = $request->input('date', now()->format('Y-m-d'));
     
-        // Fetch sold items for the selected date, grouped by model, and join with the Models table
+        // Fetch sold items for the selected date, grouped by model
         $soldItems = GoldItemSold::whereDate('sold_date', $date)
-        ->get()
-        ->groupBy('model');
+            ->get()
+            ->groupBy('model');
     
         // Calculate total items sold for the selected day
         $totalItemsSold = GoldItemSold::whereDate('sold_date', $date)->count();
     
         $reportsData = [];
     
-      
-    foreach ($soldItems as $model => $items) {
-        $modelInfo = Models::where('model', $model)->first();
-
-        // Step 1: Get all items for the model from GoldItems and GoldItemsSold
-        $inventoryItems = GoldItem::where('model', $model)
-            // ->where('talab', false)
-            // ->whereHas('modelCategory', function ($query) {
-            //     $query->where('source', 'Production');
-            // })
-            ->get();
-
-        $soldItemsForModel = GoldItemSold::where('model', $model)
-            // ->where('talab', false)
-            // ->whereHas('modelCategory', function ($query) {
-            //     $query->where('source', 'Production');
-            // })
-            ->get();
+        foreach ($soldItems as $model => $items) {
+            // Check if this is a model with a character variant (A, B, C, D)
+            $hasVariant = preg_match('/(.*)-([A-D])$/', $model, $matches);
+            $baseModel = $hasVariant ? $matches[1] : $model;
+            $variant = $hasVariant ? $matches[2] : null;
             
-        Log::info("Model: $model - Inventory Items: " . $inventoryItems->count());
-        Log::info("Model: $model - Sold Items: " . $soldItemsForModel->count());
-        // Step 2: Find the latest date from rest_since and add_date
-        $latestInventoryDate = $inventoryItems->max('rest_since');
-        $latestSoldDate = $soldItemsForModel->max('add_date');
-
-        $latestDate = null;
-        if ($latestInventoryDate && $latestSoldDate) {
-            $latestDate = $latestInventoryDate > $latestSoldDate ? $latestInventoryDate : $latestSoldDate;
-        } elseif ($latestInventoryDate) {
-            $latestDate = $latestInventoryDate;
-        } elseif ($latestSoldDate) {
-            $latestDate = $latestSoldDate;
-        }
-        Log::info("Model: $model - Latest Date: " . ($latestDate ? $latestDate : 'No Date Found'));
-        // Step 3: Calculate the quantity for the latest date or for "old" items
-        $lastProductionQuantity = 0;
-        $oldItemsQuantity = 0;
-
-        if ($latestDate) {
-            // Calculate quantity for the latest date
-            $lastProductionQuantity += $inventoryItems
-                ->where('rest_since', $latestDate)
-                ->sum('quantity');
-
-            $lastProductionQuantity += $soldItemsForModel
-                ->where('add_date', $latestDate)
-                ->sum('quantity');
+            // Get model info based on exact model match first, then fallback to base model
+            $modelInfo = Models::where('model', $model)->first();
+    
+            // If no model info found and this is a variant, try the base model
+            if (!$modelInfo && $hasVariant) {
+                $modelInfo = Models::where('model', $baseModel)->first();
+            }
+        
+            // Ensure we get correct source and stars
+            $source = null;
+            $stars = null;
+            
+            if ($modelInfo) {
+                // Use model info from database if available
+                $source = $modelInfo->source;
+                $stars = $modelInfo->stars;
+            } else {
+                // Otherwise use sold item data
+                $source = $items->first()->source;
+                $stars = $items->first()->stars;
+            }
+        
+    
+            // Step 1: Get all items for the model from GoldItems and GoldItemsSold
+            $inventoryItems = GoldItem::where('model', $model)->get();
+            $soldItemsForModel = GoldItemSold::where('model', $model)->get();
+                
+            Log::info("Model: $model - Inventory Items: " . $inventoryItems->count());
+            Log::info("Model: $model - Sold Items: " . $soldItemsForModel->count());
+            
+            // Step 2: Find the latest date from rest_since and add_date
+            $latestInventoryDate = $inventoryItems->max('rest_since');
+            $latestSoldDate = $soldItemsForModel->max('add_date');
+    
+            $latestDate = null;
+            if ($latestInventoryDate && $latestSoldDate) {
+                $latestDate = $latestInventoryDate > $latestSoldDate ? $latestInventoryDate : $latestSoldDate;
+            } elseif ($latestInventoryDate) {
+                $latestDate = $latestInventoryDate;
+            } elseif ($latestSoldDate) {
+                $latestDate = $latestSoldDate;
+            }
+            Log::info("Model: $model - Latest Date: " . ($latestDate ? $latestDate : 'No Date Found'));
+            
+            // Step 3: Calculate the quantity for the latest date or for "old" items
+            $lastProductionQuantity = 0;
+            $oldItemsQuantity = 0;
+    
+            if ($latestDate) {
+                // Calculate quantity for the latest date
+                $lastProductionQuantity += $inventoryItems
+                    ->where('rest_since', $latestDate)
+                    ->sum('quantity');
+    
+                $lastProductionQuantity += $soldItemsForModel
+                    ->where('add_date', $latestDate)
+                    ->sum('quantity');
                 Log::info("Model: $model - Last Production Quantity: " . $lastProductionQuantity);
-
-        }
-
-         else {
-            // Calculate quantity for items with null dates (old items)
-            $oldItemsQuantity += $inventoryItems
-                ->whereNull('rest_since')
-                ->sum('quantity');
-
-            $oldItemsQuantity += $soldItemsForModel
-                ->whereNull('add_date')
-                ->sum('quantity');
+            } else {
+                // Calculate quantity for items with null dates (old items)
+                $oldItemsQuantity += $inventoryItems
+                    ->whereNull('rest_since')
+                    ->sum('quantity');
+    
+                $oldItemsQuantity += $soldItemsForModel
+                    ->whereNull('add_date')
+                    ->sum('quantity');
                 Log::info("Model: $model - Old Items Quantity: " . $oldItemsQuantity);
-
-        }
-
-        // Step 4: Prepare the last production data
-        $lastProductionDisplay = $latestDate
-            ? Carbon::parse($latestDate)->format('d-m-Y') . ' (Qty: ' . $lastProductionQuantity . ')'
-            : 'Old (Qty: ' . $oldItemsQuantity . ')';
-
+            }
+    
+            // Step 4: Prepare the last production data
+            $lastProductionDisplay = $latestDate
+                ? Carbon::parse($latestDate)->format('d-m-Y') . ' (Qty: ' . $lastProductionQuantity . ')'
+                : 'Old (Qty: ' . $oldItemsQuantity . ')';
+    
+            // Define our variant color mappings
+            $variantColors = [
+                'A' => 'Black',
+                'B' => 'Yellow',
+                'C' => 'Red',
+                'D' => 'Blue'
+            ];
+            
+    
+            // Get source and stars from model info if available, otherwise fallback to item data
+            $source = $modelInfo ? $modelInfo->source : $items->first()->source;
+            $stars = $modelInfo ? $modelInfo->stars : $items->first()->stars;
     
             $reportsData[$model] = [
                 'workshop_count' => $items->where('shop_name', 'Workshop')->count(),
                 'order_date' => $date,
                 'gold_color' => $items->first()->gold_color,
-                'source' => $items->first()->source, // Get source directly from GoldItemSold
-                'stars' => $modelInfo ? $modelInfo->stars : $items->first()->stars,
+                'source' => $source,
+                'stars' => $stars,
                 'image_path' => $modelInfo ? $modelInfo->scanned_image : null,
                 'model' => $model,
+                'base_model' => $baseModel,
+                'variant' => $variant,
+                'variant_color' => $variant ? $variantColors[$variant] : null,
                 'remaining' => GoldItem::where('model', $model)->count(),
                 'total_production' => GoldItem::where('model', $model)->count() + GoldItemSold::where('model', $model)->count(),
                 'total_sold' => GoldItemSold::where('model', $model)->count(),
@@ -233,8 +260,8 @@ class GoldItemSoldController extends Controller
                 'reportsData' => $reportsData,
                 'selectedDate' => $date,
                 'totalItemsSold' => $totalItemsSold,
-                'recipients' => $recipients, // Pass recipients to the view
-                'isPdf' => true // Add a flag to indicate PDF export
+                'recipients' => $recipients, 
+                'isPdf' => true 
             ]);
             $pdf->setPaper('A4', 'landscape');
             return $pdf->stream('sales_report_' . $date . '.pdf');
@@ -245,8 +272,8 @@ class GoldItemSoldController extends Controller
             'reportsData' => $reportsData,
             'selectedDate' => $date,
             'totalItemsSold' => $totalItemsSold,
-            'recipients' => $recipients, // Pass recipients to the view
-            'isPdf' => false // Add a flag to indicate HTML display
+            'recipients' => $recipients,
+            'isPdf' => false
         ]);
     }
     /**
@@ -258,20 +285,40 @@ class GoldItemSoldController extends Controller
             'Mohandessin Shop', 'Mall of Arabia', 'Nasr City', 'Zamalek',
             'Mall of Egypt', 'EL Guezira Shop', 'Arkan', 'District 5', 'U Venues'
         ];
-    
+        
+        // Extract the base model without character suffix
+        $baseModel = preg_replace('/-[A-D]$/', '', $model);
+        
         $shopDistribution = [];
-    
+        
         foreach ($shops as $shop) {
-            $shopItems = GoldItem::where('model', $model)->where('shop_name', $shop)->get();
-    
-            $shopDistribution[$shop] = [
-                'all_rests' => $shopItems->count(),
-                'white_gold' => $shopItems->where('gold_color', 'White')->count(),
-                'yellow_gold' => $shopItems->where('gold_color', 'Yellow')->count(),
-                'rose_gold' => $shopItems->where('gold_color', 'Rose')->count()
+            // Get the base counts first
+            $baseItems = GoldItem::where('model', $baseModel)->where('shop_name', $shop)->get();
+            
+            // Initialize shop data with base counts
+            $shopData = [
+                'all_rests' => $baseItems->count(),
+                'white_gold' => $baseItems->where('gold_color', 'White')->count(),
+                'yellow_gold' => $baseItems->where('gold_color', 'Yellow')->count(),
+                'rose_gold' => $baseItems->where('gold_color', 'Rose')->count()
             ];
+            
+            // Get variant counts
+            $variantA = GoldItem::where('model', $baseModel . '-A')->where('shop_name', $shop)->count();
+            $variantB = GoldItem::where('model', $baseModel . '-B')->where('shop_name', $shop)->count();
+            $variantC = GoldItem::where('model', $baseModel . '-C')->where('shop_name', $shop)->count();
+            $variantD = GoldItem::where('model', $baseModel . '-D')->where('shop_name', $shop)->count();
+            
+            // Add variants to shop data with their counts
+            $shopData['variant_A'] = $variantA;
+            $shopData['variant_B'] = $variantB;
+            $shopData['variant_C'] = $variantC;
+            $shopData['variant_D'] = $variantD;
+            
+            // Store in distribution data
+            $shopDistribution[$shop] = $shopData;
         }
-    
+        
         return $shopDistribution;
     }
 }

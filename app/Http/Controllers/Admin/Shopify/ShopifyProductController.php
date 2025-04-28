@@ -130,4 +130,193 @@ class ShopifyProductController extends ShopifyController
     
         return redirect()->back()->with('success', 'Products updated successfully from Excel!');
     }
+    public function updateGInventory(Request $request)
+    {
+        // Increase timeout for this operation
+        set_time_limit(600); // 2 minutes
+        
+        // Get cursor from request if available (for continued processing)
+        $cursor = $request->input('cursor');
+        
+        // Call the bulk update method in ShopifyService
+        $result = $this->shopifyService->updateGInventoryBulk();
+        
+        if (!$result['success']) {
+            return redirect()->route('shopify.products')
+                ->with('error', 'Inventory update failed: ' . $result['message']);
+        }
+        
+        $stats = $result['stats'];
+        $message = "Processed {$stats['processed']} products. ";
+        $message .= "Updated {$stats['updated']} variants with zero inventory and SKU starting with G. ";
+        $message .= "Skipped {$stats['skipped']} variants (already had inventory or non-G SKU).";
+        
+        // If there are more products to process, provide a link to continue
+        if ($result['has_more']) {
+            $nextCursor = $result['next_cursor'];
+            $continuationUrl = route('shopify.updateGInventory', ['cursor' => $nextCursor]);
+            $message .= " <a href='{$continuationUrl}' class='btn btn-warning'>Continue Processing</a>";
+            
+            return redirect()->route('shopify.products')
+                ->with('warning', $message);
+        }
+        
+        // If any errors occurred, add them to the message
+        if (!empty($stats['errors'])) {
+            $errorCount = count($stats['errors']);
+            $errorSamples = array_slice($stats['errors'], 0, 3);
+            $message .= " {$errorCount} errors occurred. Examples: " . implode('; ', $errorSamples);
+            
+            return redirect()->route('shopify.products')
+                ->with('warning', $message);
+        }
+        
+        return redirect()->route('shopify.products')
+            ->with('success', $message);
+    }
+    /**
+ * Update inventory for all products with SKUs starting with G at a specific location
+ * Only updates products with zero inventory
+ */
+/**
+ * Update inventory for ALL products with zero inventory at the Cairo location
+ */
+public function updateAllZeroInventory(Request $request)
+{
+    // Increase timeout for this operation
+    set_time_limit(600); // 10 minutes
+    
+    // Get cursor from request if available (for continued processing)
+    $cursor = $request->input('cursor');
+    
+    // Default location name
+    $locationName = "Part 13 Cairo company for Prefab Bulidings";
+    
+    // Call the targeted update method in ShopifyService
+    $result = $this->shopifyService->updateAllZeroInventoryAtLocation($locationName, 1, $cursor);
+    
+    if (!$result['success']) {
+        return redirect()->route('shopify.products')
+            ->with('error', 'Inventory update failed: ' . $result['message']);
+    }
+    
+    $stats = $result['stats'];
+    $message = "Processed {$stats['processed']} products. ";
+    $message .= "Updated {$stats['updated']} variants with zero inventory at location \"{$locationName}\". ";
+    $message .= "Skipped {$stats['skipped']} variants (already had inventory).";
+    
+    // If there are more products to process, provide a link to continue
+    if ($result['has_more']) {
+        $nextCursor = $result['next_cursor'];
+        $continuationUrl = route('shopify.updateAllZeroInventory', ['cursor' => $nextCursor]);
+        
+        return redirect()->route('shopify.products')
+            ->with('warning', $message . " <a href='{$continuationUrl}' class='btn btn-warning'>Continue Processing</a>");
+    }
+    
+    // If any errors occurred, add them to the message
+    if (!empty($stats['errors'])) {
+        $errorCount = count($stats['errors']);
+        $errorSamples = array_slice($stats['errors'], 0, 3);
+        $message .= " {$errorCount} errors occurred. Examples: " . implode('; ', $errorSamples);
+        
+        return redirect()->route('shopify.products')
+            ->with('warning', $message);
+    }
+    
+    return redirect()->route('shopify.products')
+        ->with('success', $message);
+}
+/**
+ * Import SKUs from Excel and set their inventory to zero
+ */
+/**
+ * Import SKUs from Excel and set their inventory to zero across all locations
+ */
+public function importSkusSetZero(Request $request)
+{
+    // Validate the request
+    $request->validate([
+        'excel_file' => 'required|file|mimes:xlsx,xls,csv'
+    ]);
+    
+    try {
+        // Increase timeout for this operation
+        set_time_limit(6000); // 5 minutes
+        
+        // Get the uploaded file
+        $file = $request->file('excel_file');
+        
+        // Load the Excel file
+        $spreadsheet = \PhpOffice\PhpSpreadsheet\IOFactory::load($file);
+        
+        // Get the active sheet
+        $sheet = $spreadsheet->getActiveSheet();
+        
+        // Get all rows
+        $rows = $sheet->toArray(null, true, true, true);
+        
+        // Extract SKUs from the first column (column A)
+        $skuList = [];
+        foreach ($rows as $row) {
+            if (!empty($row['A'])) {
+                $skuList[] = $row['A'];
+            }
+        }
+        
+        // Remove header row if it exists and looks like a header
+        if (count($skuList) > 0 && !is_numeric($skuList[0]) && strtolower($skuList[0]) === 'sku') {
+            array_shift($skuList);
+        }
+        
+        if (empty($skuList)) {
+            return redirect()->route('shopify.products')
+                ->with('error', 'No SKUs found in the uploaded file. Please ensure SKUs are in column A.');
+        }
+        
+        Log::info("Imported " . count($skuList) . " SKUs from Excel file");
+        
+        // Set inventory to zero for the imported SKUs across all locations
+        $result = $this->shopifyService->setZeroInventoryForSkusAllLocations($skuList);
+        
+        if (!$result['success']) {
+            return redirect()->route('shopify.products')
+                ->with('error', 'Failed to set inventory: ' . $result['message']);
+        }
+        
+        $stats = $result['stats'];
+        $message = "Processed " . count($skuList) . " SKUs from Excel. ";
+        $message .= "Updated {$stats['updated']} variants to zero inventory across all locations. ";
+        
+        if ($stats['not_found'] > 0) {
+            $message .= "{$stats['not_found']} SKUs were not found in your store. ";
+            
+            // Add sample of not found SKUs if available
+            if (!empty($result['not_found_skus'])) {
+                $sampleSkus = array_slice($result['not_found_skus'], 0, 5);
+                $message .= "Examples: " . implode(", ", $sampleSkus);
+                
+                if (count($result['not_found_skus']) > 5) {
+                    $message .= " and " . (count($result['not_found_skus']) - 5) . " more.";
+                }
+            }
+        }
+        
+        // If there were errors, mention them
+        if (!empty($stats['errors'])) {
+            $errorCount = count($stats['errors']);
+            $message .= " {$errorCount} errors occurred.";
+            return redirect()->route('shopify.products')
+                ->with('warning', $message);
+        }
+        
+        return redirect()->route('shopify.products')
+            ->with('success', $message);
+            
+    } catch (\Exception $e) {
+        Log::error("Excel import failed: " . $e->getMessage());
+        return redirect()->route('shopify.products')
+            ->with('error', 'Excel import failed: ' . $e->getMessage());
+    }
+}
 } 

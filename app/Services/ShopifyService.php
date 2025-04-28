@@ -22,7 +22,8 @@ class ShopifyService
                 'X-Shopify-Access-Token' => $this->accessToken,
                 'Content-Type' => 'application/json',
                 'Accept' => 'application/json'
-            ]
+            ],
+            'verify' =>false
         ]);
     }
     public function updateVariant($variantGid, $price, $weight)
@@ -636,43 +637,706 @@ public function makeGraphQLRequest($query)
         ];
     }
 }
-public function updateVariantQuantity($variantGid, $quantity)
+// public function updateVariantQuantity($variantGid, $quantity)
+// {
+//     try {
+//         // Extract variant ID from GID
+//         $variantId = preg_replace('/^gid:\/\/shopify\/ProductVariant\//', '', $variantGid);
+        
+//         // First, get the inventory item ID for this variant
+//         $response = $this->client->get("/admin/api/2024-10/variants/{$variantId}.json");
+//         $variantData = json_decode($response->getBody(), true)['variant'];
+//         $inventoryItemId = $variantData['inventory_item_id'];
+        
+//         if (!$inventoryItemId) {
+//             throw new \Exception("Could not find inventory item ID for variant {$variantId}");
+//         }
+        
+//         // Get inventory locations for this inventory item
+//         $locationsResponse = $this->client->get("/admin/api/2024-10/inventory_levels.json", [
+//             'query' => ['inventory_item_ids' => $inventoryItemId]
+//         ]);
+        
+//         $inventoryLevels = json_decode($locationsResponse->getBody(), true)['inventory_levels'];
+        
+//         if (empty($inventoryLevels)) {
+//             // If no inventory levels exist, we need to create one
+//             $locations = $this->getLocations();
+//             if (empty($locations)) {
+//                 throw new \Exception("No locations found for inventory management");
+//             }
+            
+//             $locationId = $locations[0]['id']; // Use the first location
+            
+//             // Create a new inventory level
+//             $this->client->post("/admin/api/2024-10/inventory_levels/set.json", [
+//                 'json' => [
+//                     'inventory_item_id' => $inventoryItemId,
+//                     'location_id' => $locationId,
+//                     'available' => $quantity
+//                 ]
+//             ]);
+            
+//             Log::info("Created new inventory level for variant {$variantId} with quantity {$quantity}");
+//         } else {
+//             // Update existing inventory levels
+//             foreach ($inventoryLevels as $level) {
+//                 $locationId = $level['location_id'];
+                
+//                 // Use the inventory_levels/set endpoint to directly set the available quantity
+//                 $setResponse = $this->client->post("/admin/api/2024-10/inventory_levels/set.json", [
+//                     'json' => [
+//                         'inventory_item_id' => $inventoryItemId,
+//                         'location_id' => $locationId,
+//                         'available' => $quantity
+//                     ]
+//                 ]);
+                
+//                 $resultData = json_decode($setResponse->getBody(), true);
+//                 Log::info("Updated inventory level for variant {$variantId}, location {$locationId} to quantity {$quantity}", [
+//                     'response' => $resultData
+//                 ]);
+//             }
+//         }
+        
+//         // Get the updated variant data to confirm changes
+//         $updatedResponse = $this->client->get("/admin/api/2024-10/variants/{$variantId}.json");
+//         $updatedVariant = json_decode($updatedResponse->getBody(), true)['variant'];
+        
+//         Log::info("Final inventory quantity for variant {$variantId}: {$updatedVariant['inventory_quantity']}");
+        
+//         return [
+//             'success' => true,
+//             'data' => $updatedVariant
+//         ];
+//     } catch (\Exception $e) {
+//         Log::error("Error updating inventory quantity: " . $e->getMessage());
+//         return [
+//             'success' => false,
+//             'message' => $e->getMessage()
+//         ];
+//     }
+// }
+public function updateGInventoryBulk()
 {
+    $stats = [
+        'processed' => 0,
+        'updated' => 0,
+        'skipped' => 0,
+        'errors' => []
+    ];
+    
     try {
-        $variantId = preg_replace('/^gid:\/\/shopify\/ProductVariant\//', '', $variantGid);
-        $url = "/admin/api/2024-10/variants/{$variantId}.json";
-
-        $data = [
-            'variant' => [
-                'id' => $variantId,
-                'inventory_quantity' => $quantity,
-                'old_inventory_quantity' => $quantity
-            ]
-        ];
-
-        $response = $this->client->put($url, [
-            'json' => $data
-        ]);
-
-        $responseBody = json_decode($response->getBody(), true);
-        
-        Log::info('Shopify update response for variant ' . $variantId . ': ' . json_encode($responseBody));
-        
-        if (isset($responseBody['errors'])) {
-            return [
-                'success' => false,
-                'message' => 'Shopify API error: ' . json_encode($responseBody['errors'])
-            ];
+        // Step 1: Get all inventory locations first
+        $locations = $this->getLocations();
+        if (empty($locations)) {
+            throw new \Exception("No inventory locations found");
         }
-
+        $locationIds = array_column($locations, 'id');
+        
+        // Step 2: Process products in batches with cursor pagination
+        $cursor = null;
+        $hasNextPage = true;
+        $batchSize = 10; // Smaller batch size to avoid timeouts
+        $batchCount = 0;
+        
+        while ($hasNextPage && $batchCount < 3) { // Limit to 3 batches per request to avoid timeouts
+            // Get a batch of products
+            $products = $this->getProducts($cursor);
+            
+            if (!isset($products['data']) || !isset($products['data']['products']['edges'])) {
+                $stats['errors'][] = "Failed to retrieve products";
+                break;
+            }
+            
+            $productEdges = $products['data']['products']['edges'] ?? [];
+            $variantsToUpdate = [];
+            
+            // Collect all G-SKU variants with zero inventory
+            foreach ($productEdges as $product) {
+                $variants = $product['node']['variants']['edges'] ?? [];
+                
+                foreach ($variants as $variant) {
+                    $sku = $variant['node']['sku'] ?? '';
+                    $variantId = $variant['node']['id'] ?? '';
+                    $inventoryQuantity = $variant['node']['inventoryQuantity'] ?? 0;
+                    
+                    // Only process variants with SKUs starting with 'G' and zero inventory
+                    if (strlen($sku) > 0 && strtoupper(substr($sku, 0, 1)) === 'G' && $inventoryQuantity == 0) {
+                        // Extract the numeric ID from the GID
+                        $numericId = preg_replace('/^gid:\/\/shopify\/ProductVariant\//', '', $variantId);
+                        
+                        $variantsToUpdate[] = [
+                            'id' => $numericId,
+                            'sku' => $sku,
+                            'gid' => $variantId
+                        ];
+                    } else {
+                        $stats['skipped']++;
+                    }
+                    
+                    $stats['processed']++;
+                }
+            }
+            
+            // Update inventory for collected variants with proper rate limiting
+            foreach ($variantsToUpdate as $index => $variant) {
+                try {
+                    // Get inventory item ID for this variant (required for inventory updates)
+                    $variantResponse = $this->client->get("/admin/api/2024-10/variants/{$variant['id']}.json");
+                    $variantData = json_decode($variantResponse->getBody(), true)['variant'];
+                    $inventoryItemId = $variantData['inventory_item_id'] ?? null;
+                    
+                    if (!$inventoryItemId) {
+                        $stats['errors'][] = "Missing inventory item ID for variant {$variant['sku']}";
+                        continue;
+                    }
+                    
+                    // Update inventory at each location
+                    foreach ($locationIds as $locationId) {
+                        // Use set endpoint to update inventory level
+                        $response = $this->client->post("/admin/api/2024-10/inventory_levels/set.json", [
+                            'json' => [
+                                'inventory_item_id' => $inventoryItemId,
+                                'location_id' => $locationId,
+                                'available' => 1
+                            ]
+                        ]);
+                        
+                        $result = json_decode($response->getBody(), true);
+                        Log::info("Updated inventory for SKU {$variant['sku']} at location {$locationId}", [
+                            'result' => $result
+                        ]);
+                        
+                        // Add delay to respect rate limits (max 2 calls per second)
+                        usleep(500000); // 0.5 seconds
+                    }
+                    
+                    $stats['updated']++;
+                    
+                } catch (\Exception $e) {
+                    $stats['errors'][] = "Error updating {$variant['sku']}: " . $e->getMessage();
+                    Log::error("Error updating inventory for SKU {$variant['sku']}: " . $e->getMessage());
+                    
+                    // If we hit a rate limit error, pause for a longer time
+                    if (strpos($e->getMessage(), 'Too Many Requests') !== false) {
+                        Log::info("Rate limit hit, pausing for 2 seconds");
+                        sleep(2);
+                    }
+                }
+            }
+            
+            // Check if there are more pages
+            $hasNextPage = $products['data']['products']['pageInfo']['hasNextPage'] ?? false;
+            $cursor = $products['data']['products']['pageInfo']['endCursor'] ?? null;
+            $batchCount++;
+            
+            // Add delay between batches
+            sleep(1);
+        }
+        
         return [
             'success' => true,
-            'data' => $responseBody['variant']
+            'stats' => $stats,
+            'next_cursor' => $cursor,
+            'has_more' => $hasNextPage
         ];
+        
+    } catch (\Exception $e) {
+        Log::error("Bulk inventory update failed: " . $e->getMessage());
+        return [
+            'success' => false,
+            'message' => $e->getMessage(),
+            'stats' => $stats
+        ];
+    }
+}
+
+/**
+ * Update inventory for all variants of a specific product
+ * 
+ * @param string $productId The product ID
+ * @param int $quantity The quantity to set for all variants
+ * @return array Result of the operation
+ */
+public function updateAllVariantsInventory($productId, $quantity = 1)
+{
+    try {
+        // Get the product with all its variants
+        $product = $this->getProducts(null, $productId);
+        
+        if (!isset($product['data']['product'])) {
+            return [
+                'success' => false,
+                'message' => 'Product not found.'
+            ];
+        }
+        
+        $variants = $product['data']['product']['variants']['edges'] ?? [];
+        $locations = $this->getLocations();
+        $locationIds = array_column($locations, 'id');
+        
+        $updatedVariants = 0;
+        $errors = [];
+        
+        foreach ($variants as $variant) {
+            $variantId = $variant['node']['id'] ?? '';
+            $sku = $variant['node']['sku'] ?? '';
+            
+            if (!$variantId) {
+                continue;
+            }
+            
+            try {
+                // Extract the numeric ID from the GID
+                $numericId = preg_replace('/^gid:\/\/shopify\/ProductVariant\//', '', $variantId);
+                
+                // Get inventory item ID
+                $variantResponse = $this->client->get("/admin/api/2024-10/variants/{$numericId}.json");
+                $variantData = json_decode($variantResponse->getBody(), true)['variant'];
+                $inventoryItemId = $variantData['inventory_item_id'] ?? null;
+                
+                if (!$inventoryItemId) {
+                    $errors[] = "Missing inventory item ID for variant {$sku}";
+                    continue;
+                }
+                
+                // Update inventory at each location
+                foreach ($locationIds as $locationId) {
+                    $response = $this->client->post("/admin/api/2024-10/inventory_levels/set.json", [
+                        'json' => [
+                            'inventory_item_id' => $inventoryItemId,
+                            'location_id' => $locationId,
+                            'available' => $quantity
+                        ]
+                    ]);
+                    
+                    // Add delay to respect rate limits
+                    usleep(500000);
+                }
+                
+                $updatedVariants++;
+                
+            } catch (\Exception $e) {
+                $errors[] = "Error updating variant {$sku}: " . $e->getMessage();
+                
+                // If we hit a rate limit error, pause for a longer time
+                if (strpos($e->getMessage(), 'Too Many Requests') !== false) {
+                    sleep(2);
+                }
+            }
+        }
+        
+        return [
+            'success' => true,
+            'updated_variants' => $updatedVariants,
+            'errors' => $errors
+        ];
+        
     } catch (\Exception $e) {
         return [
             'success' => false,
             'message' => $e->getMessage()
+        ];
+    }
+}
+/**
+ * Update inventory for ALL products with zero inventory at a specific location
+ * 
+ * @param string $locationName Name of the location to update
+ * @param int $quantity Quantity to set (default 1)
+ * @param string|null $startCursor Optional cursor to start processing from
+ * @return array Status information about the update process
+ */
+public function updateAllZeroInventoryAtLocation($locationName = "Part 13 Cairo company for Prefab Bulidings", $quantity = 1, $startCursor = null)
+{
+    $stats = [
+        'processed' => 0,
+        'updated' => 0,
+        'skipped' => 0,
+        'errors' => []
+    ];
+    
+    try {
+        // Step 1: Find the specific location by name
+        $locations = $this->getLocations();
+        $targetLocation = null;
+        
+        foreach ($locations as $location) {
+            if ($location['name'] === $locationName) {
+                $targetLocation = $location;
+                break;
+            }
+        }
+        
+        if (!$targetLocation) {
+            throw new \Exception("Location '{$locationName}' not found");
+        }
+        
+        $locationId = $targetLocation['id'];
+        Log::info("Targeting inventory updates for ALL zero inventory products at location: {$locationName} (ID: {$locationId})");
+        
+        // Step 2: Process products in batches with cursor pagination
+        $cursor = $startCursor; // Use provided cursor if available
+        $hasNextPage = true;
+        $batchSize = 250; // Larger batch size to process more products
+        $batchCount = 0;
+        $maxBatches = 30; // Process up to 10 batches per request to avoid timeouts
+        
+        while ($hasNextPage && $batchCount < $maxBatches) {
+            // Get a batch of products
+            $products = $this->getProducts($cursor);
+            
+            if (!isset($products['data']) || !isset($products['data']['products']['edges'])) {
+                $stats['errors'][] = "Failed to retrieve products";
+                break;
+            }
+            
+            $productEdges = $products['data']['products']['edges'] ?? [];
+            $processedInBatch = 0;
+            
+            // Process each product
+            foreach ($productEdges as $product) {
+                $variants = $product['node']['variants']['edges'] ?? [];
+                
+                foreach ($variants as $variant) {
+                    $sku = $variant['node']['sku'] ?? '';
+                    $variantId = $variant['node']['id'] ?? '';
+                    $variantTitle = $variant['node']['title'] ?? '';
+                    $productTitle = $product['node']['title'] ?? 'Unknown Product';
+                    $inventoryQuantity = $variant['node']['inventoryQuantity'] ?? null;
+                    
+                    $stats['processed']++;
+                    $processedInBatch++;
+                    
+                    // Only process variants with zero inventory, regardless of SKU
+                    if ($inventoryQuantity === 0) {
+                        try {
+                            // Extract the numeric ID from the GID
+                            $numericId = preg_replace('/^gid:\/\/shopify\/ProductVariant\//', '', $variantId);
+                            
+                            // Get variant details to find inventory item ID
+                            $variantResponse = $this->client->get("/admin/api/2024-10/variants/{$numericId}.json");
+                            $variantData = json_decode($variantResponse->getBody(), true)['variant'];
+                            $inventoryItemId = $variantData['inventory_item_id'] ?? null;
+                            
+                            if (!$inventoryItemId) {
+                                $stats['errors'][] = "Missing inventory item ID for variant {$sku} ({$productTitle} - {$variantTitle})";
+                                continue;
+                            }
+                            
+                            // Get current inventory at the specific location first
+                            $inventoryLevelsResponse = $this->client->get("/admin/api/2024-10/inventory_levels.json", [
+                                'query' => [
+                                    'inventory_item_ids' => $inventoryItemId,
+                                    'location_ids' => $locationId
+                                ]
+                            ]);
+                            
+                            $inventoryLevels = json_decode($inventoryLevelsResponse->getBody(), true)['inventory_levels'] ?? [];
+                            $currentLevel = !empty($inventoryLevels) ? $inventoryLevels[0]['available'] : 0;
+                            
+                            // Skip if inventory is already greater than 0
+                            if ($currentLevel > 0) {
+                                Log::info("Skipping {$productTitle} - {$variantTitle} (SKU: {$sku}) - already has inventory {$currentLevel} at location {$locationName}");
+                                $stats['skipped']++;
+                                continue;
+                            }
+                            
+                            // First, ensure inventory tracking is enabled
+                            $this->client->put("/admin/api/2024-10/variants/{$numericId}.json", [
+                                'json' => [
+                                    'variant' => [
+                                        'id' => $numericId,
+                                        'inventory_management' => 'shopify'
+                                    ]
+                                ]
+                            ]);
+                            
+                            // Allow time for the change to propagate
+                            usleep(250000); // 0.25 seconds
+                            
+                            // Use the inventory_levels/set endpoint to update at the specific location
+                            $response = $this->client->post("/admin/api/2024-10/inventory_levels/set.json", [
+                                'json' => [
+                                    'inventory_item_id' => $inventoryItemId,
+                                    'location_id' => $locationId,
+                                    'available' => $quantity
+                                ]
+                            ]);
+                            
+                            $result = json_decode($response->getBody(), true);
+                            Log::info("Updated inventory for {$productTitle} - {$variantTitle} (SKU: {$sku}) at location {$locationName}", [
+                                'new_level' => $quantity
+                            ]);
+                            
+                            $stats['updated']++;
+                            
+                            // Add delay to respect rate limits
+                            usleep(500000); // 0.5 seconds
+                            
+                        } catch (\Exception $e) {
+                            $stats['errors'][] = "Error updating {$productTitle} - {$variantTitle} (SKU: {$sku}): " . $e->getMessage();
+                            Log::error("Error updating inventory: " . $e->getMessage());
+                            
+                            // If we hit a rate limit error, pause for a longer time
+                            if (strpos($e->getMessage(), 'Too Many Requests') !== false) {
+                                Log::info("Rate limit hit, pausing for 2 seconds");
+                                sleep(2);
+                            }
+                        }
+                    } else {
+                        // Skip if already has inventory
+                        $stats['skipped']++;
+                    }
+                }
+                
+                // If this batch is getting too large, break to avoid timeouts
+                if ($processedInBatch >= $batchSize) {
+                    break;
+                }
+            }
+            
+            // Check if there are more pages
+            $hasNextPage = $products['data']['products']['pageInfo']['hasNextPage'] ?? false;
+            $cursor = $products['data']['products']['pageInfo']['endCursor'] ?? null;
+            $batchCount++;
+            
+            Log::info("Completed batch {$batchCount} - Processed: {$stats['processed']}, Updated: {$stats['updated']}, Skipped: {$stats['skipped']}");
+            
+            // Add a small delay between batches
+            sleep(1);
+        }
+        
+        return [
+            'success' => true,
+            'stats' => $stats,
+            'next_cursor' => $cursor,
+            'has_more' => $hasNextPage,
+            'location' => [
+                'id' => $locationId,
+                'name' => $locationName
+            ]
+        ];
+        
+    } catch (\Exception $e) {
+        Log::error("Inventory update at location {$locationName} failed: " . $e->getMessage());
+        return [
+            'success' => false,
+            'message' => $e->getMessage(),
+            'stats' => $stats
+        ];
+    }
+}
+/**
+ * Set inventory to zero for specific SKUs across ALL locations
+ * 
+ * @param array $skuList List of SKUs to set to zero inventory
+ * @return array Status information about the update process
+ */
+public function setZeroInventoryForSkusAllLocations($skuList)
+{
+    $stats = [
+        'processed' => 0,
+        'updated' => 0,
+        'skipped' => 0,
+        'not_found' => 0,
+        'errors' => []
+    ];
+    
+    try {
+        // Normalize SKUs (trim whitespace, convert to uppercase for case-insensitive matching)
+        $normalizedSkus = array_map(function($sku) {
+            return strtoupper(trim($sku));
+        }, $skuList);
+        
+        // Get all locations
+        $locations = $this->getLocations();
+        if (empty($locations)) {
+            throw new \Exception("No inventory locations found");
+        }
+        
+        Log::info("Setting zero inventory for " . count($normalizedSkus) . " SKUs across ALL " . count($locations) . " locations");
+        
+        // Process products in batches
+        $cursor = null;
+        $hasNextPage = true;
+        $batchCount = 0;
+        $maxBatches = 50; // Set higher to ensure we can process the whole catalog
+        $foundSkus = [];
+        
+        while ($hasNextPage && $batchCount < $maxBatches && count($foundSkus) < count($normalizedSkus)) {
+            // Get a batch of products
+            $products = $this->getProducts($cursor);
+            
+            if (!isset($products['data']) || !isset($products['data']['products']['edges'])) {
+                $stats['errors'][] = "Failed to retrieve products";
+                break;
+            }
+            
+            $productEdges = $products['data']['products']['edges'] ?? [];
+            
+            // Process each product
+            foreach ($productEdges as $product) {
+                $variants = $product['node']['variants']['edges'] ?? [];
+                $productTitle = $product['node']['title'] ?? 'Unknown Product';
+                $productId = basename($product['node']['id']);
+                $foundSkusInProduct = false;
+                
+                // Check if any variant SKU matches our list
+                foreach ($variants as $variant) {
+                    $sku = $variant['node']['sku'] ?? '';
+                    $normalizedSku = strtoupper(trim($sku));
+                    
+                    // If this SKU is in our list to update
+                    if (in_array($normalizedSku, $normalizedSkus)) {
+                        $foundSkusInProduct = true;
+                        $foundSkus[] = $normalizedSku;
+                        break;
+                    }
+                }
+                
+                // If any variant matches, set ALL variants to zero inventory
+                if ($foundSkusInProduct) {
+                    try {
+                        Log::info("Found matching SKU in product: {$productTitle} (ID: {$productId})");
+                        
+                        // Process all variants for this product
+                        foreach ($variants as $variant) {
+                            $variantId = $variant['node']['id'] ?? '';
+                            $variantTitle = $variant['node']['title'] ?? '';
+                            $sku = $variant['node']['sku'] ?? '';
+                            
+                            $stats['processed']++;
+                            
+                            try {
+                                // Extract the numeric ID from the GID
+                                $numericId = preg_replace('/^gid:\/\/shopify\/ProductVariant\//', '', $variantId);
+                                
+                                // Get variant details to find inventory item ID
+                                $variantResponse = $this->client->get("/admin/api/2024-10/variants/{$numericId}.json");
+                                $variantData = json_decode($variantResponse->getBody(), true)['variant'];
+                                $inventoryItemId = $variantData['inventory_item_id'] ?? null;
+                                
+                                if (!$inventoryItemId) {
+                                    $stats['errors'][] = "Missing inventory item ID for variant {$sku} ({$productTitle} - {$variantTitle})";
+                                    continue;
+                                }
+                                
+                                // First, ensure inventory tracking is enabled
+                                $this->client->put("/admin/api/2024-10/variants/{$numericId}.json", [
+                                    'json' => [
+                                        'variant' => [
+                                            'id' => $numericId,
+                                            'inventory_management' => 'shopify'
+                                        ]
+                                    ]
+                                ]);
+                                
+                                // Allow time for the change to propagate
+                                usleep(250000); // 0.25 seconds
+                                
+                                // Get inventory levels at all locations for this item
+                                $inventoryLevelsResponse = $this->client->get("/admin/api/2024-10/inventory_levels.json", [
+                                    'query' => [
+                                        'inventory_item_ids' => $inventoryItemId
+                                    ]
+                                ]);
+                                
+                                $inventoryLevels = json_decode($inventoryLevelsResponse->getBody(), true)['inventory_levels'] ?? [];
+                                
+                                // If there are no existing inventory levels, create them at all locations
+                                if (empty($inventoryLevels)) {
+                                    foreach ($locations as $location) {
+                                        $locationId = $location['id'];
+                                        
+                                        // Use the inventory_levels/set endpoint to set inventory to 0
+                                        $this->client->post("/admin/api/2024-10/inventory_levels/set.json", [
+                                            'json' => [
+                                                'inventory_item_id' => $inventoryItemId,
+                                                'location_id' => $locationId,
+                                                'available' => 0
+                                            ]
+                                        ]);
+                                        
+                                        // Add delay to respect rate limits
+                                        usleep(500000); // 0.5 seconds
+                                    }
+                                } else {
+                                    // Update existing inventory levels
+                                    foreach ($inventoryLevels as $level) {
+                                        $locationId = $level['location_id'];
+                                        
+                                        // Use the inventory_levels/set endpoint to set inventory to 0
+                                        $this->client->post("/admin/api/2024-10/inventory_levels/set.json", [
+                                            'json' => [
+                                                'inventory_item_id' => $inventoryItemId,
+                                                'location_id' => $locationId,
+                                                'available' => 0
+                                            ]
+                                        ]);
+                                        
+                                        // Add delay to respect rate limits
+                                        usleep(500000); // 0.5 seconds
+                                    }
+                                }
+                                
+                                Log::info("Set inventory to 0 for {$productTitle} - {$variantTitle} (SKU: {$sku}) across all locations");
+                                
+                                $stats['updated']++;
+                                
+                            } catch (\Exception $e) {
+                                $stats['errors'][] = "Error updating {$productTitle} - {$variantTitle} (SKU: {$sku}): " . $e->getMessage();
+                                Log::error("Error setting zero inventory: " . $e->getMessage());
+                                
+                                // If we hit a rate limit error, pause for a longer time
+                                if (strpos($e->getMessage(), 'Too Many Requests') !== false) {
+                                    Log::info("Rate limit hit, pausing for 2 seconds");
+                                    sleep(2);
+                                }
+                            }
+                        }
+                    } catch (\Exception $e) {
+                        $stats['errors'][] = "Error processing product {$productTitle}: " . $e->getMessage();
+                        Log::error("Error processing product: " . $e->getMessage());
+                    }
+                }
+            }
+            
+            // Check if there are more pages
+            $hasNextPage = $products['data']['products']['pageInfo']['hasNextPage'] ?? false;
+            $cursor = $products['data']['products']['pageInfo']['endCursor'] ?? null;
+            $batchCount++;
+            
+            Log::info("Completed batch {$batchCount} - Found " . count(array_unique($foundSkus)) . " of " . count($normalizedSkus) . " SKUs");
+            
+            // Add a small delay between batches
+            sleep(1);
+        }
+        
+        // Check for any SKUs that weren't found
+        $notFoundSkus = array_diff($normalizedSkus, array_unique($foundSkus));
+        $stats['not_found'] = count($notFoundSkus);
+        
+        if (!empty($notFoundSkus)) {
+            Log::warning("Could not find the following SKUs: " . implode(", ", array_slice($notFoundSkus, 0, 20)));
+            if (count($notFoundSkus) > 20) {
+                Log::warning("... and " . (count($notFoundSkus) - 20) . " more.");
+            }
+        }
+        
+        return [
+            'success' => true,
+            'stats' => $stats,
+            'not_found_skus' => $notFoundSkus
+        ];
+        
+    } catch (\Exception $e) {
+        Log::error("Setting zero inventory failed: " . $e->getMessage());
+        return [
+            'success' => false,
+            'message' => $e->getMessage(),
+            'stats' => $stats
         ];
     }
 }
