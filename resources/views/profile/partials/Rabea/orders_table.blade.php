@@ -18,12 +18,16 @@
     
     .modal-content {
         background-color: #fefefe;
-        margin: 15% auto;
-        padding: 20px;
+        margin: 5% auto;
+        padding: 0;
         border: 1px solid #888;
-        width: 80%;
+        width: 85%;
+        max-width: 1000px;
         border-radius: 8px;
         direction: rtl;
+        display: flex;
+        flex-direction: column;
+        max-height: 85vh;
     }
     
     .modal-header {
@@ -31,8 +35,41 @@
         justify-content: space-between;
         align-items: center;
         border-bottom: 1px solid #dee2e6;
-        padding-bottom: 1rem;
-        margin-bottom: 1rem;
+        padding: 15px 20px;
+        background-color: #fefefe;
+        border-radius: 8px 8px 0 0;
+    }
+    
+    .modal-footer {
+        padding: 15px 20px;
+        border-top: 1px solid #dee2e6;
+        text-align: left;
+        background-color: #fefefe;
+        border-radius: 0 0 8px 8px;
+    }
+    
+    #modalBody {
+        padding: 20px;
+        overflow-y: auto;
+        max-height: calc(85vh - 120px); /* Account for header and footer */
+    }
+    
+    #modalBody::-webkit-scrollbar {
+        width: 6px;
+    }
+    
+    #modalBody::-webkit-scrollbar-track {
+        background: #f1f1f1;
+        border-radius: 10px;
+    }
+    
+    #modalBody::-webkit-scrollbar-thumb {
+        background: #888;
+        border-radius: 10px;
+    }
+    
+    #modalBody::-webkit-scrollbar-thumb:hover {
+        background: #555;
     }
     
     .close {
@@ -44,7 +81,7 @@
     
     .item-details {
         padding: 10px;
-        margin-bottom: 10px;
+        margin-bottom: 20px;
         border-bottom: 1px solid #eee;
         background-color: #f8f9fa;
         border-radius: 5px;
@@ -53,7 +90,61 @@
     .item-number {
         font-weight: bold;
         color: #007bff;
-        margin-bottom: 5px;
+        margin-bottom: 15px;
+        font-size: 16px;
+        background-color: #e9ecef;
+        padding: 8px;
+        border-radius: 5px;
+    }
+    
+    .item-row {
+        display: flex;
+        flex-wrap: wrap;
+        margin-bottom: 10px;
+        background-color: #fff;
+        border-radius: 5px;
+        padding: 5px;
+    }
+    
+    .item-cell {
+        flex: 0 0 33.33%;
+        padding: 8px;
+        border-bottom: 1px solid #f0f0f0;
+    }
+    
+    .item-details-section {
+        margin: 10px 0;
+        padding: 10px;
+        background-color: #f8f9fa;
+        border-radius: 5px;
+        border-left: 3px solid #007bff;
+    }
+    
+    .new-fields-section {
+        display: flex;
+        flex-wrap: wrap;
+        margin-top: 10px;
+        background-color: #f0f8ff;
+        padding: 10px;
+        border-radius: 5px;
+        border-left: 3px solid #28a745;
+    }
+    
+    .new-field-cell {
+        flex: 0 0 25%;
+        padding: 8px;
+    }
+    
+    @media (max-width: 768px) {
+        .item-cell, .new-field-cell {
+            flex: 0 0 50%;
+        }
+    }
+    
+    @media (max-width: 576px) {
+        .item-cell, .new-field-cell {
+            flex: 0 0 100%;
+        }
     }
 </style>
 
@@ -114,11 +205,14 @@
 <div id="detailsModal" class="modal">
     <div class="modal-content">
         <div class="modal-header">
-            <h4>تفاصيل القطع</h4>
+            <h4 style="margin: 0;">تفاصيل القطع</h4>
             <span class="close">&times;</span>
         </div>
         <div id="modalBody">
             <!-- Details will be inserted here -->
+        </div>
+        <div class="modal-footer">
+            <button class="btn btn-secondary" onclick="document.getElementById('detailsModal').style.display='none'">إغلاق</button>
         </div>
     </div>
 </div>
@@ -154,7 +248,11 @@ const orders = {
                         model: "{{ $item->model }}",
                         serial_number: "{{ $item->serial_number }}",
                         order_details: "{{ $item->order_details }}",
-                        order_type: "{{ $item->order_type }}"
+                        order_type: "{{ $item->order_type }}",
+                        cost: "{{ $item->cost }}",
+                        gold_weight: "{{ $item->gold_weight }}",
+                        new_barcode: "{{ $item->new_barcode }}",
+                        new_diamond_number: "{{ $item->new_diamond_number }}"
                     },
                 @endforeach
             ]
@@ -175,14 +273,31 @@ function showOrderDetails(orderId) {
             detailsHtml += `
                 <div class="item-details">
                     <div class="item-number">القطعة ${index + 1}</div>
-                    <div><strong>النوع:</strong> ${item.item_type}</div>
-                    <div><strong>الصنف:</strong> ${item.order_kind}</div>
-                    ${item.weight ? `<div><strong>الوزن:</strong> ${item.weight}</div>` : ''}
-                    ${item.ring_size ? `<div><strong>مقاس الخاتم:</strong> ${item.ring_size}</div>` : ''}
-                    ${item.model ? `<div><strong>الموديل:</strong> ${item.model}</div>` : ''}
-                    ${item.serial_number ? `<div><strong>رقم القطعة:</strong> ${item.serial_number}</div>` : ''}
-                    <div><strong>التفاصيل:</strong> ${item.order_details}</div>
-                    <div><strong>نوع الطلب:</strong> ${item.order_type === 'by_customer' ? 'طلب العميل' : 'طلب المحل'}</div>
+                    
+                    <div class="item-row">
+                        <!-- First row - 3 items -->
+                        <div class="item-cell"><strong>النوع:</strong> ${item.item_type}</div>
+                        <div class="item-cell"><strong>النوع:</strong> ${item.order_kind}</div>
+                        <div class="item-cell"><strong>الوزن:</strong> ${item.weight || ''}</div>
+                        
+                        <!-- Second row - 3 items -->
+                        <div class="item-cell"><strong>الموديل:</strong> ${item.model || ''}</div>
+                        <div class="item-cell"><strong>رقم القطعة:</strong> ${item.serial_number || ''}</div>
+                        <div class="item-cell"><strong>نوع الطلب:</strong> ${item.order_type === 'by_customer' ? 'طلب العميل' : 'طلب المحل'}</div>
+                    </div>
+                    
+                    <!-- Order details in its own row -->
+                    <div class="item-details-section">
+                        <strong>التفاصيل:</strong> ${item.order_details || ''}
+                    </div>
+                    
+                    <!-- New fields in the last row -->
+                    <div class="new-fields-section">
+                        <div class="new-field-cell"><strong>التكلفة:</strong> ${item.cost || ''}</div>
+                        <div class="new-field-cell"><strong>وزن الذهب:</strong> ${item.gold_weight || ''}</div>
+                        <div class="new-field-cell"><strong>الباركود الجديد:</strong> ${item.new_barcode || ''}</div>
+                        <div class="new-field-cell"><strong>رقم القطعة الجديد:</strong> ${item.new_diamond_number || ''}</div>
+                    </div>
                 </div>
             `;
         });
@@ -204,6 +319,13 @@ window.onclick = function(event) {
         modal.style.display = "none";
     }
 }
+
+// Add keyboard support for closing the modal with ESC key
+document.addEventListener('keydown', function(event) {
+    if (event.key === 'Escape') {
+        document.getElementById('detailsModal').style.display = "none";
+    }
+});
 
 function changeBulkStatus(status) {
     const checkboxes = document.querySelectorAll('input[type="checkbox"]:checked');

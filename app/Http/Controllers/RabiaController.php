@@ -119,6 +119,10 @@ public function updateStatusBulk(Request $request)
             $item->serial_number = $request->serial_number[$index];
             $item->order_details = $request->order_details[$index];
             $item->order_type = $request->order_type[$index];
+            $item->cost = $request->cost[$index];
+            $item->gold_weight = $request->gold_weight[$index];
+            $item->new_barcode = $request->new_barcode[$index];
+            $item->new_diamond_number = $request->new_diamond_number[$index];
             $item->save();
         }
         

@@ -20,7 +20,11 @@ class OrderItem extends Model
         'weight',
         'image_link',
         'order_details',
-        'order_type'
+        'order_type',
+        'cost',            // New column
+        'gold_weight',     // New column
+        'new_barcode',     // New column
+        'new_diamond_number' // New column
         // 'quantity',
         // 'gold_color',
         // 'ring_size',

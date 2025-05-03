@@ -221,6 +221,8 @@
                                     </div>
                                 </div>
                                 
+                          
+                                
                                 <div class="col-md-8">
                                     <div class="form-group">
                                         <label>موضوع الطلب</label>
@@ -246,7 +248,33 @@
                                         </div>
                                     </div>
                                 </div>
-
+                                <div class="col-md-2">
+                                    <div class="form-group">
+                                        <label>التكلفة</label>
+                                        <input type="number" class="form-control" name="cost[]" value="{{ $item->cost }}" step="0.01">
+                                    </div>
+                                </div>
+                                
+                                <div class="col-md-2">
+                                    <div class="form-group">
+                                        <label>وزن الذهب</label>
+                                        <input type="number" class="form-control" name="gold_weight[]" value="{{ $item->gold_weight }}" step="0.01">
+                                    </div>
+                                </div>
+                                
+                                <div class="col-md-2">
+                                    <div class="form-group">
+                                        <label>الباركود الجديد</label>
+                                        <input type="text" class="form-control" name="new_barcode[]" value="{{ $item->new_barcode }}">
+                                    </div>
+                                </div>
+                                
+                                <div class="col-md-2">
+                                    <div class="form-group">
+                                        <label>رقم الماس الجديد</label>
+                                        <input type="text" class="form-control" name="new_diamond_number[]" value="{{ $item->new_diamond_number }}">
+                                    </div>
+                                </div>
                             </div>
                         </div>
                     @endforeach

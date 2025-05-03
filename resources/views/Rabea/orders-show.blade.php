@@ -348,25 +348,68 @@
                                 </div>
                             </div>
                             @endif
-
-                          
                         </div>
 
-                        <div class="item-description">
-                            <div class="description-header">
-                                <i class="fas fa-align-left"></i>
-                                <span>موضوع الطلب</span>
+                            <div class="item-description">
+                                <div class="description-header">
+                                    <i class="fas fa-align-left"></i>
+                                    <span>موضوع الطلب</span>
+                                </div>
+                                <p class="description-text">{{ $item->order_details }}</p>
                             </div>
-                            <p class="description-text">{{ $item->order_details }}</p>
+    
+                            @if ($item->image_link)
+                                <div class="text-center">
+                                    <img src="{{ asset('storage/' . $item->image_link) }}" 
+                                         alt="صورة القطعة" 
+                                         class="item-image">
+                                </div>
+                            @endif
+
+                        <div class="item-details">
+
+                            {{-- @if($item->cost) --}}
+                            <div class="detail-row">
+                                <i class="fas fa-dollar-sign"></i>
+                                <div>
+                                    <strong>التكلفة:</strong>
+                                    <span>{{ $item->cost }}</span>
+                                </div>
+                            </div>
+                            {{-- @endif --}}
+
+                            {{-- @if($item->gold_weight) --}}
+                            <div class="detail-row">
+                                <i class="fas fa-balance-scale"></i>
+                                <div>
+                                    <strong>وزن الذهب:</strong>
+                                    <span>{{ $item->gold_weight }}</span>
+                                </div>
+                            </div>
+                            {{-- @endif --}}
+
+                            {{-- @if($item->new_barcode) --}}
+                            <div class="detail-row">
+                                <i class="fas fa-qrcode"></i>
+                                <div>
+                                    <strong>الباركود الجديد:</strong>
+                                    <span>{{ $item->new_barcode }}</span>
+                                </div>
+                            </div>
+                            {{-- @endif --}}
+
+                            {{-- @if($item->new_diamond_number) --}}
+                            <div class="detail-row">
+                                <i class="fas fa-gem"></i>
+                                <div>
+                                    <strong>رقم الماس الجديد:</strong>
+                                    <span>{{ $item->new_diamond_number }}</span>
+                                </div>
+                            </div>
+                            {{-- @endif --}}
                         </div>
 
-                        @if ($item->image_link)
-                            <div class="text-center">
-                                <img src="{{ asset('storage/' . $item->image_link) }}" 
-                                     alt="صورة القطعة" 
-                                     class="item-image">
-                            </div>
-                        @endif
+                  
                     </div>
                 @endforeach
             </div>
