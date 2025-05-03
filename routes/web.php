@@ -46,7 +46,8 @@ use App\Http\Controllers\{
     DidItemsController,
     Admin\KasrSaleAdminController,
     Admin\GoldBalanceReportController,
-    Admin\Shopify\ShopifyProductController
+    Admin\Shopify\ShopifyProductController,
+    Admin\OnlineModelsController
     // NewItemTalabatController 
 };
 
@@ -564,3 +565,16 @@ Route::post('/rabea/process-transfer', [DidItemsController::class, 'processRabea
 // Workshop DID requests
 Route::get('/did-requests', [DidItemsController::class, 'didRequests'])->name('rabea.did.requests');
 Route::post('/did-requests/handle', [DidItemsController::class, 'handleDidRequests'])->name('rabea.did.requests.handle');
+
+// Online Models Routes
+Route::prefix('admin')->middleware(['auth', 'verified'])->group(function () {
+    Route::get('/online-models', [OnlineModelsController::class, 'index'])->name('online-models.index');
+    Route::get('/online-models/create', [OnlineModelsController::class, 'create'])->name('online-models.create');
+    Route::post('/online-models', [OnlineModelsController::class, 'store'])->name('online-models.store');
+    Route::delete('/online-models/{id}', [OnlineModelsController::class, 'destroy'])->name('online-models.destroy');
+    
+    // Excel import routes
+    Route::get('/online-models/import', [OnlineModelsController::class, 'showImportForm'])->name('online-models.import');
+    Route::post('/online-models/import', [OnlineModelsController::class, 'importExcel'])->name('online-models.import.process');
+    Route::post('/online-models/clear', [OnlineModelsController::class, 'clearAll'])->name('online-models.clear');
+});
