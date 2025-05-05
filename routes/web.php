@@ -47,7 +47,8 @@ use App\Http\Controllers\{
     Admin\KasrSaleAdminController,
     Admin\GoldBalanceReportController,
     Admin\Shopify\ShopifyProductController,
-    Admin\OnlineModelsController
+    Admin\OnlineModelsController,
+    SerialNumberTrackingController
     // NewItemTalabatController 
 };
 
@@ -578,3 +579,16 @@ Route::prefix('admin')->middleware(['auth', 'verified'])->group(function () {
     Route::post('/online-models/import', [OnlineModelsController::class, 'importExcel'])->name('online-models.import.process');
     Route::post('/online-models/clear', [OnlineModelsController::class, 'clearAll'])->name('online-models.clear');
 });
+
+// Serial Number Tracking Routes
+Route::get('/tracking', [SerialNumberTrackingController::class, 'index'])->name('tracking.index');
+Route::get('/tracking/search', [SerialNumberTrackingController::class, 'search'])->name('tracking.search');
+Route::get('/tracking/standalone', [SerialNumberTrackingController::class, 'index'])
+    ->defaults('standalone', 1)
+    ->name('tracking.standalone');
+Route::get('/tracking/standalone/search', [SerialNumberTrackingController::class, 'search'])
+    ->defaults('standalone', 1)
+    ->name('tracking.standalone.search');
+Route::get('/tracking/example', function() {
+    return view('tracking.example');
+})->name('tracking.example');

@@ -47,6 +47,7 @@
                 <div class="dropdown-menu">
                     <a href="{{ route('reports.view') }}" class="dropdown-item">View Reports</a>
                     <a href="{{ route('gold-analysis.index') }}" class="dropdown-item">الجرد</a>
+                    <a href="{{ route('tracking.index') }}" class="dropdown-item">Serial Number Tracking</a>
                 </div>
             </li>
 
@@ -66,6 +67,7 @@
             <li class="navbar-item"><a href="{{ route('all-sold-items') }}" class="navbar-link">sales analysis</a></li>
             <li class="navbar-item"><a href="{{ route('kasr-sales.admin.index') }}" class="navbar-link">الكسر</a></li>
             <li class="navbar-item"><a href="{{ route('gold-balance.report') }}" class="navbar-link">Gold Balance Report</a></li>
+            <li class="navbar-item"><a href="{{ route('tracking.index') }}" class="navbar-link">Serial Tracking</a></li>
             
             {{-- <li class="navbar-item dropdown">
                 <a href="#" class="navbar-link dropdown-toggle">المبيعات</a>
@@ -126,6 +128,7 @@
                     <a class="dropdown-item" href="{{ route('transfer.requests') }}" class="navbar-link">Transfer Requests</a>
                     <a href="{{ route('sell-requests.index') }}" class="dropdown-item">Sold Requests</a>
                     <a href="{{ route('sale-requests.all') }}" class="dropdown-item">All Sold Requests</a>
+                    <a href="{{ route('tracking.index') }}" class="dropdown-item">Serial Number Tracking</a>
                 </div>
             </li>
             {{-- <li class="navbar-item dropdown">
@@ -176,6 +179,7 @@
             <li class="navbar-item"><a href="{{ route('transfer.requests') }}" class="navbar-link">التحويلات</a></li>
             <li class="navbar-item"><a href="{{ route('add-requests.index') }}" class="navbar-link">الاضافات</a></li>
             <li class="navbar-item"><a href="{{ route('shop.workshop.requests') }}" class="navbar-link">طلبات الكسر</a></li>
+            <li class="navbar-item"><a href="{{ route('tracking.index') }}" class="navbar-link">Serial Tracking</a></li>
 
             {{-- <li class="navbar-item"><a href="{{ route('shop.requests.index') }}" class="navbar-link">التحويلات الى الورشة</a></li> --}}
             

@@ -9,6 +9,7 @@ use App\Http\Controllers\Api\Models\ModelsController;
 use App\Http\Controllers\Api\Shopify\ShopifyCustomersController;
 use App\Http\Controllers\Api\Shopify\ShopifyOrdersController;
 use App\Http\Controllers\Api\GoldItems\GoldItemsController;
+use App\Http\Controllers\SerialNumberTrackingController;
 
 // Public auth routes
 Route::prefix('auth')->group(function () {
@@ -63,3 +64,6 @@ Route::apiResource('gold-items', GoldItemsController::class)->names([
 
 // Add these routes to your existing API routes
 Route::post('/shopify/assign-item', [App\Http\Controllers\Api\Shopify\ShopifyOrdersController::class, 'assignItem']);
+
+// Serial Number Tracking API
+Route::get('/tracking/search', [SerialNumberTrackingController::class, 'apiSearch']);
