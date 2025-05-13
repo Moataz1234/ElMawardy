@@ -75,4 +75,4 @@ Route::delete('api/gold-items/{id}', [App\Http\Controllers\Api\GoldItems\GoldIte
 Route::post('/shopify/assign-item', [App\Http\Controllers\Api\Shopify\ShopifyOrdersController::class, 'assignItem']);
 
 // Serial Number Tracking API
-Route::get('/tracking/search', [SerialNumberTrackingController::class, 'apiSearch']);
+// Route::get('/tracking/search', [SerialNumberTrackingController::class, 'apiSearch']);
