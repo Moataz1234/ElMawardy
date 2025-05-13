@@ -54,14 +54,6 @@ class GoldItem extends Model
     {
         return $this->belongsTo(Models::class, 'model', 'model');
     }
-
-    public function modelDetails()
-    {
-        return $this->hasOne(GoldItemDetail::class, 'model', 'model');
-    }
-
-    // New methods for dashboard analysis
-
     public function sale_request()
     {
         return $this->hasOne(SaleRequest::class, 'item_serial_number', 'serial_number');

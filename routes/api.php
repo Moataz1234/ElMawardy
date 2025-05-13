@@ -44,24 +44,33 @@ Route::prefix('shopify')->group(function () {
     Route::get('/customers/all', [ShopifyCustomersController::class, 'getAllCustomers']);
     Route::get('/customers/page/{page}', [ShopifyCustomersController::class, 'getCustomersByPage']);
     Route::get('/customers/{customerId}', [ShopifyCustomersController::class, 'show']);
-    
+
     // Orders Routes
-    Route::get('/orders', [ShopifyOrdersController::class, 'getOrders']);
-    Route::get('/orders/{orderId}', [ShopifyOrdersController::class, 'getOrder']);
+    // Route::get('/orders', [ShopifyOrdersController::class, 'getOrders']);
+    // Route::get('/orders/{orderId}', [ShopifyOrdersController::class, 'getOrder']);
 });
 
 // Gold Items API Routes
 Route::get('/gold-items/matched-models', [App\Http\Controllers\Api\GoldItems\GoldItemsController::class, 'getMatchedModels']);
 Route::get('/gold-items/woocommerce-products', [App\Http\Controllers\Api\GoldItems\GoldItemsController::class, 'getWooCommerceProducts']);
 Route::get('/gold-items/match-sku/{sku}', [App\Http\Controllers\Api\GoldItems\GoldItemsController::class, 'matchBySku']);
-Route::apiResource('gold-items', GoldItemsController::class)->names([
-    'index' => 'api.gold-items.index',
-    'store' => 'api.gold-items.store',
-    'show' => 'api.gold-items.show',
-    'update' => 'api.gold-items.update',
-    'destroy' => 'api.gold-items.destroy',
-]);
+Route::get('/gold-items/models-by-conditions', [App\Http\Controllers\Api\GoldItems\GoldItemsController::class, 'getModelsByConditions']);
 
+Route::get('/items', [App\Http\Controllers\Api\GoldItems\GoldItemsController::class, 'getItemsForWooCommerce']);
+Route::post('/inventory-status', [App\Http\Controllers\Api\GoldItems\GoldItemsController::class, 'getInventoryStatus']);
+Route::get('/gold-items/grouped-items', [App\Http\Controllers\Api\GoldItems\GoldItemsController::class, 'getGroupedItemsForWooCommerce']);
+// Route::apiResource('gold-items', GoldItemsController::class)->names([
+//     'index' => 'api.gold-items.index',
+//     'store' => 'api.gold-items.store',
+//     'show' => 'api.gold-items.show',
+//     'update' => 'api.gold-items.update',
+//     'destroy' => 'api.gold-items.destroy',
+// ]);
+Route::get('api/gold-items', [App\Http\Controllers\Api\GoldItems\GoldItemsController::class, 'index']);
+Route::get('api/gold-items/{id}', [App\Http\Controllers\Api\GoldItems\GoldItemsController::class, 'show']);
+Route::post('api/gold-items', [App\Http\Controllers\Api\GoldItems\GoldItemsController::class, 'store']);
+Route::put('api/gold-items/{id}', [App\Http\Controllers\Api\GoldItems\GoldItemsController::class, 'update']);
+Route::delete('api/gold-items/{id}', [App\Http\Controllers\Api\GoldItems\GoldItemsController::class, 'destroy']);
 // Add these routes to your existing API routes
 Route::post('/shopify/assign-item', [App\Http\Controllers\Api\Shopify\ShopifyOrdersController::class, 'assignItem']);
 

@@ -19,9 +19,6 @@ class OnlineModel extends Model
         'notes'
     ];
 
-    /**
-     * Get the model that corresponds to this online model.
-     */
     public function model()
     {
         return $this->belongsTo(Models::class, 'sku', 'SKU');

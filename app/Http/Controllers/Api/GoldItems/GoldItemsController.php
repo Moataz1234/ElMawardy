@@ -444,4 +444,235 @@ class GoldItemsController extends Controller
             return response()->json(['error' => 'Internal server error: ' . $e->getMessage()], 500);
         }
     }
+    public function getItemsForWooCommerce(Request $request)
+    {
+        // Get available items (not sold, not deleted, in stock)
+        $items = GoldItem::with(['modelCategory', 'shop'])
+            ->whereNotIn('status', ['sold', 'deleted'])
+            ->where('quantity', '>', 0)
+            ->get();
+            
+        // Format the data for WooCommerce consumption
+        $formattedItems = $items->map(function($item) {
+            return [
+                'id' => $item->id,
+                'model' => $item->model,
+                'sku' => $item->modelCategory ? $item->modelCategory->SKU : ('Gold Item ' . $item->model),
+                'name' => $item->modelCategory ? $item->modelCategory->name : ('Gold Item ' . $item->model),
+                'description' => $item->modelCategory ? $item->modelCategory->description : ('Gold item model ' . $item->model),
+                'gold_color' => $item->gold_color,      
+                'metal_type' => $item->metal_type,
+                'metal_purity' => $item->metal_purity,
+                'weight' => $item->weight,
+                'quantity' => $item->quantity,
+                'shop_name' => $item->shop_name,
+                'shop_id' => $item->shop_id,
+                'kind' => $item->kind,
+                'price' => $item->weight * 1000, // Example pricing based on weight
+                'image_url' => $item->modelCategory ? $item->modelCategory->scanned_image : null,
+                'attributes' => [
+                    [
+                        'name' => 'Material',
+                        'option' => $item->gold_color
+                    ],
+                    [
+                        'name' => 'Size',
+                        'option' => $item->modelCategory && $item->modelCategory->size ? $item->modelCategory->size : '50' // Get size from model category if available
+                    ],
+                    [
+                        'name' => 'Branch',
+                        'option' => $item->shop_name
+                    ]
+                ]
+            ];
+        });
+        
+        // Group by model for easier processing on WordPress side
+        $groupedItems = $formattedItems->groupBy('model')->map(function($items) {
+            $firstItem = $items->first();
+            return [
+                'model' => $firstItem['model'],
+                'sku' => $firstItem['sku'],
+                'name' => $firstItem['name'],
+                'description' => $firstItem['description'],
+                'image_url' => $firstItem['image_url'],
+                'variations' => $items->toArray()
+            ];
+        });
+        
+        return response()->json([
+            'success' => true,
+            'timestamp' => now(),
+            'data' => $groupedItems->values()
+        ]);
+    }
+    /**
+     * Get inventory status for specific SKUs
+     */
+    public function getInventoryStatus(Request $request)
+    {
+        $skus = $request->input('skus', []);
+        
+        if (empty($skus)) {
+            return response()->json([
+                'success' => false,
+                'message' => 'No SKUs provided'
+            ], 400);
+        }
+        
+        // Extract model IDs from SKUs (assuming SKU format: model-shop_id-id)
+        $modelInfo = [];
+        foreach ($skus as $sku) {
+            $parts = explode('-', $sku);
+            if (count($parts) >= 2) {
+                $modelInfo[] = [
+                    'model' => $parts[0],
+                    'shop_id' => $parts[1]
+                ];
+            }
+        }
+        
+        // Get inventory for these models and shops
+        $inventory = [];
+        foreach ($modelInfo as $info) {
+            $items = GoldItem::where('model', $info['model'])
+                ->where('shop_id', $info['shop_id'])
+                ->whereNotIn('status', ['sold', 'deleted'])
+                ->select('id', 'model', 'shop_id', 'quantity', 'status')
+                ->get();
+                
+            foreach ($items as $item) {
+                $sku = $item->model . '-' . $item->shop_id . '-' . $item->id;
+                $inventory[$sku] = [
+                    'quantity' => $item->quantity,
+                    'status' => $item->status,
+                    'in_stock' => ($item->quantity > 0 && $item->status !== 'sold' && $item->status !== 'deleted')
+                ];
+            }
+        }
+        
+        return response()->json([
+            'success' => true,
+            'timestamp' => now(),
+            'data' => $inventory
+        ]);
+    }
+    public function getGroupedItemsForWooCommerce(Request $request)
+    {
+        // First, get all the SKUs from OnlineModels table
+        $onlineModelSkus = OnlineModel::pluck('sku')->toArray();
+        
+        // Get the latest gold price
+        $goldPrice = GoldPrice::latest()->first();
+        $goldSellPrice = $goldPrice ? $goldPrice->gold_sell : 0;
+        
+        // Get all available items (not sold, not deleted, in stock) that match online models
+        $items = GoldItem::with(['modelCategory', 'shop'])
+            ->whereNotIn('status', ['sold', 'deleted'])
+            ->where('quantity', '>', 0)
+            ->whereIn('model', $onlineModelSkus) // Only include models that match SKUs in OnlineModels
+            ->get();
+        
+        // Group the items by model only
+        $groupedItems = $items->groupBy('model');
+        
+        $formattedItems = [];
+        
+        foreach ($groupedItems as $model => $modelItems) {
+            // Find the first item with a valid modelCategory for model info
+            $itemWithCategory = $modelItems->first(function($item) {
+                return $item->modelCategory !== null;
+            }) ?? $modelItems->first();
+            
+            // Get all unique branches, shop_ids, and colors
+            $branches = $modelItems->pluck('shop_name')->unique()->values()->toArray();
+            $shopIds = $modelItems->pluck('shop_id')->unique()->values()->toArray();
+            $colors = $modelItems->pluck('gold_color')->unique()->values()->toArray();
+            
+            // Get the largest weight among all items with this model
+            $maxWeight = $modelItems->max('weight');
+            
+            // Calculate total quantity for this model
+            $totalQuantity = $modelItems->sum('quantity');
+            
+            // Create the model item
+            $modelItem = [
+                'model' => $model,
+                'sku' => $itemWithCategory->modelCategory ? $itemWithCategory->modelCategory->SKU : $model,
+                'name' => $itemWithCategory->modelCategory ? $itemWithCategory->modelCategory->name : ('Gold Item ' . $model),
+                'description' => $itemWithCategory->modelCategory ? $itemWithCategory->modelCategory->description : ('Gold item model ' . $model),
+                'image_url' => $itemWithCategory->modelCategory ? $itemWithCategory->modelCategory->scanned_image : null,
+                // 'branches' => $branches,
+                // 'shop_ids' => $shopIds,
+                // 'colors' => $colors,
+                'weight' => $maxWeight,
+                'price' => $maxWeight * $goldSellPrice,
+                'quantity' => $totalQuantity,
+                'kind' => $itemWithCategory->kind,
+                'metal_type' => $itemWithCategory->metal_type,
+                'metal_purity' => $itemWithCategory->metal_purity,
+                // Calculate price based on gold_price table and weight
+            ];
+            
+            // Create variations for all combinations of branch, color, etc.
+            $variations = [];
+            
+            foreach ($branches as $branch) {
+                foreach ($colors as $color) {
+                    // Filter items that match this branch and color
+                    $matchingItems = $modelItems->filter(function($item) use ($branch, $color) {
+                        return $item->shop_name === $branch && $item->gold_color === $color;
+                    });
+                    
+                    // If there are matching items
+                    if ($matchingItems->isNotEmpty()) {
+                        // Get the first matching item for this variation
+                        $item = $matchingItems->first();
+                        
+                        // Calculate total quantity for this variation
+                        $variationQuantity = $matchingItems->sum('quantity');
+                        
+                        // Create a variation for this combination
+                        $variations[] = [
+                            'id' => $item->id,
+                            // 'sku' => $itemWithCategory->modelCategory ? $itemWithCategory->modelCategory->SKU . '-' . $branch . '-' . $color : $model . '-' . $branch . '-' . $color,
+                            // 'gold_color' => $color,
+                            // 'metal_type' => $item->metal_type,
+                            // 'metal_purity' => $item->metal_purity,
+                            // 'weight' => $item->weight,
+                            'quantity' => $variationQuantity,
+                            'shop_name' => $branch,
+                            'shop_id' => $item->shop_id,
+                            // 'kind' => $item->kind,
+                            // 'price' => $item->weight * $goldSellPrice,
+                            'attributes' => [
+                                [
+                                    'name' => 'Material',
+                                    'option' => $color
+                                ],
+                                [
+                                    'name' => 'Size',
+                                    'option' => $itemWithCategory->modelCategory && isset($itemWithCategory->modelCategory->size) ? $itemWithCategory->modelCategory->size : '50'
+                                ],
+                                [
+                                    'name' => 'Branch',
+                                    'option' => $branch
+                                ]
+                            ]
+                        ];
+                    }
+                }
+            }
+            
+            // Add this model with its variations to the result
+            $modelItem['variations'] = $variations;
+            $formattedItems[] = $modelItem;
+        }
+        
+        return response()->json([
+            'success' => true,
+            'timestamp' => now(),
+            'data' => $formattedItems
+        ]);
+    }
 } 
