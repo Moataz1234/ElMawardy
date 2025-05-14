@@ -16,11 +16,12 @@ return new class extends Migration
             $table->id();
             $table->decimal('gold_buy', 10, 2)->nullable();
             $table->decimal('gold_sell', 10, 2)->nullable();
-            $table->float('percent')->nullable();
-            $table->decimal('dollar_price', 10, 2)->nullable();
             $table->decimal('gold_with_work', 10, 2)->nullable();
+            $table->decimal('dollar_price', 10, 2)->nullable();
+            $table->float('percent')->nullable();
             $table->decimal('gold_in_diamond', 10, 2)->nullable();
             $table->decimal('shoghl_agnaby', 10, 2)->nullable();
+            $table->decimal('elashfoor', 10, 2)->nullable();
             $table->timestamps();
         });
     }

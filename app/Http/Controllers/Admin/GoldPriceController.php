@@ -44,15 +44,15 @@ class GoldPriceController extends Controller
         $request->validate([
             'gold_buy' => 'required|numeric',
             'gold_sell' => 'required|numeric',
+            'gold_with_work' => 'required|numeric',
             'percent' => 'required|numeric',
             'dollar_price' => 'required|numeric',
-            'gold_with_work' => 'required|numeric',
             'gold_in_diamond' => 'required|numeric',
             'shoghl_agnaby' => 'required|numeric',
+            'elashfoor' => 'required|numeric',
         ]);
 
         GoldPrice::create($request->all());
-
 
         return redirect()->route('gold_prices.create')->with('success', 'Gold prices updated successfully.');
     }

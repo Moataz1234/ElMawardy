@@ -26,6 +26,12 @@
     <input type="number" step="0.01" name="gold_sell" id="gold_sell"
     value="{{ old('gold_sell', $latestGoldPrice->gold_sell ?? '') }}" required>
   </div>
+      
+        <div class="form-group">
+          <label for="goldWithWork">Gold With Work(***)</label>
+          <input type="number" step="0.01" name="gold_with_work" id="gold_with_work"
+          value="{{ old('gold_with_work', $latestGoldPrice->gold_with_work ?? '') }}" required>
+      </div>
   
   <div class="form-group">
     <label for="percent">Percent</label>
@@ -40,20 +46,22 @@
   </div>
   
   <div class="form-group">
-    <label for="goldWithWork">Gold With Work</label>
-    <input type="number" step="0.01" name="gold_with_work" id="gold_with_work"
-    value="{{ old('gold_with_work', $latestGoldPrice->gold_with_work ?? '') }}" required>  </div>
-  
-  <div class="form-group">
     <label for="goldInDiamond">Gold In Diamond</label>
     <input type="number" step="0.01" name="gold_in_diamond" id="gold_in_diamond" 
     value="{{ old('gold_in_diamond', $latestGoldPrice->gold_in_diamond ?? '') }}" required>
-</div>
+  </div>
   
   <div class="form-group">
-    <label for="shoghiAjnaby">Shoghi Ajnaby</label>
+    <label for="shoghiAjnaby">Shoghi Ajnaby(**)</label>
     <input type="number" step="0.01" name="shoghl_agnaby" id="shoghl_agnaby"
-    value="{{ old('shoghl_agnaby', $latestGoldPrice->shoghl_agnaby ?? '') }}" required>  </div>
+    value="{{ old('shoghl_agnaby', $latestGoldPrice->shoghl_agnaby ?? '') }}" required>
+  </div>
+
+  <div class="form-group">
+    <label for="elashfoor">Elashfoor(*)</label>
+    <input type="number" step="0.01" name="elashfoor" id="elashfoor"
+    value="{{ old('elashfoor', $latestGoldPrice->elashfoor ?? '') }}" required>
+  </div>
   
   {{-- <button class="btn">Update Price</button>
 </div> --}}
@@ -73,6 +81,10 @@
                 <td id="confirm_gold_sell"></td>
               </tr>
               <tr >
+                <th>Gold With Work</th>
+                <td id="confirm_gold_with_work"></td>
+              </tr>
+              <tr >
                 <th>Percent</th>
                 <td id="confirm_percent"></td>
               </tr>
@@ -81,16 +93,16 @@
                 <td id="confirm_dollar_price"></td>
               </tr>
               <tr >
-                <th>Gold With Work</th>
-                <td id="confirm_gold_with_work"></td>
-              </tr>
-              <tr >
                 <th>Gold In Diamond</th>
                 <td id="confirm_gold_in_diamond"></td>
               </tr>
               <tr >
                 <th>Shoghl Ajnaby</th>
                 <td id="confirm_shoghl_agnaby"></td>
+              </tr>
+              <tr >
+                <th>Elashfoor</th>
+                <td id="confirm_elashfoor"></td>
               </tr>
             </table>
             <div class="buttons">
@@ -116,11 +128,12 @@
                 // Populate modal with current input values
                 document.getElementById('confirm_gold_buy').textContent = document.getElementById('gold_buy').value;
                 document.getElementById('confirm_gold_sell').textContent = document.getElementById('gold_sell').value;
+                document.getElementById('confirm_gold_with_work').textContent = document.getElementById('gold_with_work').value;
                 document.getElementById('confirm_percent').textContent = document.getElementById('percent').value;
                 document.getElementById('confirm_dollar_price').textContent = document.getElementById('dollar_price').value;
-                document.getElementById('confirm_gold_with_work').textContent = document.getElementById('gold_with_work').value;
                 document.getElementById('confirm_gold_in_diamond').textContent = document.getElementById('gold_in_diamond').value;
                 document.getElementById('confirm_shoghl_agnaby').textContent = document.getElementById('shoghl_agnaby').value;
+                document.getElementById('confirm_elashfoor').textContent = document.getElementById('elashfoor').value;
                 // Show the modal
                 confirmationModal.style.display = 'flex';
             });

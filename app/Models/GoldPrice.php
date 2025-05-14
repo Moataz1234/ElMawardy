@@ -15,6 +15,7 @@ class GoldPrice extends Model
         'dollar_price',
         'gold_with_work',
         'gold_in_diamond',
-        'shoghl_agnaby'
+        'shoghl_agnaby',
+        'elashfoor'
     ];
 }

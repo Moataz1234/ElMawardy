@@ -71,6 +71,8 @@ Route::get('/test-smtp', function () {
         return "Error: " . $e->getMessage();
     }
 });
+Route::get('/update_prices', [GoldPriceController::class, 'Create'])->name('gold_prices.create');
+Route::post('/update_prices/store', [GoldPriceController::class, 'store'])->name('gold_prices.store');
 
 // ===================================
 // Authentication Routes
@@ -163,9 +165,7 @@ Route::middleware(['auth'])->group(function () {
     // Gold Items & Pricing Routes
     // ===================================
     Route::get('/gold-items', [ShopsController::class, 'getAllItems'])->name('gold-items.index');
-    Route::get('/update_prices', [GoldPriceController::class, 'Create'])->name('gold_prices.create');
-    Route::post('/update_prices/store', [GoldPriceController::class, 'store'])->name('gold_prices.store');
-    Route::get('/item-details/{serial_number}', [ShopsController::class, 'getItemDetails'])->name('item.details');
+  Route::get('/item-details/{serial_number}', [ShopsController::class, 'getItemDetails'])->name('item.details');
     Route::post('/sell-requests/bulk-approve', [SoldItemRequestController::class, 'bulkApprove'])->name('sell-requests.bulk-approve');
 
     // ===================================
