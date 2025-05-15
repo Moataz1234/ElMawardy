@@ -564,7 +564,9 @@ class GoldItemsController extends Controller
         
         // Get the latest gold price
         $goldPrice = GoldPrice::latest()->first();
-        $goldSellPrice = $goldPrice ? $goldPrice->gold_sell : 0;
+        if (!$goldPrice) {
+            return response()->json(['error' => 'Gold price not found'], 404);
+        }
         
         // Get all available items (not sold, not deleted, in stock) that match online models
         $items = GoldItem::with(['modelCategory', 'shop'])
@@ -594,6 +596,24 @@ class GoldItemsController extends Controller
             
             // Calculate total quantity for this model
             $totalQuantity = $modelItems->sum('quantity');
+
+            // Determine the price based on model stars
+            $pricePerGram = 0;
+            if ($itemWithCategory->modelCategory) {
+                switch ($itemWithCategory->modelCategory->stars) {
+                    case '***':
+                        $pricePerGram = $goldPrice->gold_with_work;
+                        break;
+                    case '**':
+                        $pricePerGram = $goldPrice->shoghl_agnaby;
+                        break;
+                    case '*':
+                        $pricePerGram = $goldPrice->elashfoor;
+                        break;
+                    default:
+                        $pricePerGram = $goldPrice->gold_sell; // fallback to regular gold sell price
+                }
+            }
             
             // Create the model item
             $modelItem = [
@@ -602,16 +622,14 @@ class GoldItemsController extends Controller
                 'name' => $itemWithCategory->modelCategory ? $itemWithCategory->modelCategory->name : ('Gold Item ' . $model),
                 'description' => $itemWithCategory->modelCategory ? $itemWithCategory->modelCategory->description : ('Gold item model ' . $model),
                 'image_url' => $itemWithCategory->modelCategory ? $itemWithCategory->modelCategory->scanned_image : null,
-                // 'branches' => $branches,
-                // 'shop_ids' => $shopIds,
-                // 'colors' => $colors,
                 'weight' => $maxWeight,
-                'price' => $maxWeight * $goldSellPrice,
+                'price' => $maxWeight * $pricePerGram,
                 'quantity' => $totalQuantity,
                 'kind' => $itemWithCategory->kind,
                 'metal_type' => $itemWithCategory->metal_type,
                 'metal_purity' => $itemWithCategory->metal_purity,
-                // Calculate price based on gold_price table and weight
+                // 'stars' => $itemWithCategory->modelCategory ? $itemWithCategory->modelCategory->stars : null,
+                // 'price_type' => $itemWithCategory->modelCategory ? $itemWithCategory->modelCategory->stars : 'regular'
             ];
             
             // Create variations for all combinations of branch, color, etc.
@@ -635,16 +653,9 @@ class GoldItemsController extends Controller
                         // Create a variation for this combination
                         $variations[] = [
                             'id' => $item->id,
-                            // 'sku' => $itemWithCategory->modelCategory ? $itemWithCategory->modelCategory->SKU . '-' . $branch . '-' . $color : $model . '-' . $branch . '-' . $color,
-                            // 'gold_color' => $color,
-                            // 'metal_type' => $item->metal_type,
-                            // 'metal_purity' => $item->metal_purity,
-                            // 'weight' => $item->weight,
                             'quantity' => $variationQuantity,
                             'shop_name' => $branch,
                             'shop_id' => $item->shop_id,
-                            // 'kind' => $item->kind,
-                            // 'price' => $item->weight * $goldSellPrice,
                             'attributes' => [
                                 [
                                     'name' => 'Material',
