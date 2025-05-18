@@ -50,7 +50,7 @@ class GoldBalanceReportController extends Controller
         $totalSoldWeight = $this->normalizeWeightsTo18K($soldItems, 'sold');
         
         // Calculate balance
-        $balance = $totalSoldWeight - $totalBoughtWeight;
+        $balance = $totalBoughtWeight - $totalSoldWeight;
         
         // Get weight by purity
         $boughtWeightByPurity = $this->getWeightByPurity($allKasrItems);
@@ -338,7 +338,7 @@ class GoldBalanceReportController extends Controller
             $soldWeight = $this->normalizeWeightsTo18K($soldItems, 'sold');
             
             // Calculate shop's own balance
-            $shopBalance = $soldWeight - $boughtWeight;
+            $shopBalance = $boughtWeight - $soldWeight;
             
             // Skip inactive shops if requested
             if ($hideInactive && $soldWeight == 0 && $boughtWeight == 0) {

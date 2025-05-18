@@ -121,6 +121,12 @@
                                                 {{ $pound->goldPound ? $pound->goldPound->purity : 'غير متوفر' }} قيراط
                                             </span>
                                         </div>
+                                        @if($pound->goldItem && $pound->goldItem->model === '4-0854')
+                                            <div class="mb-2 d-flex justify-content-between">
+                                                <strong>عدد الربع: </strong>
+                                                <span class="text-start">2</span>
+                                            </div>
+                                        @endif
                                         <div class="form-floating mt-3">
                                             <input type="number" class="form-control"
                                                 id="price_{{ $pound->serial_number }}"

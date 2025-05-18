@@ -152,6 +152,7 @@ Route::middleware(['auth'])->group(function () {
         // Gold Balance Report Route
         Route::get('/gold-balance-report', [GoldBalanceReportController::class, 'index'])->name('gold-balance.report');
     });
+    Route::get('/gold-balance-report', [GoldBalanceReportController::class, 'index'])->name('gold-balance.report');
 
     // ===================================
     // Excel Import Routes

@@ -69,8 +69,8 @@
                     <div class="col-md-4">
                         <div class="card text-center h-100 bg-light">
                             <div class="card-body">
-                                <h5 class="card-title">Total Sell</h5>
-                                <p class="card-text fs-2 fw-bold text-success">{{ number_format($totalSoldWeight, 2) }} g</p>
+                                <h5 class="card-title">Total Buy</h5>
+                                <p class="card-text fs-2 fw-bold text-success">{{ number_format($totalBoughtWeight, 2) }} g</p>
                                 <p class="text-muted small">Normalized to 18K</p>
                             </div>
                         </div>
@@ -78,8 +78,8 @@
                     <div class="col-md-4">
                         <div class="card text-center h-100 bg-light">
                             <div class="card-body">
-                                <h5 class="card-title">Total Buy</h5>
-                                <p class="card-text fs-2 fw-bold text-danger">{{ number_format($totalBoughtWeight, 2) }} g</p>
+                                <h5 class="card-title">Total Sell</h5>
+                                <p class="card-text fs-2 fw-bold text-danger">{{ number_format($totalSoldWeight, 2) }} g</p>
                                 <p class="text-muted small">Normalized to 18K</p>
                             </div>
                         </div>
@@ -91,7 +91,7 @@
                                 <p class="card-text fs-2 fw-bold {{ $balance >= 0 ? 'text-success' : 'text-danger' }}">
                                     {{ number_format($balance, 2) }} g
                                 </p>
-                                <p class="text-muted small">Sold - Bought</p>
+                                <p class="text-muted small">Bought - Sold</p>
                             </div>
                         </div>
                     </div>
@@ -108,9 +108,10 @@
                                 <thead class="table-primary">
                                     <tr>
                                         <th>Shop Name</th>
-                                        <th class="text-end">Sold Weight (g)</th>
                                         <th class="text-end">Bought Weight (g)</th>
+                                        <th class="text-end">Sold Weight (g)</th>
                                         <th class="text-end">Shop Balance (g)</th>
+
                                     </tr>
                                 </thead>
                                 <tbody>
@@ -118,8 +119,8 @@
                                         @if($shop !== 'Total')
                                             <tr class="{{ ($data['sold'] == 0 && $data['bought'] == 0) ? 'text-muted' : '' }}">
                                                 <td>{{ $shop }}</td>
-                                                <td class="text-end">{{ number_format($data['sold'], 2) }}</td>
                                                 <td class="text-end">{{ number_format($data['bought'], 2) }}</td>
+                                                <td class="text-end">{{ number_format($data['sold'], 2) }}</td>
                                                 <td class="text-end {{ $data['shop_balance'] >= 0 ? 'text-success' : 'text-danger' }}">
                                                     {{ number_format($data['shop_balance'], 2) }}
                                                 </td>
@@ -130,8 +131,8 @@
                                 <tfoot>
                                     <tr class="total-row">
                                         <td><strong>Total</strong></td>
-                                        <td class="text-end"><strong>{{ number_format($shopReportData['Total']['sold'], 2) }}</strong></td>
                                         <td class="text-end"><strong>{{ number_format($shopReportData['Total']['bought'], 2) }}</strong></td>
+                                        <td class="text-end"><strong>{{ number_format($shopReportData['Total']['sold'], 2) }}</strong></td>
                                         <td class="text-end {{ $shopReportData['Total']['shop_balance'] >= 0 ? 'text-success' : 'text-danger' }}">
                                             <strong>{{ number_format($shopReportData['Total']['shop_balance'], 2) }}</strong>
                                         </td>

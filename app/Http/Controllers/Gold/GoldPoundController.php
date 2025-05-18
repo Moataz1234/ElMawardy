@@ -52,29 +52,36 @@ class GoldPoundController extends Controller
                 // Determine pound type and get pound details
                 if (in_array($item->model, $onePoundModels)) {
                     $poundId = 1; // ID for 1 pound
+                    $quantity = 1;
                 } elseif (in_array($item->model, $halfPoundModels)) {
                     $poundId = 2; // ID for 1/2 pound
+                    $quantity = 1;
                 } else {
                     $poundId = 3; // ID for 1/4 pound
+                    // Special case for model 4-0854 - it has 2 quarters
+                    $quantity = ($item->model === '4-0854') ? 2 : 1;
                 }
 
                 // Get pound details
                 $goldPound = GoldPound::find($poundId);
                 
-                // Generate next serial number only for new records
-                $serialNumber = $this->generateNextPoundSerialNumber();
+                // Create multiple inventory records for model 4-0854
+                for ($i = 0; $i < $quantity; $i++) {
+                    // Generate next serial number only for new records
+                    $serialNumber = $this->generateNextPoundSerialNumber();
 
-                // Create new inventory record
-                GoldPoundInventory::create([
-                    'serial_number' => $serialNumber,
-                    'related_item_serial' => $item->serial_number,
-                    'gold_pound_id' => $poundId,
-                    'shop_name' => $item->shop_name,
-                    'type' => 'in_item',
-                    'weight' => $goldPound->weight,
-                    'purity' => $goldPound->purity,
-                    'quantity' => 1
-                ]);
+                    // Create new inventory record
+                    GoldPoundInventory::create([
+                        'serial_number' => $serialNumber,
+                        'related_item_serial' => $item->serial_number,
+                        'gold_pound_id' => $poundId,
+                        'shop_name' => $item->shop_name,
+                        'type' => 'in_item',
+                        'weight' => $goldPound->weight,
+                        'purity' => $goldPound->purity,
+                        'quantity' => 1
+                    ]);
+                }
             }
 
             return response()->json([
