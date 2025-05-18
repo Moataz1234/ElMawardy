@@ -379,17 +379,42 @@ class GoldPoundController extends Controller
             ->where('shop_name', Auth::user()->shop_name)
             ->get();
 
+        // Group pounds by their related_item_serial
+        $groupedPounds = $pounds->groupBy('related_item_serial');
+
+        // Create a new collection to hold the final pounds to display
+        $displayPounds = collect();
+
+        foreach ($groupedPounds as $relatedSerial => $poundGroup) {
+            // If this is model 4-0854, make sure we have both quarters
+            if ($poundGroup->first()->goldItem && $poundGroup->first()->goldItem->model === '4-0854') {
+                // If we have less than 2 quarters, fetch the missing ones
+                if ($poundGroup->count() < 2) {
+                    $missingPounds = GoldPoundInventory::with(['goldPound', 'goldItem.modelCategory'])
+                        ->where('related_item_serial', $relatedSerial)
+                        ->where('shop_name', Auth::user()->shop_name)
+                        ->whereNotIn('serial_number', $poundGroup->pluck('serial_number'))
+                        ->get();
+                    
+                    $poundGroup = $poundGroup->concat($missingPounds);
+                }
+            }
+            
+            // Add all pounds from this group to the display collection
+            $displayPounds = $displayPounds->concat($poundGroup);
+        }
+
         Log::info('Fetched pound details:', [
-            'count' => $pounds->count(),
-            'data' => $pounds->toArray()
+            'count' => $displayPounds->count(),
+            'data' => $displayPounds->toArray()
         ]);
 
-        if ($pounds->isEmpty()) {
+        if ($displayPounds->isEmpty()) {
             return redirect()->route('gold-pounds.index')
                 ->with('error', 'No matching pounds found in inventory.');
         }
 
-        return view('Shops.Pounds.sell_form', compact('pounds'));
+        return view('Shops.Pounds.sell_form', ['pounds' => $displayPounds]);
     }
 
     public function sell(Request $request)

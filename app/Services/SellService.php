@@ -22,11 +22,11 @@ class SellService
             ->whereIn('id', $ids)
             ->get();
 
-        $associatedPounds = $goldItems->filter(function ($item) {
-            return $item->poundInventory !== null;
-        })->mapWithKeys(function ($item) {
-            return [$item->id => $item->poundInventory];
-        });
+        // Get all pounds associated with these items, grouped by related_item_serial
+        $associatedPounds = GoldPoundInventory::whereIn('related_item_serial', $goldItems->pluck('serial_number'))
+            ->with('goldPound')
+            ->get()
+            ->groupBy('related_item_serial');
 
         return [
             'goldItems' => $goldItems,
@@ -64,7 +64,6 @@ class SellService
             $results = [];
             foreach ($validatedData['ids'] as $id) {
                 $goldItem = GoldItem::with('poundInventory.goldPound')->findOrFail($id);
-                $poundInventory = $goldItem->poundInventory;
 
                 // Create item sale request
                 $itemSaleRequest = SaleRequest::create([
@@ -84,25 +83,27 @@ class SellService
                 $goldItem->update(['status' => 'pending_sale']);
                 $results[] = ['item_serial_number' => $goldItem->serial_number, 'sale_id' => $itemSaleRequest->id];
 
-                // If there's an associated pound and price provided
-                if ($poundInventory && isset($validatedData['pound_prices'][$poundInventory->serial_number])) {
-                    $poundSaleRequest = SaleRequest::create([
-                        'item_serial_number' => $poundInventory->serial_number,
-                        'shop_name' => Auth::user()->shop_name,
-                        'status' => 'pending',
-                        'customer_id' => $customer->id,
-                        'price' => $validatedData['pound_prices'][$poundInventory->serial_number],
-                        'payment_method' => $validatedData['payment_method'],
-                        'item_type' => 'pound',
-                        'weight' => $poundInventory->weight,
-                        'purity' => $poundInventory->purity,
-                        'kind' => $poundInventory->goldPound->kind,
-                        'related_item_serial' => $goldItem->serial_number,
-                        'sold_date' => $soldDate
-                    ]);
-
-                    $poundInventory->update(['status' => 'pending_sale']);
-                    $results[] = ['pound_serial_number' => $poundInventory->serial_number, 'sale_id' => $poundSaleRequest->id];
+                // Create SaleRequests for all associated pounds (e.g., two quarters for 4-0854)
+                $poundInventories = GoldPoundInventory::where('related_item_serial', $goldItem->serial_number)->get();
+                foreach ($poundInventories as $poundInventory) {
+                    if (isset($validatedData['pound_prices'][$poundInventory->serial_number])) {
+                        $poundSaleRequest = SaleRequest::create([
+                            'item_serial_number' => $poundInventory->serial_number,
+                            'shop_name' => Auth::user()->shop_name,
+                            'status' => 'pending',
+                            'customer_id' => $customer->id,
+                            'price' => $validatedData['pound_prices'][$poundInventory->serial_number],
+                            'payment_method' => $validatedData['payment_method'],
+                            'item_type' => 'pound',
+                            'weight' => $poundInventory->weight,
+                            'purity' => $poundInventory->purity,
+                            'kind' => $poundInventory->goldPound->kind,
+                            'related_item_serial' => $goldItem->serial_number,
+                            'sold_date' => $soldDate
+                        ]);
+                        $poundInventory->update(['status' => 'pending_sale']);
+                        $results[] = ['pound_serial_number' => $poundInventory->serial_number, 'sale_id' => $poundSaleRequest->id];
+                    }
                 }
             }
 

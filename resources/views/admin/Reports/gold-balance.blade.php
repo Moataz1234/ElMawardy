@@ -110,7 +110,7 @@
                                         <th>Shop Name</th>
                                         <th class="text-end">Bought Weight (g)</th>
                                         <th class="text-end">Sold Weight (g)</th>
-                                        <th class="text-end">Shop Balance (g)</th>
+                                        <th class="text-end">Shop Difference (g)</th>
 
                                     </tr>
                                 </thead>

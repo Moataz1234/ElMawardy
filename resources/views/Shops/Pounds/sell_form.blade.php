@@ -93,6 +93,9 @@
                         <div class="card mb-4 border-primary">
                             <div class="card-header bg-primary text-white">
                                 <h5 class="mb-0">جنيه رقم {{ $pound->serial_number }}</h5>
+                                @if($pound->goldItem && $pound->goldItem->model === '4-0854')
+                                    <small class="text-white-50">(ربع جنيه من موديل 4-0854)</small>
+                                @endif
                             </div>
                             <div class="card-body">
                                 <div class="row">
@@ -122,6 +125,10 @@
                                             </span>
                                         </div>
                                         @if($pound->goldItem && $pound->goldItem->model === '4-0854')
+                                            <div class="mb-2 d-flex justify-content-between">
+                                                <strong>الموديل: </strong>
+                                                <span class="text-start">4-0854</span>
+                                            </div>
                                             <div class="mb-2 d-flex justify-content-between">
                                                 <strong>عدد الربع: </strong>
                                                 <span class="text-start">2</span>

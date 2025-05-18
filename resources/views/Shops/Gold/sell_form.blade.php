@@ -189,40 +189,42 @@
                                         </div>
                                     </div>
 
-                                    @if ($pound = $associatedPounds->get($item->id))
-                                        <div class="col-md-6">
-                                            <div class="card h-100 border-warning">
-                                                <div class="card-header bg-warning text-dark">
-                                                    <h5 class="mb-0">الجنيه المرتبط</h5>
-                                                </div>
-                                                <div class="card-body">
-                                                    <div class="mb-2 d-flex justify-content-between">
-                                                        <strong>الرقم التسلسلي: </strong>
-                                                        <span>{{ $pound->serial_number }}</span>
+                                    {{-- Associated Pounds Section --}}
+                                    @if ($associatedPounds->has($item->serial_number))
+                                        @foreach ($associatedPounds->get($item->serial_number) as $pound)
+                                            <div class="col-md-6">
+                                                <div class="card h-100 border-warning">
+                                                    <div class="card-header bg-warning text-dark">
+                                                        <h5 class="mb-0">الجنيه المرتبط</h5>
                                                     </div>
-                                                    <div class="mb-2 d-flex justify-content-between">
-                                                        <strong>النوع: </strong>
-                                                        <span>{{ ucfirst(str_replace('_', ' ', $pound->goldPound->kind)) }}</span>
-                                                    </div>
-                                                    <div class="mb-2 d-flex justify-content-between">
-                                                        <strong>الوزن: </strong>
-                                                        <span>{{ $pound->goldPound->weight }}g</span>
-                                                    </div>
-                                                    <div class="mb-2 d-flex justify-content-between">
-                                                        <strong>العيار: </strong>
-                                                        <span>{{ $pound->goldPound->purity }}K</span>
-                                                    </div>
-                                                    <div class="form-floating mt-3">
-                                                        <input type="number" class="form-control"
-                                                            id="pound_price_{{ $pound->serial_number }}"
-                                                            name="pound_prices[{{ $pound->serial_number }}]"
-                                                            step="0.01" required>
-                                                        <label for="pound_price_{{ $pound->serial_number }}">سعر
-                                                            الجنيه</label>
+                                                    <div class="card-body">
+                                                        <div class="mb-2 d-flex justify-content-between">
+                                                            <strong>الرقم التسلسلي: </strong>
+                                                            <span>{{ $pound->serial_number }}</span>
+                                                        </div>
+                                                        <div class="mb-2 d-flex justify-content-between">
+                                                            <strong>النوع: </strong>
+                                                            <span>{{ ucfirst(str_replace('_', ' ', $pound->goldPound->kind)) }}</span>
+                                                        </div>
+                                                        <div class="mb-2 d-flex justify-content-between">
+                                                            <strong>الوزن: </strong>
+                                                            <span>{{ $pound->goldPound->weight }}g</span>
+                                                        </div>
+                                                        <div class="mb-2 d-flex justify-content-between">
+                                                            <strong>العيار: </strong>
+                                                            <span>{{ $pound->goldPound->purity }}K</span>
+                                                        </div>
+                                                        <div class="form-floating mt-3">
+                                                            <input type="number" class="form-control"
+                                                                id="pound_price_{{ $pound->serial_number }}"
+                                                                name="pound_prices[{{ $pound->serial_number }}]"
+                                                                step="0.01" required>
+                                                            <label for="pound_price_{{ $pound->serial_number }}">سعر الجنيه</label>
+                                                        </div>
                                                     </div>
                                                 </div>
                                             </div>
-                                        </div>
+                                        @endforeach
                                     @endif
                                 </div>
                             </div>
