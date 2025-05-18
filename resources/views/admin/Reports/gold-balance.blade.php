@@ -57,163 +57,338 @@
                     </div>
                 </form>
 
-                <!-- Date Title -->
-                <div class="alert alert-info mb-4">
-                    <h5 class="mb-0">
-                        Report Date: {{ $reportDate->format('d M Y') }}
-                    </h5>
-                </div>
-
-                <!-- Summary Cards -->
-                <div class="row mb-4">
-                    <div class="col-md-4">
-                        <div class="card text-center h-100 bg-light">
-                            <div class="card-body">
-                                <h5 class="card-title">Total Buy</h5>
-                                <p class="card-text fs-2 fw-bold text-success">{{ number_format($totalBoughtWeight, 2) }} g</p>
-                                <p class="text-muted small">Normalized to 18K</p>
+                <!-- Month Filter Form -->
+                <form action="{{ route('gold-balance.report') }}" method="GET" class="mb-4">
+                    <div class="row g-3 align-items-end">
+                        <div class="col-md-4">
+                            <label for="month" class="form-label">Select Month</label>
+                            <input type="month" id="month" name="month" class="form-control" value="{{ $selectedMonth ? $selectedMonth->format('Y-m') : '' }}">
+                        </div>
+                        <div class="col-md-4">
+                            <div class="form-check">
+                                <input type="checkbox" id="hide_inactive_monthly" name="hide_inactive_monthly" class="form-check-input" value="1" {{ request()->has('hide_inactive_monthly') ? 'checked' : '' }}>
+                                <label for="hide_inactive_monthly" class="form-check-label">Hide inactive shops</label>
                             </div>
                         </div>
-                    </div>
-                    <div class="col-md-4">
-                        <div class="card text-center h-100 bg-light">
-                            <div class="card-body">
-                                <h5 class="card-title">Total Sell</h5>
-                                <p class="card-text fs-2 fw-bold text-danger">{{ number_format($totalSoldWeight, 2) }} g</p>
-                                <p class="text-muted small">Normalized to 18K</p>
-                            </div>
+                        <div class="col-md-4">
+                            <button type="submit" class="btn btn-primary w-100">Apply Month Filter</button>
                         </div>
                     </div>
-                    <div class="col-md-4">
-                        <div class="card text-center h-100 bg-light">
-                            <div class="card-body">
-                                <h5 class="card-title">Balance</h5>
-                                <p class="card-text fs-2 fw-bold {{ $balance >= 0 ? 'text-success' : 'text-danger' }}">
-                                    {{ number_format($balance, 2) }} g
-                                </p>
-                                <p class="text-muted small">Bought - Sold</p>
+                </form>
+
+                <!-- Tabs Navigation -->
+                <ul class="nav nav-tabs mb-4" id="reportTabs" role="tablist">
+                    <li class="nav-item" role="presentation">
+                        <button class="nav-link active" id="daily-tab" data-bs-toggle="tab" data-bs-target="#daily" type="button" role="tab" aria-controls="daily" aria-selected="true">
+                            Daily Report ({{ $reportDate->format('d M Y') }})
+                        </button>
+                    </li>
+                    <li class="nav-item" role="presentation">
+                        <button class="nav-link" id="monthly-tab" data-bs-toggle="tab" data-bs-target="#monthly" type="button" role="tab" aria-controls="monthly" aria-selected="false">
+                            Monthly Report ({{ $selectedMonth->format('F Y') }})
+                        </button>
+                    </li>
+                </ul>
+
+                <!-- Tabs Content -->
+                <div class="tab-content" id="reportTabsContent">
+                    <!-- Daily Report Tab -->
+                    <div class="tab-pane fade show active" id="daily" role="tabpanel" aria-labelledby="daily-tab">
+                        <!-- Date Title -->
+                        <div class="alert alert-info mb-4">
+                            <h5 class="mb-0">
+                                Report Date: {{ $reportDate->format('d M Y') }}
+                            </h5>
+                        </div>
+
+                        <!-- Summary Cards -->
+                        <div class="row mb-4">
+                            <div class="col-md-4">
+                                <div class="card text-center h-100 bg-light">
+                                    <div class="card-body">
+                                        <h5 class="card-title">Total Buy</h5>
+                                        <p class="card-text fs-2 fw-bold text-success">{{ number_format($totalBoughtWeight, 2) }} g</p>
+                                        <p class="text-muted small">Normalized to 18K</p>
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="col-md-4">
+                                <div class="card text-center h-100 bg-light">
+                                    <div class="card-body">
+                                        <h5 class="card-title">Total Sell</h5>
+                                        <p class="card-text fs-2 fw-bold text-danger">{{ number_format($totalSoldWeight, 2) }} g</p>
+                                        <p class="text-muted small">Normalized to 18K</p>
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="col-md-4">
+                                <div class="card text-center h-100 bg-light">
+                                    <div class="card-body">
+                                        <h5 class="card-title">Balance</h5>
+                                        <p class="card-text fs-2 fw-bold {{ $balance >= 0 ? 'text-success' : 'text-danger' }}">
+                                            {{ number_format($balance, 2) }} g
+                                        </p>
+                                        <p class="text-muted small">Bought - Sold</p>
+                                    </div>
+                                </div>
                             </div>
                         </div>
-                    </div>
-                </div>
 
-                <!-- Shop-Based Report Table -->
-                <div class="card mb-4">
-                    <div class="card-header">
-                        <h5 class="mb-0">Shop Performance Report (18K Equivalent)</h5>
-                    </div>
-                    <div class="card-body">
-                        <div class="table-responsive">
-                            <table class="table table-striped table-hover">
-                                <thead class="table-primary">
-                                    <tr>
-                                        <th>Shop Name</th>
-                                        <th class="text-end">Bought Weight (g)</th>
-                                        <th class="text-end">Sold Weight (g)</th>
-                                        <th class="text-end">Shop Difference (g)</th>
-
-                                    </tr>
-                                </thead>
-                                <tbody>
-                                    @foreach($shopReportData as $shop => $data)
-                                        @if($shop !== 'Total')
-                                            <tr class="{{ ($data['sold'] == 0 && $data['bought'] == 0) ? 'text-muted' : '' }}">
-                                                <td>{{ $shop }}</td>
-                                                <td class="text-end">{{ number_format($data['bought'], 2) }}</td>
-                                                <td class="text-end">{{ number_format($data['sold'], 2) }}</td>
-                                                <td class="text-end {{ $data['shop_balance'] >= 0 ? 'text-success' : 'text-danger' }}">
-                                                    {{ number_format($data['shop_balance'], 2) }}
+                        <!-- Shop-Based Report Table -->
+                        <div class="card mb-4">
+                            <div class="card-header">
+                                <h5 class="mb-0">Daily Shop Performance Report (18K Equivalent)</h5>
+                            </div>
+                            <div class="card-body">
+                                <div class="table-responsive">
+                                    <table class="table table-striped table-hover">
+                                        <thead class="table-primary">
+                                            <tr>
+                                                <th>Shop Name</th>
+                                                <th class="text-end">Bought Weight (g)</th>
+                                                <th class="text-end">Sold Weight (g)</th>
+                                                <th class="text-end">Shop Difference (g)</th>
+                                            </tr>
+                                        </thead>
+                                        <tbody>
+                                            @foreach($shopReportData as $shop => $data)
+                                                @if($shop !== 'Total')
+                                                    <tr class="{{ ($data['sold'] == 0 && $data['bought'] == 0) ? 'text-muted' : '' }}">
+                                                        <td>{{ $shop }}</td>
+                                                        <td class="text-end">{{ number_format($data['bought'], 2) }}</td>
+                                                        <td class="text-end">{{ number_format($data['sold'], 2) }}</td>
+                                                        <td class="text-end {{ $data['shop_balance'] >= 0 ? 'text-success' : 'text-danger' }}">
+                                                            {{ number_format($data['shop_balance'], 2) }}
+                                                        </td>
+                                                    </tr>
+                                                @endif
+                                            @endforeach
+                                        </tbody>
+                                        <tfoot>
+                                            <tr class="total-row">
+                                                <td><strong>Total</strong></td>
+                                                <td class="text-end"><strong>{{ number_format($shopReportData['Total']['bought'], 2) }}</strong></td>
+                                                <td class="text-end"><strong>{{ number_format($shopReportData['Total']['sold'], 2) }}</strong></td>
+                                                <td class="text-end {{ $shopReportData['Total']['shop_balance'] >= 0 ? 'text-success' : 'text-danger' }}">
+                                                    <strong>{{ number_format($shopReportData['Total']['shop_balance'], 2) }}</strong>
                                                 </td>
                                             </tr>
-                                        @endif
-                                    @endforeach
-                                </tbody>
-                                <tfoot>
-                                    <tr class="total-row">
-                                        <td><strong>Total</strong></td>
-                                        <td class="text-end"><strong>{{ number_format($shopReportData['Total']['bought'], 2) }}</strong></td>
-                                        <td class="text-end"><strong>{{ number_format($shopReportData['Total']['sold'], 2) }}</strong></td>
-                                        <td class="text-end {{ $shopReportData['Total']['shop_balance'] >= 0 ? 'text-success' : 'text-danger' }}">
-                                            <strong>{{ number_format($shopReportData['Total']['shop_balance'], 2) }}</strong>
-                                        </td>
-                                    </tr>
-                                </tfoot>
-                            </table>
-                        </div>
-                    </div>
-                </div>
-
-                <!-- Chart -->
-                <div class="card mb-4">
-                    <div class="card-header">
-                        <h5 class="mb-0">Monthly Gold Weight Balance</h5>
-                    </div>
-                    <div class="card-body">
-                        <canvas id="monthlyChart" height="300"></canvas>
-                    </div>
-                </div>
-
-                <!-- Details Tables -->
-                <div class="row">
-                    <div class="col-md-6">
-                        <div class="card h-100">
-                            <div class="card-header">
-                                <h5 class="mb-0">Sold Weight by Purity</h5>
-                            </div>
-                            <div class="card-body">
-                                <table class="table table-striped">
-                                    <thead>
-                                        <tr>
-                                            <th>Purity</th>
-                                            <th>Original Weight (g)</th>
-                                            <th>18K Equivalent (g)</th>
-                                        </tr>
-                                    </thead>
-                                    <tbody>
-                                        @foreach($soldWeightByPurity as $purity => $weight)
-                                            @php
-                                                $purityValue = (int) preg_replace('/[^0-9]/', '', $purity);
-                                                $normalizedWeight = $weight * ($purityValue / 18);
-                                            @endphp
-                                            <tr>
-                                                <td>{{ $purity }}</td>
-                                                <td>{{ number_format($weight, 2) }}</td>
-                                                <td>{{ number_format($normalizedWeight, 2) }}</td>
-                                            </tr>
-                                        @endforeach
-                                    </tbody>
-                                </table>
+                                        </tfoot>
+                                    </table>
+                                </div>
                             </div>
                         </div>
+
+                        <!-- Daily Purity Tables -->
+                        <div class="row">
+                            <div class="col-md-6">
+                                <div class="card h-100">
+                                    <div class="card-header">
+                                        <h5 class="mb-0">Daily Sold Weight by Purity</h5>
+                                    </div>
+                                    <div class="card-body">
+                                        <table class="table table-striped">
+                                            <thead>
+                                                <tr>
+                                                    <th>Purity</th>
+                                                    <th>Original Weight (g)</th>
+                                                    <th>18K Equivalent (g)</th>
+                                                </tr>
+                                            </thead>
+                                            <tbody>
+                                                @foreach($soldWeightByPurity as $purity => $weight)
+                                                    @php
+                                                        $purityValue = (int) preg_replace('/[^0-9]/', '', $purity);
+                                                        $normalizedWeight = $weight * ($purityValue / 18);
+                                                    @endphp
+                                                    <tr>
+                                                        <td>{{ $purity }}</td>
+                                                        <td>{{ number_format($weight, 2) }}</td>
+                                                        <td>{{ number_format($normalizedWeight, 2) }}</td>
+                                                    </tr>
+                                                @endforeach
+                                            </tbody>
+                                        </table>
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="col-md-6">
+                                <div class="card h-100">
+                                    <div class="card-header">
+                                        <h5 class="mb-0">Daily Bought Weight by Purity (Kasr)</h5>
+                                    </div>
+                                    <div class="card-body">
+                                        <table class="table table-striped">
+                                            <thead>
+                                                <tr>
+                                                    <th>Purity</th>
+                                                    <th>Original Weight (g)</th>
+                                                    <th>18K Equivalent (g)</th>
+                                                </tr>
+                                            </thead>
+                                            <tbody>
+                                                @foreach($boughtWeightByPurity as $purity => $weight)
+                                                    @php
+                                                        $purityValue = (int) preg_replace('/[^0-9]/', '', $purity);
+                                                        $normalizedWeight = $weight * ($purityValue / 18);
+                                                    @endphp
+                                                    <tr>
+                                                        <td>{{ $purity }}</td>
+                                                        <td>{{ number_format($weight, 2) }}</td>
+                                                        <td>{{ number_format($normalizedWeight, 2) }}</td>
+                                                    </tr>
+                                                @endforeach
+                                            </tbody>
+                                        </table>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
                     </div>
-                    <div class="col-md-6">
-                        <div class="card h-100">
+
+                    <!-- Monthly Report Tab -->
+                    <div class="tab-pane fade" id="monthly" role="tabpanel" aria-labelledby="monthly-tab">
+                        <!-- Monthly Summary Cards -->
+                        <div class="row mb-4">
+                            <div class="col-md-4">
+                                <div class="card text-center h-100 bg-light">
+                                    <div class="card-body">
+                                        <h5 class="card-title">Monthly Total Buy</h5>
+                                        <p class="card-text fs-2 fw-bold text-success">{{ number_format($monthlyReportData['total_bought'], 2) }} g</p>
+                                        <p class="text-muted small">Normalized to 18K</p>
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="col-md-4">
+                                <div class="card text-center h-100 bg-light">
+                                    <div class="card-body">
+                                        <h5 class="card-title">Monthly Total Sell</h5>
+                                        <p class="card-text fs-2 fw-bold text-danger">{{ number_format($monthlyReportData['total_sold'], 2) }} g</p>
+                                        <p class="text-muted small">Normalized to 18K</p>
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="col-md-4">
+                                <div class="card text-center h-100 bg-light">
+                                    <div class="card-body">
+                                        <h5 class="card-title">Monthly Balance</h5>
+                                        <p class="card-text fs-2 fw-bold {{ $monthlyReportData['total_balance'] >= 0 ? 'text-success' : 'text-danger' }}">
+                                            {{ number_format($monthlyReportData['total_balance'], 2) }} g
+                                        </p>
+                                        <p class="text-muted small">Bought - Sold</p>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- Monthly Shop Performance Table -->
+                        <div class="card mb-4">
                             <div class="card-header">
-                                <h5 class="mb-0">Bought Weight by Purity (Kasr)</h5>
+                                <h5 class="mb-0">Monthly Shop Performance Report (18K Equivalent)</h5>
                             </div>
                             <div class="card-body">
-                                <table class="table table-striped">
-                                    <thead>
-                                        <tr>
-                                            <th>Purity</th>
-                                            <th>Original Weight (g)</th>
-                                            <th>18K Equivalent (g)</th>
-                                        </tr>
-                                    </thead>
-                                    <tbody>
-                                        @foreach($boughtWeightByPurity as $purity => $weight)
-                                            @php
-                                                $purityValue = (int) preg_replace('/[^0-9]/', '', $purity);
-                                                $normalizedWeight = $weight * ($purityValue / 18);
-                                            @endphp
+                                <div class="table-responsive">
+                                    <table class="table table-striped table-hover">
+                                        <thead class="table-primary">
                                             <tr>
-                                                <td>{{ $purity }}</td>
-                                                <td>{{ number_format($weight, 2) }}</td>
-                                                <td>{{ number_format($normalizedWeight, 2) }}</td>
+                                                <th>Shop Name</th>
+                                                <th class="text-end">Monthly Bought Weight (g)</th>
+                                                <th class="text-end">Monthly Sold Weight (g)</th>
+                                                <th class="text-end">Monthly Difference (g)</th>
                                             </tr>
-                                        @endforeach
-                                    </tbody>
-                                </table>
+                                        </thead>
+                                        <tbody>
+                                            @foreach($monthlyReportData['shop_data'] as $shop => $data)
+                                                @if($shop !== 'Total')
+                                                    <tr class="{{ ($data['sold'] == 0 && $data['bought'] == 0) ? 'text-muted' : '' }}">
+                                                        <td>{{ $shop }}</td>
+                                                        <td class="text-end">{{ number_format($data['bought'], 2) }}</td>
+                                                        <td class="text-end">{{ number_format($data['sold'], 2) }}</td>
+                                                        <td class="text-end {{ $data['balance'] >= 0 ? 'text-success' : 'text-danger' }}">
+                                                            {{ number_format($data['balance'], 2) }}
+                                                        </td>
+                                                    </tr>
+                                                @endif
+                                            @endforeach
+                                        </tbody>
+                                        <tfoot>
+                                            <tr class="total-row">
+                                                <td><strong>Total</strong></td>
+                                                <td class="text-end"><strong>{{ number_format($monthlyReportData['shop_data']['Total']['bought'], 2) }}</strong></td>
+                                                <td class="text-end"><strong>{{ number_format($monthlyReportData['shop_data']['Total']['sold'], 2) }}</strong></td>
+                                                <td class="text-end {{ $monthlyReportData['shop_data']['Total']['balance'] >= 0 ? 'text-success' : 'text-danger' }}">
+                                                    <strong>{{ number_format($monthlyReportData['shop_data']['Total']['balance'], 2) }}</strong>
+                                                </td>
+                                            </tr>
+                                        </tfoot>
+                                    </table>
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- Monthly Purity Tables -->
+                        <div class="row">
+                            <div class="col-md-6">
+                                <div class="card h-100">
+                                    <div class="card-header">
+                                        <h5 class="mb-0">Monthly Sold Weight by Purity</h5>
+                                    </div>
+                                    <div class="card-body">
+                                        <table class="table table-striped">
+                                            <thead>
+                                                <tr>
+                                                    <th>Purity</th>
+                                                    <th>Original Weight (g)</th>
+                                                    <th>18K Equivalent (g)</th>
+                                                </tr>
+                                            </thead>
+                                            <tbody>
+                                                @foreach($monthlyReportData['sold_by_purity'] as $purity => $weight)
+                                                    @php
+                                                        $purityValue = (int) preg_replace('/[^0-9]/', '', $purity);
+                                                        $normalizedWeight = $weight * ($purityValue / 18);
+                                                    @endphp
+                                                    <tr>
+                                                        <td>{{ $purity }}</td>
+                                                        <td>{{ number_format($weight, 2) }}</td>
+                                                        <td>{{ number_format($normalizedWeight, 2) }}</td>
+                                                    </tr>
+                                                @endforeach
+                                            </tbody>
+                                        </table>
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="col-md-6">
+                                <div class="card h-100">
+                                    <div class="card-header">
+                                        <h5 class="mb-0">Monthly Bought Weight by Purity (Kasr)</h5>
+                                    </div>
+                                    <div class="card-body">
+                                        <table class="table table-striped">
+                                            <thead>
+                                                <tr>
+                                                    <th>Purity</th>
+                                                    <th>Original Weight (g)</th>
+                                                    <th>18K Equivalent (g)</th>
+                                                </tr>
+                                            </thead>
+                                            <tbody>
+                                                @foreach($monthlyReportData['bought_by_purity'] as $purity => $weight)
+                                                    @php
+                                                        $purityValue = (int) preg_replace('/[^0-9]/', '', $purity);
+                                                        $normalizedWeight = $weight * ($purityValue / 18);
+                                                    @endphp
+                                                    <tr>
+                                                        <td>{{ $purity }}</td>
+                                                        <td>{{ number_format($weight, 2) }}</td>
+                                                        <td>{{ number_format($normalizedWeight, 2) }}</td>
+                                                    </tr>
+                                                @endforeach
+                                            </tbody>
+                                        </table>
+                                    </div>
+                                </div>
                             </div>
                         </div>
                     </div>

@@ -21,6 +21,12 @@ class GoldBalanceReportController extends Controller
         $endDate = $reportDate->copy()->endOfDay();
         $hideInactive = $request->has('hide_inactive');
         
+        // Get selected month for monthly report
+        $selectedMonth = $request->input('month') ? Carbon::parse($request->input('month')) : Carbon::now();
+        $monthStartDate = $selectedMonth->copy()->startOfMonth();
+        $monthEndDate = $selectedMonth->copy()->endOfMonth();
+        $hideInactiveMonthly = $request->has('hide_inactive_monthly');
+        
         // Get KasrItems from REGULAR SALES only (not completed)
         // This query gets regular kasr items excluding those that have been completed
         $regularKasrItems = KasrItem::join('kasr_sales', 'kasr_items.kasr_sale_id', '=', 'kasr_sales.id')
@@ -62,6 +68,9 @@ class GoldBalanceReportController extends Controller
         // Get shop-based report data
         $shopReportData = $this->getShopReportData($reportDate, $hideInactive);
         
+        // Get monthly report data
+        $monthlyReportData = $this->getMonthlyReportData($monthStartDate, $monthEndDate, $hideInactiveMonthly);
+        
         return view('admin.reports.gold-balance', compact(
             'totalBoughtWeight', 
             'totalSoldWeight', 
@@ -71,7 +80,10 @@ class GoldBalanceReportController extends Controller
             'monthlyData',
             'reportDate',
             'shopReportData',
-            'hideInactive'
+            'hideInactive',
+            'selectedMonth',
+            'monthlyReportData',
+            'hideInactiveMonthly'
         ));
     }
     
@@ -370,5 +382,119 @@ class GoldBalanceReportController extends Controller
         ];
         
         return $shopData;
+    }
+    
+    /**
+     * Get monthly report data for a specific month
+     * 
+     * @param Carbon $startDate
+     * @param Carbon $endDate
+     * @return array
+     */
+    private function getMonthlyReportData($startDate, $endDate, $hideInactive = false)
+    {
+        // Get regular kasr items for the month
+        $regularKasrItems = KasrItem::join('kasr_sales', 'kasr_items.kasr_sale_id', '=', 'kasr_sales.id')
+            ->leftJoin('kasr_sales_complete', 'kasr_sales.id', '=', 'kasr_sales_complete.original_kasr_sale_id')
+            ->whereNull('kasr_sales_complete.id')
+            ->where('kasr_sales.status', 'accepted')
+            ->whereBetween('kasr_sales.order_date', [$startDate, $endDate])
+            ->select('kasr_items.*', 'kasr_sales.shop_name')
+            ->get();
+            
+        // Get completed kasr items for the month
+        $completedKasrItems = KasrItem::join('kasr_sales', 'kasr_items.kasr_sale_id', '=', 'kasr_sales.id')
+            ->join('kasr_sales_complete', 'kasr_sales.id', '=', 'kasr_sales_complete.original_kasr_sale_id')
+            ->where('kasr_sales_complete.status', 'accepted')
+            ->whereBetween('kasr_sales_complete.order_date', [$startDate, $endDate])
+            ->select('kasr_items.*', 'kasr_sales_complete.original_shop_name as shop_name')
+            ->get();
+            
+        // Combine both collections
+        $allKasrItems = $regularKasrItems->concat($completedKasrItems);
+        
+        // Get sold items for the month
+        $soldItems = GoldItemSold::whereBetween('sold_date', [$startDate, $endDate])->get();
+        
+        // Calculate totals
+        $totalBoughtWeight = $this->normalizeWeightsTo18K($allKasrItems);
+        $totalSoldWeight = $this->normalizeWeightsTo18K($soldItems, 'sold');
+        $totalBalance = $totalBoughtWeight - $totalSoldWeight;
+        
+        // Get weight by purity
+        $boughtWeightByPurity = $this->getWeightByPurity($allKasrItems);
+        $soldWeightByPurity = $this->getWeightByPurity($soldItems, 'sold');
+        
+        // Get all unique shop names
+        $uniqueTransactionShops = array_unique(array_merge(
+            $allKasrItems->pluck('shop_name')->toArray(),
+            $soldItems->pluck('shop_name')->toArray()
+        ));
+
+        // Get all shop names from users table - only 'user' type, exclude 'admin' and 'rabea'
+        $allRegisteredShops = \App\Models\User::where('usertype', 'user')
+            ->whereNotIn('usertype', ['admin', 'rabea'])
+            ->pluck('shop_name')
+            ->toArray();
+        
+        // Also manually filter out any shop containing 'rabea' or 'admin' from registered shops
+        $allRegisteredShops = array_filter($allRegisteredShops, function($shop) {
+            return !preg_match('/(rabea|admin)/i', $shop);
+        });
+
+        // Combine and unique shop names - ensuring all registered shops are included
+        $allShops = array_unique(array_merge($allRegisteredShops, $uniqueTransactionShops));
+        sort($allShops); // Sort shops alphabetically
+        
+        // Calculate shop-based data
+        $monthlyShopData = [];
+        $totalBought = 0;
+        $totalSold = 0;
+        
+        foreach ($allShops as $shop) {
+            if (empty($shop)) continue;
+            
+            // Get bought items for this shop
+            $shopBoughtItems = $allKasrItems->where('shop_name', $shop);
+            $boughtWeight = $this->normalizeWeightsTo18K($shopBoughtItems);
+            
+            // Get sold items for this shop
+            $shopSoldItems = $soldItems->where('shop_name', $shop);
+            $soldWeight = $this->normalizeWeightsTo18K($shopSoldItems, 'sold');
+            
+            // Calculate shop balance
+            $shopBalance = $boughtWeight - $soldWeight;
+            
+            // Skip inactive shops if requested
+            if ($hideInactive && $soldWeight == 0 && $boughtWeight == 0) {
+                continue;
+            }
+            
+            // Add to totals
+            $totalBought += $boughtWeight;
+            $totalSold += $soldWeight;
+            
+            $monthlyShopData[$shop] = [
+                'bought' => $boughtWeight,
+                'sold' => $soldWeight,
+                'balance' => $shopBalance
+            ];
+        }
+        
+        // Add totals row
+        $monthlyShopData['Total'] = [
+            'bought' => $totalBought,
+            'sold' => $totalSold,
+            'balance' => $totalBought - $totalSold
+        ];
+        
+        return [
+            'total_bought' => $totalBoughtWeight,
+            'total_sold' => $totalSoldWeight,
+            'total_balance' => $totalBalance,
+            'bought_by_purity' => $boughtWeightByPurity,
+            'sold_by_purity' => $soldWeightByPurity,
+            'shop_data' => $monthlyShopData
+        ];
     }
 }
