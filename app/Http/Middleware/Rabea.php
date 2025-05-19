@@ -17,7 +17,7 @@ class Rabea
     public function handle(Request $request, Closure $next): Response
     {
         {
-            if (Auth::user() && Auth::user()->usertype === 'rabea') {
+            if (Auth::user() && (Auth::user()->usertype === 'rabea' || Auth::user()->usertype === 'super')) {
                 return $next($request);
             }
             return redirect('/dashboard'); // Redirect if not admin

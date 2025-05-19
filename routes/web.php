@@ -122,6 +122,8 @@ Route::middleware(['auth'])->group(function () {
                     return redirect()->route('sell-requests.acc');
                 case 'user':
                     return redirect()->route('shop-dashboard');
+                case 'super':
+                    return redirect()->route('admin.inventory');
                 default:
                     Log::error('Invalid usertype', ['usertype' => $usertype]);
                     Auth::logout();

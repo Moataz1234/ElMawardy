@@ -11,7 +11,7 @@ class Acc
 {
     public function handle(Request $request, Closure $next): Response
     {
-        if (Auth::user() && Auth::user()->usertype === 'Acc') {
+        if (Auth::user() && (Auth::user()->usertype === 'Acc' || Auth::user()->usertype === 'super')) {
             return $next($request);
         }
         return redirect('/dashboard')->withErrors('You do not have permission to access this page.');

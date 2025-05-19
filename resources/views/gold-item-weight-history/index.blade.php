@@ -49,6 +49,19 @@
                     </div>
 
                     <div class="card-body">
+                        <form method="GET" action="{{ route('gold-item-weight-history.index') }}" class="mb-4">
+                            <div class="input-group">
+                                <input type="text" name="search_serial_number" class="form-control"
+                                       placeholder="Search by Serial Number..." value="{{ $searchSerialNumber ?? '' }}">
+                                <div class="input-group-append">
+                                    <button class="btn btn-primary" type="submit">Search</button>
+                                    @if($searchSerialNumber)
+                                        <a href="{{ route('gold-item-weight-history.index') }}" class="btn btn-secondary">Clear</a>
+                                    @endif
+                                </div>
+                            </div>
+                        </form>
+
                         @if($weightHistories->isEmpty())
                             <p class="text-center">No weight history records found.</p>
                         @else

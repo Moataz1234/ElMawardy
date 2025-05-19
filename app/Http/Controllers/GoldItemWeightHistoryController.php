@@ -9,12 +9,21 @@ use Illuminate\Http\Request;
 
 class GoldItemWeightHistoryController extends Controller
 {
-    public function index()
+    public function index(Request $request)
     {
-        $weightHistories = GoldItemWeightHistory::with(['user', 'goldItem'])
-            ->orderBy('created_at', 'desc')
-            ->get();
+        $query = GoldItemWeightHistory::with(['user', 'goldItem'])
+            ->orderBy('created_at', 'desc');
 
-        return view('gold-item-weight-history.index', compact('weightHistories'));
+        $searchSerialNumber = $request->input('search_serial_number');
+
+        if ($searchSerialNumber) {
+            $query->whereHas('goldItem', function ($q) use ($searchSerialNumber) {
+                $q->where('serial_number', 'like', '%' . $searchSerialNumber . '%');
+            });
+        }
+
+        $weightHistories = $query->get();
+
+        return view('gold-item-weight-history.index', compact('weightHistories', 'searchSerialNumber'));
     }
 } 

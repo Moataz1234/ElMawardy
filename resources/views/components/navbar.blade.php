@@ -3,7 +3,7 @@
 <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
 <nav class="navbar" style="padding: 0">
     <ul class="navbar-list">
-        @if (auth()->user()->usertype === 'admin')
+        @if (auth()->user()->usertype === 'admin' || auth()->user()->usertype === 'super')
             <li class="navbar-item"><a href="{{ route('admin.dashboard') }}" class="navbar-link">Dashboard</a></li>
             <li class="navbar-item dropdown">
                 <a href="#" class="navbar-link dropdown-toggle">Models</a>
@@ -62,7 +62,7 @@
             </li>
         @endif
 
-        @if (auth()->user()->usertype === 'Acc')
+        @if (auth()->user()->usertype === 'Acc' || auth()->user()->usertype === 'super')
             <li class="navbar-item"><a href="{{ route('dashboard') }}" class="navbar-link"> طلبات البيع</a></li>
             {{-- <li class="navbar-item"><a href="{{ route('sell-requests.acc') }}" class="navbar-link"> ط</a></li> --}}
             <li class="navbar-item"><a href="{{ route('all-sold-items') }}" class="navbar-link">sales analysis</a></li>
@@ -85,7 +85,7 @@
             </li> --}}
         @endif
 
-        @if (auth()->user()->usertype === 'rabea')
+        @if (auth()->user()->usertype === 'rabea' || auth()->user()->usertype === 'super')
             <li class="navbar-item"><a href="{{ route('orders.rabea.index') }}" class="navbar-link">الاوردرات</a></li>
             <li class="navbar-item"><a href="{{ route('orders.rabea.to_print') }}" class="navbar-link">الورشة</a></li>
             <li class="navbar-item"><a href="{{ route('orders.completed') }}" class="navbar-link">الاوردرات التي تم
@@ -142,7 +142,7 @@
 
         @endif
 
-        @if (auth()->user()->usertype === 'user')
+        @if (auth()->user()->usertype === 'user' || auth()->user()->usertype === 'super')
             <li class="navbar-item dropdown">
                 <a href="#" class="navbar-link dropdown-toggle">المخزون</a>
                 <div class="dropdown-menu">
