@@ -48,6 +48,7 @@
                     <a href="{{ route('reports.view') }}" class="dropdown-item">View Reports</a>
                     <a href="{{ route('gold-analysis.index') }}" class="dropdown-item">الجرد</a>
                     <a href="{{ route('tracking.index') }}" class="dropdown-item">Serial Number Tracking</a>
+                    <a href="{{ route('gold-item-weight-history.index') }}" class="dropdown-item">Weight Change History</a>
                 </div>
             </li>
 

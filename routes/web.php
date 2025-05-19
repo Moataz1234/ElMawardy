@@ -48,7 +48,8 @@ use App\Http\Controllers\{
     Admin\GoldBalanceReportController,
     Admin\Shopify\ShopifyProductController,
     Admin\OnlineModelsController,
-    SerialNumberTrackingController
+    SerialNumberTrackingController,
+    GoldItemWeightHistoryController
     // NewItemTalabatController 
 };
 
@@ -417,6 +418,10 @@ Route::middleware(['auth'])->group(function () {
         'update' => 'kasr-sales.update',
         'destroy' => 'kasr-sales.destroy',
     ]);
+
+    // Gold Item Weight History Routes
+    Route::get('/gold-item-weight-history', [GoldItemWeightHistoryController::class, 'index'])
+        ->name('gold-item-weight-history.index');
 });
 
 // ===================================
