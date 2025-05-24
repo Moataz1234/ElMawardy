@@ -3,7 +3,7 @@
 <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
 <nav class="navbar" style="padding: 0">
     <ul class="navbar-list">
-        @if (auth()->user()->usertype === 'admin' || auth()->user()->usertype === 'super')
+        @if (auth()->user()->usertype === 'admin' )
             <li class="navbar-item"><a href="{{ route('admin.dashboard') }}" class="navbar-link">Dashboard</a></li>
             <li class="navbar-item dropdown">
                 <a href="#" class="navbar-link dropdown-toggle">Models</a>
@@ -85,7 +85,7 @@
             </li> --}}
         @endif
 
-        @if (auth()->user()->usertype === 'rabea' || auth()->user()->usertype === 'super')
+        @if (auth()->user()->usertype === 'rabea')
             <li class="navbar-item"><a href="{{ route('orders.rabea.index') }}" class="navbar-link">الاوردرات</a></li>
             <li class="navbar-item"><a href="{{ route('orders.rabea.to_print') }}" class="navbar-link">الورشة</a></li>
             <li class="navbar-item"><a href="{{ route('orders.completed') }}" class="navbar-link">الاوردرات التي تم
@@ -142,7 +142,7 @@
 
         @endif
 
-        @if (auth()->user()->usertype === 'user' || auth()->user()->usertype === 'super')
+        @if (auth()->user()->usertype === 'user' )
             <li class="navbar-item dropdown">
                 <a href="#" class="navbar-link dropdown-toggle">المخزون</a>
                 <div class="dropdown-menu">
@@ -288,3 +288,52 @@
         }
     });
 </script> --}}
+
+@if (auth()->user()->usertype === 'super')
+    <li class="navbar-item"><a href="{{ route('super.dashboard') }}" class="navbar-link">Super Dashboard</a></li>
+    
+    <li class="navbar-item dropdown">
+        <a href="#" class="navbar-link dropdown-toggle">User Management</a>
+        <div class="dropdown-menu">
+            <a href="{{ route('super.users') }}" class="dropdown-item">All Users</a>
+            <a href="{{ route('super.shops') }}" class="dropdown-item">All Shops</a>
+        </div>
+    </li>
+
+    <li class="navbar-item dropdown">
+        <a href="#" class="navbar-link dropdown-toggle">Inventory Control</a>
+        <div class="dropdown-menu">
+            <a href="{{ route('super.gold-items') }}" class="dropdown-item">All Gold Items</a>
+            <a href="{{ route('super.sold-items') }}" class="dropdown-item">All Sold Items</a>
+            <a href="{{ route('super.models') }}" class="dropdown-item">All Models</a>
+        </div>
+    </li>
+
+    <li class="navbar-item dropdown">
+        <a href="#" class="navbar-link dropdown-toggle">Request Management</a>
+        <div class="dropdown-menu">
+            <a href="{{ route('super.requests') }}" class="dropdown-item">All Requests</a>
+            <a href="{{ route('super.orders') }}" class="dropdown-item">All Orders</a>
+            <a href="{{ route('super.kasr-sales') }}" class="dropdown-item">All Kasr Sales</a>
+        </div>
+    </li>
+
+    <li class="navbar-item dropdown">
+        <a href="#" class="navbar-link dropdown-toggle">Analytics & Reports</a>
+        <div class="dropdown-menu">
+            <a href="{{ route('super.analytics') }}" class="dropdown-item">Analytics</a>
+            <a href="{{ route('reports.view') }}" class="dropdown-item">Reports</a>
+            <a href="{{ route('gold-analysis.index') }}" class="dropdown-item">Gold Analysis</a>
+            <a href="{{ route('tracking.index') }}" class="dropdown-item">Serial Tracking</a>
+        </div>
+    </li>
+
+    <li class="navbar-item dropdown">
+        <a href="#" class="navbar-link dropdown-toggle">System</a>
+        <div class="dropdown-menu">
+            <a href="{{ route('super.settings') }}" class="dropdown-item">Settings</a>
+            <a href="{{ route('gold-balance.report') }}" class="dropdown-item">Balance Report</a>
+            <a href="{{ route('shopify.products') }}" class="dropdown-item">Shopify</a>
+        </div>
+    </li>
+@endif
