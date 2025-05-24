@@ -31,6 +31,15 @@
             color: white;
             font-size: 24px;
         }
+        .bg-purple { background-color: #8e44ad !important; }
+        .bg-indigo { background-color: #3f51b5 !important; }
+        .bg-teal { background-color: #26a69a !important; }
+        .btn-purple { background-color: #8e44ad; border-color: #8e44ad; color: white; }
+        .btn-purple:hover { background-color: #7d3c98; border-color: #7d3c98; color: white; }
+        .btn-indigo { background-color: #3f51b5; border-color: #3f51b5; color: white; }
+        .btn-indigo:hover { background-color: #3949ab; border-color: #3949ab; color: white; }
+        .btn-teal { background-color: #26a69a; border-color: #26a69a; color: white; }
+        .btn-teal:hover { background-color: #00897b; border-color: #00897b; color: white; }
     </style>
 </head>
 <body>
@@ -110,6 +119,73 @@
                             <div>
                                 <h6 class="text-muted mb-1">Total Shops</h6>
                                 <h3 class="mb-0 fw-bold">{{ $stats['total_shops'] }}</h3>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Additional Statistics -->
+        <div class="row g-4 mb-4">
+            <div class="col-xl-3 col-md-6">
+                <div class="card stat-card h-100">
+                    <div class="card-body">
+                        <div class="d-flex align-items-center">
+                            <div class="stat-icon bg-purple me-3">
+                                <i class="bx bx-user-plus"></i>
+                            </div>
+                            <div>
+                                <h6 class="text-muted mb-1">Total Customers</h6>
+                                <h3 class="mb-0 fw-bold">{{ \App\Models\Customer::count() }}</h3>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="col-xl-3 col-md-6">
+                <div class="card stat-card h-100">
+                    <div class="card-body">
+                        <div class="d-flex align-items-center">
+                            <div class="stat-icon bg-indigo me-3">
+                                <i class="bx bx-package"></i>
+                            </div>
+                            <div>
+                                <h6 class="text-muted mb-1">Total Orders</h6>
+                                <h3 class="mb-0 fw-bold">{{ \App\Models\Order::count() }}</h3>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="col-xl-3 col-md-6">
+                <div class="card stat-card h-100">
+                    <div class="card-body">
+                        <div class="d-flex align-items-center">
+                            <div class="stat-icon bg-teal me-3">
+                                <i class="bx bx-grid"></i>
+                            </div>
+                            <div>
+                                <h6 class="text-muted mb-1">Total Models</h6>
+                                <h3 class="mb-0 fw-bold">{{ \App\Models\Models::count() }}</h3>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="col-xl-3 col-md-6">
+                <div class="card stat-card h-100">
+                    <div class="card-body">
+                        <div class="d-flex align-items-center">
+                            <div class="stat-icon bg-warning me-3">
+                                <i class="bx bx-coin-stack"></i>
+                            </div>
+                            <div>
+                                <h6 class="text-muted mb-1">Kasr Sales</h6>
+                                <h3 class="mb-0 fw-bold">{{ \App\Models\KasrSale::count() }}</h3>
                             </div>
                         </div>
                     </div>
@@ -198,29 +274,29 @@
                                 </a>
                             </div>
                             <div class="col-lg-3 col-md-6">
-                                <a href="{{ route('super.gold-items') }}" class="btn btn-warning w-100 py-3">
-                                    <i class="bx bx-cube fs-4 d-block mb-2"></i>
-                                    Gold Items
+                                <a href="{{ route('super.customers') }}" class="btn btn-purple w-100 py-3">
+                                    <i class="bx bx-user-plus fs-4 d-block mb-2"></i>
+                                    Manage Customers
                                 </a>
                             </div>
                             <div class="col-lg-3 col-md-6">
-                                <a href="{{ route('super.models') }}" class="btn btn-success w-100 py-3">
-                                    <i class="bx bx-grid fs-4 d-block mb-2"></i>
-                                    Models
+                                <a href="{{ route('super.orders') }}" class="btn btn-indigo w-100 py-3">
+                                    <i class="bx bx-package fs-4 d-block mb-2"></i>
+                                    Manage Orders
                                 </a>
                             </div>
                         </div>
                         <div class="row g-3 mt-2">
                             <div class="col-lg-3 col-md-6">
-                                <a href="{{ route('super.requests') }}" class="btn btn-danger w-100 py-3">
-                                    <i class="bx bx-time fs-4 d-block mb-2"></i>
-                                    All Requests
+                                <a href="{{ route('super.models.index') }}" class="btn btn-success w-100 py-3">
+                                    <i class="bx bx-grid fs-4 d-block mb-2"></i>
+                                    Models
                                 </a>
                             </div>
                             <div class="col-lg-3 col-md-6">
-                                <a href="{{ route('super.analytics') }}" class="btn btn-dark w-100 py-3">
-                                    <i class="bx bx-chart fs-4 d-block mb-2"></i>
-                                    Analytics
+                                <a href="{{ route('super.requests') }}" class="btn btn-danger w-100 py-3">
+                                    <i class="bx bx-time fs-4 d-block mb-2"></i>
+                                    All Requests
                                 </a>
                             </div>
                             <div class="col-lg-3 col-md-6">
@@ -233,6 +309,14 @@
                                 <a href="{{ route('super.settings') }}" class="btn btn-outline-primary w-100 py-3">
                                     <i class="bx bx-cog fs-4 d-block mb-2"></i>
                                     Settings
+                                </a>
+                            </div>
+                        </div>
+                        <div class="row g-3 mt-2">
+                            <div class="col-lg-3 col-md-6">
+                                <a href="{{ route('super.customers.create') }}" class="btn btn-outline-success w-100 py-3">
+                                    <i class="bx bx-plus fs-4 d-block mb-2"></i>
+                                    Add Customer
                                 </a>
                             </div>
                         </div>

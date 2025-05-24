@@ -47,7 +47,7 @@ class SuperModelsController extends Controller
 
         Models::create($data);
 
-        return redirect()->route('super.models')->with('success', 'Model created successfully');
+        return redirect()->route('super.models.index')->with('success', 'Model created successfully');
     }
 
     public function show($id)
@@ -99,7 +99,7 @@ class SuperModelsController extends Controller
 
         $model->update($data);
 
-        return redirect()->route('super.models')->with('success', 'Model updated successfully');
+        return redirect()->route('super.models.index')->with('success', 'Model updated successfully');
     }
 
     public function destroy($id)
@@ -116,6 +116,6 @@ class SuperModelsController extends Controller
 
         $model->delete();
 
-        return redirect()->route('super.models')->with('success', 'Model deleted successfully');
+        return redirect()->route('super.models.index')->with('success', 'Model deleted successfully');
     }
 } 
