@@ -12,7 +12,12 @@
         body {
             background-color: #f8f9fa;
         }
-        .order-card {
+        .orders-card {
+            border: none;
+            border-radius: 10px;
+            box-shadow: 0 0.125rem 0.25rem rgba(0, 0, 0, 0.075);
+        }
+        .filter-card {
             border: none;
             border-radius: 10px;
             box-shadow: 0 0.125rem 0.25rem rgba(0, 0, 0, 0.075);
@@ -90,24 +95,114 @@
             </div>
         </div>
 
-        <!-- Success/Error Messages -->
-        @if(session('success'))
-            <div class="alert alert-success alert-dismissible fade show" role="alert">
-                <i class="bx bx-check-circle me-2"></i>{{ session('success') }}
-                <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
+        <!-- Stats Cards -->
+        <div class="row mb-4">
+            <div class="col-lg-3 col-md-6 mb-3">
+                <div class="card text-center border-0 bg-warning text-dark">
+                    <div class="card-body">
+                        <i class="bx bx-time display-4"></i>
+                        <h4 class="mt-2">{{ $pendingOrdersCount }}</h4>
+                        <p class="mb-0">Pending Orders</p>
+                    </div>
+                </div>
             </div>
-        @endif
+            <div class="col-lg-3 col-md-6 mb-3">
+                <div class="card text-center border-0 bg-info text-white">
+                    <div class="card-body">
+                        <i class="bx bx-loader display-4"></i>
+                        <h4 class="mt-2">{{ $inProgressOrdersCount }}</h4>
+                        <p class="mb-0">In Progress</p>
+                    </div>
+                </div>
+            </div>
+            <div class="col-lg-3 col-md-6 mb-3">
+                <div class="card text-center border-0 bg-success text-white">
+                    <div class="card-body">
+                        <i class="bx bx-check-circle display-4"></i>
+                        <h4 class="mt-2">{{ $completedOrdersCount }}</h4>
+                        <p class="mb-0">Completed</p>
+                    </div>
+                </div>
+            </div>
+            <div class="col-lg-3 col-md-6 mb-3">
+                <div class="card text-center border-0 bg-primary text-white">
+                    <div class="card-body">
+                        <i class="bx bx-package display-4"></i>
+                        <h4 class="mt-2">{{ $orders->total() }}</h4>
+                        <p class="mb-0">Total Orders</p>
+                    </div>
+                </div>
+            </div>
+        </div>
 
-        <!-- Tabs Navigation -->
+        <!-- Filters -->
+        <div class="row mb-4">
+            <div class="col-12">
+                <div class="card filter-card">
+                    <div class="card-body">
+                        <form method="GET" action="{{ route('super.orders') }}">
+                            <div class="row g-3">
+                                <div class="col-md-3">
+                                    <label class="form-label">Search Order/Customer</label>
+                                    <input type="text" class="form-control" name="search" value="{{ request('search') }}" placeholder="Order number or customer name...">
+                                </div>
+                                <div class="col-md-2">
+                                    <label class="form-label">Shop</label>
+                                    <select class="form-select" name="shop">
+                                        <option value="">All Shops</option>
+                                        @foreach(\App\Models\Shop::all() as $shop)
+                                            <option value="{{ $shop->id }}" {{ request('shop') == $shop->id ? 'selected' : '' }}>
+                                                {{ $shop->name }}
+                                            </option>
+                                        @endforeach
+                                    </select>
+                                </div>
+                                <div class="col-md-2">
+                                    <label class="form-label">Status</label>
+                                    <select class="form-select" name="status">
+                                        <option value="">All Status</option>
+                                        <option value="pending" {{ request('status') == 'pending' ? 'selected' : '' }}>Pending</option>
+                                        <option value="in_progress" {{ request('status') == 'in_progress' ? 'selected' : '' }}>In Progress</option>
+                                        <option value="completed" {{ request('status') == 'completed' ? 'selected' : '' }}>Completed</option>
+                                        <option value="cancelled" {{ request('status') == 'cancelled' ? 'selected' : '' }}>Cancelled</option>
+                                    </select>
+                                </div>
+                                <div class="col-md-2">
+                                    <label class="form-label">Date From</label>
+                                    <input type="date" class="form-control" name="date_from" value="{{ request('date_from') }}">
+                                </div>
+                                <div class="col-md-2">
+                                    <label class="form-label">Date To</label>
+                                    <input type="date" class="form-control" name="date_to" value="{{ request('date_to') }}">
+                                </div>
+                                <div class="col-md-1">
+                                    <label class="form-label">&nbsp;</label>
+                                    <div class="d-flex flex-column gap-1">
+                                        <button type="submit" class="btn btn-primary btn-sm">
+                                            <i class="bx bx-search"></i>
+                                        </button>
+                                        <a href="{{ route('super.orders') }}" class="btn btn-outline-secondary btn-sm">
+                                            <i class="bx bx-refresh"></i>
+                                        </a>
+                                    </div>
+                                </div>
+                            </div>
+                        </form>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Orders Table with Tabs -->
         <div class="row">
             <div class="col-12">
-                <div class="card order-card">
+                <div class="card orders-card">
                     <div class="card-header bg-white">
                         <ul class="nav nav-tabs card-header-tabs" id="orderTabs" role="tablist">
                             <li class="nav-item" role="presentation">
-                                <button class="nav-link active" id="all-orders-tab" data-bs-toggle="tab" data-bs-target="#all-orders" type="button" role="tab">
+                                <button class="nav-link active" id="all-tab" data-bs-toggle="tab" data-bs-target="#all-orders" type="button" role="tab">
                                     <i class="bx bx-list-ul me-2"></i>All Orders
-                                    <span class="badge bg-primary badge-count">{{ $orders->total() }}</span>
+                                    <span class="badge bg-secondary badge-count">{{ $orders->total() }}</span>
                                 </button>
                             </li>
                             <li class="nav-item" role="presentation">
@@ -124,14 +219,8 @@
                             </li>
                             <li class="nav-item" role="presentation">
                                 <button class="nav-link" id="completed-tab" data-bs-toggle="tab" data-bs-target="#completed-orders" type="button" role="tab">
-                                    <i class="bx bx-check-circle me-2"></i>Completed
+                                    <i class="bx bx-check me-2"></i>Completed
                                     <span class="badge bg-success badge-count">{{ $completedOrdersCount }}</span>
-                                </button>
-                            </li>
-                            <li class="nav-item" role="presentation">
-                                <button class="nav-link" id="order-items-tab" data-bs-toggle="tab" data-bs-target="#order-items" type="button" role="tab">
-                                    <i class="bx bx-package me-2"></i>Order Items
-                                    <span class="badge bg-secondary badge-count">{{ $orders->sum(function($order) { return $order->items->count(); }) }}</span>
                                 </button>
                             </li>
                         </ul>
@@ -140,364 +229,50 @@
                         <div class="tab-content" id="orderTabsContent">
                             <!-- All Orders Tab -->
                             <div class="tab-pane fade show active" id="all-orders" role="tabpanel">
-                                <div class="table-responsive">
-                                    <table class="table table-hover">
-                                        <thead class="table-light">
-                                            <tr>
-                                                <th>Order ID</th>
-                                                <th>Order Number</th>
-                                                <th>Customer</th>
-                                                <th>Shop</th>
-                                                <th>Items Count</th>
-                                                <th>Deposit</th>
-                                                <th>Rest Cost</th>
-                                                <th>Status</th>
-                                                <th>Order Date</th>
-                                                <th>Actions</th>
-                                            </tr>
-                                        </thead>
-                                        <tbody>
-                                            @foreach($orders as $order)
-                                            <tr>
-                                                <td><strong>#{{ $order->id }}</strong></td>
-                                                <td>{{ $order->order_number }}</td>
-                                                <td>
-                                                    <div>
-                                                        <strong>{{ $order->customer_name }}</strong><br>
-                                                        @if($order->customer_phone)
-                                                            <small class="text-muted">{{ $order->customer_phone }}</small>
-                                                        @endif
-                                                    </div>
-                                                </td>
-                                                <td>
-                                                    @if($order->shop)
-                                                        <span class="badge bg-light text-dark">{{ $order->shop->name }}</span>
-                                                    @else
-                                                        <span class="text-muted">N/A</span>
-                                                    @endif
-                                                </td>
-                                                <td>
-                                                    <span class="badge bg-info">{{ $order->items->count() }}</span>
-                                                </td>
-                                                <td>
-                                                    @if($order->deposit)
-                                                        <strong class="text-success">${{ number_format($order->deposit, 2) }}</strong>
-                                                    @else
-                                                        <span class="text-muted">N/A</span>
-                                                    @endif
-                                                </td>
-                                                <td>
-                                                    @if($order->rest_of_cost)
-                                                        <strong class="text-warning">${{ number_format($order->rest_of_cost, 2) }}</strong>
-                                                    @else
-                                                        <span class="text-muted">N/A</span>
-                                                    @endif
-                                                </td>
-                                                <td>
-                                                    <span class="badge {{ 
-                                                        $order->status == 'pending' ? 'bg-warning text-dark' : 
-                                                        ($order->status == 'in_progress' ? 'bg-info' : 
-                                                        ($order->status == 'completed' ? 'bg-success' : 'bg-danger'))
-                                                    }}">
-                                                        {{ ucfirst(str_replace('_', ' ', $order->status)) }}
-                                                    </span>
-                                                </td>
-                                                <td>
-                                                    @if($order->order_date)
-                                                        {{ \Carbon\Carbon::parse($order->order_date)->format('M d, Y') }}
-                                                    @else
-                                                        <span class="text-muted">N/A</span>
-                                                    @endif
-                                                </td>
-                                                <td>
-                                                    <div class="btn-group" role="group">
-                                                        <a href="{{ route('super.orders.show', $order->id) }}" 
-                                                           class="btn btn-sm btn-outline-info" 
-                                                           title="View Order">
-                                                            <i class="bx bx-show"></i>
-                                                        </a>
-                                                        <a href="{{ route('super.orders.edit', $order->id) }}" 
-                                                           class="btn btn-sm btn-outline-primary ms-1" 
-                                                           title="Edit Order">
-                                                            <i class="bx bx-edit"></i>
-                                                        </a>
-                                                        <form method="POST" 
-                                                              action="{{ route('super.orders.delete', $order->id) }}" 
-                                                              style="display: inline;" 
-                                                              onsubmit="return confirm('Are you sure you want to delete this order?')">
-                                                            @csrf
-                                                            @method('DELETE')
-                                                            <button type="submit" 
-                                                                    class="btn btn-sm btn-outline-danger ms-1" 
-                                                                    title="Delete Order">
-                                                                <i class="bx bx-trash"></i>
-                                                            </button>
-                                                        </form>
-                                                    </div>
-                                                </td>
-                                            </tr>
-                                            @endforeach
-                                        </tbody>
-                                    </table>
-                                    <div class="d-flex justify-content-center">
-                                        <nav aria-label="Orders pagination">
-                                            {{ $orders->appends(request()->query())->links('vendor.pagination.custom-super') }}
-                                        </nav>
-                                    </div>
+                                <div class="d-flex justify-content-between align-items-center mb-3">
+                                    <h6>All Orders</h6>
+                                    <a href="{{ route('super.orders') }}?{{ http_build_query(request()->query()) }}&export=excel" 
+                                       class="btn btn-outline-success btn-sm">
+                                        <i class="bx bx-export me-1"></i>Export All
+                                    </a>
                                 </div>
+                                @include('super.orders.partials.orders-table', ['orders' => $orders])
                             </div>
 
                             <!-- Pending Orders Tab -->
                             <div class="tab-pane fade" id="pending-orders" role="tabpanel">
-                                <div class="table-responsive">
-                                    <table class="table table-hover">
-                                        <thead class="table-light">
-                                            <tr>
-                                                <th>Order ID</th>
-                                                <th>Order Number</th>
-                                                <th>Customer</th>
-                                                <th>Shop</th>
-                                                <th>Deposit</th>
-                                                <th>Order Date</th>
-                                                <th>Actions</th>
-                                            </tr>
-                                        </thead>
-                                        <tbody>
-                                            @foreach($pendingOrders as $order)
-                                            <tr>
-                                                <td><strong>#{{ $order->id }}</strong></td>
-                                                <td>{{ $order->order_number }}</td>
-                                                <td>{{ $order->customer_name }}</td>
-                                                <td>
-                                                    @if($order->shop)
-                                                        {{ $order->shop->name }}
-                                                    @else
-                                                        N/A
-                                                    @endif
-                                                </td>
-                                                <td>
-                                                    @if($order->deposit)
-                                                        ${{ number_format($order->deposit, 2) }}
-                                                    @else
-                                                        N/A
-                                                    @endif
-                                                </td>
-                                                <td>
-                                                    @if($order->order_date)
-                                                        {{ \Carbon\Carbon::parse($order->order_date)->format('M d, Y') }}
-                                                    @else
-                                                        N/A
-                                                    @endif
-                                                </td>
-                                                <td>
-                                                    <div class="btn-group" role="group">
-                                                        <a href="{{ route('super.orders.show', $order->id) }}" class="btn btn-sm btn-outline-info">
-                                                            <i class="bx bx-show"></i>
-                                                        </a>
-                                                        <a href="{{ route('super.orders.edit', $order->id) }}" class="btn btn-sm btn-outline-primary ms-1">
-                                                            <i class="bx bx-edit"></i>
-                                                        </a>
-                                                    </div>
-                                                </td>
-                                            </tr>
-                                            @endforeach
-                                        </tbody>
-                                    </table>
+                                <div class="d-flex justify-content-between align-items-center mb-3">
+                                    <h6>Pending Orders</h6>
+                                    <a href="{{ route('super.orders') }}?status=pending&export=excel" 
+                                       class="btn btn-outline-success btn-sm">
+                                        <i class="bx bx-export me-1"></i>Export Pending
+                                    </a>
                                 </div>
+                                @include('super.orders.partials.orders-table', ['orders' => $pendingOrders, 'is_collection' => true])
                             </div>
 
                             <!-- In Progress Orders Tab -->
                             <div class="tab-pane fade" id="progress-orders" role="tabpanel">
-                                <div class="table-responsive">
-                                    <table class="table table-hover">
-                                        <thead class="table-light">
-                                            <tr>
-                                                <th>Order ID</th>
-                                                <th>Order Number</th>
-                                                <th>Customer</th>
-                                                <th>Shop</th>
-                                                <th>Deposit</th>
-                                                <th>Deliver Date</th>
-                                                <th>Actions</th>
-                                            </tr>
-                                        </thead>
-                                        <tbody>
-                                            @foreach($inProgressOrders as $order)
-                                            <tr>
-                                                <td><strong>#{{ $order->id }}</strong></td>
-                                                <td>{{ $order->order_number }}</td>
-                                                <td>{{ $order->customer_name }}</td>
-                                                <td>
-                                                    @if($order->shop)
-                                                        {{ $order->shop->name }}
-                                                    @else
-                                                        N/A
-                                                    @endif
-                                                </td>
-                                                <td>
-                                                    @if($order->deposit)
-                                                        ${{ number_format($order->deposit, 2) }}
-                                                    @else
-                                                        N/A
-                                                    @endif
-                                                </td>
-                                                <td>
-                                                    @if($order->deliver_date)
-                                                        {{ \Carbon\Carbon::parse($order->deliver_date)->format('M d, Y') }}
-                                                    @else
-                                                        N/A
-                                                    @endif
-                                                </td>
-                                                <td>
-                                                    <div class="btn-group" role="group">
-                                                        <a href="{{ route('super.orders.show', $order->id) }}" class="btn btn-sm btn-outline-info">
-                                                            <i class="bx bx-show"></i>
-                                                        </a>
-                                                        <a href="{{ route('super.orders.edit', $order->id) }}" class="btn btn-sm btn-outline-primary ms-1">
-                                                            <i class="bx bx-edit"></i>
-                                                        </a>
-                                                    </div>
-                                                </td>
-                                            </tr>
-                                            @endforeach
-                                        </tbody>
-                                    </table>
+                                <div class="d-flex justify-content-between align-items-center mb-3">
+                                    <h6>In Progress Orders</h6>
+                                    <a href="{{ route('super.orders') }}?status=in_progress&export=excel" 
+                                       class="btn btn-outline-success btn-sm">
+                                        <i class="bx bx-export me-1"></i>Export In Progress
+                                    </a>
                                 </div>
+                                @include('super.orders.partials.orders-table', ['orders' => $inProgressOrders, 'is_collection' => true])
                             </div>
 
                             <!-- Completed Orders Tab -->
                             <div class="tab-pane fade" id="completed-orders" role="tabpanel">
-                                <div class="table-responsive">
-                                    <table class="table table-hover">
-                                        <thead class="table-light">
-                                            <tr>
-                                                <th>Order ID</th>
-                                                <th>Order Number</th>
-                                                <th>Customer</th>
-                                                <th>Shop</th>
-                                                <th>Total Amount</th>
-                                                <th>Payment Method</th>
-                                                <th>Completed Date</th>
-                                                <th>Actions</th>
-                                            </tr>
-                                        </thead>
-                                        <tbody>
-                                            @foreach($completedOrders as $order)
-                                            <tr>
-                                                <td><strong>#{{ $order->id }}</strong></td>
-                                                <td>{{ $order->order_number }}</td>
-                                                <td>{{ $order->customer_name }}</td>
-                                                <td>
-                                                    @if($order->shop)
-                                                        {{ $order->shop->name }}
-                                                    @else
-                                                        N/A
-                                                    @endif
-                                                </td>
-                                                <td>
-                                                    @if($order->deposit && $order->rest_of_cost)
-                                                        <strong class="text-success">${{ number_format($order->deposit + $order->rest_of_cost, 2) }}</strong>
-                                                    @else
-                                                        N/A
-                                                    @endif
-                                                </td>
-                                                <td>
-                                                    @if($order->payment_method)
-                                                        <span class="badge bg-success">{{ $order->payment_method }}</span>
-                                                    @else
-                                                        N/A
-                                                    @endif
-                                                </td>
-                                                <td>
-                                                    @if($order->deliver_date)
-                                                        {{ \Carbon\Carbon::parse($order->deliver_date)->format('M d, Y') }}
-                                                    @else
-                                                        N/A
-                                                    @endif
-                                                </td>
-                                                <td>
-                                                    <a href="{{ route('super.orders.show', $order->id) }}" class="btn btn-sm btn-outline-info">
-                                                        <i class="bx bx-show"></i>
-                                                    </a>
-                                                </td>
-                                            </tr>
-                                            @endforeach
-                                        </tbody>
-                                    </table>
+                                <div class="d-flex justify-content-between align-items-center mb-3">
+                                    <h6>Completed Orders</h6>
+                                    <a href="{{ route('super.orders') }}?status=completed&export=excel" 
+                                       class="btn btn-outline-success btn-sm">
+                                        <i class="bx bx-export me-1"></i>Export Completed
+                                    </a>
                                 </div>
-                            </div>
-
-                            <!-- Order Items Tab -->
-                            <div class="tab-pane fade" id="order-items" role="tabpanel">
-                                <div class="table-responsive">
-                                    <table class="table table-hover">
-                                        <thead class="table-light">
-                                            <tr>
-                                                <th>Item ID</th>
-                                                <th>Order</th>
-                                                <th>Kind</th>
-                                                <th>Type</th>
-                                                <th>Model</th>
-                                                <th>Serial Number</th>
-                                                <th>Weight</th>
-                                                <th>Cost</th>
-                                                <th>Details</th>
-                                            </tr>
-                                        </thead>
-                                        <tbody>
-                                            @foreach($orders as $order)
-                                                @foreach($order->items as $item)
-                                                <tr>
-                                                    <td><strong>#{{ $item->id }}</strong></td>
-                                                    <td>
-                                                        <div>
-                                                            <strong>{{ $order->order_number }}</strong><br>
-                                                            <small class="text-muted">{{ $order->customer_name }}</small>
-                                                        </div>
-                                                    </td>
-                                                    <td>
-                                                        @if($item->order_kind)
-                                                            <span class="badge bg-primary">{{ $item->order_kind }}</span>
-                                                        @else
-                                                            <span class="text-muted">N/A</span>
-                                                        @endif
-                                                    </td>
-                                                    <td>
-                                                        @if($item->item_type)
-                                                            <span class="badge bg-info">{{ $item->item_type }}</span>
-                                                        @else
-                                                            <span class="text-muted">N/A</span>
-                                                        @endif
-                                                    </td>
-                                                    <td>{{ $item->model ?? 'N/A' }}</td>
-                                                    <td>{{ $item->serial_number ?? 'N/A' }}</td>
-                                                    <td>
-                                                        @if($item->weight)
-                                                            {{ $item->weight }}g
-                                                        @else
-                                                            N/A
-                                                        @endif
-                                                    </td>
-                                                    <td>
-                                                        @if($item->cost)
-                                                            <strong class="text-success">${{ number_format($item->cost, 2) }}</strong>
-                                                        @else
-                                                            <span class="text-muted">N/A</span>
-                                                        @endif
-                                                    </td>
-                                                    <td>
-                                                        @if($item->order_details)
-                                                            <span class="text-muted">{{ Str::limit($item->order_details, 30) }}</span>
-                                                        @else
-                                                            <span class="text-muted">N/A</span>
-                                                        @endif
-                                                    </td>
-                                                </tr>
-                                                @endforeach
-                                            @endforeach
-                                        </tbody>
-                                    </table>
-                                </div>
+                                @include('super.orders.partials.orders-table', ['orders' => $completedOrders, 'is_collection' => true])
                             </div>
                         </div>
                     </div>
@@ -506,7 +281,54 @@
         </div>
     </div>
 
+    <!-- Order Details Modal -->
+    <div class="modal fade" id="orderDetailsModal" tabindex="-1">
+        <div class="modal-dialog modal-xl">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title">Order Details</h5>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+                </div>
+                <div class="modal-body" id="orderDetailsContent">
+                    <!-- Content will be loaded here -->
+                </div>
+            </div>
+        </div>
+    </div>
+
     <!-- Bootstrap JS -->
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+    <script>
+        function viewOrderDetails(orderId) {
+            fetch(`/super/orders/${orderId}`)
+                .then(response => response.text())
+                .then(data => {
+                    document.getElementById('orderDetailsContent').innerHTML = data;
+                    new bootstrap.Modal(document.getElementById('orderDetailsModal')).show();
+                })
+                .catch(error => {
+                    console.error('Error:', error);
+                    alert('Error loading order details');
+                });
+        }
+
+        function updateOrderStatus(orderId, status) {
+            if (confirm(`Are you sure you want to change this order status to ${status}?`)) {
+                // Implement status update functionality
+                alert(`Order ${orderId} status would be updated to ${status}`);
+            }
+        }
+
+        function editOrder(orderId) {
+            window.location.href = `/super/orders/${orderId}/edit`;
+        }
+
+        function deleteOrder(orderId) {
+            if (confirm('Are you sure you want to delete this order? This action cannot be undone.')) {
+                // Implement delete functionality
+                alert(`Order ${orderId} would be deleted`);
+            }
+        }
+    </script>
 </body>
 </html> 

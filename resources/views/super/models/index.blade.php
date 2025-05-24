@@ -63,13 +63,78 @@
             </div>
         @endif
 
+        <!-- Filters -->
+        <div class="row mb-4">
+            <div class="col-12">
+                <div class="card filter-card">
+                    <div class="card-body">
+                        <form method="GET" action="{{ route('super.models.index') }}">
+                            <div class="row g-3">
+                                <div class="col-md-3">
+                                    <label class="form-label">Search Model/SKU</label>
+                                    <input type="text" class="form-control" name="search" value="{{ request('search') }}" placeholder="Search by model or SKU...">
+                                </div>
+                                <div class="col-md-2">
+                                    <label class="form-label">Stars</label>
+                                    <select class="form-select" name="stars">
+                                        <option value="">All Stars</option>
+                                        <option value="1" {{ request('stars') == '1' ? 'selected' : '' }}>1 Star</option>
+                                        <option value="2" {{ request('stars') == '2' ? 'selected' : '' }}>2 Stars</option>
+                                        <option value="3" {{ request('stars') == '3' ? 'selected' : '' }}>3 Stars</option>
+                                        <option value="4" {{ request('stars') == '4' ? 'selected' : '' }}>4 Stars</option>
+                                        <option value="5" {{ request('stars') == '5' ? 'selected' : '' }}>5 Stars</option>
+                                    </select>
+                                </div>
+                                <div class="col-md-2">
+                                    <label class="form-label">Source</label>
+                                    <select class="form-select" name="source">
+                                        <option value="">All Sources</option>
+                                        <option value="internal" {{ request('source') == 'internal' ? 'selected' : '' }}>Internal</option>
+                                        <option value="external" {{ request('source') == 'external' ? 'selected' : '' }}>External</option>
+                                        <option value="imported" {{ request('source') == 'imported' ? 'selected' : '' }}>Imported</option>
+                                        <option value="custom" {{ request('source') == 'custom' ? 'selected' : '' }}>Custom</option>
+                                    </select>
+                                </div>
+                                <div class="col-md-2">
+                                    <label class="form-label">Semi/No</label>
+                                    <select class="form-select" name="semi_or_no">
+                                        <option value="">All Types</option>
+                                        <option value="1 pound" {{ request('semi_or_no') == '1 pound' ? 'selected' : '' }}>1 Pound</option>
+                                        <option value="1/2 pound" {{ request('semi_or_no') == '1/2 pound' ? 'selected' : '' }}>1/2 Pound</option>
+                                        <option value="1/4 pound" {{ request('semi_or_no') == '1/4 pound' ? 'selected' : '' }}>1/4 Pound</option>
+                                        <option value="semi" {{ request('semi_or_no') == 'semi' ? 'selected' : '' }}>Semi</option>
+                                        <option value="no" {{ request('semi_or_no') == 'no' ? 'selected' : '' }}>No</option>
+                                    </select>
+                                </div>
+                                <div class="col-md-3">
+                                    <label class="form-label">&nbsp;</label>
+                                    <div class="d-flex gap-2">
+                                        <button type="submit" class="btn btn-primary">
+                                            <i class="bx bx-search me-1"></i>Filter
+                                        </button>
+                                        <a href="{{ route('super.models.index') }}" class="btn btn-outline-secondary">
+                                            <i class="bx bx-refresh me-1"></i>Reset
+                                        </a>
+                                    </div>
+                                </div>
+                            </div>
+                        </form>
+                    </div>
+                </div>
+            </div>
+        </div>
+
         <!-- Models Table -->
         <div class="row">
             <div class="col-12">
                 <div class="card models-card">
                     <div class="card-header bg-white d-flex justify-content-between align-items-center">
                         <h5 class="card-title mb-0"><i class="bx bx-grid me-2"></i>All Models</h5>
-                        <div>
+                        <div class="d-flex align-items-center gap-2">
+                            <a href="{{ route('super.models.index') }}?{{ http_build_query(request()->query()) }}&export=excel" 
+                               class="btn btn-outline-success btn-sm">
+                                <i class="bx bx-export me-1"></i>Export
+                            </a>
                             <span class="badge bg-info fs-6">Total: {{ $models->total() ?? 0 }}</span>
                         </div>
                     </div>

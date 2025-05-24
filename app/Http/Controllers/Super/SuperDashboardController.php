@@ -22,6 +22,11 @@ use App\Models\{
     GoldPrice
 };
 use Illuminate\Support\Facades\DB;
+use PhpOffice\PhpSpreadsheet\Spreadsheet;
+use PhpOffice\PhpSpreadsheet\Writer\Xlsx;
+use PhpOffice\PhpSpreadsheet\Style\Alignment;
+use PhpOffice\PhpSpreadsheet\Style\Fill;
+use PhpOffice\PhpSpreadsheet\Style\Font;
 
 class SuperDashboardController extends Controller
 {
@@ -46,7 +51,30 @@ class SuperDashboardController extends Controller
 
     public function users()
     {
-        $users = User::with('shop')->paginate(20);
+        $query = User::with('shop');
+
+        // Apply filters
+        if (request('search')) {
+            $query->where(function($q) {
+                $q->where('name', 'like', '%' . request('search') . '%')
+                  ->orWhere('email', 'like', '%' . request('search') . '%');
+            });
+        }
+
+        if (request('usertype')) {
+            $query->where('usertype', request('usertype'));
+        }
+
+        if (request('shop_name')) {
+            $query->where('shop_name', request('shop_name'));
+        }
+
+        // Handle export
+        if (request('export') === 'excel') {
+            return $this->exportUsersToExcel($query->get());
+        }
+
+        $users = $query->orderBy('created_at', 'desc')->paginate(20);
         return view('super.users.index', compact('users'));
     }
 
@@ -91,7 +119,22 @@ class SuperDashboardController extends Controller
 
     public function shops()
     {
-        $shops = Shop::with('users')->paginate(20);
+        $query = Shop::with('users');
+
+        // Apply filters
+        if (request('search')) {
+            $query->where(function($q) {
+                $q->where('name', 'like', '%' . request('search') . '%')
+                  ->orWhere('address', 'like', '%' . request('search') . '%');
+            });
+        }
+
+        // Handle export
+        if (request('export') === 'excel') {
+            return $this->exportShopsToExcel($query->get());
+        }
+
+        $shops = $query->orderBy('created_at', 'desc')->paginate(20);
         return view('super.shops.index', compact('shops'));
     }
 
@@ -117,7 +160,34 @@ class SuperDashboardController extends Controller
 
     public function models()
     {
-        $models = Models::orderBy('created_at', 'desc')->paginate(50);
+        $query = Models::query();
+
+        // Apply filters
+        if (request('search')) {
+            $query->where(function($q) {
+                $q->where('model', 'like', '%' . request('search') . '%')
+                  ->orWhere('SKU', 'like', '%' . request('search') . '%');
+            });
+        }
+
+        if (request('stars')) {
+            $query->where('stars', request('stars'));
+        }
+
+        if (request('source')) {
+            $query->where('source', request('source'));
+        }
+
+        if (request('semi_or_no')) {
+            $query->where('semi_or_no', request('semi_or_no'));
+        }
+
+        // Handle export
+        if (request('export') === 'excel') {
+            return $this->exportModelsToExcel($query->get());
+        }
+
+        $models = $query->orderBy('created_at', 'desc')->paginate(50);
         return view('super.models.index', compact('models'));
     }
 
@@ -143,6 +213,19 @@ class SuperDashboardController extends Controller
 
         if (request('status')) {
             $query->where('status', request('status'));
+        }
+
+        if (request('weight_min')) {
+            $query->where('weight', '>=', request('weight_min'));
+        }
+
+        if (request('weight_max')) {
+            $query->where('weight', '<=', request('weight_max'));
+        }
+
+        // Handle export
+        if (request('export') === 'excel') {
+            return $this->exportGoldItemsToExcel($query->get());
         }
 
         $goldItems = $query->orderBy('created_at', 'desc')->paginate(50);
@@ -181,6 +264,11 @@ class SuperDashboardController extends Controller
             $query->where('price', '>=', request('min_price'));
         }
 
+        // Handle export
+        if (request('export') === 'excel') {
+            return $this->exportSoldItemsToExcel($query->get());
+        }
+
         $soldItems = $query->orderBy('sold_date', 'desc')->paginate(50);
         
         // Calculate today's sales count separately
@@ -191,17 +279,95 @@ class SuperDashboardController extends Controller
 
     public function requests()
     {
-        $addRequests = AddRequest::orderByRaw("CASE WHEN status = 'pending' THEN 0 ELSE 1 END, created_at DESC")->paginate(20);
-        $transferRequests = TransferRequest::with(['goldItem', 'fromShop', 'toShop'])
-            ->orderByRaw("CASE WHEN status = 'pending' THEN 0 ELSE 1 END, created_at DESC")->paginate(20);
-        $saleRequests = SaleRequest::with(['goldItem', 'customer'])
-            ->orderByRaw("CASE WHEN status = 'pending' THEN 0 ELSE 1 END, created_at DESC")->paginate(20);
-        $poundRequests = PoundRequest::with(['goldPound', 'shop'])
-            ->orderByRaw("CASE WHEN status = 'pending' THEN 0 ELSE 1 END, created_at DESC")->paginate(20);
+        // Helper function to apply common filters
+        $applyFilters = function($query) {
+            if (request('search')) {
+                $query->where(function($q) {
+                    $q->where('serial_number', 'like', '%' . request('search') . '%')
+                      ->orWhere('model', 'like', '%' . request('search') . '%');
+                });
+            }
+
+            if (request('shop')) {
+                $query->where('shop_name', request('shop'));
+            }
+
+            if (request('status')) {
+                $query->where('status', request('status'));
+            }
+
+            if (request('date_from')) {
+                $query->whereDate('created_at', '>=', request('date_from'));
+            }
+
+            if (request('date_to')) {
+                $query->whereDate('created_at', '<=', request('date_to'));
+            }
+        };
+
+        // Handle export requests
+        if (request('export')) {
+            return $this->handleRequestsExport(request('export'));
+        }
+
+        // Apply filters to each request type
+        $addRequestsQuery = AddRequest::query();
+        $applyFilters($addRequestsQuery);
+        $addRequests = $addRequestsQuery->orderByRaw("CASE WHEN status = 'pending' THEN 0 ELSE 1 END, created_at DESC")->paginate(20);
+
+        $transferRequestsQuery = TransferRequest::with(['goldItem', 'fromShop', 'toShop']);
+        $applyFilters($transferRequestsQuery);
+        $transferRequests = $transferRequestsQuery->orderByRaw("CASE WHEN status = 'pending' THEN 0 ELSE 1 END, created_at DESC")->paginate(20);
+
+        $saleRequestsQuery = SaleRequest::with(['goldItem', 'customer']);
+        if (request('search')) {
+            $saleRequestsQuery->where(function($q) {
+                $q->where('item_serial_number', 'like', '%' . request('search') . '%')
+                  ->orWhereHas('customer', function($customerQuery) {
+                      $customerQuery->where('first_name', 'like', '%' . request('search') . '%')
+                                   ->orWhere('last_name', 'like', '%' . request('search') . '%');
+                  });
+            });
+        }
+        if (request('shop')) {
+            $saleRequestsQuery->where('shop_name', request('shop'));
+        }
+        if (request('status')) {
+            $saleRequestsQuery->where('status', request('status'));
+        }
+        if (request('date_from')) {
+            $saleRequestsQuery->whereDate('created_at', '>=', request('date_from'));
+        }
+        if (request('date_to')) {
+            $saleRequestsQuery->whereDate('created_at', '<=', request('date_to'));
+        }
+        $saleRequests = $saleRequestsQuery->orderByRaw("CASE WHEN status = 'pending' THEN 0 ELSE 1 END, created_at DESC")->paginate(20);
+
+        $poundRequestsQuery = PoundRequest::with(['goldPound', 'shop']);
+        $applyFilters($poundRequestsQuery);
+        $poundRequests = $poundRequestsQuery->orderByRaw("CASE WHEN status = 'pending' THEN 0 ELSE 1 END, created_at DESC")->paginate(20);
         
         // Add transfer request history
-        $transferRequestHistory = \App\Models\TransferRequestHistory::with(['fromShop', 'toShop', 'modelDetails'])
-            ->orderBy('created_at', 'desc')->paginate(20);
+        $transferRequestHistoryQuery = \App\Models\TransferRequestHistory::with(['fromShop', 'toShop', 'modelDetails']);
+        if (request('search')) {
+            $transferRequestHistoryQuery->where(function($q) {
+                $q->where('serial_number', 'like', '%' . request('search') . '%')
+                  ->orWhere('model', 'like', '%' . request('search') . '%');
+            });
+        }
+        if (request('shop')) {
+            $transferRequestHistoryQuery->where(function($q) {
+                $q->where('from_shop_name', request('shop'))
+                  ->orWhere('to_shop_name', request('shop'));
+            });
+        }
+        if (request('date_from')) {
+            $transferRequestHistoryQuery->whereDate('created_at', '>=', request('date_from'));
+        }
+        if (request('date_to')) {
+            $transferRequestHistoryQuery->whereDate('created_at', '<=', request('date_to'));
+        }
+        $transferRequestHistory = $transferRequestHistoryQuery->orderBy('created_at', 'desc')->paginate(20);
 
         return view('super.requests.index', compact(
             'addRequests', 
@@ -317,8 +483,38 @@ class SuperDashboardController extends Controller
     // === ORDER MANAGEMENT METHODS ===
     public function orders()
     {
-        $orders = Order::with(['shop', 'items'])
-            ->orderByRaw("CASE WHEN status = 'pending' THEN 0 WHEN status = 'in_progress' THEN 1 ELSE 2 END, created_at DESC")
+        $query = Order::with(['shop', 'items']);
+
+        // Apply filters
+        if (request('search')) {
+            $query->where(function($q) {
+                $q->where('order_number', 'like', '%' . request('search') . '%')
+                  ->orWhere('customer_name', 'like', '%' . request('search') . '%');
+            });
+        }
+
+        if (request('shop')) {
+            $query->where('shop_id', request('shop'));
+        }
+
+        if (request('status')) {
+            $query->where('status', request('status'));
+        }
+
+        if (request('date_from')) {
+            $query->whereDate('order_date', '>=', request('date_from'));
+        }
+
+        if (request('date_to')) {
+            $query->whereDate('order_date', '<=', request('date_to'));
+        }
+
+        // Handle export
+        if (request('export') === 'excel') {
+            return $this->exportOrdersToExcel($query->get());
+        }
+
+        $orders = $query->orderByRaw("CASE WHEN status = 'pending' THEN 0 WHEN status = 'in_progress' THEN 1 ELSE 2 END, created_at DESC")
             ->paginate(20);
         
         // Calculate status counts separately
@@ -411,6 +607,15 @@ class SuperDashboardController extends Controller
             $query->whereDate('order_date', request('date'));
         }
 
+        if (request('min_price')) {
+            $query->where('offered_price', '>=', request('min_price'));
+        }
+
+        // Handle export
+        if (request('export') === 'excel') {
+            return $this->exportKasrSalesToExcel($query->get());
+        }
+
         $kasrSales = $query->orderByRaw("CASE WHEN status = 'pending' THEN 0 ELSE 1 END, created_at DESC")->paginate(20);
         
         // Calculate status counts separately
@@ -442,5 +647,605 @@ class SuperDashboardController extends Controller
     {
         $goldPrices = GoldPrice::latest()->first();
         return view('super.settings', compact('goldPrices'));
+    }
+
+    // === EXPORT METHODS ===
+    
+    private function exportUsersToExcel($users)
+    {
+        $spreadsheet = new Spreadsheet();
+        $sheet = $spreadsheet->getActiveSheet();
+        
+        // Set headers
+        $headers = ['ID', 'Name', 'Email', 'User Type', 'Shop Name', 'Created At'];
+        $sheet->fromArray($headers, null, 'A1');
+        
+        // Style headers
+        $headerStyle = [
+            'font' => ['bold' => true, 'color' => ['rgb' => 'FFFFFF']],
+            'fill' => ['fillType' => Fill::FILL_SOLID, 'startColor' => ['rgb' => '667eea']],
+            'alignment' => ['horizontal' => Alignment::HORIZONTAL_CENTER]
+        ];
+        $sheet->getStyle('A1:F1')->applyFromArray($headerStyle);
+        
+        // Add data
+        $row = 2;
+        foreach ($users as $user) {
+            $sheet->setCellValue('A' . $row, $user->id);
+            $sheet->setCellValue('B' . $row, $user->name);
+            $sheet->setCellValue('C' . $row, $user->email);
+            $sheet->setCellValue('D' . $row, $user->usertype);
+            $sheet->setCellValue('E' . $row, $user->shop_name);
+            $sheet->setCellValue('F' . $row, $user->created_at->format('Y-m-d H:i:s'));
+            $row++;
+        }
+        
+        // Auto-size columns
+        foreach (range('A', 'F') as $col) {
+            $sheet->getColumnDimension($col)->setAutoSize(true);
+        }
+        
+        return $this->downloadExcel($spreadsheet, 'users_' . now()->format('Y-m-d_H-i-s') . '.xlsx');
+    }
+    
+    private function exportShopsToExcel($shops)
+    {
+        $spreadsheet = new Spreadsheet();
+        $sheet = $spreadsheet->getActiveSheet();
+        
+        // Set headers
+        $headers = ['ID', 'Name', 'Address', 'Users Count', 'Created At'];
+        $sheet->fromArray($headers, null, 'A1');
+        
+        // Style headers
+        $headerStyle = [
+            'font' => ['bold' => true, 'color' => ['rgb' => 'FFFFFF']],
+            'fill' => ['fillType' => Fill::FILL_SOLID, 'startColor' => ['rgb' => '667eea']],
+            'alignment' => ['horizontal' => Alignment::HORIZONTAL_CENTER]
+        ];
+        $sheet->getStyle('A1:E1')->applyFromArray($headerStyle);
+        
+        // Add data
+        $row = 2;
+        foreach ($shops as $shop) {
+            $sheet->setCellValue('A' . $row, $shop->id);
+            $sheet->setCellValue('B' . $row, $shop->name);
+            $sheet->setCellValue('C' . $row, $shop->address);
+            $sheet->setCellValue('D' . $row, $shop->users->count());
+            $sheet->setCellValue('E' . $row, $shop->created_at->format('Y-m-d H:i:s'));
+            $row++;
+        }
+        
+        // Auto-size columns
+        foreach (range('A', 'E') as $col) {
+            $sheet->getColumnDimension($col)->setAutoSize(true);
+        }
+        
+        return $this->downloadExcel($spreadsheet, 'shops_' . now()->format('Y-m-d_H-i-s') . '.xlsx');
+    }
+    
+    private function exportModelsToExcel($models)
+    {
+        $spreadsheet = new Spreadsheet();
+        $sheet = $spreadsheet->getActiveSheet();
+        
+        // Set headers
+        $headers = ['ID', 'Model', 'SKU', 'Stars', 'Source', 'First Production', 'Semi/No', 'Average of Stones', 'Created At'];
+        $sheet->fromArray($headers, null, 'A1');
+        
+        // Style headers
+        $headerStyle = [
+            'font' => ['bold' => true, 'color' => ['rgb' => 'FFFFFF']],
+            'fill' => ['fillType' => Fill::FILL_SOLID, 'startColor' => ['rgb' => '667eea']],
+            'alignment' => ['horizontal' => Alignment::HORIZONTAL_CENTER]
+        ];
+        $sheet->getStyle('A1:I1')->applyFromArray($headerStyle);
+        
+        // Add data
+        $row = 2;
+        foreach ($models as $model) {
+            $sheet->setCellValue('A' . $row, $model->id);
+            $sheet->setCellValue('B' . $row, $model->model);
+            $sheet->setCellValue('C' . $row, $model->SKU);
+            $sheet->setCellValue('D' . $row, $model->stars);
+            $sheet->setCellValue('E' . $row, $model->source);
+            $sheet->setCellValue('F' . $row, $model->first_production);
+            $sheet->setCellValue('G' . $row, $model->semi_or_no);
+            $sheet->setCellValue('H' . $row, $model->average_of_stones);
+            $sheet->setCellValue('I' . $row, $model->created_at->format('Y-m-d H:i:s'));
+            $row++;
+        }
+        
+        // Auto-size columns
+        foreach (range('A', 'I') as $col) {
+            $sheet->getColumnDimension($col)->setAutoSize(true);
+        }
+        
+        return $this->downloadExcel($spreadsheet, 'models_' . now()->format('Y-m-d_H-i-s') . '.xlsx');
+    }
+    
+    private function exportGoldItemsToExcel($goldItems)
+    {
+        $spreadsheet = new Spreadsheet();
+        $sheet = $spreadsheet->getActiveSheet();
+        
+        // Set headers
+        $headers = ['ID', 'Serial Number', 'Model', 'Kind', 'Shop', 'Weight', 'Gold Color', 'Metal Type', 'Metal Purity', 'Quantity', 'Status', 'Created At'];
+        $sheet->fromArray($headers, null, 'A1');
+        
+        // Style headers
+        $headerStyle = [
+            'font' => ['bold' => true, 'color' => ['rgb' => 'FFFFFF']],
+            'fill' => ['fillType' => Fill::FILL_SOLID, 'startColor' => ['rgb' => '667eea']],
+            'alignment' => ['horizontal' => Alignment::HORIZONTAL_CENTER]
+        ];
+        $sheet->getStyle('A1:L1')->applyFromArray($headerStyle);
+        
+        // Add data
+        $row = 2;
+        foreach ($goldItems as $item) {
+            $sheet->setCellValue('A' . $row, $item->id);
+            $sheet->setCellValue('B' . $row, $item->serial_number);
+            $sheet->setCellValue('C' . $row, $item->model);
+            $sheet->setCellValue('D' . $row, $item->kind);
+            $sheet->setCellValue('E' . $row, $item->shop_name);
+            $sheet->setCellValue('F' . $row, $item->weight);
+            $sheet->setCellValue('G' . $row, $item->gold_color);
+            $sheet->setCellValue('H' . $row, $item->metal_type);
+            $sheet->setCellValue('I' . $row, $item->metal_purity);
+            $sheet->setCellValue('J' . $row, $item->quantity);
+            $sheet->setCellValue('K' . $row, $item->status);
+            $sheet->setCellValue('L' . $row, $item->created_at->format('Y-m-d H:i:s'));
+            $row++;
+        }
+        
+        // Auto-size columns
+        foreach (range('A', 'L') as $col) {
+            $sheet->getColumnDimension($col)->setAutoSize(true);
+        }
+        
+        return $this->downloadExcel($spreadsheet, 'gold_items_' . now()->format('Y-m-d_H-i-s') . '.xlsx');
+    }
+    
+    private function exportSoldItemsToExcel($soldItems)
+    {
+        $spreadsheet = new Spreadsheet();
+        $sheet = $spreadsheet->getActiveSheet();
+        
+        // Set headers
+        $headers = ['ID', 'Serial Number', 'Model', 'Shop', 'Customer Name', 'Customer Phone', 'Price', 'Weight', 'Payment Method', 'Sold Date'];
+        $sheet->fromArray($headers, null, 'A1');
+        
+        // Style headers
+        $headerStyle = [
+            'font' => ['bold' => true, 'color' => ['rgb' => 'FFFFFF']],
+            'fill' => ['fillType' => Fill::FILL_SOLID, 'startColor' => ['rgb' => '667eea']],
+            'alignment' => ['horizontal' => Alignment::HORIZONTAL_CENTER]
+        ];
+        $sheet->getStyle('A1:J1')->applyFromArray($headerStyle);
+        
+        // Add data
+        $row = 2;
+        foreach ($soldItems as $item) {
+            $customerName = '';
+            $customerPhone = '';
+            if ($item->customer) {
+                $customerName = $item->customer->first_name . ' ' . $item->customer->last_name;
+                $customerPhone = $item->customer->phone_number;
+            }
+            
+            $sheet->setCellValue('A' . $row, $item->id);
+            $sheet->setCellValue('B' . $row, $item->serial_number);
+            $sheet->setCellValue('C' . $row, $item->model);
+            $sheet->setCellValue('D' . $row, $item->shop_name);
+            $sheet->setCellValue('E' . $row, $customerName);
+            $sheet->setCellValue('F' . $row, $customerPhone);
+            $sheet->setCellValue('G' . $row, $item->price);
+            $sheet->setCellValue('H' . $row, $item->weight);
+            $sheet->setCellValue('I' . $row, $item->payment_method);
+            $sheet->setCellValue('J' . $row, $item->sold_date );
+            $row++;
+        }
+        
+        // Auto-size columns
+        foreach (range('A', 'J') as $col) {
+            $sheet->getColumnDimension($col)->setAutoSize(true);
+        }
+        
+        return $this->downloadExcel($spreadsheet, 'sold_items_' . now()->format('Y-m-d_H-i-s') . '.xlsx');
+    }
+    
+    private function handleRequestsExport($exportType)
+    {
+        switch($exportType) {
+            case 'add_requests':
+                $query = AddRequest::query();
+                $this->applyRequestFilters($query);
+                return $this->exportAddRequestsToExcel($query->get());
+            
+            case 'transfer_requests':
+                $query = TransferRequest::with(['goldItem', 'fromShop', 'toShop']);
+                $this->applyRequestFilters($query);
+                return $this->exportTransferRequestsToExcel($query->get());
+            
+            case 'sale_requests':
+                $query = SaleRequest::with(['goldItem', 'customer']);
+                $this->applySaleRequestFilters($query);
+                return $this->exportSaleRequestsToExcel($query->get());
+            
+            case 'pound_requests':
+                $query = PoundRequest::with(['goldPound', 'shop']);
+                $this->applyRequestFilters($query);
+                return $this->exportPoundRequestsToExcel($query->get());
+            
+            case 'transfer_history':
+                $query = \App\Models\TransferRequestHistory::with(['fromShop', 'toShop', 'modelDetails']);
+                $this->applyTransferHistoryFilters($query);
+                return $this->exportTransferHistoryToExcel($query->get());
+            
+            default:
+                return back()->withErrors('Invalid export type');
+        }
+    }
+    
+    private function applyRequestFilters($query)
+    {
+        if (request('search')) {
+            $query->where(function($q) {
+                $q->where('serial_number', 'like', '%' . request('search') . '%')
+                  ->orWhere('model', 'like', '%' . request('search') . '%');
+            });
+        }
+        if (request('shop')) {
+            $query->where('shop_name', request('shop'));
+        }
+        if (request('status')) {
+            $query->where('status', request('status'));
+        }
+        if (request('date_from')) {
+            $query->whereDate('created_at', '>=', request('date_from'));
+        }
+        if (request('date_to')) {
+            $query->whereDate('created_at', '<=', request('date_to'));
+        }
+    }
+    
+    private function applySaleRequestFilters($query)
+    {
+        if (request('search')) {
+            $query->where(function($q) {
+                $q->where('item_serial_number', 'like', '%' . request('search') . '%')
+                  ->orWhereHas('customer', function($customerQuery) {
+                      $customerQuery->where('first_name', 'like', '%' . request('search') . '%')
+                                   ->orWhere('last_name', 'like', '%' . request('search') . '%');
+                  });
+            });
+        }
+        if (request('shop')) {
+            $query->where('shop_name', request('shop'));
+        }
+        if (request('status')) {
+            $query->where('status', request('status'));
+        }
+        if (request('date_from')) {
+            $query->whereDate('created_at', '>=', request('date_from'));
+        }
+        if (request('date_to')) {
+            $query->whereDate('created_at', '<=', request('date_to'));
+        }
+    }
+    
+    private function applyTransferHistoryFilters($query)
+    {
+        if (request('search')) {
+            $query->where(function($q) {
+                $q->where('serial_number', 'like', '%' . request('search') . '%')
+                  ->orWhere('model', 'like', '%' . request('search') . '%');
+            });
+        }
+        if (request('shop')) {
+            $query->where(function($q) {
+                $q->where('from_shop_name', request('shop'))
+                  ->orWhere('to_shop_name', request('shop'));
+            });
+        }
+        if (request('date_from')) {
+            $query->whereDate('created_at', '>=', request('date_from'));
+        }
+        if (request('date_to')) {
+            $query->whereDate('created_at', '<=', request('date_to'));
+        }
+    }
+    
+    private function exportAddRequestsToExcel($requests)
+    {
+        $spreadsheet = new Spreadsheet();
+        $sheet = $spreadsheet->getActiveSheet();
+        
+        $headers = ['ID', 'Serial Number', 'Model', 'Shop', 'Kind', 'Weight', 'Status', 'Created At'];
+        $sheet->fromArray($headers, null, 'A1');
+        
+        $headerStyle = [
+            'font' => ['bold' => true, 'color' => ['rgb' => 'FFFFFF']],
+            'fill' => ['fillType' => Fill::FILL_SOLID, 'startColor' => ['rgb' => '667eea']],
+            'alignment' => ['horizontal' => Alignment::HORIZONTAL_CENTER]
+        ];
+        $sheet->getStyle('A1:H1')->applyFromArray($headerStyle);
+        
+        $row = 2;
+        foreach ($requests as $request) {
+            $sheet->setCellValue('A' . $row, $request->id);
+            $sheet->setCellValue('B' . $row, $request->serial_number);
+            $sheet->setCellValue('C' . $row, $request->model);
+            $sheet->setCellValue('D' . $row, $request->shop_name);
+            $sheet->setCellValue('E' . $row, $request->kind);
+            $sheet->setCellValue('F' . $row, $request->weight);
+            $sheet->setCellValue('G' . $row, $request->status);
+            $sheet->setCellValue('H' . $row, $request->created_at->format('Y-m-d H:i:s'));
+            $row++;
+        }
+        
+        foreach (range('A', 'H') as $col) {
+            $sheet->getColumnDimension($col)->setAutoSize(true);
+        }
+        
+        return $this->downloadExcel($spreadsheet, 'add_requests_' . now()->format('Y-m-d_H-i-s') . '.xlsx');
+    }
+    
+    private function exportTransferRequestsToExcel($requests)
+    {
+        $spreadsheet = new Spreadsheet();
+        $sheet = $spreadsheet->getActiveSheet();
+        
+        $headers = ['ID', 'Item Serial', 'Model', 'From Shop', 'To Shop', 'Type', 'Status', 'Created At'];
+        $sheet->fromArray($headers, null, 'A1');
+        
+        $headerStyle = [
+            'font' => ['bold' => true, 'color' => ['rgb' => 'FFFFFF']],
+            'fill' => ['fillType' => Fill::FILL_SOLID, 'startColor' => ['rgb' => '667eea']],
+            'alignment' => ['horizontal' => Alignment::HORIZONTAL_CENTER]
+        ];
+        $sheet->getStyle('A1:H1')->applyFromArray($headerStyle);
+        
+        $row = 2;
+        foreach ($requests as $request) {
+            $sheet->setCellValue('A' . $row, $request->id);
+            $sheet->setCellValue('B' . $row, $request->goldItem ? $request->goldItem->serial_number : 'Pound Transfer');
+            $sheet->setCellValue('C' . $row, $request->goldItem ? $request->goldItem->model : '');
+            $sheet->setCellValue('D' . $row, $request->from_shop_name);
+            $sheet->setCellValue('E' . $row, $request->to_shop_name);
+            $sheet->setCellValue('F' . $row, $request->type);
+            $sheet->setCellValue('G' . $row, $request->status);
+            $sheet->setCellValue('H' . $row, $request->created_at->format('Y-m-d H:i:s'));
+            $row++;
+        }
+        
+        foreach (range('A', 'H') as $col) {
+            $sheet->getColumnDimension($col)->setAutoSize(true);
+        }
+        
+        return $this->downloadExcel($spreadsheet, 'transfer_requests_' . now()->format('Y-m-d_H-i-s') . '.xlsx');
+    }
+    
+    private function exportSaleRequestsToExcel($requests)
+    {
+        $spreadsheet = new Spreadsheet();
+        $sheet = $spreadsheet->getActiveSheet();
+        
+        $headers = ['ID', 'Item Serial', 'Shop', 'Customer Name', 'Customer Phone', 'Price', 'Payment Method', 'Status', 'Created At'];
+        $sheet->fromArray($headers, null, 'A1');
+        
+        $headerStyle = [
+            'font' => ['bold' => true, 'color' => ['rgb' => 'FFFFFF']],
+            'fill' => ['fillType' => Fill::FILL_SOLID, 'startColor' => ['rgb' => '667eea']],
+            'alignment' => ['horizontal' => Alignment::HORIZONTAL_CENTER]
+        ];
+        $sheet->getStyle('A1:I1')->applyFromArray($headerStyle);
+        
+        $row = 2;
+        foreach ($requests as $request) {
+            $customerName = '';
+            $customerPhone = '';
+            if ($request->customer) {
+                $customerName = $request->customer->first_name . ' ' . $request->customer->last_name;
+                $customerPhone = $request->customer->phone_number;
+            } else {
+                $customerName = $request->customer_first_name . ' ' . $request->customer_last_name;
+                $customerPhone = $request->customer_phone;
+            }
+            
+            $sheet->setCellValue('A' . $row, $request->id);
+            $sheet->setCellValue('B' . $row, $request->item_serial_number);
+            $sheet->setCellValue('C' . $row, $request->shop_name);
+            $sheet->setCellValue('D' . $row, $customerName);
+            $sheet->setCellValue('E' . $row, $customerPhone);
+            $sheet->setCellValue('F' . $row, $request->price);
+            $sheet->setCellValue('G' . $row, $request->payment_method);
+            $sheet->setCellValue('H' . $row, $request->status);
+            $sheet->setCellValue('I' . $row, $request->created_at->format('Y-m-d H:i:s'));
+            $row++;
+        }
+        
+        foreach (range('A', 'I') as $col) {
+            $sheet->getColumnDimension($col)->setAutoSize(true);
+        }
+        
+        return $this->downloadExcel($spreadsheet, 'sale_requests_' . now()->format('Y-m-d_H-i-s') . '.xlsx');
+    }
+    
+    private function exportPoundRequestsToExcel($requests)
+    {
+        $spreadsheet = new Spreadsheet();
+        $sheet = $spreadsheet->getActiveSheet();
+        
+        $headers = ['ID', 'Serial Number', 'Shop', 'Type', 'Weight', 'Quantity', 'Status', 'Created At'];
+        $sheet->fromArray($headers, null, 'A1');
+        
+        $headerStyle = [
+            'font' => ['bold' => true, 'color' => ['rgb' => 'FFFFFF']],
+            'fill' => ['fillType' => Fill::FILL_SOLID, 'startColor' => ['rgb' => '667eea']],
+            'alignment' => ['horizontal' => Alignment::HORIZONTAL_CENTER]
+        ];
+        $sheet->getStyle('A1:H1')->applyFromArray($headerStyle);
+        
+        $row = 2;
+        foreach ($requests as $request) {
+            $sheet->setCellValue('A' . $row, $request->id);
+            $sheet->setCellValue('B' . $row, $request->serial_number);
+            $sheet->setCellValue('C' . $row, $request->shop_name);
+            $sheet->setCellValue('D' . $row, $request->type);
+            $sheet->setCellValue('E' . $row, $request->weight);
+            $sheet->setCellValue('F' . $row, $request->quantity);
+            $sheet->setCellValue('G' . $row, $request->status);
+            $sheet->setCellValue('H' . $row, $request->created_at->format('Y-m-d H:i:s'));
+            $row++;
+        }
+        
+        foreach (range('A', 'H') as $col) {
+            $sheet->getColumnDimension($col)->setAutoSize(true);
+        }
+        
+        return $this->downloadExcel($spreadsheet, 'pound_requests_' . now()->format('Y-m-d_H-i-s') . '.xlsx');
+    }
+    
+    private function exportTransferHistoryToExcel($history)
+    {
+        $spreadsheet = new Spreadsheet();
+        $sheet = $spreadsheet->getActiveSheet();
+        
+        $headers = ['ID', 'Serial Number', 'Model', 'Kind', 'From Shop', 'To Shop', 'Weight', 'Status', 'Transfer Date', 'Sold Date'];
+        $sheet->fromArray($headers, null, 'A1');
+        
+        $headerStyle = [
+            'font' => ['bold' => true, 'color' => ['rgb' => 'FFFFFF']],
+            'fill' => ['fillType' => Fill::FILL_SOLID, 'startColor' => ['rgb' => '667eea']],
+            'alignment' => ['horizontal' => Alignment::HORIZONTAL_CENTER]
+        ];
+        $sheet->getStyle('A1:J1')->applyFromArray($headerStyle);
+        
+        $row = 2;
+        foreach ($history as $item) {
+            $sheet->setCellValue('A' . $row, $item->id);
+            $sheet->setCellValue('B' . $row, $item->serial_number);
+            $sheet->setCellValue('C' . $row, $item->model);
+            $sheet->setCellValue('D' . $row, $item->kind);
+            $sheet->setCellValue('E' . $row, $item->from_shop_name);
+            $sheet->setCellValue('F' . $row, $item->to_shop_name);
+            $sheet->setCellValue('G' . $row, $item->weight);
+            $sheet->setCellValue('H' . $row, $item->status);
+            $sheet->setCellValue('I' . $row, $item->transfer_completed_at ? $item->transfer_completed_at->format('Y-m-d H:i:s') : '');
+            $sheet->setCellValue('J' . $row, $item->item_sold_at ? $item->item_sold_at->format('Y-m-d H:i:s') : '');
+            $row++;
+        }
+        
+        foreach (range('A', 'J') as $col) {
+            $sheet->getColumnDimension($col)->setAutoSize(true);
+        }
+        
+        return $this->downloadExcel($spreadsheet, 'transfer_history_' . now()->format('Y-m-d_H-i-s') . '.xlsx');
+    }
+    
+    private function downloadExcel($spreadsheet, $filename)
+    {
+        $writer = new Xlsx($spreadsheet);
+        
+        // Set headers for download
+        header('Content-Type: application/vnd.openxmlformats-officedocument.spreadsheetml.sheet');
+        header('Content-Disposition: attachment;filename="' . $filename . '"');
+        header('Cache-Control: max-age=0');
+        
+        // Save to output
+        $writer->save('php://output');
+        exit;
+    }
+    
+    private function exportOrdersToExcel($orders)
+    {
+        $spreadsheet = new Spreadsheet();
+        $sheet = $spreadsheet->getActiveSheet();
+        
+        // Set headers
+        $headers = ['ID', 'Order Number', 'Customer Name', 'Customer Phone', 'Shop', 'Seller', 'Order Details', 'Deposit', 'Rest of Cost', 'Total Cost', 'Order Date', 'Deliver Date', 'Payment Method', 'Status', 'Created At'];
+        $sheet->fromArray($headers, null, 'A1');
+        
+        // Style headers
+        $headerStyle = [
+            'font' => ['bold' => true, 'color' => ['rgb' => 'FFFFFF']],
+            'fill' => ['fillType' => Fill::FILL_SOLID, 'startColor' => ['rgb' => '667eea']],
+            'alignment' => ['horizontal' => Alignment::HORIZONTAL_CENTER]
+        ];
+        $sheet->getStyle('A1:O1')->applyFromArray($headerStyle);
+        
+        // Add data
+        $row = 2;
+        foreach ($orders as $order) {
+            $totalCost = $order->deposit + $order->rest_of_cost;
+            
+            $sheet->setCellValue('A' . $row, $order->id);
+            $sheet->setCellValue('B' . $row, $order->order_number);
+            $sheet->setCellValue('C' . $row, $order->customer_name);
+            $sheet->setCellValue('D' . $row, $order->customer_phone);
+            $sheet->setCellValue('E' . $row, $order->shop ? $order->shop->name : 'N/A');
+            $sheet->setCellValue('F' . $row, $order->seller_name);
+            $sheet->setCellValue('G' . $row, $order->order_details);
+            $sheet->setCellValue('H' . $row, $order->deposit);
+            $sheet->setCellValue('I' . $row, $order->rest_of_cost);
+            $sheet->setCellValue('J' . $row, $totalCost);
+            $sheet->setCellValue('K' . $row, $order->order_date ? $order->order_date->format('Y-m-d') : '');
+            $sheet->setCellValue('L' . $row, $order->deliver_date ? $order->deliver_date->format('Y-m-d') : '');
+            $sheet->setCellValue('M' . $row, $order->payment_method);
+            $sheet->setCellValue('N' . $row, $order->status);
+            $sheet->setCellValue('O' . $row, $order->created_at->format('Y-m-d H:i:s'));
+            $row++;
+        }
+        
+        // Auto-size columns
+        foreach (range('A', 'O') as $col) {
+            $sheet->getColumnDimension($col)->setAutoSize(true);
+        }
+        
+        return $this->downloadExcel($spreadsheet, 'orders_' . now()->format('Y-m-d_H-i-s') . '.xlsx');
+    }
+    
+    private function exportKasrSalesToExcel($kasrSales)
+    {
+        $spreadsheet = new Spreadsheet();
+        $sheet = $spreadsheet->getActiveSheet();
+        
+        // Set headers
+        $headers = ['ID', 'Customer Name', 'Customer Phone', 'Shop', 'Items Count', 'Total Weight', 'Net Weight', 'Offered Price', 'Status', 'Order Date', 'Created At'];
+        $sheet->fromArray($headers, null, 'A1');
+        
+        // Style headers
+        $headerStyle = [
+            'font' => ['bold' => true, 'color' => ['rgb' => 'FFFFFF']],
+            'fill' => ['fillType' => Fill::FILL_SOLID, 'startColor' => ['rgb' => '667eea']],
+            'alignment' => ['horizontal' => Alignment::HORIZONTAL_CENTER]
+        ];
+        $sheet->getStyle('A1:K1')->applyFromArray($headerStyle);
+        
+        // Add data
+        $row = 2;
+        foreach ($kasrSales as $sale) {
+            $sheet->setCellValue('A' . $row, $sale->id);
+            $sheet->setCellValue('B' . $row, $sale->customer_name);
+            $sheet->setCellValue('C' . $row, $sale->customer_phone);
+            $sheet->setCellValue('D' . $row, $sale->shop_name);
+            $sheet->setCellValue('E' . $row, $sale->items ? $sale->items->count() : 0);
+            $sheet->setCellValue('F' . $row, method_exists($sale, 'getTotalWeight') ? $sale->getTotalWeight() : 0);
+            $sheet->setCellValue('G' . $row, method_exists($sale, 'getTotalNetWeight') ? $sale->getTotalNetWeight() : 0);
+            $sheet->setCellValue('H' . $row, $sale->offered_price);
+            $sheet->setCellValue('I' . $row, $sale->status);
+            $sheet->setCellValue('J' . $row, $sale->order_date ? $sale->order_date->format('Y-m-d H:i:s') : '');
+            $sheet->setCellValue('K' . $row, $sale->created_at->format('Y-m-d H:i:s'));
+            $row++;
+        }
+        
+        // Auto-size columns
+        foreach (range('A', 'K') as $col) {
+            $sheet->getColumnDimension($col)->setAutoSize(true);
+        }
+        
+        return $this->downloadExcel($spreadsheet, 'kasr_sales_' . now()->format('Y-m-d_H-i-s') . '.xlsx');
     }
 } 

@@ -48,13 +48,68 @@
             </div>
         </div>
 
+        <!-- Filters -->
+        <div class="row mb-4">
+            <div class="col-12">
+                <div class="card">
+                    <div class="card-body">
+                        <form method="GET" action="{{ route('super.users') }}">
+                            <div class="row g-3">
+                                <div class="col-md-4">
+                                    <label class="form-label">Search Name/Email</label>
+                                    <input type="text" class="form-control" name="search" value="{{ request('search') }}" placeholder="Search by name or email...">
+                                </div>
+                                <div class="col-md-3">
+                                    <label class="form-label">User Type</label>
+                                    <select class="form-select" name="usertype">
+                                        <option value="">All Types</option>
+                                        <option value="super" {{ request('usertype') == 'super' ? 'selected' : '' }}>Super</option>
+                                        <option value="admin" {{ request('usertype') == 'admin' ? 'selected' : '' }}>Admin</option>
+                                        <option value="user" {{ request('usertype') == 'user' ? 'selected' : '' }}>User</option>
+                                        <option value="rabea" {{ request('usertype') == 'rabea' ? 'selected' : '' }}>Rabea</option>
+                                        <option value="Acc" {{ request('usertype') == 'Acc' ? 'selected' : '' }}>Acc</option>
+                                    </select>
+                                </div>
+                                <div class="col-md-3">
+                                    <label class="form-label">Shop</label>
+                                    <select class="form-select" name="shop_name">
+                                        <option value="">All Shops</option>
+                                        @foreach(\App\Models\Shop::all() as $shop)
+                                            <option value="{{ $shop->name }}" {{ request('shop_name') == $shop->name ? 'selected' : '' }}>
+                                                {{ $shop->name }}
+                                            </option>
+                                        @endforeach
+                                    </select>
+                                </div>
+                                <div class="col-md-2">
+                                    <label class="form-label">&nbsp;</label>
+                                    <div class="d-flex gap-2">
+                                        <button type="submit" class="btn btn-primary">
+                                            <i class="bx bx-search me-1"></i>Filter
+                                        </button>
+                                        <a href="{{ route('super.users') }}" class="btn btn-outline-secondary">
+                                            <i class="bx bx-refresh me-1"></i>Reset
+                                        </a>
+                                    </div>
+                                </div>
+                            </div>
+                        </form>
+                    </div>
+                </div>
+            </div>
+        </div>
+
         <!-- Users Table -->
         <div class="row">
             <div class="col-12">
                 <div class="card user-card">
                     <div class="card-header bg-white d-flex justify-content-between align-items-center">
                         <h5 class="card-title mb-0"><i class="bx bx-users me-2"></i>All Users</h5>
-                        <div>
+                        <div class="d-flex align-items-center gap-2">
+                            <a href="{{ route('super.users') }}?{{ http_build_query(request()->query()) }}&export=excel" 
+                               class="btn btn-outline-success btn-sm">
+                                <i class="bx bx-export me-1"></i>Export
+                            </a>
                             <span class="badge bg-info fs-6">Total: {{ $users->total() }}</span>
                         </div>
                     </div>

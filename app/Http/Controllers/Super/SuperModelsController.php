@@ -11,7 +11,29 @@ class SuperModelsController extends Controller
 {
     public function index()
     {
-        $models = Models::orderBy('created_at', 'desc')->paginate(20);
+        $query = Models::query();
+
+        // Apply filters
+        if (request('search')) {
+            $query->where(function($q) {
+                $q->where('model', 'like', '%' . request('search') . '%')
+                  ->orWhere('SKU', 'like', '%' . request('search') . '%');
+            });
+        }
+
+        if (request('stars')) {
+            $query->where('stars', request('stars'));
+        }
+
+        if (request('source')) {
+            $query->where('source', request('source'));
+        }
+
+        if (request('semi_or_no')) {
+            $query->where('semi_or_no', request('semi_or_no'));
+        }
+
+        $models = $query->orderBy('created_at', 'desc')->paginate(20);
         return view('super.models.index', compact('models'));
     }
 

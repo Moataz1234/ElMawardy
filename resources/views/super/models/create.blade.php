@@ -114,23 +114,23 @@
                                     @enderror
                                 </div>
 
-                                <!-- Scanned Image URL -->
+                                <!-- Scanned Image Upload -->
                                 <div class="col-md-6">
-                                    <label for="scanned_image" class="form-label">Scanned Image URL</label>
-                                    <input type="url" class="form-control @error('scanned_image') is-invalid @enderror" 
-                                           id="scanned_image" name="scanned_image" value="{{ old('scanned_image') }}" 
-                                           placeholder="https://example.com/image.jpg">
+                                    <label for="scanned_image" class="form-label">Scanned Image</label>
+                                    <input type="file" class="form-control @error('scanned_image') is-invalid @enderror" 
+                                           id="scanned_image" name="scanned_image" accept="image/*">
+                                    <div class="form-text">Accepted formats: JPEG, PNG, JPG, GIF (Max: 2MB)</div>
                                     @error('scanned_image')
                                         <div class="invalid-feedback">{{ $message }}</div>
                                     @enderror
                                 </div>
 
-                                <!-- Website Image URL -->
+                                <!-- Website Image Upload -->
                                 <div class="col-md-6">
-                                    <label for="website_image" class="form-label">Website Image URL</label>
-                                    <input type="url" class="form-control @error('website_image') is-invalid @enderror" 
-                                           id="website_image" name="website_image" value="{{ old('website_image') }}" 
-                                           placeholder="https://example.com/image.jpg">
+                                    <label for="website_image" class="form-label">Website Image</label>
+                                    <input type="file" class="form-control @error('website_image') is-invalid @enderror" 
+                                           id="website_image" name="website_image" accept="image/*">
+                                    <div class="form-text">Accepted formats: JPEG, PNG, JPG, GIF (Max: 2MB)</div>
                                     @error('website_image')
                                         <div class="invalid-feedback">{{ $message }}</div>
                                     @enderror

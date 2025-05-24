@@ -12,7 +12,12 @@
         body {
             background-color: #f8f9fa;
         }
-        .request-card {
+        .requests-card {
+            border: none;
+            border-radius: 10px;
+            box-shadow: 0 0.125rem 0.25rem rgba(0, 0, 0, 0.075);
+        }
+        .filter-card {
             border: none;
             border-radius: 10px;
             box-shadow: 0 0.125rem 0.25rem rgba(0, 0, 0, 0.075);
@@ -80,7 +85,7 @@
         <!-- Page Header -->
         <div class="row mb-4">
             <div class="col-12">
-                <h2 class="fw-bold text-dark">All Requests Management</h2>
+                <h2 class="fw-bold text-dark">Requests Management</h2>
                 <nav aria-label="breadcrumb">
                     <ol class="breadcrumb">
                         <li class="breadcrumb-item"><a href="{{ route('super.dashboard') }}" class="text-decoration-none">Dashboard</a></li>
@@ -90,16 +95,121 @@
             </div>
         </div>
 
-        <!-- Tabs Navigation -->
+        <!-- Success/Error Messages -->
+        @if(session('success'))
+            <div class="alert alert-success alert-dismissible fade show" role="alert">
+                <i class="bx bx-check-circle me-2"></i>{{ session('success') }}
+                <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
+            </div>
+        @endif
+
+        <!-- Stats Cards -->
+        <div class="row mb-4">
+            <div class="col-lg-3 col-md-6 mb-3">
+                <div class="card text-center border-0 bg-warning text-dark">
+                    <div class="card-body">
+                        <i class="bx bx-plus display-4"></i>
+                        <h4 class="mt-2">{{ $addRequests->where('status', 'pending')->count() }}</h4>
+                        <p class="mb-0">Pending Add Requests</p>
+                    </div>
+                </div>
+            </div>
+            <div class="col-lg-3 col-md-6 mb-3">
+                <div class="card text-center border-0 bg-info text-white">
+                    <div class="card-body">
+                        <i class="bx bx-transfer display-4"></i>
+                        <h4 class="mt-2">{{ $transferRequests->where('status', 'pending')->count() }}</h4>
+                        <p class="mb-0">Pending Transfer Requests</p>
+                    </div>
+                </div>
+            </div>
+            <div class="col-lg-3 col-md-6 mb-3">
+                <div class="card text-center border-0 bg-success text-white">
+                    <div class="card-body">
+                        <i class="bx bx-dollar display-4"></i>
+                        <h4 class="mt-2">{{ $saleRequests->where('status', 'pending')->count() }}</h4>
+                        <p class="mb-0">Pending Sale Requests</p>
+                    </div>
+                </div>
+            </div>
+            <div class="col-lg-3 col-md-6 mb-3">
+                <div class="card text-center border-0 bg-primary text-white">
+                    <div class="card-body">
+                        <i class="bx bx-coin-stack display-4"></i>
+                        <h4 class="mt-2">{{ $poundRequests->where('status', 'pending')->count() }}</h4>
+                        <p class="mb-0">Pending Pound Requests</p>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Filters -->
+        <div class="row mb-4">
+            <div class="col-12">
+                <div class="card filter-card">
+                    <div class="card-body">
+                        <form method="GET" action="{{ route('super.requests') }}">
+                            <div class="row g-3">
+                                <div class="col-md-3">
+                                    <label class="form-label">Search Serial/Model/Customer</label>
+                                    <input type="text" class="form-control" name="search" value="{{ request('search') }}" placeholder="Search...">
+                                </div>
+                                <div class="col-md-2">
+                                    <label class="form-label">Shop</label>
+                                    <select class="form-select" name="shop">
+                                        <option value="">All Shops</option>
+                                        @foreach(\App\Models\Shop::all() as $shop)
+                                            <option value="{{ $shop->name }}" {{ request('shop') == $shop->name ? 'selected' : '' }}>
+                                                {{ $shop->name }}
+                                            </option>
+                                        @endforeach
+                                    </select>
+                                </div>
+                                <div class="col-md-2">
+                                    <label class="form-label">Status</label>
+                                    <select class="form-select" name="status">
+                                        <option value="">All Status</option>
+                                        <option value="pending" {{ request('status') == 'pending' ? 'selected' : '' }}>Pending</option>
+                                        <option value="approved" {{ request('status') == 'approved' ? 'selected' : '' }}>Approved</option>
+                                        <option value="rejected" {{ request('status') == 'rejected' ? 'selected' : '' }}>Rejected</option>
+                                    </select>
+                                </div>
+                                <div class="col-md-2">
+                                    <label class="form-label">Date From</label>
+                                    <input type="date" class="form-control" name="date_from" value="{{ request('date_from') }}">
+                                </div>
+                                <div class="col-md-2">
+                                    <label class="form-label">Date To</label>
+                                    <input type="date" class="form-control" name="date_to" value="{{ request('date_to') }}">
+                                </div>
+                                <div class="col-md-1">
+                                    <label class="form-label">&nbsp;</label>
+                                    <div class="d-flex flex-column gap-1">
+                                        <button type="submit" class="btn btn-primary btn-sm">
+                                            <i class="bx bx-search"></i>
+                                        </button>
+                                        <a href="{{ route('super.requests') }}" class="btn btn-outline-secondary btn-sm">
+                                            <i class="bx bx-refresh"></i>
+                                        </a>
+                                    </div>
+                                </div>
+                            </div>
+                        </form>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Requests Tables with Tabs -->
         <div class="row">
             <div class="col-12">
-                <div class="card request-card">
+                <div class="card requests-card">
                     <div class="card-header bg-white">
                         <ul class="nav nav-tabs card-header-tabs" id="requestTabs" role="tablist">
                             <li class="nav-item" role="presentation">
                                 <button class="nav-link active" id="add-tab" data-bs-toggle="tab" data-bs-target="#add-requests" type="button" role="tab">
                                     <i class="bx bx-plus me-2"></i>Add Requests
-                                    <span class="badge bg-warning badge-count">{{ $addRequests->total() }}</span>
+                                    <span class="badge bg-secondary badge-count">{{ $addRequests->total() }}</span>
                                 </button>
                             </li>
                             <li class="nav-item" role="presentation">
@@ -110,20 +220,20 @@
                             </li>
                             <li class="nav-item" role="presentation">
                                 <button class="nav-link" id="sale-tab" data-bs-toggle="tab" data-bs-target="#sale-requests" type="button" role="tab">
-                                    <i class="bx bx-money me-2"></i>Sale Requests
+                                    <i class="bx bx-dollar me-2"></i>Sale Requests
                                     <span class="badge bg-success badge-count">{{ $saleRequests->total() }}</span>
                                 </button>
                             </li>
                             <li class="nav-item" role="presentation">
                                 <button class="nav-link" id="pound-tab" data-bs-toggle="tab" data-bs-target="#pound-requests" type="button" role="tab">
                                     <i class="bx bx-coin-stack me-2"></i>Pound Requests
-                                    <span class="badge bg-warning badge-count text-dark">{{ $poundRequests->total() }}</span>
+                                    <span class="badge bg-primary badge-count">{{ $poundRequests->total() }}</span>
                                 </button>
                             </li>
                             <li class="nav-item" role="presentation">
-                                <button class="nav-link" id="transfer-history-tab" data-bs-toggle="tab" data-bs-target="#transfer-history" type="button" role="tab">
+                                <button class="nav-link" id="history-tab" data-bs-toggle="tab" data-bs-target="#transfer-history" type="button" role="tab">
                                     <i class="bx bx-history me-2"></i>Transfer History
-                                    <span class="badge bg-secondary badge-count">{{ $transferRequestHistory->total() }}</span>
+                                    <span class="badge bg-dark badge-count">{{ $transferRequestHistory->total() }}</span>
                                 </button>
                             </li>
                         </ul>
@@ -132,342 +242,62 @@
                         <div class="tab-content" id="requestTabsContent">
                             <!-- Add Requests Tab -->
                             <div class="tab-pane fade show active" id="add-requests" role="tabpanel">
-                                <div class="table-responsive">
-                                    <table class="table table-hover">
-                                        <thead class="table-light">
-                                            <tr>
-                                                <th>ID</th>
-                                                <th>Serial Number</th>
-                                                <th>Model</th>
-                                                <th>Shop</th>
-                                                <th>Kind</th>
-                                                <th>Weight</th>
-                                                <th>Status</th>
-                                                <th>Created</th>
-                                                <th>Actions</th>
-                                            </tr>
-                                        </thead>
-                                        <tbody>
-                                            @foreach($addRequests as $request)
-                                            <tr>
-                                                <td><strong>{{ $request->id }}</strong></td>
-                                                <td>{{ $request->serial_number }}</td>
-                                                <td>{{ $request->model }}</td>
-                                                <td>{{ $request->shop_name }}</td>
-                                                <td>{{ $request->kind }}</td>
-                                                <td>{{ $request->weight }}g</td>
-                                                <td>
-                                                    <span class="badge {{ $request->status == 'pending' ? 'bg-warning text-dark' : ($request->status == 'approved' ? 'bg-success' : 'bg-danger') }}">
-                                                        {{ ucfirst($request->status) }}
-                                                    </span>
-                                                </td>
-                                                <td>{{ $request->created_at->format('M d, Y H:i') }}</td>
-                                                <td>
-                                                    @if($request->status == 'pending')
-                                                    <div class="btn-group" role="group">
-                                                        <form method="POST" action="{{ route('super.handle-request', ['type' => 'add', 'id' => $request->id]) }}" style="display: inline;">
-                                                            @csrf
-                                                            <input type="hidden" name="action" value="approve">
-                                                            <button type="submit" class="btn btn-sm btn-success" onclick="return confirm('Approve this request?')">
-                                                                <i class="bx bx-check"></i> Approve
-                                                            </button>
-                                                        </form>
-                                                        <form method="POST" action="{{ route('super.handle-request', ['type' => 'add', 'id' => $request->id]) }}" style="display: inline;">
-                                                            @csrf
-                                                            <input type="hidden" name="action" value="reject">
-                                                            <button type="submit" class="btn btn-sm btn-danger ms-1" onclick="return confirm('Reject this request?')">
-                                                                <i class="bx bx-x"></i> Reject
-                                                            </button>
-                                                        </form>
-                                                    </div>
-                                                    @else
-                                                        <span class="text-muted">No actions available</span>
-                                                    @endif
-                                                </td>
-                                            </tr>
-                                            @endforeach
-                                        </tbody>
-                                    </table>
-                                    <div class="d-flex justify-content-center">
-                                        {{ $addRequests->appends(request()->query())->links('vendor.pagination.custom-super') }}
-                                    </div>
+                                <div class="d-flex justify-content-between align-items-center mb-3">
+                                    <h6>Add Requests</h6>
+                                    <a href="{{ route('super.requests') }}?{{ http_build_query(request()->query()) }}&export=add_requests" 
+                                       class="btn btn-outline-success btn-sm">
+                                        <i class="bx bx-export me-1"></i>Export
+                                    </a>
                                 </div>
+                                @include('super.requests.partials.add-requests-table', ['requests' => $addRequests])
                             </div>
 
                             <!-- Transfer Requests Tab -->
                             <div class="tab-pane fade" id="transfer-requests" role="tabpanel">
-                                <div class="table-responsive">
-                                    <table class="table table-hover">
-                                        <thead class="table-light">
-                                            <tr>
-                                                <th>ID</th>
-                                                <th>Item</th>
-                                                <th>From Shop</th>
-                                                <th>To Shop</th>
-                                                <th>Type</th>
-                                                <th>Status</th>
-                                                <th>Created</th>
-                                                <th>Actions</th>
-                                            </tr>
-                                        </thead>
-                                        <tbody>
-                                            @foreach($transferRequests as $request)
-                                            <tr>
-                                                <td><strong>{{ $request->id }}</strong></td>
-                                                <td>
-                                                    @if($request->goldItem)
-                                                        <div>
-                                                            <strong>{{ $request->goldItem->serial_number }}</strong><br>
-                                                            <small class="text-muted">{{ $request->goldItem->model }}</small>
-                                                        </div>
-                                                    @else
-                                                        <span class="badge bg-secondary">Pound Transfer</span>
-                                                    @endif
-                                                </td>
-                                                <td><span class="badge bg-light text-dark">{{ $request->from_shop_name }}</span></td>
-                                                <td><span class="badge bg-light text-dark">{{ $request->to_shop_name }}</span></td>
-                                                <td>{{ ucfirst($request->type) }}</td>
-                                                <td>
-                                                    <span class="badge {{ $request->status == 'pending' ? 'bg-warning text-dark' : ($request->status == 'approved' ? 'bg-success' : 'bg-danger') }}">
-                                                        {{ ucfirst($request->status) }}
-                                                    </span>
-                                                </td>
-                                                <td>{{ $request->created_at->format('M d, Y H:i') }}</td>
-                                                <td>
-                                                    @if($request->status == 'pending')
-                                                    <div class="btn-group" role="group">
-                                                        <form method="POST" action="{{ route('super.handle-request', ['type' => 'transfer', 'id' => $request->id]) }}" style="display: inline;">
-                                                            @csrf
-                                                            <input type="hidden" name="action" value="approve">
-                                                            <button type="submit" class="btn btn-sm btn-success" onclick="return confirm('Approve this request?')">
-                                                                <i class="bx bx-check"></i> Approve
-                                                            </button>
-                                                        </form>
-                                                        <form method="POST" action="{{ route('super.handle-request', ['type' => 'transfer', 'id' => $request->id]) }}" style="display: inline;">
-                                                            @csrf
-                                                            <input type="hidden" name="action" value="reject">
-                                                            <button type="submit" class="btn btn-sm btn-danger ms-1" onclick="return confirm('Reject this request?')">
-                                                                <i class="bx bx-x"></i> Reject
-                                                            </button>
-                                                        </form>
-                                                    </div>
-                                                    @else
-                                                        <span class="text-muted">No actions available</span>
-                                                    @endif
-                                                </td>
-                                            </tr>
-                                            @endforeach
-                                        </tbody>
-                                    </table>
-                                    <div class="d-flex justify-content-center">
-                                        {{ $transferRequests->appends(request()->query())->links('vendor.pagination.custom-super') }}
-                                    </div>
+                                <div class="d-flex justify-content-between align-items-center mb-3">
+                                    <h6>Transfer Requests</h6>
+                                    <a href="{{ route('super.requests') }}?{{ http_build_query(request()->query()) }}&export=transfer_requests" 
+                                       class="btn btn-outline-success btn-sm">
+                                        <i class="bx bx-export me-1"></i>Export
+                                    </a>
                                 </div>
+                                @include('super.requests.partials.transfer-requests-table', ['requests' => $transferRequests])
                             </div>
 
                             <!-- Sale Requests Tab -->
                             <div class="tab-pane fade" id="sale-requests" role="tabpanel">
-                                <div class="table-responsive">
-                                    <table class="table table-hover">
-                                        <thead class="table-light">
-                                            <tr>
-                                                <th>ID</th>
-                                                <th>Item Serial</th>
-                                                <th>Shop</th>
-                                                <th>Customer</th>
-                                                <th>Price</th>
-                                                <th>Status</th>
-                                                <th>Created</th>
-                                                <th>Actions</th>
-                                            </tr>
-                                        </thead>
-                                        <tbody>
-                                            @foreach($saleRequests as $request)
-                                            <tr>
-                                                <td><strong>{{ $request->id }}</strong></td>
-                                                <td>{{ $request->item_serial_number }}</td>
-                                                <td>{{ $request->shop_name }}</td>
-                                                <td>
-                                                    @if($request->customer)
-                                                        {{ $request->customer->first_name }} {{ $request->customer->last_name }}
-                                                    @else
-                                                        {{ $request->customer_first_name }} {{ $request->customer_last_name }}
-                                                    @endif
-                                                </td>
-                                                <td><strong class="text-success">${{ number_format($request->price, 2) }}</strong></td>
-                                                <td>
-                                                    <span class="badge {{ $request->status == 'pending' ? 'bg-warning text-dark' : ($request->status == 'approved' ? 'bg-success' : 'bg-danger') }}">
-                                                        {{ ucfirst($request->status) }}
-                                                    </span>
-                                                </td>
-                                                <td>{{ $request->created_at->format('M d, Y H:i') }}</td>
-                                                <td>
-                                                    @if($request->status == 'pending')
-                                                    <div class="btn-group" role="group">
-                                                        <form method="POST" action="{{ route('super.handle-request', ['type' => 'sale', 'id' => $request->id]) }}" style="display: inline;">
-                                                            @csrf
-                                                            <input type="hidden" name="action" value="approve">
-                                                            <button type="submit" class="btn btn-sm btn-success" onclick="return confirm('Approve this request?')">
-                                                                <i class="bx bx-check"></i> Approve
-                                                            </button>
-                                                        </form>
-                                                        <form method="POST" action="{{ route('super.handle-request', ['type' => 'sale', 'id' => $request->id]) }}" style="display: inline;">
-                                                            @csrf
-                                                            <input type="hidden" name="action" value="reject">
-                                                            <button type="submit" class="btn btn-sm btn-danger ms-1" onclick="return confirm('Reject this request?')">
-                                                                <i class="bx bx-x"></i> Reject
-                                                            </button>
-                                                        </form>
-                                                    </div>
-                                                    @else
-                                                        <span class="text-muted">No actions available</span>
-                                                    @endif
-                                                </td>
-                                            </tr>
-                                            @endforeach
-                                        </tbody>
-                                    </table>
-                                    <div class="d-flex justify-content-center">
-                                        {{ $saleRequests->appends(request()->query())->links('vendor.pagination.custom-super') }}
-                                    </div>
+                                <div class="d-flex justify-content-between align-items-center mb-3">
+                                    <h6>Sale Requests</h6>
+                                    <a href="{{ route('super.requests') }}?{{ http_build_query(request()->query()) }}&export=sale_requests" 
+                                       class="btn btn-outline-success btn-sm">
+                                        <i class="bx bx-export me-1"></i>Export
+                                    </a>
                                 </div>
+                                @include('super.requests.partials.sale-requests-table', ['requests' => $saleRequests])
                             </div>
 
                             <!-- Pound Requests Tab -->
                             <div class="tab-pane fade" id="pound-requests" role="tabpanel">
-                                <div class="table-responsive">
-                                    <table class="table table-hover">
-                                        <thead class="table-light">
-                                            <tr>
-                                                <th>ID</th>
-                                                <th>Serial Number</th>
-                                                <th>Shop</th>
-                                                <th>Type</th>
-                                                <th>Weight</th>
-                                                <th>Quantity</th>
-                                                <th>Status</th>
-                                                <th>Created</th>
-                                                <th>Actions</th>
-                                            </tr>
-                                        </thead>
-                                        <tbody>
-                                            @foreach($poundRequests as $request)
-                                            <tr>
-                                                <td><strong>{{ $request->id }}</strong></td>
-                                                <td>{{ $request->serial_number }}</td>
-                                                <td>{{ $request->shop_name }}</td>
-                                                <td><span class="badge bg-info">{{ $request->type }}</span></td>
-                                                <td>{{ $request->weight }}g</td>
-                                                <td>{{ $request->quantity }}</td>
-                                                <td>
-                                                    <span class="badge {{ $request->status == 'pending' ? 'bg-warning text-dark' : ($request->status == 'approved' ? 'bg-success' : 'bg-danger') }}">
-                                                        {{ ucfirst($request->status) }}
-                                                    </span>
-                                                </td>
-                                                <td>{{ $request->created_at->format('M d, Y H:i') }}</td>
-                                                <td>
-                                                    @if($request->status == 'pending')
-                                                    <div class="btn-group" role="group">
-                                                        <form method="POST" action="{{ route('super.handle-request', ['type' => 'pound', 'id' => $request->id]) }}" style="display: inline;">
-                                                            @csrf
-                                                            <input type="hidden" name="action" value="approve">
-                                                            <button type="submit" class="btn btn-sm btn-success" onclick="return confirm('Approve this request?')">
-                                                                <i class="bx bx-check"></i> Approve
-                                                            </button>
-                                                        </form>
-                                                        <form method="POST" action="{{ route('super.handle-request', ['type' => 'pound', 'id' => $request->id]) }}" style="display: inline;">
-                                                            @csrf
-                                                            <input type="hidden" name="action" value="reject">
-                                                            <button type="submit" class="btn btn-sm btn-danger ms-1" onclick="return confirm('Reject this request?')">
-                                                                <i class="bx bx-x"></i> Reject
-                                                            </button>
-                                                        </form>
-                                                    </div>
-                                                    @else
-                                                        <span class="text-muted">No actions available</span>
-                                                    @endif
-                                                </td>
-                                            </tr>
-                                            @endforeach
-                                        </tbody>
-                                    </table>
-                                    <div class="d-flex justify-content-center">
-                                        {{ $poundRequests->appends(request()->query())->links('vendor.pagination.custom-super') }}
-                                    </div>
+                                <div class="d-flex justify-content-between align-items-center mb-3">
+                                    <h6>Pound Requests</h6>
+                                    <a href="{{ route('super.requests') }}?{{ http_build_query(request()->query()) }}&export=pound_requests" 
+                                       class="btn btn-outline-success btn-sm">
+                                        <i class="bx bx-export me-1"></i>Export
+                                    </a>
                                 </div>
+                                @include('super.requests.partials.pound-requests-table', ['requests' => $poundRequests])
                             </div>
 
-                            <!-- Transfer Request History Tab -->
+                            <!-- Transfer History Tab -->
                             <div class="tab-pane fade" id="transfer-history" role="tabpanel">
-                                <div class="table-responsive">
-                                    <table class="table table-hover">
-                                        <thead class="table-light">
-                                            <tr>
-                                                <th>ID</th>
-                                                <th>Serial Number</th>
-                                                <th>Model</th>
-                                                <th>Kind</th>
-                                                <th>From Shop</th>
-                                                <th>To Shop</th>
-                                                <th>Weight</th>
-                                                <th>Status</th>
-                                                <th>Transfer Date</th>
-                                                <th>Sold Date</th>
-                                            </tr>
-                                        </thead>
-                                        <tbody>
-                                            @foreach($transferRequestHistory as $history)
-                                            <tr>
-                                                <td><strong>{{ $history->id }}</strong></td>
-                                                <td>
-                                                    <span class="badge bg-primary">{{ $history->serial_number }}</span>
-                                                </td>
-                                                <td>{{ $history->model }}</td>
-                                                <td>
-                                                    <span class="badge bg-light text-dark">{{ $history->kind }}</span>
-                                                </td>
-                                                <td>
-                                                    @if($history->fromShop)
-                                                        <span class="badge bg-info">{{ $history->fromShop->name }}</span>
-                                                    @else
-                                                        <span class="badge bg-secondary">{{ $history->from_shop_name }}</span>
-                                                    @endif
-                                                </td>
-                                                <td>
-                                                    @if($history->toShop)
-                                                        <span class="badge bg-success">{{ $history->toShop->name }}</span>
-                                                    @else
-                                                        <span class="badge bg-secondary">{{ $history->to_shop_name }}</span>
-                                                    @endif
-                                                </td>
-                                                <td>{{ $history->weight }}g</td>
-                                                <td>
-                                                    <span class="badge {{ $history->status == 'completed' ? 'bg-success' : 'bg-warning text-dark' }}">
-                                                        {{ ucfirst($history->status) }}
-                                                    </span>
-                                                </td>
-                                                <td>
-                                                    @if($history->transfer_completed_at)
-                                                        {{ \Carbon\Carbon::parse($history->transfer_completed_at)->format('M d, Y H:i') }}
-                                                    @else
-                                                        <span class="text-muted">N/A</span>
-                                                    @endif
-                                                </td>
-                                                <td>
-                                                    @if($history->item_sold_at)
-                                                        <span class="text-success">{{ \Carbon\Carbon::parse($history->item_sold_at)->format('M d, Y H:i') }}</span>
-                                                    @else
-                                                        <span class="text-muted">Not sold</span>
-                                                    @endif
-                                                </td>
-                                            </tr>
-                                            @endforeach
-                                        </tbody>
-                                    </table>
-                                    <div class="d-flex justify-content-center">
-                                        {{ $transferRequestHistory->appends(request()->query())->links('vendor.pagination.custom-super') }}
-                                    </div>
+                                <div class="d-flex justify-content-between align-items-center mb-3">
+                                    <h6>Transfer History</h6>
+                                    <a href="{{ route('super.requests') }}?{{ http_build_query(request()->query()) }}&export=transfer_history" 
+                                       class="btn btn-outline-success btn-sm">
+                                        <i class="bx bx-export me-1"></i>Export
+                                    </a>
                                 </div>
+                                @include('super.requests.partials.transfer-history-table', ['requests' => $transferRequestHistory])
                             </div>
                         </div>
                     </div>
@@ -476,7 +306,54 @@
         </div>
     </div>
 
+    <!-- Request Details Modal -->
+    <div class="modal fade" id="requestDetailsModal" tabindex="-1">
+        <div class="modal-dialog modal-xl">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title">Request Details</h5>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+                </div>
+                <div class="modal-body" id="requestDetailsContent">
+                    <!-- Content will be loaded here -->
+                </div>
+            </div>
+        </div>
+    </div>
+
     <!-- Bootstrap JS -->
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+    <script>
+        function viewRequestDetails(requestType, requestId) {
+            // This would fetch request details - implement as needed
+            alert(`View details for ${requestType} request ID: ${requestId}`);
+        }
+
+        function handleRequest(requestType, requestId, action) {
+            if (confirm(`Are you sure you want to ${action} this ${requestType} request?`)) {
+                // Create form and submit
+                const form = document.createElement('form');
+                form.method = 'POST';
+                form.action = `/super/requests/${requestType}/${requestId}/handle`;
+                
+                // Add CSRF token
+                const csrfToken = document.createElement('input');
+                csrfToken.type = 'hidden';
+                csrfToken.name = '_token';
+                csrfToken.value = document.querySelector('meta[name="csrf-token"]')?.getAttribute('content') || '';
+                form.appendChild(csrfToken);
+                
+                // Add action
+                const actionInput = document.createElement('input');
+                actionInput.type = 'hidden';
+                actionInput.name = 'action';
+                actionInput.value = action;
+                form.appendChild(actionInput);
+                
+                document.body.appendChild(form);
+                form.submit();
+            }
+        }
+    </script>
 </body>
 </html> 

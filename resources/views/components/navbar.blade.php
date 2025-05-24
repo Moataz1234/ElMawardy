@@ -104,25 +104,22 @@
                         </a>
                     </li>
                     
-                    <li class="nav-item">
-                        <a class="nav-link {{ request()->routeIs('super.gold-items*') ? 'active' : '' }}" 
-                           href="{{ route('super.gold-items') }}">
-                            <i class="bx bx-diamond me-1"></i>Gold Items
+                    <li class="nav-item dropdown">
+                        <a class="nav-link dropdown-toggle {{ request()->routeIs('super.gold-items*') || request()->routeIs('super.sold-items*') || request()->routeIs('super.kasr-sales*') ? 'active' : '' }}" 
+                           href="#" role="button" data-bs-toggle="dropdown">
+                            <i class="bx bx-package me-1"></i>Items
                         </a>
-                    </li>
-                    
-                    <li class="nav-item">
-                        <a class="nav-link {{ request()->routeIs('super.sold-items*') ? 'active' : '' }}" 
-                           href="{{ route('super.sold-items') }}">
-                            <i class="bx bx-check-circle me-1"></i>Sold Items
-                        </a>
-                    </li>
-                    
-                    <li class="nav-item">
-                        <a class="nav-link {{ request()->routeIs('super.kasr-sales*') ? 'active' : '' }}" 
-                           href="{{ route('super.kasr-sales') }}">
-                            <i class="bx bx-coin-stack me-1"></i>Kasr Sales
-                        </a>
+                        <div class="dropdown-menu">
+                            <a href="{{ route('super.gold-items') }}" class="dropdown-item">
+                                <i class="bx bx-diamond me-2"></i>Gold Items
+                            </a>
+                            <a href="{{ route('super.sold-items') }}" class="dropdown-item">
+                                <i class="bx bx-check-circle me-2"></i>Sold Items
+                            </a>
+                            <a href="{{ route('super.kasr-sales') }}" class="dropdown-item">
+                                <i class="bx bx-coin-stack me-2"></i>Kasr Sales
+                            </a>
+                        </div>
                     </li>
                     
                     <li class="nav-item">
