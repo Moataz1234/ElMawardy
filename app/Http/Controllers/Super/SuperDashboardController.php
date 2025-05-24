@@ -1191,8 +1191,8 @@ class SuperDashboardController extends Controller
             $sheet->setCellValue('H' . $row, $order->deposit);
             $sheet->setCellValue('I' . $row, $order->rest_of_cost);
             $sheet->setCellValue('J' . $row, $totalCost);
-            $sheet->setCellValue('K' . $row, $order->order_date ? $order->order_date->format('Y-m-d') : '');
-            $sheet->setCellValue('L' . $row, $order->deliver_date ? $order->deliver_date->format('Y-m-d') : '');
+            $sheet->setCellValue('K' . $row, $order->order_date );
+            $sheet->setCellValue('L' . $row, $order->deliver_date);
             $sheet->setCellValue('M' . $row, $order->payment_method);
             $sheet->setCellValue('N' . $row, $order->status);
             $sheet->setCellValue('O' . $row, $order->created_at->format('Y-m-d H:i:s'));
