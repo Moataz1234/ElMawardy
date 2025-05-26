@@ -144,7 +144,7 @@ Route::middleware(['auth'])->group(function () {
     // ===================================
     // Accountant (ACC) Routes
     // ===================================
-    Route::middleware(['auth', 'acc', 'super'])->group(function () {
+    Route::middleware(['auth', 'acc'])->group(function () {
         Route::get('/Acc_sell_requests', [SoldItemRequestController::class, 'viewSaleRequestsAcc'])->name('sell-requests.acc');
         // Route::post('/Acc_sell_requests/{id}/approve', [SoldItemRequestController::class, 'approveSaleRequest'])->name('sell-requests.approve');
         Route::post('/Acc_sell_requests/{id}/reject', [SoldItemRequestController::class, 'rejectSaleRequest'])->name('sell-requests.reject');
