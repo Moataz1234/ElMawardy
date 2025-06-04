@@ -632,47 +632,89 @@ class GoldItemsController extends Controller
                 // 'price_type' => $itemWithCategory->modelCategory ? $itemWithCategory->modelCategory->stars : 'regular'
             ];
             
-            // Create variations for all combinations of branch, color, etc.
+            // Create variations grouped by unique combinations of branch, color, weight, and price
             $variations = [];
+            $skuSuffix = 'A'; // Start with 'A'
             
-            foreach ($branches as $branch) {
-                foreach ($colors as $color) {
-                    // Filter items that match this branch and color
-                    $matchingItems = $modelItems->filter(function($item) use ($branch, $color) {
-                        return $item->shop_name === $branch && $item->gold_color === $color;
-                    });
-                    
-                    // If there are matching items
-                    if ($matchingItems->isNotEmpty()) {
-                        // Get the first matching item for this variation
-                        $item = $matchingItems->first();
-                        
-                        // Calculate total quantity for this variation
-                        $variationQuantity = $matchingItems->sum('quantity');
-                        
-                        // Create a variation for this combination
-                        $variations[] = [
-                            'id' => $item->id,
-                            'quantity' => $variationQuantity,
-                            'shop_name' => $branch,
-                            'shop_id' => $item->shop_id,
-                            'attributes' => [
-                                [
-                                    'name' => 'Material',
-                                    'option' => $color
-                                ],
-                                [
-                                    'name' => 'Size',
-                                    'option' => $itemWithCategory->modelCategory && isset($itemWithCategory->modelCategory->size) ? $itemWithCategory->modelCategory->size : '50'
-                                ],
-                                [
-                                    'name' => 'Branch',
-                                    'option' => $branch
-                                ]
-                            ]
-                        ];
+            // Group items by unique combinations
+            $uniqueCombinations = [];
+            
+            foreach ($modelItems as $item) {
+                // Determine the price based on model stars
+                $pricePerGram = 0;
+                if ($item->modelCategory) {
+                    switch ($item->modelCategory->stars) {
+                        case '***':
+                            $pricePerGram = $goldPrice->gold_with_work;
+                            break;
+                        case '**':
+                            $pricePerGram = $goldPrice->shoghl_agnaby;
+                            break;
+                        case '*':
+                            $pricePerGram = $goldPrice->elashfoor;
+                            break;
+                        default:
+                            $pricePerGram = $goldPrice->gold_sell; // fallback to regular gold sell price
                     }
                 }
+                
+                $itemPrice = $item->weight * $pricePerGram;
+                
+                // Create a unique key for this combination
+                $combinationKey = $item->shop_name . '|' . $item->gold_color . '|' . $item->weight . '|' . $itemPrice;
+                
+                if (!isset($uniqueCombinations[$combinationKey])) {
+                    $uniqueCombinations[$combinationKey] = [
+                        'items' => [],
+                        'branch' => $item->shop_name,
+                        'color' => $item->gold_color,
+                        'weight' => $item->weight,
+                        'price' => $itemPrice,
+                        'total_quantity' => 0
+                    ];
+                }
+                
+                $uniqueCombinations[$combinationKey]['items'][] = $item;
+                $uniqueCombinations[$combinationKey]['total_quantity'] += $item->quantity;
+            }
+            
+            // Create variations for each unique combination
+            foreach ($uniqueCombinations as $combination) {
+                // Generate SKU for this variation
+                $baseSku = $itemWithCategory->modelCategory ? $itemWithCategory->modelCategory->SKU : $model;
+                $variationSku = $baseSku . $skuSuffix;
+                
+                // Create variation
+                $variations[] = [
+                    'sku' => $variationSku,
+                    'branch' => $combination['branch'],
+                    'color' => $combination['color'],
+                    'weight' => $combination['weight'],
+                    'price' => $combination['price'],
+                    'quantity' => $combination['total_quantity'],
+                    'item_ids' => collect($combination['items'])->pluck('id')->toArray(),
+                    'attributes' => [
+                        [
+                            'name' => 'Branch',
+                            'option' => $combination['branch']
+                        ],
+                        [
+                            'name' => 'Material',
+                            'option' => $combination['color']
+                        ],
+                        [
+                            'name' => 'Weight',
+                            'option' => $combination['weight']
+                        ],
+                        [
+                            'name' => 'Size',
+                            'option' => $itemWithCategory->modelCategory && isset($itemWithCategory->modelCategory->size) ? $itemWithCategory->modelCategory->size : '50'
+                        ]
+                    ]
+                ];
+                
+                // Move to next SKU suffix
+                $skuSuffix++;
             }
             
             // Add this model with its variations to the result
@@ -699,10 +741,12 @@ class GoldItemsController extends Controller
         }
         
         // Get all available items (not sold, not deleted, in stock) that match online models
+        // Exclude specific shops: Rabea, other, Other
         $items = GoldItem::with(['modelCategory', 'shop'])
             ->whereNotIn('status', ['sold', 'deleted'])
             ->where('quantity', '>', 0)
             ->whereIn('model', $onlineModelSkus) // Only include models that match SKUs in OnlineModels
+            ->whereNotIn('shop_name', ['Rabea', 'other', 'Other']) // Exclude specified shops
             ->get();
         
         // Group the items by model only
@@ -731,61 +775,93 @@ class GoldItemsController extends Controller
                 'kind' => $itemWithCategory->kind,
             ];
             
-            // Create variations for all combinations of branch, color, etc.
+            // Create variations grouped by branch (each branch gets a unique SKU suffix)
             $variations = [];
+            $skuSuffix = 'A'; // Start with 'A'
             
-            foreach ($branches as $branch) {
-                foreach ($colors as $color) {
-                    // Filter items that match this branch and color
-                    $matchingItems = $modelItems->filter(function($item) use ($branch, $color) {
-                        return $item->shop_name === $branch && $item->gold_color === $color;
-                    });
-                    
-                    // If there are matching items, create a variation for each individual item
-                    foreach ($matchingItems as $item) {
-                        // Determine the price based on model stars
-                        $pricePerGram = 0;
-                        if ($item->modelCategory) {
-                            switch ($item->modelCategory->stars) {
-                                case '***':
-                                    $pricePerGram = $goldPrice->gold_with_work;
-                                    break;
-                                case '**':
-                                    $pricePerGram = $goldPrice->shoghl_agnaby;
-                                    break;
-                                case '*':
-                                    $pricePerGram = $goldPrice->elashfoor;
-                                    break;
-                                default:
-                                    $pricePerGram = $goldPrice->gold_sell; // fallback to regular gold sell price
-                            }
-                        }
-                        
-                        // Create a variation for this individual item
-                        $variations[] = [
-                            'id' => $item->id,
-                            'weight' => $item->weight,
-                            'price' => $item->weight * $pricePerGram,
-                            'quantity' => $item->quantity,
-                            'shop_name' => $branch,
-                            'shop_id' => $item->shop_id,
-                            'attributes' => [
-                                // [
-                                //     'name' => 'Material',
-                                //     'option' => $color
-                                // ],
-                                // [
-                                //     'name' => 'Size',
-                                //     'option' => $itemWithCategory->modelCategory && isset($itemWithCategory->modelCategory->size) ? $itemWithCategory->modelCategory->size : '50'
-                                // ],
-                                // [
-                                //     'name' => 'Branch',
-                                //     'option' => $branch
-                                // ]
-                            ]
-                        ];
+            // Group items by unique combinations
+            $uniqueCombinations = [];
+            
+            foreach ($modelItems as $item) {
+                // Determine the price based on model stars
+                $pricePerGram = 0;
+                if ($item->modelCategory) {
+                    switch ($item->modelCategory->stars) {
+                        case '***':
+                            $pricePerGram = $goldPrice->gold_with_work;
+                            break;
+                        case '**':
+                            $pricePerGram = $goldPrice->shoghl_agnaby;
+                            break;
+                        case '*':
+                            $pricePerGram = $goldPrice->elashfoor;
+                            break;
+                        default:
+                            $pricePerGram = $goldPrice->gold_sell; // fallback to regular gold sell price
                     }
                 }
+                
+                $itemPrice = $item->weight * $pricePerGram;
+                
+                // Create a unique key for this combination
+                $combinationKey = $item->shop_name . '|' . $item->gold_color . '|' . $item->weight . '|' . $itemPrice;
+                
+                if (!isset($uniqueCombinations[$combinationKey])) {
+                    $uniqueCombinations[$combinationKey] = [
+                        'items' => [],
+                        'branch' => $item->shop_name,
+                        'color' => $item->gold_color,
+                        'weight' => $item->weight,
+                        'price' => $itemPrice,
+                        'total_quantity' => 0
+                    ];
+                }
+                
+                $uniqueCombinations[$combinationKey]['items'][] = $item;
+                $uniqueCombinations[$combinationKey]['total_quantity'] += $item->quantity;
+            }
+            
+            // Create variations for each unique combination
+            foreach ($uniqueCombinations as $combination) {
+                // Generate SKU for this variation
+                $baseSku = $itemWithCategory->modelCategory ? $itemWithCategory->modelCategory->SKU : $model;
+                $variationSku = $baseSku . $skuSuffix;
+                
+                // Create variation
+                $variations[] = [
+                    'sku' => $variationSku,
+                    // 'branch' => $combination['branch'],
+                    // 'color' => $combination['color'],
+                    // 'weight' => $combination['weight'],
+                    // 'price' => $combination['price'],
+                    'total_quantity' => $combination['total_quantity'],
+                    // 'item_ids' => collect($combination['items'])->pluck('id')->toArray(),
+                    'attributes' => [
+                        [
+                            'name' => 'branch',
+                            'option' => $combination['branch']
+                        ],
+                        [
+                            'name' => 'color',
+                            'option' => $combination['color']
+                        ],
+                        [
+                            'name' => 'weight',
+                            'option' => $combination['weight']
+                        ],
+                        [
+                            'name' => 'price',
+                            'option' => $combination['price']
+                        ],
+                        // [
+                        //     'name' => 'Size',
+                        //     'option' => $itemWithCategory->modelCategory && isset($itemWithCategory->modelCategory->size) ? $itemWithCategory->modelCategory->size : '50'
+                        // ]
+                    ]
+                ];
+                
+                // Move to next SKU suffix
+                $skuSuffix++;
             }
             
             // Add this model with its variations to the result
