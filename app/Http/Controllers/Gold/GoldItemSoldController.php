@@ -158,6 +158,10 @@ class GoldItemSoldController extends Controller
                 $stars = $items->first()->stars;
             }
         
+            // Get workshop data from for_production table
+            $workshopData = \App\Models\ForProduction::where('model', $model)
+                ->orWhere('model', $baseModel)
+                ->first();
     
             // Step 1: Get all items for the model from GoldItems and GoldItemsSold
             $inventoryItems = GoldItem::where('model', $model)->get();
@@ -243,8 +247,12 @@ class GoldItemSoldController extends Controller
                     : 'Old',
                 'shop' => $items->pluck('shop_name')->unique()->implode(' / '),
                 'pieces_sold_today' => $items->count(),
-                'shops_data' => $this->getShopDistribution($model),
+                'shops_data' => $this->getShopDistribution($model, $baseModel),
                 'last_production' => $lastProductionDisplay,
+                'workshop_data' => $workshopData ? [
+                    'not_finished' => $workshopData->not_finished,
+                    'order_date' => $workshopData->order_date->format('d-m-Y')
+                ] : null,
             ];
         }
     
@@ -279,15 +287,17 @@ class GoldItemSoldController extends Controller
     /**
      * Helper method to get shop distribution for a specific model.
      */
-    private function getShopDistribution($model)
+    private function getShopDistribution($model, $baseModel = null)
     {
         $shops = [
             'Mohandessin Shop', 'Mall of Arabia', 'Nasr City', 'Zamalek',
             'Mall of Egypt', 'EL Guezira Shop', 'Arkan', 'District 5', 'U Venues'
         ];
         
-        // Extract the base model without character suffix
-        $baseModel = preg_replace('/-[A-D]$/', '', $model);
+        // Use base model if provided, otherwise extract from model
+        if (!$baseModel) {
+            $baseModel = preg_replace('/-[A-D]$/', '', $model);
+        }
         
         $shopDistribution = [];
         
@@ -308,6 +318,11 @@ class GoldItemSoldController extends Controller
             $variantB = GoldItem::where('model', $baseModel . '-B')->where('shop_name', $shop)->count();
             $variantC = GoldItem::where('model', $baseModel . '-C')->where('shop_name', $shop)->count();
             $variantD = GoldItem::where('model', $baseModel . '-D')->where('shop_name', $shop)->count();
+            
+            // Add variant counts to all_rests for variant models
+            if (preg_match('/-[A-D]$/', $model)) {
+                $shopData['all_rests'] += $variantA + $variantB + $variantC + $variantD;
+            }
             
             // Add variants to shop data with their counts
             $shopData['variant_A'] = $variantA;

@@ -686,4 +686,117 @@ class GoldItemsController extends Controller
             'data' => $formattedItems
         ]);
     }
+    
+    public function getSimplifiedGroupedItemsForWooCommerce(Request $request)
+    {
+        // First, get all the SKUs from OnlineModels table
+        $onlineModelSkus = OnlineModel::pluck('sku')->toArray();
+        
+        // Get the latest gold price
+        $goldPrice = GoldPrice::latest()->first();
+        if (!$goldPrice) {
+            return response()->json(['error' => 'Gold price not found'], 404);
+        }
+        
+        // Get all available items (not sold, not deleted, in stock) that match online models
+        $items = GoldItem::with(['modelCategory', 'shop'])
+            ->whereNotIn('status', ['sold', 'deleted'])
+            ->where('quantity', '>', 0)
+            ->whereIn('model', $onlineModelSkus) // Only include models that match SKUs in OnlineModels
+            ->get();
+        
+        // Group the items by model only
+        $groupedItems = $items->groupBy('model');
+        
+        $formattedItems = [];
+        
+        foreach ($groupedItems as $model => $modelItems) {
+            // Find the first item with a valid modelCategory for model info
+            $itemWithCategory = $modelItems->first(function($item) {
+                return $item->modelCategory !== null;
+            }) ?? $modelItems->first();
+            
+            // Get all unique branches and colors
+            $branches = $modelItems->pluck('shop_name')->unique()->values()->toArray();
+            $colors = $modelItems->pluck('gold_color')->unique()->values()->toArray();
+            
+            // Calculate total quantity for this model
+            $totalQuantity = $modelItems->sum('quantity');
+            
+            // Create the model item (simplified - removed name, description, image_url, metal_purity, metal_type)
+            $modelItem = [
+                'model' => $model,
+                'sku' => $itemWithCategory->modelCategory ? $itemWithCategory->modelCategory->SKU : $model,
+                'quantity' => $totalQuantity,
+                'kind' => $itemWithCategory->kind,
+            ];
+            
+            // Create variations for all combinations of branch, color, etc.
+            $variations = [];
+            
+            foreach ($branches as $branch) {
+                foreach ($colors as $color) {
+                    // Filter items that match this branch and color
+                    $matchingItems = $modelItems->filter(function($item) use ($branch, $color) {
+                        return $item->shop_name === $branch && $item->gold_color === $color;
+                    });
+                    
+                    // If there are matching items, create a variation for each individual item
+                    foreach ($matchingItems as $item) {
+                        // Determine the price based on model stars
+                        $pricePerGram = 0;
+                        if ($item->modelCategory) {
+                            switch ($item->modelCategory->stars) {
+                                case '***':
+                                    $pricePerGram = $goldPrice->gold_with_work;
+                                    break;
+                                case '**':
+                                    $pricePerGram = $goldPrice->shoghl_agnaby;
+                                    break;
+                                case '*':
+                                    $pricePerGram = $goldPrice->elashfoor;
+                                    break;
+                                default:
+                                    $pricePerGram = $goldPrice->gold_sell; // fallback to regular gold sell price
+                            }
+                        }
+                        
+                        // Create a variation for this individual item
+                        $variations[] = [
+                            'id' => $item->id,
+                            'weight' => $item->weight,
+                            'price' => $item->weight * $pricePerGram,
+                            'quantity' => $item->quantity,
+                            'shop_name' => $branch,
+                            'shop_id' => $item->shop_id,
+                            'attributes' => [
+                                // [
+                                //     'name' => 'Material',
+                                //     'option' => $color
+                                // ],
+                                // [
+                                //     'name' => 'Size',
+                                //     'option' => $itemWithCategory->modelCategory && isset($itemWithCategory->modelCategory->size) ? $itemWithCategory->modelCategory->size : '50'
+                                // ],
+                                // [
+                                //     'name' => 'Branch',
+                                //     'option' => $branch
+                                // ]
+                            ]
+                        ];
+                    }
+                }
+            }
+            
+            // Add this model with its variations to the result
+            $modelItem['variations'] = $variations;
+            $formattedItems[] = $modelItem;
+        }
+        
+        return response()->json([
+            'success' => true,
+            'timestamp' => now(),
+            'data' => $formattedItems
+        ]);
+    }
 } 

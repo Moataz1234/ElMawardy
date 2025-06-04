@@ -29,7 +29,8 @@
         .report-page {
             page-break-after: always;
             margin-bottom: 20px;
-            height: 10px;
+            height: auto;
+            min-height: 100vh;
         }
 
         .report-page:last-child {
@@ -176,20 +177,19 @@
             color: #c99a3c;
             right: 200px;
             top: 100px;
-            /* background-color: #218838; */
         }
 
         @page {
             size: A4;
-            margin: 0;
+            margin: 20px;
         }
 
         .report-container {
-            height: 1000px;
-            /* Keep original height */
-            width: {{ $isPdf ? '90%' : '800px' }};
-            /* A4-like width for web view */
+            height: auto;
+            min-height: 95vh;
+            width: {{ $isPdf ? '100%' : '800px' }};
             page-break-inside: avoid;
+            page-break-after: always;
             margin-bottom: 20px;
             margin-left: auto;
             margin-right: auto;
@@ -199,30 +199,34 @@
             overflow: hidden;
         }
 
+        .report-container:last-child {
+            page-break-after: avoid;
+        }
+
         .pdf-only {
             display: none;
-            /* Hide by default */
         }
 
         @media print {
             .no-export {
                 display: none;
-                /* Hide sections not to be exported */
             }
 
             .pdf-only {
                 display: block;
-                /* Show PDF-only sections */
             }
 
             .report-container {
                 page-break-before: always;
-                /* Ensure each report starts on a new page */
+                page-break-after: always;
             }
 
             .report-container:first-child {
                 page-break-before: avoid;
-                /* Prevent page break before the first report */
+            }
+
+            .report-container:last-child {
+                page-break-after: avoid;
             }
         }
 
@@ -309,7 +313,6 @@
             display: flex;
             align-items: center;
             gap: 10px;
-            /* Space between the export button and the email icon */
             margin-bottom: 20px;
         }
 
@@ -317,12 +320,11 @@
             display: {{ $isPdf ? 'none' : 'block' }};
         }
 
-        /* Ensure the total items sold section is hidden in PDF/email */
         .total-items-sold {
             display: {{ $isPdf ? 'none' : 'block' }};
         }
 
-        /* Add these styles to your existing CSS */
+        /* Variant color styles - improved */
         .variant-A {
             color: black !important;
             font-weight: bold;
@@ -343,77 +345,184 @@
             font-weight: bold;
         }
 
-        /* This helps with making the variant stand out in the model cell */
+        .main-model {
+            color: black !important;
+            font-weight: bold;
+        }
+
         .model-variant {
             margin-left: 5px;
             font-weight: bold;
         }
 
-        /* Add these to your existing CSS */
-
-        /* Variant color styles */
-        .variant-A {
-            color: black !important;
-            font-weight: bold;
-        }
-
-        .variant-B {
-            color: gold !important;
-            font-weight: bold;
-        }
-
-        .variant-C {
-            color: red !important;
-            font-weight: bold;
-        }
-
-        .variant-D {
-            color: blue !important;
-            font-weight: bold;
-        }
-
-        /* Style for the model cell to display variants nicely */
         td .variant-display {
             margin-left: 5px;
             font-weight: bold;
         }
 
-        /* Style for the variant legend */
-        .variant-legend {
-            margin-top: 10px;
-            font-size: 12px;
-            padding: 8px;
-            background-color: #f5f5f5;
-            border-radius: 4px;
-            border: 1px solid #ddd;
+        /* Enhanced variant legend */
+        .color-legend {
+            background: linear-gradient(135deg, #f5f7fa 0%, #c3cfe2 100%);
+            border: 2px solid #6A6458;
+            border-radius: 15px;
+            padding: 15px;
+            margin: 20px 0;
+            box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
         }
 
-        .variant-legend span {
+        .legend-title {
+            color: #6A6458;
+            font-size: 18px;
+            font-weight: bold;
+            text-align: center;
+            margin-bottom: 15px;
+            text-shadow: 1px 1px 2px rgba(0, 0, 0, 0.1);
+        }
+
+        .legend-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 10px;
+            justify-items: center;
+        }
+
+        .legend-item {
+            background: white;
+            border: 2px solid #ddd;
+            border-radius: 10px;
+            padding: 10px 15px;
+            text-align: center;
+            box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+            transition: transform 0.2s ease;
+            min-width: 150px;
+        }
+
+        .legend-item:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.15);
+        }
+
+        .legend-color {
             display: inline-block;
-            margin-right: 10px;
-            padding: 2px 5px;
+            width: 20px;
+            height: 20px;
+            border-radius: 50%;
+            margin-right: 8px;
+            vertical-align: middle;
+            border: 2px solid #333;
         }
 
-        /* Make variant numbers stand out in the table */
+        .legend-text {
+            font-weight: bold;
+            font-size: 14px;
+        }
+
         td .variant-count {
             display: inline-block;
             margin-left: 5px;
             font-weight: bold;
+        }
+
+        /* Workshop info style */
+        .workshop-info {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            padding: 15px;
+            border-radius: 10px;
+            margin-bottom: 20px;
+            border-left: 5px solid #f39c12;
+            box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+        }
+
+        .workshop-info h4 {
+            color: white;
+            margin-bottom: 8px;
+            font-size: 18px;
+            text-shadow: 1px 1px 2px rgba(0, 0, 0, 0.3);
+        }
+
+        .workshop-info p {
+            margin: 0;
+            font-size: 14px;
+            opacity: 0.9;
+        }
+
+        /* Variant counts display */
+        .variant-counts {
+            background-color: #f8f9fa;
+            padding: 10px;
+            border-radius: 8px;
+            margin-top: 10px;
+            border: 1px solid #dee2e6;
+        }
+
+        .variant-counts h5 {
+            color: #6A6458;
+            margin-bottom: 10px;
+            font-size: 14px;
+        }
+
+        .variant-count-item {
+            display: inline-block;
+            margin: 5px 10px 5px 0;
+            padding: 5px 10px;
+            border-radius: 20px;
+            font-weight: bold;
+            font-size: 12px;
+            border: 2px solid;
+        }
+
+        .variant-count-A {
+            background-color: #f8f9fa;
+            color: black;
+            border-color: black;
+        }
+
+        .variant-count-B {
+            background-color: #fff8dc;
+            color: #b8860b;
+            border-color: #b8860b;
+        }
+
+        .variant-count-C {
+            background-color: #ffe4e1;
+            color: #dc143c;
+            border-color: #dc143c;
+        }
+
+        .variant-count-D {
+            background-color: #e6f3ff;
+            color: #0066cc;
+            border-color: #0066cc;
         }
     </style>
 
 </head>
 
 <body>
-    <div class="variant-legend"
-    style="margin-top: 10px; font-size: 12px; padding: 5px; background-color: #f5f5f5; border-radius: 4px;">
-    <strong>Model Variants:</strong>
-    <span style="color: black; font-weight: bold; margin-right: 10px;">A = Black</span>
-    <span style="color: gold; font-weight: bold; margin-right: 10px;">B = Yellow</span>
-    <span style="color: red; font-weight: bold; margin-right: 10px;">C = Red</span>
-    <span style="color: blue; font-weight: bold; margin-right: 10px;">D = Blue</span>
-</div>
-</div>
+    <!-- Enhanced Color Legend -->
+    <div class="color-legend no-export">
+        <div class="legend-title">🎨 Model Variant Color Guide</div>
+        <div class="legend-grid">
+            <div class="legend-item">
+                <span class="legend-color" style="background-color: black;"></span>
+                <span class="legend-text" style="color: black;">Base Model / Variant A</span>
+            </div>
+            <div class="legend-item">
+                <span class="legend-color" style="background-color: goldenrod;"></span>
+                <span class="legend-text" style="color: goldenrod;">Variant B (Yellow)</span>
+            </div>
+            <div class="legend-item">
+                <span class="legend-color" style="background-color: red;"></span>
+                <span class="legend-text" style="color: red;">Variant C (Red)</span>
+            </div>
+            <div class="legend-item">
+                <span class="legend-color" style="background-color: blue;"></span>
+                <span class="legend-text" style="color: blue;">Variant D (Blue)</span>
+            </div>
+        </div>
+    </div>
+    
     <div class="no-export position-relative">
         <h1>Sales Reports</h1>
 
@@ -465,14 +574,6 @@
                             @endif
                         </div>
                         <div class="info-section">
-                            {{-- <div class="info-box">
-                                At Workshop
-                                <div class="data-text">{{ $data['workshop_count'] }}</div>
-                            </div>
-                            <div class="info-box">
-                                Order Date
-                                <div class="data-text">{{ $data['order_date'] }}</div>
-                            </div> --}}
                             <div class="info-box">
                                 Gold Color
                                 <div class="data-text">{{ $data['gold_color'] }}</div>
@@ -488,6 +589,14 @@
                         </div>
                     </div>
 
+                    {{-- Workshop Info Section --}}
+                    @if(isset($data['workshop_data']) && $data['workshop_data'])
+                    <div class="workshop-info">
+                        <h4>🏭 At Workshop: {{ $data['workshop_data']['not_finished'] }}</h4>
+                        <p>📅 Order Date: {{ $data['workshop_data']['order_date'] }}</p>
+                    </div>
+                    @endif
+
                     <div class="table-section">
                         <table>
                             <tr>
@@ -497,21 +606,48 @@
                                 <th>Total Sold</th>
                             </tr>
                             <tr>
-                                {{-- <td>{{ $data['model'] }}</td> --}}
                                 <td>
-                                    {{ $data['model'] }}
                                     @if (isset($data['variant']) && $data['variant'])
-                                        <span
-                                            style="color: {{ strtolower($data['variant_color']) }}; font-weight: bold;">({{ $data['variant'] }})</span>
+                                        {{-- For variant models, show in variant color --}}
+                                        <span class="variant-{{ $data['variant'] }}">{{ $data['model'] }}</span>
+                                    @else
+                                        {{-- For base models, show in black --}}
+                                        <span class="main-model">{{ $data['base_model'] ?? $data['model'] }}</span>
                                     @endif
                                 </td>
-
-
-                                <td>{{ $data['remaining'] }}</td>
-                                <td>{{ $data['total_production'] }}</td>
-                                <td>{{ $data['total_sold'] }}</td>
+                                <td class="{{ isset($data['variant']) && $data['variant'] ? 'variant-' . $data['variant'] : 'main-model' }}">{{ $data['remaining'] }}</td>
+                                <td class="{{ isset($data['variant']) && $data['variant'] ? 'variant-' . $data['variant'] : 'main-model' }}">{{ $data['total_production'] }}</td>
+                                <td class="{{ isset($data['variant']) && $data['variant'] ? 'variant-' . $data['variant'] : 'main-model' }}">{{ $data['total_sold'] }}</td>
                             </tr>
                         </table>
+
+                        {{-- Show variant counts for base models --}}
+                        @if (!isset($data['variant']) || !$data['variant'])
+                            @php
+                                $hasVariants = false;
+                                $baseModel = $data['base_model'] ?? $data['model'];
+                                $variantCounts = [
+                                    'A' => collect($data['shops_data'])->sum('variant_A'),
+                                    'B' => collect($data['shops_data'])->sum('variant_B'),
+                                    'C' => collect($data['shops_data'])->sum('variant_C'),
+                                    'D' => collect($data['shops_data'])->sum('variant_D')
+                                ];
+                                $hasVariants = array_sum($variantCounts) > 0;
+                            @endphp
+                            
+                            @if($hasVariants)
+                            <div class="variant-counts">
+                                <h5>🎨 Variant Counts for {{ $baseModel }}:</h5>
+                                @foreach($variantCounts as $variant => $count)
+                                    @if($count > 0)
+                                        <span class="variant-count-item variant-count-{{ $variant }}">
+                                            {{ $variant }}: {{ $count }}
+                                        </span>
+                                    @endif
+                                @endforeach
+                            </div>
+                            @endif
+                        @endif
 
                         <table>
                             <tr>
@@ -521,10 +657,10 @@
                                 <th>Sold Pieces</th>
                             </tr>
                             <tr>
-                                <td>{{ $data['first_production'] }}</td>
-                                <td>{{ $data['last_production'] }}</td>
-                                <td>{{ $data['shop'] }}</td>
-                                <td>{{ $data['pieces_sold_today'] }}</td>
+                                <td class="{{ isset($data['variant']) && $data['variant'] ? 'variant-' . $data['variant'] : 'main-model' }}">{{ $data['first_production'] }}</td>
+                                <td class="{{ isset($data['variant']) && $data['variant'] ? 'variant-' . $data['variant'] : 'main-model' }}">{{ $data['last_production'] }}</td>
+                                <td class="{{ isset($data['variant']) && $data['variant'] ? 'variant-' . $data['variant'] : 'main-model' }}">{{ $data['shop'] }}</td>
+                                <td class="{{ isset($data['variant']) && $data['variant'] ? 'variant-' . $data['variant'] : 'main-model' }}">{{ $data['pieces_sold_today'] }}</td>
                             </tr>
                         </table>
 
@@ -540,42 +676,66 @@
                                 <tr>
                                     <td class="shop-name">{{ $shop }}</td>
                                     <td>
-                                        {{ $counts['yellow_gold'] }}
-                                        @if (isset($counts['variant_B']) && $counts['variant_B'] > 0)
-                                            <span
-                                                style="color: gold; font-weight: bold; margin-left: 5px;">{{ $counts['variant_B'] }}</span>
+                                        @if (isset($data['variant']) && $data['variant'])
+                                            {{-- For variant models, only show in all rests --}}
+                                            <span class="main-model">-</span>
+                                        @else
+                                            <span class="main-model">{{ $counts['yellow_gold'] }}</span>
+                                            @if (isset($counts['variant_B']) && $counts['variant_B'] > 0)
+                                                <span class="variant-B"> (+{{ $counts['variant_B'] }})</span>
+                                            @endif
                                         @endif
                                     </td>
                                     <td>
-                                        {{ $counts['white_gold'] }}
-                                        @if (isset($counts['variant_A']) && $counts['variant_A'] > 0)
-                                            <span
-                                                style="color: black; font-weight: bold; margin-left: 5px;">{{ $counts['variant_A'] }}</span>
+                                        @if (isset($data['variant']) && $data['variant'])
+                                            {{-- For variant models, only show in all rests --}}
+                                            <span class="main-model">-</span>
+                                        @else
+                                            <span class="main-model">{{ $counts['white_gold'] }}</span>
+                                            @if (isset($counts['variant_A']) && $counts['variant_A'] > 0)
+                                                <span class="variant-A"> (+{{ $counts['variant_A'] }})</span>
+                                            @endif
                                         @endif
                                     </td>
                                     <td>
-                                        {{ $counts['rose_gold'] }}
-                                        @if (isset($counts['variant_C']) && $counts['variant_C'] > 0)
-                                            <span
-                                                style="color: red; font-weight: bold; margin-left: 5px;">{{ $counts['variant_C'] }}</span>
-                                        @endif
-                                        @if (isset($counts['variant_D']) && $counts['variant_D'] > 0)
-                                            <span
-                                                style="color: blue; font-weight: bold; margin-left: 5px;">{{ $counts['variant_D'] }}</span>
+                                        @if (isset($data['variant']) && $data['variant'])
+                                            {{-- For variant models, only show in all rests --}}
+                                            <span class="main-model">-</span>
+                                        @else
+                                            <span class="main-model">{{ $counts['rose_gold'] }}</span>
+                                            @if (isset($counts['variant_C']) && $counts['variant_C'] > 0)
+                                                <span class="variant-C"> (+{{ $counts['variant_C'] }})</span>
+                                            @endif
+                                            @if (isset($counts['variant_D']) && $counts['variant_D'] > 0)
+                                                <span class="variant-D"> (+{{ $counts['variant_D'] }})</span>
+                                            @endif
                                         @endif
                                     </td>
                                     <td>
-                                        {{ $counts['all_rests'] }}
-                                        @php
-                                            $totalVariants =
-                                                ($counts['variant_A'] ?? 0) +
-                                                ($counts['variant_B'] ?? 0) +
-                                                ($counts['variant_C'] ?? 0) +
-                                                ($counts['variant_D'] ?? 0);
-                                        @endphp
-                                        @if ($totalVariants > 0)
-                                            <span
-                                                style="font-weight: bold; margin-left: 5px;">(+{{ $totalVariants }})</span>
+                                        @if (isset($data['variant']) && $data['variant'])
+                                            {{-- For variant models, show variant info here with appropriate color --}}
+                                            <span class="variant-{{ $data['variant'] }}">{{ $counts['all_rests'] }}</span>
+                                            @if ($data['variant'] == 'A' && isset($counts['variant_A']) && $counts['variant_A'] > 0)
+                                                <span class="variant-A"> ({{ $counts['variant_A'] }} Black)</span>
+                                            @elseif ($data['variant'] == 'B' && isset($counts['variant_B']) && $counts['variant_B'] > 0)
+                                                <span class="variant-B"> ({{ $counts['variant_B'] }} Yellow)</span>
+                                            @elseif ($data['variant'] == 'C' && isset($counts['variant_C']) && $counts['variant_C'] > 0)
+                                                <span class="variant-C"> ({{ $counts['variant_C'] }} Red)</span>
+                                            @elseif ($data['variant'] == 'D' && isset($counts['variant_D']) && $counts['variant_D'] > 0)
+                                                <span class="variant-D"> ({{ $counts['variant_D'] }} Blue)</span>
+                                            @endif
+                                        @else
+                                            <span class="main-model">{{ $counts['all_rests'] }}</span>
+                                            @php
+                                                $totalVariants =
+                                                    ($counts['variant_A'] ?? 0) +
+                                                    ($counts['variant_B'] ?? 0) +
+                                                    ($counts['variant_C'] ?? 0) +
+                                                    ($counts['variant_D'] ?? 0);
+                                            @endphp
+                                            @if ($totalVariants > 0)
+                                                <span class="main-model"> (+{{ $totalVariants }})</span>
+                                            @endif
                                         @endif
                                     </td>
                                 </tr>
@@ -588,6 +748,7 @@
     @else
         <div class="alert alert-info">No sales found for this date</div>
     @endif
+    
     <script>
         // Function to open the email dialogue
         function openEmailDialogue() {

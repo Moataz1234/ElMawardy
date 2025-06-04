@@ -49,7 +49,8 @@ use App\Http\Controllers\{
     Admin\Shopify\ShopifyProductController,
     Admin\OnlineModelsController,
     SerialNumberTrackingController,
-    GoldItemWeightHistoryController
+    GoldItemWeightHistoryController,
+    ForProductionController
     // NewItemTalabatController 
 };
 
@@ -198,6 +199,17 @@ Route::middleware(['auth'])->group(function () {
             'update' => 'admin.gold_items_avg.update',
             'destroy' => 'admin.gold_items_avg.destroy',
         ]);
+
+        // Production Management Routes
+        Route::resource('production', ForProductionController::class)->names([
+            'index' => 'production.index',
+            'create' => 'production.create',
+            'store' => 'production.store',
+            'edit' => 'production.edit',
+            'update' => 'production.update',
+            'destroy' => 'production.destroy',
+        ]);
+        Route::get('production/model-status', [ForProductionController::class, 'getModelStatus'])->name('production.model-status');
     });
     // pounds
     Route::get('/gold-prices', [GoldPriceController::class, 'getGoldPrices'])->name('gold.prices');

@@ -34,7 +34,22 @@ class GoldReportController extends Controller
         $reportsData = [];
 
         foreach ($soldItems as $model => $items) {
+            // Check if this is a model with a character variant (A, B, C, D)
+            $hasVariant = preg_match('/(.*)-([A-D])$/', $model, $matches);
+            $baseModel = $hasVariant ? $matches[1] : $model;
+            $variant = $hasVariant ? $matches[2] : null;
+            
             $modelInfo = Models::where('model', $model)->first();
+            
+            // If no model info found and this is a variant, try the base model
+            if (!$modelInfo && $hasVariant) {
+                $modelInfo = Models::where('model', $baseModel)->first();
+            }
+
+            // Get workshop data from for_production table
+            $workshopData = \App\Models\ForProduction::where('model', $model)
+                ->orWhere('model', $baseModel)
+                ->first();
 
             // Step 1: Get all items for the model from GoldItems and GoldItemsSold
             $inventoryItems = GoldItem::where('model', $model)->get();
@@ -88,6 +103,14 @@ class GoldReportController extends Controller
                 ? Carbon::parse($latestDate)->format('d-m-Y') . ' (Qty: ' . $lastProductionQuantity . ')'
                 : 'Old (Qty: ' . $oldItemsQuantity . ')';
 
+            // Define our variant color mappings
+            $variantColors = [
+                'A' => 'Black',
+                'B' => 'Yellow',
+                'C' => 'Red',
+                'D' => 'Blue'
+            ];
+
             $reportsData[$model] = [
                 'workshop_count' => $items->where('shop_name', 'Workshop')->count(),
                 'order_date' => $date->format('Y-m-d'),
@@ -96,6 +119,9 @@ class GoldReportController extends Controller
                 'stars' => $modelInfo ? $modelInfo->stars : $items->first()->stars,
                 'image_path' => $modelInfo ? $modelInfo->scanned_image : null,
                 'model' => $model,
+                'base_model' => $baseModel,
+                'variant' => $variant,
+                'variant_color' => $variant ? $variantColors[$variant] : null,
                 'remaining' => GoldItem::where('model', $model)->count(),
                 'total_production' => GoldItem::where('model', $model)->count() + GoldItemSold::where('model', $model)->count(),
                 'total_sold' => GoldItemSold::where('model', $model)->count(),
@@ -103,11 +129,15 @@ class GoldReportController extends Controller
                 // 'last_sale' => $items->max('sold_date'),
                 'shop' => $items->pluck('shop_name')->unique()->implode(' / '),
                 'pieces_sold_today' => $items->count(),
-                'shops_data' => $this->getShopDistribution($model),
+                'shops_data' => $this->getShopDistribution($model, $baseModel),
                 'first_production' => $modelInfo && $modelInfo->first_production
                     ? $modelInfo->first_production
                     : 'Old',
-                'last_production' => $lastProductionDisplay
+                'last_production' => $lastProductionDisplay,
+                'workshop_data' => $workshopData ? [
+                    'not_finished' => $workshopData->not_finished,
+                    'order_date' => $workshopData->order_date->format('d-m-Y')
+                ] : null,
             ];
         }
 
@@ -117,7 +147,7 @@ class GoldReportController extends Controller
     /**
      * Helper method to get shop distribution for a specific model.
      */
-    private function getShopDistribution($model)
+    private function getShopDistribution($model, $baseModel = null)
     {
         $shops = [
             'Mohandessin Shop',
@@ -131,17 +161,41 @@ class GoldReportController extends Controller
             'U Venues'
         ];
 
+        // Use base model if provided, otherwise extract from model
+        if (!$baseModel) {
+            $baseModel = preg_replace('/-[A-D]$/', '', $model);
+        }
+
         $shopDistribution = [];
 
         foreach ($shops as $shop) {
-            $shopItems = GoldItem::where('model', $model)->where('shop_name', $shop)->get();
+            $shopItems = GoldItem::where('model', $baseModel)->where('shop_name', $shop)->get();
 
-            $shopDistribution[$shop] = [
+            $shopData = [
                 'all_rests' => $shopItems->count(),
                 'white_gold' => $shopItems->where('gold_color', 'White')->count(),
                 'yellow_gold' => $shopItems->where('gold_color', 'Yellow')->count(),
                 'rose_gold' => $shopItems->where('gold_color', 'Rose')->count()
             ];
+
+            // Get variant counts
+            $variantA = GoldItem::where('model', $baseModel . '-A')->where('shop_name', $shop)->count();
+            $variantB = GoldItem::where('model', $baseModel . '-B')->where('shop_name', $shop)->count();
+            $variantC = GoldItem::where('model', $baseModel . '-C')->where('shop_name', $shop)->count();
+            $variantD = GoldItem::where('model', $baseModel . '-D')->where('shop_name', $shop)->count();
+            
+            // Add variant counts to all_rests for variant models
+            if (preg_match('/-[A-D]$/', $model)) {
+                $shopData['all_rests'] += $variantA + $variantB + $variantC + $variantD;
+            }
+            
+            // Add variants to shop data with their counts
+            $shopData['variant_A'] = $variantA;
+            $shopData['variant_B'] = $variantB;
+            $shopData['variant_C'] = $variantC;
+            $shopData['variant_D'] = $variantD;
+
+            $shopDistribution[$shop] = $shopData;
         }
 
         return $shopDistribution;

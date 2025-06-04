@@ -54,11 +54,11 @@ Route::prefix('shopify')->group(function () {
 Route::get('/gold-items/matched-models', [App\Http\Controllers\Api\GoldItems\GoldItemsController::class, 'getMatchedModels']);
 Route::get('/gold-items/woocommerce-products', [App\Http\Controllers\Api\GoldItems\GoldItemsController::class, 'getWooCommerceProducts']);
 Route::get('/gold-items/match-sku/{sku}', [App\Http\Controllers\Api\GoldItems\GoldItemsController::class, 'matchBySku']);
-Route::get('/gold-items/models-by-conditions', [App\Http\Controllers\Api\GoldItems\GoldItemsController::class, 'getModelsByConditions']);
 
 Route::get('/items', [App\Http\Controllers\Api\GoldItems\GoldItemsController::class, 'getItemsForWooCommerce']);
 Route::post('/inventory-status', [App\Http\Controllers\Api\GoldItems\GoldItemsController::class, 'getInventoryStatus']);
 Route::get('/gold-items/grouped-items', [App\Http\Controllers\Api\GoldItems\GoldItemsController::class, 'getGroupedItemsForWooCommerce']);
+Route::get('/gold-items/simplified-grouped-items', [App\Http\Controllers\Api\GoldItems\GoldItemsController::class, 'getSimplifiedGroupedItemsForWooCommerce']);
 // Route::apiResource('gold-items', GoldItemsController::class)->names([
 //     'index' => 'api.gold-items.index',
 //     'store' => 'api.gold-items.store',

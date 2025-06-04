@@ -207,6 +207,19 @@ class GoldItemController extends Controller
                         // Create the request
                         $item = AddRequest::create($requestData);
                         Log::info('Created add request', ['item_id' => $item->id]);
+
+                        // Check if talab is false and update for_production table
+                        if (!$requestData['talab']) {
+                            $productionOrder = \App\Models\ForProduction::where('model', $itemData['model'])->first();
+                            if ($productionOrder && $productionOrder->not_finished > 0) {
+                                $productionOrder->decrement('not_finished', $itemData['quantity']);
+                                Log::info('Updated production order', [
+                                    'model' => $itemData['model'],
+                                    'decreased_by' => $itemData['quantity'],
+                                    'remaining_not_finished' => $productionOrder->fresh()->not_finished
+                                ]);
+                            }
+                        }
     
                         // Create notification
                         $notification = json_encode([
