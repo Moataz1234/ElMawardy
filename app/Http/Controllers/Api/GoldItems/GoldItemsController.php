@@ -771,7 +771,7 @@ class GoldItemsController extends Controller
             $modelItem = [
                 'model' => $model,
                 'sku' => $itemWithCategory->modelCategory ? $itemWithCategory->modelCategory->SKU : $model,
-                'quantity' => $totalQuantity,
+                'total_quantity' => $totalQuantity,
                 'kind' => $itemWithCategory->kind,
             ];
             
@@ -813,12 +813,12 @@ class GoldItemsController extends Controller
                         'color' => $item->gold_color,
                         'weight' => $item->weight,
                         'price' => $itemPrice,
-                        'total_quantity' => 0
+                        'quantity' => 0
                     ];
                 }
                 
                 $uniqueCombinations[$combinationKey]['items'][] = $item;
-                $uniqueCombinations[$combinationKey]['total_quantity'] += $item->quantity;
+                $uniqueCombinations[$combinationKey]['quantity'] += $item->quantity;
             }
             
             // Create variations for each unique combination
@@ -834,7 +834,7 @@ class GoldItemsController extends Controller
                     // 'color' => $combination['color'],
                     // 'weight' => $combination['weight'],
                     // 'price' => $combination['price'],
-                    'total_quantity' => $combination['total_quantity'],
+                    'quantity' => $combination['quantity'],
                     // 'item_ids' => collect($combination['items'])->pluck('id')->toArray(),
                     'attributes' => [
                         [
