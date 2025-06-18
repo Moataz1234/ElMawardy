@@ -5,6 +5,7 @@ namespace App\Http\Controllers;
 use App\Models\GoldItem;
 use App\Models\GoldItemSold;
 use App\Models\Models;
+use App\Models\AddRequest;
 use Illuminate\Http\Request;
 use Carbon\Carbon;
 use Barryvdh\DomPDF\Facade\Pdf;
@@ -51,24 +52,37 @@ class GoldReportController extends Controller
                 ->orWhere('model', $baseModel)
                 ->first();
 
-            // Step 1: Get all items for the model from GoldItems and GoldItemsSold
+            // Determine which variants exist for this base model
+            $existingVariants = [];
+            foreach (['A', 'B', 'C', 'D'] as $variantLetter) {
+                $variantModel = $baseModel . '-' . $variantLetter;
+                // Check if variant exists in Models table or has inventory/sold items
+                if (Models::where('model', $variantModel)->exists() || 
+                    GoldItem::where('model', $variantModel)->exists() || 
+                    GoldItemSold::where('model', $variantModel)->exists()) {
+                    $existingVariants[] = $variantLetter;
+                }
+            }
+
+            // Step 1: Get all items for the model from GoldItems, GoldItemsSold, and AddRequests
             $inventoryItems = GoldItem::where('model', $model)->get();
             $soldItemsForModel = GoldItemSold::where('model', $model)->get();
+            $addRequestItems = AddRequest::where('model', $model)->get();
 
             Log::info("Model: $model - Inventory Items: " . $inventoryItems->count());
             Log::info("Model: $model - Sold Items: " . $soldItemsForModel->count());
+            Log::info("Model: $model - Add Request Items: " . $addRequestItems->count());
 
-            // Step 2: Find the latest date from rest_since and add_date
-            $latestInventoryDate = $inventoryItems->max('rest_since');
-            $latestSoldDate = $soldItemsForModel->max('add_date');
+            // Step 2: Find the latest date from rest_since (GoldItems, AddRequests) and add_date (GoldItemsSold)
+            // Only consider items where talab = 0
+            $latestInventoryDate = $inventoryItems->where('talab', 0)->max('rest_since');
+            $latestSoldDate = $soldItemsForModel->where('talab', 0)->max('add_date');
+            $latestAddRequestDate = $addRequestItems->where('talab', 0)->max('rest_since');
 
             $latestDate = null;
-            if ($latestInventoryDate && $latestSoldDate) {
-                $latestDate = $latestInventoryDate > $latestSoldDate ? $latestInventoryDate : $latestSoldDate;
-            } elseif ($latestInventoryDate) {
-                $latestDate = $latestInventoryDate;
-            } elseif ($latestSoldDate) {
-                $latestDate = $latestSoldDate;
+            $dates = array_filter([$latestInventoryDate, $latestSoldDate, $latestAddRequestDate]);
+            if (!empty($dates)) {
+                $latestDate = max($dates);
             }
             Log::info("Model: $model - Latest Date: " . ($latestDate ? $latestDate : 'No Date Found'));
 
@@ -77,23 +91,37 @@ class GoldReportController extends Controller
             $oldItemsQuantity = 0;
 
             if ($latestDate) {
-                // Calculate quantity for the latest date
+                // Calculate quantity for the latest date where talab = 0
                 $lastProductionQuantity += $inventoryItems
                     ->where('rest_since', $latestDate)
+                    ->where('talab', 0)
                     ->sum('quantity');
 
                 $lastProductionQuantity += $soldItemsForModel
                     ->where('add_date', $latestDate)
+                    ->where('talab', 0)
+                    ->sum('quantity');
+
+                $lastProductionQuantity += $addRequestItems
+                    ->where('rest_since', $latestDate)
+                    ->where('talab', 0)
                     ->sum('quantity');
                 Log::info("Model: $model - Last Production Quantity: " . $lastProductionQuantity);
             } else {
-                // Calculate quantity for items with null dates (old items)
+                // Calculate quantity for items with null dates (old items) where talab = 0
                 $oldItemsQuantity += $inventoryItems
                     ->whereNull('rest_since')
+                    ->where('talab', 0)
                     ->sum('quantity');
 
                 $oldItemsQuantity += $soldItemsForModel
                     ->whereNull('add_date')
+                    ->where('talab', 0)
+                    ->sum('quantity');
+
+                $oldItemsQuantity += $addRequestItems
+                    ->whereNull('rest_since')
+                    ->where('talab', 0)
                     ->sum('quantity');
                 Log::info("Model: $model - Old Items Quantity: " . $oldItemsQuantity);
             }
@@ -122,6 +150,7 @@ class GoldReportController extends Controller
                 'base_model' => $baseModel,
                 'variant' => $variant,
                 'variant_color' => $variant ? $variantColors[$variant] : null,
+                'existing_variants' => $existingVariants,
                 'remaining' => GoldItem::where('model', $model)->count(),
                 'total_production' => GoldItem::where('model', $model)->count() + GoldItemSold::where('model', $model)->count(),
                 'total_sold' => GoldItemSold::where('model', $model)->count(),
@@ -137,7 +166,10 @@ class GoldReportController extends Controller
                 'workshop_data' => $workshopData ? [
                     'not_finished' => $workshopData->not_finished,
                     'order_date' => $workshopData->order_date->format('d-m-Y')
-                ] : null,
+                ] : [
+                    'not_finished' => 0,
+                    'order_date' => 'No Order'
+                ],
             ];
         }
 
@@ -169,31 +201,43 @@ class GoldReportController extends Controller
         $shopDistribution = [];
 
         foreach ($shops as $shop) {
+            // Get the base model items ONLY (not variants)
             $shopItems = GoldItem::where('model', $baseModel)->where('shop_name', $shop)->get();
 
+            // Get variant items for all variants (for counting only)
+            $variantAItems = GoldItem::where('model', $baseModel . '-A')->where('shop_name', $shop)->get();
+            $variantBItems = GoldItem::where('model', $baseModel . '-B')->where('shop_name', $shop)->get();
+            $variantCItems = GoldItem::where('model', $baseModel . '-C')->where('shop_name', $shop)->get();
+            $variantDItems = GoldItem::where('model', $baseModel . '-D')->where('shop_name', $shop)->get();
+
+            // Calculate gold color counts ONLY from base model
+            $whiteGold = $shopItems->where('gold_color', 'White')->count();
+            $yellowGold = $shopItems->where('gold_color', 'Yellow')->count();
+            $roseGold = $shopItems->where('gold_color', 'Rose')->count();
+
+            // Get variant counts by character (for All Rests column only)
+            $variantA = $variantAItems->count();
+            $variantB = $variantBItems->count();
+            $variantC = $variantCItems->count();
+            $variantD = $variantDItems->count();
+
+            // Initialize shop data
             $shopData = [
-                'all_rests' => $shopItems->count(),
-                'white_gold' => $shopItems->where('gold_color', 'White')->count(),
-                'yellow_gold' => $shopItems->where('gold_color', 'Yellow')->count(),
-                'rose_gold' => $shopItems->where('gold_color', 'Rose')->count()
+                'white_gold' => $whiteGold,
+                'yellow_gold' => $yellowGold,
+                'rose_gold' => $roseGold,
+                'variant_white' => 0, // Not used anymore since we only show base model colors
+                'variant_yellow' => 0, // Not used anymore since we only show base model colors
+                'variant_rose' => 0, // Not used anymore since we only show base model colors
+                'variant_A' => $variantA,
+                'variant_B' => $variantB,
+                'variant_C' => $variantC,
+                'variant_D' => $variantD,
             ];
 
-            // Get variant counts
-            $variantA = GoldItem::where('model', $baseModel . '-A')->where('shop_name', $shop)->count();
-            $variantB = GoldItem::where('model', $baseModel . '-B')->where('shop_name', $shop)->count();
-            $variantC = GoldItem::where('model', $baseModel . '-C')->where('shop_name', $shop)->count();
-            $variantD = GoldItem::where('model', $baseModel . '-D')->where('shop_name', $shop)->count();
-            
-            // Add variant counts to all_rests for variant models
-            if (preg_match('/-[A-D]$/', $model)) {
-                $shopData['all_rests'] += $variantA + $variantB + $variantC + $variantD;
-            }
-            
-            // Add variants to shop data with their counts
-            $shopData['variant_A'] = $variantA;
-            $shopData['variant_B'] = $variantB;
-            $shopData['variant_C'] = $variantC;
-            $shopData['variant_D'] = $variantD;
+            // For all_rests: base model total (sum of all gold colors) + all variants
+            $baseModelTotal = $whiteGold + $yellowGold + $roseGold;
+            $shopData['all_rests'] = $baseModelTotal + $variantA + $variantB + $variantC + $variantD;
 
             $shopDistribution[$shop] = $shopData;
         }
@@ -228,7 +272,7 @@ class GoldReportController extends Controller
                 'isPdf' => true  // This flag will hide web-only elements
             ]);
 
-            $pdf->setPaper('A4', 'landscape');
+            $pdf->setPaper('A4', 'portrait');
 
             try {
                 // Send email with the PDF attachment

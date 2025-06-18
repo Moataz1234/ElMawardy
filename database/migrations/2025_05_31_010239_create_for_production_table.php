@@ -13,10 +13,11 @@ return new class extends Migration
     {
         Schema::create('for_production', function (Blueprint $table) {
             $table->id();
-            $table->string('model');
-            $table->integer('quantity');
-            $table->integer('not_finished');
-            $table->date('order_date');
+            $table->string('model')->nullable();
+            $table->integer('quantity')->nullable();
+            $table->integer('not_finished')->nullable();
+            $table->string('gold_color')->nullable();
+            $table->date('order_date')->nullable();
             $table->timestamps();
         });
     }

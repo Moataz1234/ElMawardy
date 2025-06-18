@@ -76,7 +76,7 @@
             </div>
             <div class="col-md-3">
                 <div class="summary-card" style="background: linear-gradient(135deg, #f093fb 0%, #f5576c 100%);">
-                    <h3>${{ number_format($analytics['monthly_sales']->sum('total'), 2) }}</h3>
+                    <h3>{{ number_format($analytics['monthly_sales']->sum('total'), 2) }}</h3>
                     <p>Total Revenue This Year</p>
                 </div>
             </div>
