@@ -106,29 +106,58 @@
                             <div class="col-md-4">
                                 <div class="card text-center h-100 bg-light">
                                     <div class="card-body">
-                                        <h5 class="card-title">Total Buy</h5>
-                                        <p class="card-text fs-2 fw-bold text-success">{{ number_format($totalBoughtWeight, 2) }} g</p>
-                                        <p class="text-muted small">Normalized to 18K</p>
+                                        <h5 class="card-title text-success">Total Buy</h5>
+                                        <!-- Weight Section -->
+                                        <div class="border-bottom pb-3 mb-3">
+                                            <p class="card-text fs-2 fw-bold text-success mb-1">{{ number_format($totalBoughtWeight, 2) }} g</p>
+                                            <p class="text-muted small mb-0"><i class="fas fa-weight"></i> Weight (Normalized to 18K)</p>
+                                        </div>
+                                        <!-- Price Section -->
+                                        <div>
+                                            <p class="card-text fs-4 fw-bold text-success mb-1">{{ number_format($totalBoughtPrice, 0) }} EGP</p>
+                                            <p class="text-muted small mb-0"><i class="fas fa-money-bill"></i> Total Price</p>
+                                        </div>
                                     </div>
                                 </div>
                             </div>
                             <div class="col-md-4">
                                 <div class="card text-center h-100 bg-light">
                                     <div class="card-body">
-                                        <h5 class="card-title">Total Sell</h5>
-                                        <p class="card-text fs-2 fw-bold text-danger">{{ number_format($totalSoldWeight, 2) }} g</p>
-                                        <p class="text-muted small">Normalized to 18K</p>
+                                        <h5 class="card-title text-danger">Total Sell</h5>
+                                        <!-- Weight Section -->
+                                        <div class="border-bottom pb-3 mb-3">
+                                            <p class="card-text fs-2 fw-bold text-danger mb-1">{{ number_format($totalSoldWeight, 2) }} g</p>
+                                            <p class="text-muted small mb-0"><i class="fas fa-weight"></i> Weight (Normalized to 18K)</p>
+                                        </div>
+                                        <!-- Price Section -->
+                                        <div>
+                                            <p class="card-text fs-4 fw-bold text-danger mb-1">{{ number_format($totalSoldPrice, 0) }} EGP</p>
+                                            <p class="text-muted small mb-0"><i class="fas fa-money-bill"></i> Total Price</p>
+                                        </div>
                                     </div>
                                 </div>
                             </div>
                             <div class="col-md-4">
                                 <div class="card text-center h-100 bg-light">
                                     <div class="card-body">
-                                        <h5 class="card-title">Balance</h5>
-                                        <p class="card-text fs-2 fw-bold {{ $balance >= 0 ? 'text-success' : 'text-danger' }}">
-                                            {{ number_format($balance, 2) }} g
-                                        </p>
-                                        <p class="text-muted small">Bought - Sold</p>
+                                        <h5 class="card-title text-primary">Balance</h5>
+                                        <!-- Weight Balance Section -->
+                                        <div class="border-bottom pb-3 mb-3">
+                                            <p class="card-text fs-2 fw-bold {{ $balance >= 0 ? 'text-success' : 'text-danger' }} mb-1">
+                                                {{ number_format($balance, 2) }} g
+                                            </p>
+                                            <p class="text-muted small mb-0"><i class="fas fa-balance-scale"></i> Weight Balance</p>
+                                        </div>
+                                        <!-- Price Balance Section -->
+                                        @php
+                                            $priceBalance = $totalBoughtPrice - $totalSoldPrice;
+                                        @endphp
+                                        <div>
+                                            <p class="card-text fs-4 fw-bold {{ $priceBalance >= 0 ? 'text-success' : 'text-danger' }} mb-1">
+                                                {{ number_format($priceBalance, 0) }} EGP
+                                            </p>
+                                            <p class="text-muted small mb-0"><i class="fas fa-calculator"></i> Price Balance</p>
+                                        </div>
                                     </div>
                                 </div>
                             </div>
@@ -253,29 +282,58 @@
                             <div class="col-md-4">
                                 <div class="card text-center h-100 bg-light">
                                     <div class="card-body">
-                                        <h5 class="card-title">Monthly Total Buy</h5>
-                                        <p class="card-text fs-2 fw-bold text-success">{{ number_format($monthlyReportData['total_bought'], 2) }} g</p>
-                                        <p class="text-muted small">Normalized to 18K</p>
+                                        <h5 class="card-title text-success">Monthly Total Buy</h5>
+                                        <!-- Weight Section -->
+                                        <div class="border-bottom pb-3 mb-3">
+                                            <p class="card-text fs-2 fw-bold text-success mb-1">{{ number_format($monthlyReportData['total_bought'], 2) }} g</p>
+                                            <p class="text-muted small mb-0"><i class="fas fa-weight"></i> Weight (Normalized to 18K)</p>
+                                        </div>
+                                        <!-- Price Section -->
+                                        <div>
+                                            <p class="card-text fs-4 fw-bold text-success mb-1">{{ number_format($monthlyReportData['total_bought_price'], 0) }} EGP</p>
+                                            <p class="text-muted small mb-0"><i class="fas fa-money-bill"></i> Total Price</p>
+                                        </div>
                                     </div>
                                 </div>
                             </div>
                             <div class="col-md-4">
                                 <div class="card text-center h-100 bg-light">
                                     <div class="card-body">
-                                        <h5 class="card-title">Monthly Total Sell</h5>
-                                        <p class="card-text fs-2 fw-bold text-danger">{{ number_format($monthlyReportData['total_sold'], 2) }} g</p>
-                                        <p class="text-muted small">Normalized to 18K</p>
+                                        <h5 class="card-title text-danger">Monthly Total Sell</h5>
+                                        <!-- Weight Section -->
+                                        <div class="border-bottom pb-3 mb-3">
+                                            <p class="card-text fs-2 fw-bold text-danger mb-1">{{ number_format($monthlyReportData['total_sold'], 2) }} g</p>
+                                            <p class="text-muted small mb-0"><i class="fas fa-weight"></i> Weight (Normalized to 18K)</p>
+                                        </div>
+                                        <!-- Price Section -->
+                                        <div>
+                                            <p class="card-text fs-4 fw-bold text-danger mb-1">{{ number_format($monthlyReportData['total_sold_price'], 0) }} EGP</p>
+                                            <p class="text-muted small mb-0"><i class="fas fa-money-bill"></i> Total Price</p>
+                                        </div>
                                     </div>
                                 </div>
                             </div>
                             <div class="col-md-4">
                                 <div class="card text-center h-100 bg-light">
                                     <div class="card-body">
-                                        <h5 class="card-title">Monthly Balance</h5>
-                                        <p class="card-text fs-2 fw-bold {{ $monthlyReportData['total_balance'] >= 0 ? 'text-success' : 'text-danger' }}">
-                                            {{ number_format($monthlyReportData['total_balance'], 2) }} g
-                                        </p>
-                                        <p class="text-muted small">Bought - Sold</p>
+                                        <h5 class="card-title text-primary">Monthly Balance</h5>
+                                        <!-- Weight Balance Section -->
+                                        <div class="border-bottom pb-3 mb-3">
+                                            <p class="card-text fs-2 fw-bold {{ $monthlyReportData['total_balance'] >= 0 ? 'text-success' : 'text-danger' }} mb-1">
+                                                {{ number_format($monthlyReportData['total_balance'], 2) }} g
+                                            </p>
+                                            <p class="text-muted small mb-0"><i class="fas fa-balance-scale"></i> Weight Balance</p>
+                                        </div>
+                                        <!-- Price Balance Section -->
+                                        @php
+                                            $monthlyPriceBalance = $monthlyReportData['total_bought_price'] - $monthlyReportData['total_sold_price'];
+                                        @endphp
+                                        <div>
+                                            <p class="card-text fs-4 fw-bold {{ $monthlyPriceBalance >= 0 ? 'text-success' : 'text-danger' }} mb-1">
+                                                {{ number_format($monthlyPriceBalance, 0) }} EGP
+                                            </p>
+                                            <p class="text-muted small mb-0"><i class="fas fa-calculator"></i> Price Balance</p>
+                                        </div>
                                     </div>
                                 </div>
                             </div>

@@ -170,7 +170,7 @@
                                             <span class="badge bg-info">{{ $shop->users->count() }} users</span>
                                         </td>
                                         <td>
-                                            <small class="text-muted">{{ $shop->created_at->format('M d, Y H:i') }}</small>
+                                            <small class="text-muted">{{ $shop->created_at}}</small>
                                         </td>
                                         <td>
                                             <div class="btn-group" role="group">

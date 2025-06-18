@@ -109,7 +109,7 @@
                 <div class="card text-center border-0 bg-info text-white">
                     <div class="card-body">
                         <i class="bx bx-dollar display-4"></i>
-                        <h4 class="mt-2">${{ number_format($soldItems->sum('price'), 2) }}</h4>
+                        <h4 class="mt-2">{{ number_format($soldItems->sum('price'), 2) }}</h4>
                         <p class="mb-0">Total Revenue</p>
                     </div>
                 </div>
@@ -117,7 +117,7 @@
             <div class="col-lg-3 col-md-6 mb-3">
                 <div class="card text-center border-0 bg-warning text-dark">
                     <div class="card-body">
-                        <i class="bx bx-weight display-4"></i>
+                        <i class="bx bx-box display-4"></i>
                         <h4 class="mt-2">{{ $soldItems->sum('weight') }}g</h4>
                         <p class="mb-0">Total Weight</p>
                     </div>
@@ -227,7 +227,7 @@
                                             @endif
                                         </td>
                                         <td>
-                                            <strong class="text-success">${{ number_format($item->price, 2) }}</strong>
+                                            <strong class="text-success">{{ number_format($item->price, 2) }}</strong>
                                         </td>
                                         <td>
                                             <span class="badge bg-warning text-dark">{{ $item->weight }}g</span>
