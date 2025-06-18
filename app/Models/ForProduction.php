@@ -15,6 +15,7 @@ class ForProduction extends Model
         'model',
         'quantity',
         'not_finished',
+        'gold_color',
         'order_date'
     ];
 
