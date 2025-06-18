@@ -280,6 +280,8 @@
                         <a href="{{ route('gold-analysis.index') }}" class="dropdown-item">الجرد</a>
                         <a href="{{ route('tracking.index') }}" class="dropdown-item">Serial Number Tracking</a>
                         <a href="{{ route('gold-item-weight-history.index') }}" class="dropdown-item">Weight Change History</a>
+                        {{-- <a href="{{ route('production.import') }}" class="dropdown-item">Production Import</a> --}}
+                        <a href="{{ route('production.index') }}" class="dropdown-item">Production</a>
                     </div>
                 </li>
 
@@ -411,7 +413,7 @@
                 <li class="navbar-item"><a href="{{ route('transfer.requests') }}" class="navbar-link">التحويلات</a></li>
                 <li class="navbar-item"><a href="{{ route('add-requests.index') }}" class="navbar-link">الاضافات</a></li>
                 <li class="navbar-item"><a href="{{ route('shop.workshop.requests') }}" class="navbar-link">طلبات الكسر</a></li>
-                <li class="navbar-item"><a href="{{ route('tracking.index') }}" class="navbar-link">Serial Tracking</a></li>
+                {{-- <li class="navbar-item"><a href="{{ route('tracking.index') }}" class="navbar-link">Serial Tracking</a></li> --}}
 
                 {{-- <li class="navbar-item"><a href="{{ route('shop.requests.index') }}" class="navbar-link">التحويلات الى الورشة</a></li> --}}
                 
