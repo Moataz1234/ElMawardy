@@ -1,5 +1,12 @@
 <?php
+
+// Include route files
 require base_path('routes/api.php');
+require base_path('routes/admin.php');
+require base_path('routes/shop.php');
+require base_path('routes/rabea.php');
+require base_path('routes/acc.php');
+require base_path('routes/super.php');
 
 // ===================================
 // Package Imports & Use Statements
@@ -145,17 +152,8 @@ Route::middleware(['auth'])->group(function () {
     // ===================================
     // Accountant (ACC) Routes
     // ===================================
-    Route::middleware(['auth', 'acc'])->group(function () {
-        Route::get('/Acc_sell_requests', [SoldItemRequestController::class, 'viewSaleRequestsAcc'])->name('sell-requests.acc');
-        // Route::post('/Acc_sell_requests/{id}/approve', [SoldItemRequestController::class, 'approveSaleRequest'])->name('sell-requests.approve');
-        Route::post('/Acc_sell_requests/{id}/reject', [SoldItemRequestController::class, 'rejectSaleRequest'])->name('sell-requests.reject');
-        Route::get('/all-sold-items', [SoldItemRequestController::class, 'viewAllSoldItems'])
-            ->name('all-sold-items');
-        Route::post('/sell-requests/bulk-approve', [SoldItemRequestController::class, 'bulkApprove'])->name('sell-requests.bulk-approve');
+    // MOVED TO routes/acc.php
 
-        // Gold Balance Report Route
-        Route::get('/gold-balance-report', [GoldBalanceReportController::class, 'index'])->name('gold-balance.report');
-    });
     Route::get('/gold-balance-report', [GoldBalanceReportController::class, 'index'])->name('gold-balance.report');
 
     // ===================================
@@ -169,8 +167,6 @@ Route::middleware(['auth'])->group(function () {
     // ===================================
     // Gold Items & Pricing Routes
     // ===================================
-    Route::get('/gold-items', [ShopsController::class, 'getAllItems'])->name('gold-items.index');
-  Route::get('/item-details/{serial_number}', [ShopsController::class, 'getItemDetails'])->name('item.details');
     Route::post('/sell-requests/bulk-approve', [SoldItemRequestController::class, 'bulkApprove'])->name('sell-requests.bulk-approve');
 
     // ===================================
@@ -224,181 +220,12 @@ Route::middleware(['auth'])->group(function () {
     // ===================================
     // Admin Routes
     // ===================================
-    Route::middleware('admin')->group(function () {
-        // Gold Item Management
-        Route::post('/gold-items/add-to-session', [GoldItemController::class, 'addItemToSession'])->name('gold-items.add-to-session');
-        Route::delete('/gold-items/remove-session-item', [GoldItemController::class, 'removeSessionItem'])->name('gold-items.remove-session-item');
-        Route::post('/gold-items/submit-all', [GoldItemController::class, 'submitAllItems'])->name('gold-items.submit-all');
-
-        Route::get('/gold-analysis', [GoldAnalysisController::class, 'index'])->name('gold-analysis.index');
-        Route::get('/gold-analysis/export', [GoldAnalysisController::class, 'export'])->name('gold-analysis.export');
-
-        Route::get('/sale-requests', action: [SoldItemRequestController::class, 'viewSaleRequests'])->name('sell-requests.index');
-        Route::get('/all-sale-requests', [SoldItemRequestController::class, 'viewAllSaleRequests'])->name('sale-requests.all');
-
-
-        Route::get('/generate-model', [ModelsController::class, 'generateModel']);
-
-        Route::get('/gold-items/create', [GoldItemController::class, 'create'])->name('gold-items.create');
-        Route::resource('models', ModelsController::class)->names([
-            'index' => 'models.index',
-            // 'create' => 'models.create',
-            'store' => 'models.store',
-            'edit' => 'models.edit',
-            'update' => 'models.update',
-            'destroy' => 'models.destroy',
-        ]);
-        Route::get('/models/create', [ModelsController::class, 'create'])->name('models.create');
-
-        Route::get('/check-model-exists', [ModelsController::class, 'checkModelExists']);
-        Route::post('/gold-items/store', [GoldItemController::class, 'store'])->name('gold-items.store');
-        Route::get('/gold-items/{id}/edit', [GoldItemController::class, 'edit'])->name('gold-items.edit');
-        Route::put('/gold-items/{id}', [AdminDashboardController::class, 'update'])->name('gold-items.update');
-        Route::get('/gold-items/model-details', [GoldItemController::class, 'getModelDetails']);
-        Route::get('/barcode', [BarcodeController::class, 'index'])->name('barcode.view');
-        Route::get('/barcode/export', [BarcodeController::class, 'export'])->name('barcode.export');
-        Route::get('/admin/barcode/export-barcode', [BarcodeController::class, 'exportBarcode'])->name('barcode.exportBarcode');
-        Route::get('/gold-items/{id}/export-barcode', [BarcodeController::class, 'exportSingleItemBarcode'])
-            ->name('item.export.barcode');
-        Route::get('/generate-qr', [BarcodeController::class, 'generate'])->name('barcode.generate');
-
-        Route::get('/warehouse', [WarehouseController::class, 'index'])->name('admin.warehouse.index');
-        Route::post('/warehouse', [WarehouseController::class, 'store'])->name('admin.warehouse.store');
-        Route::post('/bulk-action', [WarehouseController::class, 'bulkAction'])->name('warehouse.bulkAction');
-        Route::get('/warehouse/{id}/edit', [WarehouseController::class, 'edit'])->name('admin.warehouse.edit');
-        Route::post('/warehouse/{id}/assign', [WarehouseController::class, 'assignToShop'])
-            ->name('admin.warehouse.assign');
-
-        // Route::get('/talabat/model-details', [TalabatController::class, 'getTalabatDetails']);
-        Route::get('/admin/new-dashboard', [AdminDashboardController::class, 'dashboard'])->name('admin.dashboard');
-        Route::get('/admin/inventory', [AdminDashboardController::class, 'index'])->name('admin.inventory');
-        Route::post('/admin/inventory/bulk-action', [AdminDashboardController::class, 'bulkAction'])
-            ->name('bulk-action')
-            ->middleware('web');
-        Route::get('/deleted-items-history', [AdminDashboardController::class, 'deletedItems'])
-            ->name('deleted-items.history');
-        // Route::get('/workshop-items', [AdminDashboardController::class, 'workshopItems'])
-        //     ->name('workshop.items');
-
-        Route::post('/admin/workshop/transfer-requests', [AdminDashboardController::class, 'createWorkshopRequests'])
-            ->name('workshop.requests.create');
-        Route::post('/workshop-requests/{id}/handle', [AdminDashboardController::class, 'handleWorkshopRequest'])
-            ->name('workshop.requests.handle');
-        Route::get('/notifications', [NotificationController::class, 'index'])->name('notifications.index');
-        Route::post('/notifications/{id}/mark-as-read', [NotificationController::class, 'markAsRead'])
-            ->name('notifications.mark-as-read');
-        Route::get('/admin/sold-items', [AdminDashboardController::class, 'Sold'])->name('admin.sold-items');
-        // Route::get('/daily-report', [GoldReportController::class, 'generateDailyReport'])->name('daily.report');
-        Route::get('/daily-report/pdf', [GoldReportController::class, 'generateDailyReport'])->name('daily.report.pdf');
-        Route::get('/reports', [GoldItemSoldController::class, 'viewReports'])->name('reports.view');
-        // Route::post('/send-report-email', [GoldReportController::class, 'generateDailyReport'])->name('send.report.email');
-        Route::post('/reports/send', [GoldReportController::class, 'sendDailyReport'])->name('reports.send');
-        Route::get('/new-item/create', [NewItemController::class, 'create'])->name('new-item.create');
-        Route::post('/new-item/store', [NewItemController::class, 'store'])->name('new-item.store');
-        Route::get('/transfer-requests/history', [TransferRequestsController::class, 'viewTransferRequestHistory'])
-            ->name('transfer.requests.admin');
-
-
-        // Shopify Routes
-        Route::prefix('shopify')->name('shopify.')->group(function () {
-            // Product routes
-            Route::get('/products', [ShopifyProductController::class, 'index'])->name('products');
-            Route::get('/products/edit/{product_id}', [ShopifyProductController::class, 'showEditImageForm'])->name('products.showEditImageForm');
-            Route::post('/products/edit/{product_id}', [ShopifyProductController::class, 'editProduct'])->name('products.editProduct');
-            Route::post('/update-from-excel', [ShopifyProductController::class, 'updateFromExcel'])->name('updateFromExcel');
-            // Route::get('/products/update-g-inventory', [ShopifyProductController::class, 'updateGInventory'])->name('updateGInventory');
-            // Route::get('/products/update-g-inventory-location', [ShopifyProductController::class, 'updateGInventoryAtLocation'])->name('updateGInventoryAtLocation');
-            Route::get('/products/update-all-zero-inventory', [ShopifyProductController::class, 'updateAllZeroInventory'])->name('updateAllZeroInventory');
-            Route::post('/products/import-skus-set-zero', [ShopifyProductController::class, 'importSkusSetZero'])->name('importSkusSetZero');
-            // Order routes
-            Route::get('/orders', [App\Http\Controllers\Admin\Shopify\ShopifyOrderController::class, 'index'])->name('orders');
-            Route::post('/orders/{id}/fulfill', [App\Http\Controllers\Admin\Shopify\ShopifyOrderController::class, 'fulfillOrder'])->name('orders.fulfill');
-            Route::post('/orders/{id}/paid', [App\Http\Controllers\Admin\Shopify\ShopifyOrderController::class, 'markAsPaid'])->name('orders.markAsPaid');
-            Route::get('/orders/{orderId}/pdf', [App\Http\Controllers\Admin\Shopify\ShopifyOrderController::class, 'generatePdf'])->name('orders.pdf');
-
-            // Checkout routes
-            Route::get('/abandoned-checkouts', [App\Http\Controllers\Admin\Shopify\ShopifyCheckoutController::class, 'index'])->name('abandonedCheckouts');
-
-            // Price update routes
-            Route::get('/update-prices', [App\Http\Controllers\Admin\Shopify\ShopifyPriceController::class, 'seeUpdatePrice'])->name('updatePrices');
-            Route::post('/update-gold-prices', [App\Http\Controllers\Admin\Shopify\ShopifyPriceController::class, 'updateGoldPrices'])->name('updateGold');
-            Route::post('/update-diamond-prices', [App\Http\Controllers\Admin\Shopify\ShopifyPriceController::class, 'updateDiamondPrices'])->name('updateDiamond');
-            Route::post('/update-prices-from-csv', [App\Http\Controllers\Admin\Shopify\ShopifyPriceController::class, 'updatePricesFromCsv'])->name('updatePricesFromCsv');
-            Route::post('/update-specific-products', [App\Http\Controllers\Admin\Shopify\ShopifyPriceController::class, 'updateSpecificProducts'])->name('updateSpecificProducts');
-            Route::post('/add-products-to-collection', [App\Http\Controllers\Admin\Shopify\ShopifyPriceController::class, 'addProductsToCollection'])->name('addProductsToCollection');
-            Route::post('/update-quantity-to-one', [App\Http\Controllers\Admin\Shopify\ShopifyPriceController::class, 'updateQuantityToOne'])->name('updateQuantityToOne');
-        });
-
-        // Kasr Sales Admin Routes
-        Route::get('/kasr-sales-admin', [KasrSaleAdminController::class, 'index'])->name('kasr-sales.admin.index');
-        Route::get('/admin/kasr-sales/{kasrSale}/items', [KasrSaleAdminController::class, 'getItems'])->name('admin.kasr-sales.items');
-        Route::post('/kasr-sales/batch-update', [KasrSaleAdminController::class, 'batchUpdate'])->name('kasr-sales.batch-update');
-        Route::get('/kasr-sales-completed', [KasrSaleController::class, 'completed'])->name('kasr-sales.completed');
-
-        // Shop name matching tool
-        Route::post('/update-shop-name', [AdminDashboardController::class, 'updateShopName'])->name('admin.update-shop-name');
-    });
+    // MOVED to routes/admin.php
 
     // ===================================
     // Super User Routes
     // ===================================
-    Route::middleware('super')->prefix('super')->name('super.')->group(function () {
-        // Dashboard
-        Route::get('/dashboard', [App\Http\Controllers\Super\SuperDashboardController::class, 'index'])->name('dashboard');
-        
-        // Users Management
-        Route::get('/users', [App\Http\Controllers\Super\SuperDashboardController::class, 'users'])->name('users');
-        Route::get('/users/{id}/edit', [App\Http\Controllers\Super\SuperDashboardController::class, 'editUser'])->name('users.edit');
-        Route::put('/users/{id}', [App\Http\Controllers\Super\SuperDashboardController::class, 'updateUser'])->name('users.update');
-        Route::delete('/users/{id}', [App\Http\Controllers\Super\SuperDashboardController::class, 'deleteUser'])->name('users.delete');
-        
-        // Shops Management
-        Route::get('/shops', [App\Http\Controllers\Super\SuperDashboardController::class, 'shops'])->name('shops');
-        Route::get('/shops/{id}/edit', [App\Http\Controllers\Super\SuperDashboardController::class, 'editShop'])->name('shops.edit');
-        Route::put('/shops/{id}', [App\Http\Controllers\Super\SuperDashboardController::class, 'updateShop'])->name('shops.update');
-        
-        // Gold Items Management
-        Route::get('/gold-items', [App\Http\Controllers\Super\SuperDashboardController::class, 'goldItems'])->name('gold-items');
-        Route::get('/sold-items', [App\Http\Controllers\Super\SuperDashboardController::class, 'soldItems'])->name('sold-items');
-        
-        // Models Management
-        Route::get('/models', [App\Http\Controllers\Super\SuperDashboardController::class, 'models'])->name('models.index');
-        Route::get('/models/create', [App\Http\Controllers\Super\SuperModelsController::class, 'create'])->name('models.create');
-        Route::post('/models', [App\Http\Controllers\Super\SuperModelsController::class, 'store'])->name('models.store');
-        Route::get('/models/{id}', [App\Http\Controllers\Super\SuperModelsController::class, 'show'])->name('models.show');
-        Route::get('/models/{id}/edit', [App\Http\Controllers\Super\SuperModelsController::class, 'edit'])->name('models.edit');
-        Route::put('/models/{id}', [App\Http\Controllers\Super\SuperModelsController::class, 'update'])->name('models.update');
-        Route::delete('/models/{id}', [App\Http\Controllers\Super\SuperModelsController::class, 'destroy'])->name('models.destroy');
-        
-        // Customer Management
-        Route::get('/customers', [App\Http\Controllers\Super\SuperDashboardController::class, 'customers'])->name('customers');
-        Route::get('/customers/create', [App\Http\Controllers\Super\SuperDashboardController::class, 'createCustomer'])->name('customers.create');
-        Route::post('/customers', [App\Http\Controllers\Super\SuperDashboardController::class, 'storeCustomer'])->name('customers.store');
-        Route::get('/customers/{id}', [App\Http\Controllers\Super\SuperDashboardController::class, 'showCustomer'])->name('customers.show');
-        Route::get('/customers/{id}/edit', [App\Http\Controllers\Super\SuperDashboardController::class, 'editCustomer'])->name('customers.edit');
-        Route::put('/customers/{id}', [App\Http\Controllers\Super\SuperDashboardController::class, 'updateCustomer'])->name('customers.update');
-        Route::delete('/customers/{id}', [App\Http\Controllers\Super\SuperDashboardController::class, 'deleteCustomer'])->name('customers.delete');
-        
-        // Requests Management
-        Route::get('/requests', [App\Http\Controllers\Super\SuperDashboardController::class, 'requests'])->name('requests');
-        Route::post('/requests/{type}/{id}/handle', [App\Http\Controllers\Super\SuperDashboardController::class, 'handleRequest'])->name('handle-request');
-        
-        // Orders Management
-        Route::get('/orders', [App\Http\Controllers\Super\SuperDashboardController::class, 'orders'])->name('orders');
-        Route::get('/orders/{id}', [App\Http\Controllers\Super\SuperDashboardController::class, 'showOrder'])->name('orders.show');
-        Route::get('/orders/{id}/edit', [App\Http\Controllers\Super\SuperDashboardController::class, 'editOrder'])->name('orders.edit');
-        Route::put('/orders/{id}', [App\Http\Controllers\Super\SuperDashboardController::class, 'updateOrder'])->name('orders.update');
-        Route::delete('/orders/{id}', [App\Http\Controllers\Super\SuperDashboardController::class, 'deleteOrder'])->name('orders.delete');
-        
-        // Kasr Sales Management
-        Route::get('/kasr-sales', [App\Http\Controllers\Super\SuperDashboardController::class, 'kasrSales'])->name('kasr-sales');
-        
-        // Analytics
-        Route::get('/analytics', [App\Http\Controllers\Super\SuperDashboardController::class, 'analytics'])->name('analytics');
-        
-        // Settings
-        Route::get('/settings', [App\Http\Controllers\Super\SuperDashboardController::class, 'settings'])->name('settings');
-    });
+    // MOVED to routes/super.php
 
     // ===================================
     // Shop Routes
@@ -412,66 +239,12 @@ Route::middleware(['auth'])->group(function () {
     // Route::get('/bulk-transfer', [ShopsController::class, 'showBulkTransferForm'])->name('gold-items.bulk-transfer-form');
     Route::post('/bulk-transfer', [ShopsController::class, 'bulkTransfer'])->name('gold-items.bulk-transfer');
 
-    Route::middleware('user')->group(function () {
-        // Shop Requests
-        Route::get('/shop/requests', [ShopsController::class, 'showAdminRequests'])
-            ->name('shop.requests.index');
-        Route::patch('/shop/requests/{itemRequest}', [ShopsController::class, 'updateAdminRequests'])
-            ->name('shop.requests.update');
-
-        // Shop Dashboard & Items
-        Route::get('/shop/dashboard', [ShopsController::class, 'showShopItems'])->name('shop-dashboard');
-        Route::get('/gold-catalog', [GoldCatalogController::class, 'ThreeView'])->name('gold-catalog');
-        Route::get('/dashboard/{id}/edit', [ShopsController::class, 'edit'])->name('shop-items.edit');
-        Route::get('/gold-items/shop', [ShopsController::class, 'showShopItems'])->name('gold-items.shop');
-        Route::post('/gold-items-sold/{id}/mark-as-rest', [GoldItemSoldController::class, 'markAsRest'])->name('gold-items-sold.markAsRest');
-        Route::get('/gold-items-sold/{id}/edit', [GoldItemSoldController::class, 'edit'])->name('gold-items-sold.edit');
-        Route::put('/gold-items-sold/{id}', [GoldItemSoldController::class, 'update'])->name('gold-items-sold.update');
-
-        Route::post('/gold-items/store-outer', [ShopsController::class, 'storeOuter'])->name('gold-items.storeOuter');
-        Route::post('gold-items/returnOuter/{serialNumber}', [ShopsController::class, 'returnOuter'])->name('gold-items.returnOuter');
-        Route::post('gold-items/toggleReturn/{serial_number}', [ShopsController::class, 'toggleReturn'])->name('gold-items.toggleReturn');
-        Route::get('/orders', [OrderController::class, 'index'])->name('orders.index');
-        Route::get('/orders/create', [OrderController::class, 'create'])->name('orders.create');
-        Route::get('/orders/history', [OrderController::class, 'showCompletedOrders'])->name('orders.history');
-        Route::post('/shop-items/bulk-sell', [ShopsController::class, 'BulkSell'])->name('shop-items.bulkSell');
-        Route::get('/shop-items/bulk-sell-form', [ShopsController::class, 'showBulkSellForm'])->name('shop-items.bulkSellForm');
-
-        Route::get('/import', [ExcelImportController::class, 'showForm'])->name('import.form');
-        Route::post('/import', [ExcelImportController::class, 'import'])->name('excel.import');
-
-        // Shop Workshop Request routes
-        Route::get('/shop/workshop-requests', [DidItemsController::class, 'shopWorkshopRequests'])->name('shop.workshop.requests');
-        Route::post('/shop/workshop-requests/handle', [DidItemsController::class, 'handleShopWorkshopRequests'])->name('shop.workshop.requests.handle');
-
-        // Workshop requests for 'rabea' shop
-        Route::get('/rabea/workshop-requests', [ShopsController::class, 'showWorkshopRequests'])->name('rabea.workshop.requests');
-        Route::post('/rabea/workshop-requests/handle', [ShopsController::class, 'handleWorkshopRequests'])->name('rabea.workshop.requests.handle');
-    });
-
+    // MOVED to routes/shop.php
+    
     // ===================================
     // Rabea Routes
     // ===================================
-    Route::middleware('rabea')->group(function () {
-        Route::get('/orders/rabea', [RabiaController::class, 'indexForRabea'])->name('orders.rabea.index');
-
-        Route::get('/search', [RabiaController::class, 'search'])->name('orders.search');
-        Route::post('/update-status/{id}', [RabiaController::class, 'updateStatus'])->name('orders.updateStatus');
-        Route::post('/orders/update-status-bulk', [RabiaController::class, 'updateStatusBulk'])->name('orders.updateStatus.bulk');
-        // orders show
-        Route::get('/orders/rabea/{id}', [RabiaController::class, 'show'])->name('orders.show');
-        // orders edit
-        Route::get('/orders/edit/{id}', [RabiaController::class, 'edit'])->name('orders.rabea.edit');
-        Route::put('/orders/update/{id}', [RabiaController::class, 'update'])->name('orders.update');
-        // orders requests
-        Route::get('/orders/requests', [RabiaController::class, 'requests'])->name('orders.requests');
-        Route::post('/orders/accept', [RabiaController::class, 'accept'])->name('orders.accept');
-        Route::get('/orders/toPrint', [RabiaController::class, 'toPrint'])->name('orders.rabea.to_print');
-        Route::get('/orders/completed', [RabiaController::class, 'completed'])->name('orders.completed');
-
-        // Rabea inventory management
-
-    });
+    // MOVED to routes/rabea.php
 
     // ===================================
     // Common Authenticated Routes
