@@ -8,6 +8,7 @@ use App\Models\PoundRequest;
 use App\Models\GoldItem;
 use App\Models\Models;
 use App\Models\Warehouse;
+use App\Models\ForProduction;
 use App\Models\GoldPoundInventory;
 use Illuminate\Support\Facades\Log;
 use Illuminate\Support\Facades\DB;
@@ -49,6 +50,29 @@ class SuperAdminRequestController extends Controller
 
                     GoldItem::create($goldItemData);
                     $itemRequest->update(['status' => 'accepted']);
+
+                    // Check if talab is false and update for_production table
+                    if (!$itemRequest->talab) {
+                        $productionOrder = ForProduction::where('model', $itemRequest->model)
+                            ->where('gold_color', $itemRequest->gold_color)
+                            ->first();
+                        if ($productionOrder && $productionOrder->not_finished > 0) {
+                            $productionOrder->decrement('not_finished', $itemRequest->quantity);
+                            Log::info('Updated production order after approval', [
+                                'request_id' => $itemRequest->id,
+                                'model' => $itemRequest->model,
+                                'gold_color' => $itemRequest->gold_color,
+                                'decreased_by' => $itemRequest->quantity,
+                                'remaining_not_finished' => $productionOrder->fresh()->not_finished
+                            ]);
+                        } else {
+                            Log::info('No matching production order found or already completed during approval', [
+                                'request_id' => $itemRequest->id,
+                                'model' => $itemRequest->model,
+                                'gold_color' => $itemRequest->gold_color
+                            ]);
+                        }
+                    }
                 } elseif ($action === 'reject') {
                     // Move to warehouse table
                     $warehouseData = $itemRequest->toArray();

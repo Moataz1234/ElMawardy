@@ -210,13 +210,21 @@ class GoldItemController extends Controller
 
                         // Check if talab is false and update for_production table
                         if (!$requestData['talab']) {
-                            $productionOrder = \App\Models\ForProduction::where('model', $itemData['model'])->first();
+                            $productionOrder = \App\Models\ForProduction::where('model', $itemData['model'])
+                                ->where('gold_color', $shopData['gold_color'])
+                                ->first();
                             if ($productionOrder && $productionOrder->not_finished > 0) {
                                 $productionOrder->decrement('not_finished', $itemData['quantity']);
                                 Log::info('Updated production order', [
                                     'model' => $itemData['model'],
+                                    'gold_color' => $shopData['gold_color'],
                                     'decreased_by' => $itemData['quantity'],
                                     'remaining_not_finished' => $productionOrder->fresh()->not_finished
+                                ]);
+                            } else {
+                                Log::info('No matching production order found or already completed', [
+                                    'model' => $itemData['model'],
+                                    'gold_color' => $shopData['gold_color']
                                 ]);
                             }
                         }
