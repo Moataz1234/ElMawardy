@@ -636,16 +636,44 @@
                                 Stars
                                 <div class="data-text">{{ $data['stars'] }}</div>
                             </div>
-                            <div style="display: flex; flex-direction: row; gap: 10px; width: 100%;">
+                                                        <div style="display: flex; flex-direction: {{ $isPdf ? 'row' : 'row' }}; gap: 10px; width: 100%;">
                             <div class="info-box" style="width: 50%;">
                                At Workshop
                                 <div class="data-text">{{ $data['workshop_data']['not_finished'] }}</div>
+                                
                             </div>
                             <div class="info-box" style="width: 50%;">
                                 Order Date
                                 <div class="data-text">{{ $data['workshop_data']['order_date'] }}</div>
+                                
                             </div>
                             </div>
+                            @if(count($data['existing_variants']) > 0)
+                            <div style="margin-top: 5px;">
+                                <table class="variants-table" style="font-size: 10px;">
+                                    <tr>
+                                        @foreach($data['existing_variants'] as $variant)
+                                            <th style="padding: 2px;">{{ $variant }}</th>
+                                        @endforeach
+                                    </tr>
+                                    <tr>
+                                        @foreach($data['existing_variants'] as $variant)
+                                            <td style="padding: 2px;">
+                                                @if($variant == 'A')
+                                                    <span style="color: black; font-weight: bold;">⚫</span>
+                                                @elseif($variant == 'B')
+                                                    <span style="color: #b8860b; font-weight: bold;">🟡</span>
+                                                @elseif($variant == 'C')
+                                                    <span style="color: #dc143c; font-weight: bold;">🔴</span>
+                                                @elseif($variant == 'D')
+                                                    <span style="color: #0066cc; font-weight: bold;">🔵</span>
+                                                @endif
+                                            </td>
+                                        @endforeach
+                                    </tr>
+                                </table>
+                            </div>
+                            @endif
                         </div>
                     </div>
 
@@ -694,7 +722,42 @@
                                 <th>Yellow Gold</th>
                                 <th>White Gold</th>
                                 <th>Rose Gold</th>
-                                <th>All Rests</th>
+                                <th>
+                                    All Rests
+                                    @if(count($data['existing_variants']) > 0)
+                                        <div style="font-size: 10px; margin-top: 3px; border-top: 1px solid white; padding-top: 2px;">
+                                            @php
+                                                // Create dynamic order: sold variant first, then others
+                                                $orderedVariants = [];
+                                                $soldVariant = $data['variant'] ?? null;
+                                                
+                                                // Add sold variant first if it exists
+                                                if ($soldVariant && in_array($soldVariant, $data['existing_variants'])) {
+                                                    $orderedVariants[] = $soldVariant;
+                                                }
+                                                
+                                                // Add remaining variants in A,B,C,D order
+                                                foreach(['A', 'B', 'C', 'D'] as $variant) {
+                                                    if (in_array($variant, $data['existing_variants']) && $variant !== $soldVariant) {
+                                                        $orderedVariants[] = $variant;
+                                                    }
+                                                }
+                                            @endphp
+                                            
+                                            @foreach($orderedVariants as $variant)
+                                                @if($variant == 'A')
+                                                    <span style="color: white; font-weight: bold; margin: 0 2px;">A⚫</span>
+                                                @elseif($variant == 'B')
+                                                    <span style="color: #FFD700; font-weight: bold; margin: 0 2px;">B🟡</span>
+                                                @elseif($variant == 'C')
+                                                    <span style="color: #FFB6C1; font-weight: bold; margin: 0 2px;">C🔴</span>
+                                                @elseif($variant == 'D')
+                                                    <span style="color: #87CEEB; font-weight: bold; margin: 0 2px;">D🔵</span>
+                                                @endif
+                                            @endforeach
+                                        </div>
+                                    @endif
+                                </th>
                             </tr>
                             @foreach ($data['shops_data'] as $shop => $counts)
                                 <tr>
@@ -712,15 +775,29 @@
                                         {{ $counts['rose_gold'] }}
                                     </td>
                                     <td>
-                                        {{-- All Rests column: Show total count for base models, then variant counts --}}
+                                        {{-- All Rests column: Show total count for base models, then variant counts in dynamic order --}}
+                                        @php
+                                            // Use the same dynamic ordering as the header
+                                            $orderedVariants = [];
+                                            $soldVariant = $data['variant'] ?? null;
+                                            
+                                            // Add sold variant first if it exists
+                                            if ($soldVariant && in_array($soldVariant, $data['existing_variants'])) {
+                                                $orderedVariants[] = $soldVariant;
+                                            }
+                                            
+                                            // Add remaining variants in A,B,C,D order
+                                            foreach(['A', 'B', 'C', 'D'] as $variant) {
+                                                if (in_array($variant, $data['existing_variants']) && $variant !== $soldVariant) {
+                                                    $orderedVariants[] = $variant;
+                                                }
+                                            }
+                                        @endphp
+                                        
                                         @if(isset($data['variant']) && $data['variant'])
-                                            {{-- For variant models, show sold variant first --}}
-                                            <span class="variant-{{ $data['variant'] }}">{{ $counts['variant_' . $data['variant']] }}</span>
-                                            {{-- Then show other variants --}}
-                                            @foreach($data['existing_variants'] as $variantLetter)
-                                                @if($variantLetter != $data['variant'])
-                                                    <span class="variant-{{ $variantLetter }}">{{ $counts['variant_' . $variantLetter] }}</span>
-                                                @endif
+                                            {{-- For variant models, show variants in dynamic order --}}
+                                            @foreach($orderedVariants as $variantLetter)
+                                                <span class="variant-{{ $variantLetter }}">{{ $counts['variant_' . $variantLetter] }}</span>
                                             @endforeach
                                         @else
                                             {{-- For base models, show base model total first --}}
@@ -730,8 +807,8 @@
                                             @if($baseModelCount > 0)
                                                 <span class="main-model">{{ $baseModelCount }}</span>
                                             @endif
-                                            {{-- Then show all existing variants --}}
-                                            @foreach($data['existing_variants'] as $variantLetter)
+                                            {{-- Then show variants in dynamic order --}}
+                                            @foreach($orderedVariants as $variantLetter)
                                                 <span class="variant-{{ $variantLetter }}">{{ $counts['variant_' . $variantLetter] }}</span>
                                             @endforeach
                                             {{-- If no base model count and no variants, show the total --}}

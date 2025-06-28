@@ -16,7 +16,7 @@ class Talabat extends BaseModel
         'scanned_image',
         'stars',
         'source',
-        // 'first_production',
+        'first_production',
         'semi_or_no',
         'average_of_stones'
     ];

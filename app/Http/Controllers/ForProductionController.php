@@ -15,10 +15,81 @@ class ForProductionController extends Controller
     /**
      * Display a listing of the production orders.
      */
-    public function index()
+    public function index(Request $request)
     {
-        $productionOrders = ForProduction::orderBy('order_date', 'desc')->paginate(15);
-        return view('admin.production.index', compact('productionOrders'));
+        $query = ForProduction::query();
+        
+        // Search functionality
+        if ($request->filled('search')) {
+            $searchTerm = $request->get('search');
+            $query->where('model', 'LIKE', "%{$searchTerm}%");
+        }
+        
+        // Filter by gold color
+        if ($request->filled('gold_color')) {
+            $query->where('gold_color', $request->get('gold_color'));
+        }
+        
+        // Filter by progress status
+        if ($request->filled('progress_status')) {
+            $progressStatus = $request->get('progress_status');
+            switch ($progressStatus) {
+                case 'completed':
+                    $query->whereColumn('not_finished', '=', 0);
+                    break;
+                case 'in_progress':
+                    $query->where('not_finished', '>', 0)
+                          ->whereColumn('not_finished', '<', 'quantity');
+                    break;
+                case 'not_started':
+                    $query->whereColumn('not_finished', '=', 'quantity');
+                    break;
+            }
+        }
+        
+        // Date range filter
+        if ($request->filled('date_from')) {
+            $query->whereDate('order_date', '>=', $request->get('date_from'));
+        }
+        
+        if ($request->filled('date_to')) {
+            $query->whereDate('order_date', '<=', $request->get('date_to'));
+        }
+        
+        // Sorting
+        $sortBy = $request->get('sort_by', 'order_date');
+        $sortOrder = $request->get('sort_order', 'desc');
+        $query->orderBy($sortBy, $sortOrder);
+        
+        // Group by model for display (but still paginate individual records)
+        $productionOrders = $query->paginate(15)->appends($request->query());
+        
+        // Get unique gold colors for filter dropdown
+        $goldColors = ForProduction::distinct('gold_color')
+            ->pluck('gold_color')
+            ->filter()
+            ->sort()
+            ->values();
+        
+        // Group orders by model for the grouped view
+        $groupedOrders = ForProduction::select('model')
+            ->selectRaw('COUNT(*) as total_orders')
+            ->selectRaw('SUM(quantity) as total_quantity')
+            ->selectRaw('SUM(not_finished) as total_not_finished')
+            ->selectRaw('GROUP_CONCAT(DISTINCT gold_color) as gold_colors')
+            ->selectRaw('MIN(order_date) as earliest_date')
+            ->selectRaw('MAX(order_date) as latest_date')
+            ->when($request->filled('search'), function($q) use ($request) {
+                $q->where('model', 'LIKE', "%{$request->get('search')}%");
+            })
+            ->when($request->filled('gold_color'), function($q) use ($request) {
+                $q->where('gold_color', $request->get('gold_color'));
+            })
+            ->groupBy('model')
+            ->orderBy('model')
+            ->get();
+        
+        return view('admin.production.index', compact('productionOrders', 'goldColors', 'groupedOrders'));
     }
 
     /**
@@ -374,6 +445,44 @@ class ForProductionController extends Controller
         } catch (\Exception $e) {
             return now()->format('Y-m-d');
         }
+    }
+
+    /**
+     * Get detailed orders for a specific model (AJAX endpoint for expandable details).
+     */
+    public function getModelDetails(Request $request)
+    {
+        $model = $request->query('model');
+        
+        if (!$model) {
+            return response()->json(['error' => 'Model parameter is required'], 400);
+        }
+        
+        $orders = ForProduction::where('model', $model)
+            ->orderBy('order_date', 'desc')
+            ->get()
+            ->map(function ($order) {
+                return [
+                    'id' => $order->id,
+                    'quantity' => $order->quantity,
+                    'not_finished' => $order->not_finished,
+                    'gold_color' => $order->gold_color,
+                    'order_date' => $order->order_date->format('d-m-Y'),
+                    'progress_percentage' => $order->quantity > 0 
+                        ? round((($order->quantity - $order->not_finished) / $order->quantity) * 100, 2)
+                        : 0,
+                    'completed' => $order->quantity - $order->not_finished
+                ];
+            });
+        
+        return response()->json([
+            'model' => $model,
+            'orders' => $orders,
+            'total_orders' => $orders->count(),
+            'total_quantity' => $orders->sum('quantity'),
+            'total_not_finished' => $orders->sum('not_finished'),
+            'total_completed' => $orders->sum('completed')
+        ]);
     }
 }
 
