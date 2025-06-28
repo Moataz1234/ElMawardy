@@ -161,4 +161,5 @@ Route::middleware(['auth', 'admin'])->group(function () {
     Route::post('/production/import', [ForProductionController::class, 'import'])->name('production.import');
     Route::get('/production/template', [ForProductionController::class, 'downloadTemplate'])->name('production.template');
     Route::get('/production/status', [ForProductionController::class, 'getModelStatus'])->name('production.status');
+    Route::get('/production/model-details', [ForProductionController::class, 'getModelDetails'])->name('production.model-details');
 }); 

@@ -7,6 +7,7 @@ use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 use App\Models\GoldItemSold;
 use App\Models\Models;
+use App\Models\Talabat;
 use App\Models\Customer;
 use App\Models\GoldItem;
 use App\Services\GoldItemSoldService;
@@ -136,26 +137,40 @@ class GoldItemSoldController extends Controller
             $baseModel = $hasVariant ? $matches[1] : $model;
             $variant = $hasVariant ? $matches[2] : null;
             
-            // Get model info based on exact model match first, then fallback to base model
+            // Search Models table first, then Talabat table if not found
             $modelInfo = Models::where('model', $model)->first();
-    
+            $talabatInfo = null;
+            
+            // If not found in Models table, search in Talabat table
+            if (!$modelInfo) {
+                $talabatInfo = Talabat::where('model', $model)->first();
+            }
+            
             // If no model info found and this is a variant, try the base model
-            if (!$modelInfo && $hasVariant) {
+            if (!$modelInfo && !$talabatInfo && $hasVariant) {
                 $modelInfo = Models::where('model', $baseModel)->first();
+                // If still not found in Models, try Talabat with base model
+                if (!$modelInfo) {
+                    $talabatInfo = Talabat::where('model', $baseModel)->first();
+                }
             }
         
-            // Ensure we get correct source and stars
-            $source = null;
-            $stars = null;
-            
+            // Determine source, stars, and image_path - use Models first, then Talabat, then item data
             if ($modelInfo) {
-                // Use model info from database if available
                 $source = $modelInfo->source;
                 $stars = $modelInfo->stars;
+                $imagePath = $modelInfo->scanned_image;
+                $firstProduction = $modelInfo->first_production ?: 'Old';
+            } elseif ($talabatInfo) {
+                $source = $talabatInfo->source;
+                $stars = $talabatInfo->stars;
+                $imagePath = $talabatInfo->scanned_image;
+                $firstProduction = 'Old'; // For Talabat models, always set as 'Old'
             } else {
-                // Otherwise use sold item data
                 $source = $items->first()->source;
                 $stars = $items->first()->stars;
+                $imagePath = null;
+                $firstProduction = 'Old';
             }
         
             // Get workshop data from for_production table
@@ -251,28 +266,28 @@ class GoldItemSoldController extends Controller
             ];
             
     
-            // Get source and stars from model info if available, otherwise fallback to item data
-            $source = $modelInfo ? $modelInfo->source : $items->first()->source;
-            $stars = $modelInfo ? $modelInfo->stars : $items->first()->stars;
-    
             $reportsData[$model] = [
                 'workshop_count' => $items->where('shop_name', 'Workshop')->count(),
                 'order_date' => $date,
                 'gold_color' => $items->first()->gold_color,
                 'source' => $source,
                 'stars' => $stars,
-                'image_path' => $modelInfo ? $modelInfo->scanned_image : null,
+                'image_path' => $imagePath,
                 'model' => $model,
                 'base_model' => $baseModel,
                 'variant' => $variant,
                 'variant_color' => $variant ? $variantColors[$variant] : null,
                 'existing_variants' => $existingVariants,
                 'remaining' => GoldItem::where('model', $model)->count(),
+                // Add detailed remaining counts by gold color for variant models
+                'remaining_details' => $variant ? [
+                    'white' => GoldItem::where('model', $model)->where('gold_color', 'White')->count(),
+                    'yellow' => GoldItem::where('model', $model)->where('gold_color', 'Yellow')->count(),
+                    'rose' => GoldItem::where('model', $model)->where('gold_color', 'Rose')->count(),
+                ] : null,
                 'total_production' => GoldItem::where('model', $model)->count() + GoldItemSold::where('model', $model)->count(),
                 'total_sold' => GoldItemSold::where('model', $model)->count(),
-                'first_production' => $modelInfo && $modelInfo->first_production 
-                    ? $modelInfo->first_production 
-                    : 'Old',
+                'first_production' => $firstProduction,
                 'shop' => $items->pluck('shop_name')->unique()->implode(' / '),
                 'pieces_sold_today' => $items->count(),
                 'shops_data' => $this->getShopDistribution($model, $baseModel),
@@ -330,11 +345,17 @@ class GoldItemSoldController extends Controller
             $baseModel = preg_replace('/-[A-D]$/', '', $model);
         }
         
+        // Check if current model is a variant
+        $isVariant = preg_match('/(.*)-([A-D])$/', $model);
+        
         $shopDistribution = [];
         
         foreach ($shops as $shop) {
-            // Get the base model items ONLY (not variants)
+            // Get the base model items
             $baseItems = GoldItem::where('model', $baseModel)->where('shop_name', $shop)->get();
+            
+            // Get current variant model items (if it's a variant)
+            $currentVariantItems = $isVariant ? GoldItem::where('model', $model)->where('shop_name', $shop)->get() : collect();
             
             // Get variant items for all variants (for counting only)
             $variantAItems = GoldItem::where('model', $baseModel . '-A')->where('shop_name', $shop)->get();
@@ -342,10 +363,13 @@ class GoldItemSoldController extends Controller
             $variantCItems = GoldItem::where('model', $baseModel . '-C')->where('shop_name', $shop)->get();
             $variantDItems = GoldItem::where('model', $baseModel . '-D')->where('shop_name', $shop)->get();
             
-            // Calculate gold color counts ONLY from base model
-            $whiteGold = $baseItems->where('gold_color', 'White')->count();
-            $yellowGold = $baseItems->where('gold_color', 'Yellow')->count();
-            $roseGold = $baseItems->where('gold_color', 'Rose')->count();
+            // Calculate gold color counts - include both base model AND current variant model if applicable
+            $whiteGold = $baseItems->where('gold_color', 'White')->count() + 
+                        $currentVariantItems->where('gold_color', 'White')->count();
+            $yellowGold = $baseItems->where('gold_color', 'Yellow')->count() + 
+                         $currentVariantItems->where('gold_color', 'Yellow')->count();
+            $roseGold = $baseItems->where('gold_color', 'Rose')->count() + 
+                       $currentVariantItems->where('gold_color', 'Rose')->count();
             
             // Get variant counts by character (for All Rests column only)
             $variantA = $variantAItems->count();
@@ -368,7 +392,9 @@ class GoldItemSoldController extends Controller
             ];
             
             // For all_rests: base model total (sum of all gold colors) + all variants
-            $baseModelTotal = $whiteGold + $yellowGold + $roseGold;
+            $baseModelTotal = $baseItems->where('gold_color', 'White')->count() + 
+                             $baseItems->where('gold_color', 'Yellow')->count() + 
+                             $baseItems->where('gold_color', 'Rose')->count();
             $shopData['all_rests'] = $baseModelTotal + $variantA + $variantB + $variantC + $variantD;
             
             // Store in distribution data
