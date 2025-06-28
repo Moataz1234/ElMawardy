@@ -68,8 +68,8 @@
         .info-box {
             background-color: #6A6458;
             color: white;
-            padding: 10px;
-            margin-bottom: 10px;
+            padding: 8px;
+            margin-bottom: 8px;
             border-radius: 5px;
             text-align: center;
         }
@@ -77,8 +77,8 @@
         .data-text {
             background-color: white;
             color: #333;
-            padding: 5px;
-            margin-top: 5px;
+            padding: 3px;
+            margin-top: 3px;
             font-weight: bold;
         }
 
@@ -221,12 +221,12 @@
                 page-break-before: always;
                 page-break-after: always;
                 page-break-inside: avoid;
-                width: 90% !important;
-                max-width: 90% !important;
-                max-height: 90vh !important;
+                width: 95% !important;
+                max-width: 95% !important;
+                max-height: 95vh !important;
                 margin: 0 auto !important;
-                padding: 10px !important;
-                font-size: 12px;
+                padding: 5px !important;
+                font-size: 10px !important;
             }
 
             .report-container:first-child {
@@ -260,6 +260,56 @@
             .image-section img {
                 max-width: 250px !important;
                 max-height: 200px !important;
+            }
+
+            /* Force workshop info to stay in same row for PDF - using float */
+            .workshop-row {
+                width: 100% !important;
+                margin-bottom: 5px !important;
+                overflow: hidden !important; /* Clear floats */
+            }
+
+            .workshop-box {
+                float: left !important;
+                width: 48% !important;
+                margin-right: 2% !important;
+                vertical-align: top !important;
+                font-size: 11px !important;
+            }
+
+            .workshop-box:last-child {
+                margin-right: 0 !important;
+            }
+
+            /* Compact info boxes for PDF */
+            .info-box {
+                padding: 4px !important;
+                margin-bottom: 4px !important;
+                font-size: 11px !important;
+            }
+
+            .data-text {
+                padding: 2px !important;
+                margin-top: 2px !important;
+                font-size: 10px !important;
+            }
+
+            /* Reduce overall spacing in PDF */
+            .header-section {
+                margin-bottom: 5px !important;
+            }
+
+            .table-section {
+                margin-top: 10px !important;
+            }
+
+            table {
+                margin-bottom: 8px !important;
+                font-size: 10px !important;
+            }
+
+            th, td {
+                padding: 3px !important;
             }
         }
 
@@ -594,34 +644,6 @@
                             @else
                                 <p>No Image Available</p>
                             @endif
-                            
-                            {{-- Variants Color Table --}}
-                            @if(count($data['existing_variants']) > 0)
-                            <div>
-                                <table class="variants-table">
-                                    <tr>
-                                        @foreach($data['existing_variants'] as $variant)
-                                            <th>{{ $variant }}</th>
-                                        @endforeach
-                                    </tr>
-                                    <tr>
-                                        @foreach($data['existing_variants'] as $variant)
-                                            <td>
-                                                @if($variant == 'A')
-                                                    <span style="color: black; font-weight: bold;">⚫</span>
-                                                @elseif($variant == 'B')
-                                                    <span style="color: #b8860b; font-weight: bold;">🟡</span>
-                                                @elseif($variant == 'C')
-                                                    <span style="color: #dc143c; font-weight: bold;">🔴</span>
-                                                @elseif($variant == 'D')
-                                                    <span style="color: #0066cc; font-weight: bold;">🔵</span>
-                                                @endif
-                                            </td>
-                                        @endforeach
-                                    </tr>
-                                </table>
-                            </div>
-                            @endif
                         </div>
                         <div class="info-section">
                             <div class="info-box">
@@ -636,44 +658,17 @@
                                 Stars
                                 <div class="data-text">{{ $data['stars'] }}</div>
                             </div>
-                                                        <div style="display: flex; flex-direction: {{ $isPdf ? 'row' : 'row' }}; gap: 10px; width: 100%;">
-                            <div class="info-box" style="width: 50%;">
+                            <div class="workshop-row" style="display: flex; flex-direction: row; gap: 10px; width: 100%;">
+                            <div class="info-box workshop-box" style="width: 50%;">
                                At Workshop
                                 <div class="data-text">{{ $data['workshop_data']['not_finished'] }}</div>
-                                
                             </div>
-                            <div class="info-box" style="width: 50%;">
+                            <div class="info-box workshop-box" style="width: 50%;">
                                 Order Date
                                 <div class="data-text">{{ $data['workshop_data']['order_date'] }}</div>
-                                
                             </div>
                             </div>
-                            @if(count($data['existing_variants']) > 0)
-                            <div style="margin-top: 5px;">
-                                <table class="variants-table" style="font-size: 10px;">
-                                    <tr>
-                                        @foreach($data['existing_variants'] as $variant)
-                                            <th style="padding: 2px;">{{ $variant }}</th>
-                                        @endforeach
-                                    </tr>
-                                    <tr>
-                                        @foreach($data['existing_variants'] as $variant)
-                                            <td style="padding: 2px;">
-                                                @if($variant == 'A')
-                                                    <span style="color: black; font-weight: bold;">⚫</span>
-                                                @elseif($variant == 'B')
-                                                    <span style="color: #b8860b; font-weight: bold;">🟡</span>
-                                                @elseif($variant == 'C')
-                                                    <span style="color: #dc143c; font-weight: bold;">🔴</span>
-                                                @elseif($variant == 'D')
-                                                    <span style="color: #0066cc; font-weight: bold;">🔵</span>
-                                                @endif
-                                            </td>
-                                        @endforeach
-                                    </tr>
-                                </table>
-                            </div>
-                            @endif
+                          
                         </div>
                     </div>
 
@@ -725,7 +720,7 @@
                                 <th>
                                     All Rests
                                     @if(count($data['existing_variants']) > 0)
-                                        <div style="font-size: 10px; margin-top: 3px; border-top: 1px solid white; padding-top: 2px;">
+                                        <div style="font-size: 14px; margin-top: 3px; border-top: 1px solid white; padding-top: 2px;">
                                             @php
                                                 // Create dynamic order: sold variant first, then others
                                                 $orderedVariants = [];
@@ -746,13 +741,13 @@
                                             
                                             @foreach($orderedVariants as $variant)
                                                 @if($variant == 'A')
-                                                    <span style="color: white; font-weight: bold; margin: 0 2px;">A⚫</span>
+                                                    <span style="color: white; font-weight: bold; margin: 0 3px; font-size: 16px;">A⚫</span>
                                                 @elseif($variant == 'B')
-                                                    <span style="color: #FFD700; font-weight: bold; margin: 0 2px;">B🟡</span>
+                                                    <span style="color: #FFD700; font-weight: bold; margin: 0 3px; font-size: 16px;">B🟡</span>
                                                 @elseif($variant == 'C')
-                                                    <span style="color: #FFB6C1; font-weight: bold; margin: 0 2px;">C🔴</span>
+                                                    <span style="color: #FFB6C1; font-weight: bold; margin: 0 3px; font-size: 16px;">C🔴</span>
                                                 @elseif($variant == 'D')
-                                                    <span style="color: #87CEEB; font-weight: bold; margin: 0 2px;">D🔵</span>
+                                                    <span style="color: #87CEEB; font-weight: bold; margin: 0 3px; font-size: 16px;">D🔵</span>
                                                 @endif
                                             @endforeach
                                         </div>
