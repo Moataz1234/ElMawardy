@@ -65,17 +65,16 @@ class GoldPriceController extends Controller
         $channel = 'gold_price'; // ntfy topic/channel
 
         // Format the message
-                $message = <<<TEXT
-        Gold prices updated:
-        - Gold Buy: {$goldPrice->gold_buy}
-        - Gold Sell: {$goldPrice->gold_sell}
-        - Gold With Work: {$goldPrice->gold_with_work}
-        - Percent: {$goldPrice->percent}
-        - Dollar Price: {$goldPrice->dollar_price}
-        - Gold In Diamond: {$goldPrice->gold_in_diamond}
-        - Shoghl Ajnaby: {$goldPrice->shoghl_agnaby}
-        - Elashfoor: {$goldPrice->elashfoor}
-        TEXT;
+        
+    $message = "Gold prices updated:\n"
+    . "- Gold Buy: {$goldPrice->gold_buy}\n"
+    . "- Gold Sell: {$goldPrice->gold_sell}\n"
+    . "- Gold With Work: {$goldPrice->gold_with_work}\n"
+    . "- Percent: {$goldPrice->percent}\n"
+    . "- Dollar Price: {$goldPrice->dollar_price}\n"
+    . "- Gold In Diamond: {$goldPrice->gold_in_diamond}\n"
+    . "- Shoghl Ajnaby: {$goldPrice->shoghl_agnaby}\n"
+    . "- Elashfoor: {$goldPrice->elashfoor}";
 
         try {
             Http::withHeaders([
