@@ -1,10 +1,9 @@
 <?php
 // app/Http/Controllers/GoldPriceController.php
 namespace App\Http\Controllers\Admin;
-
-
 use App\Http\Controllers\Controller;
-
+use Illuminate\Support\Facades\Http;
+use Illuminate\Support\Facades\Log;
 use Illuminate\Http\Request;
 use App\Models\GoldPrice;
 
@@ -52,8 +51,39 @@ class GoldPriceController extends Controller
             'elashfoor' => 'required|numeric',
         ]);
 
-        GoldPrice::create($request->all());
+
+        // 2. Save new gold prices
+        $goldPrice = GoldPrice::create($request->all());
+
+        // 3. Send ntfy notification
+        $this->sendGoldPriceNotification($goldPrice);
 
         return redirect()->route('gold_prices.create')->with('success', 'Gold prices updated successfully.');
+    }
+    private function sendGoldPriceNotification(GoldPrice $goldPrice)
+    {
+        $channel = 'gold_price'; // ntfy topic/channel
+
+        // Format the message
+                $message = <<<TEXT
+        Gold prices updated:
+        - Gold Buy: {$goldPrice->gold_buy}
+        - Gold Sell: {$goldPrice->gold_sell}
+        - Gold With Work: {$goldPrice->gold_with_work}
+        - Percent: {$goldPrice->percent}
+        - Dollar Price: {$goldPrice->dollar_price}
+        - Gold In Diamond: {$goldPrice->gold_in_diamond}
+        - Shoghl Ajnaby: {$goldPrice->shoghl_agnaby}
+        - Elashfoor: {$goldPrice->elashfoor}
+        TEXT;
+
+        try {
+            Http::withHeaders([
+                'Title' => 'Gold Price Update',
+                'Priority' => 'high'
+            ])->post(env('NTFY_URL') . '/' . $channel, $message);
+        } catch (\Exception $e) {
+            Log::error('Failed to send gold price notification: ' . $e->getMessage());
+        }
     }
 }
