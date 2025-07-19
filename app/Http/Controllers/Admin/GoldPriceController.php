@@ -80,7 +80,9 @@ class GoldPriceController extends Controller
             Http::withHeaders([
                 'Title' => 'Gold Price Update',
                 'Priority' => 'high'
-            ])->post(env('NTFY_URL') . '/' . $channel, $message);
+            ])->withBody($message, 'text/plain') // <--- Send raw text
+            ->post(env('NTFY_URL') . '/' . $channel);
+            
         } catch (\Exception $e) {
             Log::error('Failed to send gold price notification: ' . $e->getMessage());
         }
