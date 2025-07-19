@@ -69,12 +69,12 @@ class GoldPriceController extends Controller
     $message = "Gold prices updated:\n"
     . "- Gold Buy: {$goldPrice->gold_buy}\n"
     . "- Gold Sell: {$goldPrice->gold_sell}\n"
-    . "- Gold With Work: {$goldPrice->gold_with_work}\n"
+    . "- Gold With Work (***): {$goldPrice->gold_with_work}\n"
     . "- Percent: {$goldPrice->percent}\n"
     . "- Dollar Price: {$goldPrice->dollar_price}\n"
     . "- Gold In Diamond: {$goldPrice->gold_in_diamond}\n"
-    . "- Shoghl Ajnaby: {$goldPrice->shoghl_agnaby}\n"
-    . "- Elashfoor: {$goldPrice->elashfoor}";
+    . "- Shoghl Ajnaby (**): {$goldPrice->shoghl_agnaby}\n"
+    . "- Elashfoor(*): {$goldPrice->elashfoor}";
 
         try {
             Http::withHeaders([
