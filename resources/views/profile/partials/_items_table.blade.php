@@ -6,6 +6,11 @@
     <title>Gold Inventory</title>
     {{-- <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/css/bootstrap.min.css"> --}}
     <link href="{{ asset('css/Gold/shops_inventory.css') }}" rel="stylesheet">
+    <style>
+        #refreshSelectionButton:hover #refreshIcon {
+            transform: rotate(360deg);
+        }
+    </style>
    
 </head>
 <body>
@@ -25,6 +30,14 @@
                 <div class="button-container">
                     <button id="sellItemsButton" class="btn btn-primary">بيع</button>
                     <button id="transferItemsButton" class="btn btn-danger">تحويل</button>
+                    <button id="refreshSelectionButton" class="btn btn-outline-info mx-2" data-toggle="tooltip" title="تحديث التحديدات" style="display: flex; align-items: center; gap: 4px;">
+                        {{-- <svg id="refreshIcon" xmlns="http://www.w3.org/2000/svg" width="20" height="20" fill="currentColor" class="bi bi-arrow-clockwise" viewBox="0 0 16 16" style="transition: transform 0.3s;">
+                            <path fill-rule="evenodd" d="M8 3a5 5 0 1 1-4.546 2.914.5.5 0 1 1 .908-.418A4 4 0 1 0 8 8V1.001a.5.5 0 0 1 1 0z"/>
+                            <path fill-rule="evenodd" d="M7.293 1.5a1 1 0 0 1 1.414 0l6.647 6.646a.5.5 0 0 1-.708.708L1 2.207A.5.5 0 0 1 1.707 1.5z"/>
+                        </svg> --}}
+                        <span>تحديث</span>
+                    </button>
+                    
                     {{-- <button id="workshopButton" class="btn btn-warning">Workshop</button> --}}
                 </div>
                 <table class="table table-striped table-hover">
@@ -144,7 +157,7 @@
                     e.preventDefault();
 
                     const modelName = this.dataset.model;
-
+                    
                     // Update modal title
                     document.getElementById('modelDetailsModalLabel').innerText =
                         `Items with Model: ${modelName}`;
@@ -257,6 +270,23 @@
                         window.location.reload();
                     }
                 });
+            });
+
+            // Add refresh button handler
+            document.getElementById('refreshSelectionButton').addEventListener('click', function() {
+                // Uncheck all checkboxes
+                document.querySelectorAll('.select-item').forEach(function(checkbox) {
+                    checkbox.checked = false;
+                });
+                // Set localStorage selection to empty array
+                localStorage.setItem('selectedItems', JSON.stringify([]));
+                // Clear hidden input fields if they exist
+                var sellInput = document.getElementById('selectedIdsForSell');
+                if (sellInput) sellInput.value = '';
+                var transferInput = document.getElementById('selectedIdsForTransfer');
+                if (transferInput) transferInput.value = '';
+                // Refresh the page
+                location.reload();
             });
 
             // Add workshop button handler
