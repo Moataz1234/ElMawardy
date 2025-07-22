@@ -179,7 +179,7 @@ class OrderController extends Controller
         $orders = $query->orderBy($sort, $direction)->paginate(20); // Paginate the results
 
         // Pass the orders and any other required data to the view
-        return view('Shops.orders.index', compact('orders'));
+        return view('shops.orders.index', compact('orders'));
     }
     public function showCompletedOrders()
     {

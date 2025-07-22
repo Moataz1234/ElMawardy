@@ -126,7 +126,7 @@ class DidItemsController extends Controller
         $allShops = $allShopNames;
         $noRequestsFound = $requests->total() === 0;
 
-        return view('Shops.workshop_requests', compact('requests', 'allShops', 'noRequestsFound', 'shopName'));
+        return view('shops.workshop_requests', compact('requests', 'allShops', 'noRequestsFound', 'shopName'));
     }
 
     /**

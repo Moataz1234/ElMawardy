@@ -19,7 +19,7 @@ class GoldCatalogController extends Controller
     $goldItems = $this->goldItemService->getShopItems($request);
 
 
-    return view('Admin.Gold.Catalog',  $goldItems);
+    return view('admin.Gold.Catalog',  $goldItems);
 }
 
     public function FourView()

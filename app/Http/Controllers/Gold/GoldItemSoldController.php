@@ -40,7 +40,7 @@ class GoldItemSoldController extends Controller
         $gold_color = GoldItemSold::distinct()->pluck('gold_color')->filter();
         $kind = GoldItemSold::distinct()->pluck('kind')->filter();
 
-        return view('Shops.Gold.sold_index', [
+        return view('shops.Gold.sold_index', [
             'goldItems' => $goldItems,
             'goldPounds' => $goldPounds,
             'search' => $request->input('search'),
@@ -310,7 +310,7 @@ class GoldItemSoldController extends Controller
         
         // Return the view for HTML display
         if ($request->has('export') && $request->input('export') === 'pdf') {
-            $pdf = PDF::loadView('Admin.Reports.view', [
+                $pdf = PDF::loadView('admin.Reports.view', [
                 'reportsData' => $reportsData,
                 'selectedDate' => $date,
                 'totalItemsSold' => $totalItemsSold,
@@ -322,7 +322,7 @@ class GoldItemSoldController extends Controller
         }
     
         // Return the view for HTML display
-        return view('Admin.Reports.view', [
+        return view('admin.Reports.view', [
             'reportsData' => $reportsData,
             'selectedDate' => $date,
             'totalItemsSold' => $totalItemsSold,

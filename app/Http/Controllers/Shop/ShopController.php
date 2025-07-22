@@ -18,24 +18,26 @@ use Illuminate\Support\Facades\Log;
 use Illuminate\Support\Facades\DB;
 use App\Http\Requests\SellRequest;
 use App\Http\Requests\TransferRequest;
-
+use App\Services\NtfyService;
 class ShopController extends Controller
 {
     private GoldItemService $goldItemService;
     private SellService $saleService;
     private TransferService $transferService;
     private OuterService $outerService;
-
+    private NtfyService $ntfyService;
     public function __construct(
         GoldItemService $goldItemService,
         SellService $saleService,
         TransferService $transferService,
-        OuterService $outerService
+        OuterService $outerService,
+        NtfyService $ntfyService
     ) {
         $this->goldItemService = $goldItemService;
         $this->saleService = $saleService;
         $this->transferService = $transferService;
         $this->outerService = $outerService;
+        $this->ntfyService = $ntfyService;
     }
 
     public function showShopItems(Request $request)
@@ -56,7 +58,7 @@ class ShopController extends Controller
     public function edit(string $id)
     {
         $data = $this->goldItemService->getEditFormData($id);
-        return view('Shops.Gold.sell_form', $data);
+        return view('shops.Gold.sell_form', $data);
     }
 
     public function storeOuter(Request $request)
@@ -76,7 +78,7 @@ class ShopController extends Controller
         $result = $this->outerService->toggleOuterStatus($serialNumber);
 
         if ($result['redirect']) {
-            return view('Shops.Gold.outerform', ['serial_number' => $serialNumber]);
+            return view('shops.Gold.outerform', ['serial_number' => $serialNumber]);
         }
 
         return redirect()->back()->with($result['status'], $result['message']);
@@ -112,7 +114,7 @@ class ShopController extends Controller
 
         $result = $this->saleService->processBulkSale($validated);
         session()->flash('clear_selections', true);
-        
+        // $this->ntfyService->soldItem($result['data']);
         return response()->json([
             'success' => true,
             'message' => 'Selected items sold successfully',
